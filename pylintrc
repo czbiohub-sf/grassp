@@ -1,0 +1,10 @@
+[MASTER]
+
+# disable all conventions, refactors, warnings (C, R, W) and the following:
+# E0401: unable-to-import (since it is possible that no one environment has all required packages)
+# E1136: unsubscriptable-object (anecdotal false positives for numpy objects)
+disable=C,R,W,unsubscriptable-object,import-error
+
+msg-template='{line},{column},{category},{symbol}:{msg}'
+
+reports=n

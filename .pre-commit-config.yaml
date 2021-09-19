@@ -1,0 +1,24 @@
+exclude: ^(client|legacy|doc|data|notebooks|ignore)/
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+    -   id: flake8
+        args: [--statistics]
+
+-   repo: https://github.com/psf/black
+    rev: 21.8b0
+    hooks:
+    -   id: black
+        entry: black
+        # black-specific exclusion rules defined in pyproject.toml are ignored by pre-commit,
+        # so they must be duplicated here
+        exclude: ''
+
+-   repo: https://github.com/pycqa/isort
+    rev: 5.9.3
+    hooks:
+    -   id: isort
