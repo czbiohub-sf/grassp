@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 
+from pathlib import Path
 import setuptools
+
+requirements_file = Path(__file__).parent.parent / 'requirements.txt'
+with requirements_file.open('r') as fh:
+    requirement_lines = fh.readlines()
+
+dev_requirements_file = Path(__file__).parent.parent / 'requirements-dev.txt'
+with dev_requirements_file.open('r') as fh:
+    dev_requirement_lines = fh.readlines()
 
 setuptools.setup(
     name='package_name',
@@ -13,5 +22,9 @@ setuptools.setup(
         'console_scripts': [
             'cmd = package_name.cli.some_cli_module:main',
         ]
+    },
+    install_requires=requirement_lines,
+    extras_require={
+       'dev': dev_requirement_lines
     }
 )
