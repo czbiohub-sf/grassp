@@ -3,11 +3,11 @@
 from pathlib import Path
 import setuptools
 
-requirements_file = Path(__file__).parent.parent / 'requirements.txt'
+requirements_file = Path(__file__).parent / 'requirements.txt'
 with requirements_file.open('r') as fh:
     requirement_lines = fh.readlines()
 
-dev_requirements_file = Path(__file__).parent.parent / 'requirements-dev.txt'
+dev_requirements_file = Path(__file__).parent / 'requirements-dev.txt'
 with dev_requirements_file.open('r') as fh:
     dev_requirement_lines = fh.readlines()
 
