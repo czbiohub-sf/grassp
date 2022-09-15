@@ -12,7 +12,7 @@ with dev_requirements_file.open('r') as fh:
     dev_requirement_lines = fh.readlines()
 
 setuptools.setup(
-    name='package_name',
+    name='some_package',
     description='Package description',
     url='https://github.com/org_name/repo_name',
     packages=setuptools.find_packages(),
@@ -20,7 +20,7 @@ setuptools.setup(
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'cmd = package_name.cli.some_cli_module:main',
+            'some-cli = some_package.cli.some_cli:main',
         ]
     },
     install_requires=requirement_lines,
