@@ -1,15 +1,110 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+xsbuild-backend = "setuptools.build_meta"
+
+[project]
+name =  "some_package"
+description = "Example Python package repo"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.7"
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10"
+]
+
+# list dependencies here
+dependencies = [
+    "numpy",
+    "pandas",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black~=22.3.0",
+    "flake8~=3.7.9",
+    "isort~=5.10.1",
+    "pre-commit~=2.19.0",
+    "pylint~=2.14.5",
+    "pytest~=5.3.4",
+]
+
+[project.scripts]
+some-cli = "some_package.cli.some_cli:main"
+
+[project.urls]
+homepage = "https://github.com/czbiohub/some-package"
+documentation = "https://github.com/czbiohub/some-package"
+repository = "https://github.com/czbiohub/some-package"
+
+
+[tool.setuptools]
+include-package-metadata = true
+packages = ["some_package"]
+
+# TODO: what do these mean?
+dynamic = ["version"]
+zip-safe = false
+
+
 [tool.black]
 line-length = 95
-target-version = ['py36', 'py37', 'py38']
+target-version = ['py38', 'py38', 'py39', 'py310']
 include = '\.pyi?$'
 skip-string-normalization = true
-extend-exclude = '^/(deploy|docs|ignore|legacy|notebooks)'
+exclude = '''
+(
+  /(
+      \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | build
+    | dist
+    | notebooks
+    | ignore
+  )/
+  | some/specific/module.py
+)
+'''
 
 [tool.isort]
 profile = "black"
 line_length = 95
-default_section = "THIRDPARTY"
-ensure_newline_before_comments = true
-no_lines_before = ["STDLIB",]
 lines_between_types = 1
+default_section = "THIRDPARTY"
+no_lines_before = ["STDLIB",]
+ensure_newline_before_comments = true
+
+[tool.mypy]
+show_error_codes = true
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_any_unimported = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+
+[tool.pylint]
+# disable all conventions, refactors, warnings (C, R, W) and the following:
+# E0401: unable-to-import (since it is possible that no one environment has all required packages)
+# E1136: unsubscriptable-object (anecdotal false positives for numpy objects)
+disable = ["C", "R", "W", "unsubscriptable-object", "import-error"]
+msg-template = "{line},{column},{category},{symbol}:{msg}"
+reports = "n"
+
+[tool.pytest.ini_options]
+log_cli = false
 
