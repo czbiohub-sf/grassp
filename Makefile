@@ -1,12 +1,33 @@
-init:
-	pip install -r requirements.txt
+PACKAGE_NAME := some_package
 
+.PHONY: setup-develop
+setup-develop:
+	pip install -e .'[dev]'
+	pre-commit install
+
+.PHONY: uninstall
+uninstall:
+	pip uninstall -y $(PACKAGE_NAME)
+
+.PHONY: lint
 lint:
-	flake8 ./ --count --statistics --exit-zero
-	python -m pylint ./
+	flake8 . --count --statistics --exit-zero
+	black --check .
+	python -m pylint $(PACKAGE_NAME)
 
+.PHONY: pre-commit
 pre-commit:
 	pre-commit run --all-files
 
+.PHONY: typecheck
+typecheck:
+	mypy $(PACKAGE_NAME)
+
+# run mypy as a daemon (much faster)
+.PHONY: typecheck-d
+typecheck-d:
+	dmypy run -- $(PACKAGE_NAME)
+
+.PHONY: test
 test:
 	pytest -v

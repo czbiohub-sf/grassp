@@ -34,6 +34,9 @@ dev = [
     "isort~=5.10",
     "pre-commit~=2.19",
     "pylint~=2.14",
+    "mypy==0.99*"
+]
+test = [
     "pytest~=7.1",
 ]
 notebook = [
