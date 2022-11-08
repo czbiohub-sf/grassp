@@ -1,4 +1,3 @@
-
 import argparse
 
 from some_package.some_subpackage import some_module
@@ -22,9 +21,10 @@ def parse_args(argv):
 
 def main(argv=None):
     '''
-    A demo CLI interface that calls the method `some_package.some_subpackage.some_module.some_method`
-    It has a required --sample-id argument and an optional --verbose flag.
+    A demo CLI interface that calls the method
+    `some_package.some_subpackage.some_module.some_method`
 
+    It has a required --sample-id argument and an optional --verbose flag.
     The command-line alias 'some-cli' is defined in setup.py to point to this method.
 
     Example usage:
@@ -48,9 +48,9 @@ def main(argv=None):
 
     if args.verbose:
         print('Processing sample %s' % args.sample_id)
-        
+
     some_module.some_method(args.sample_id)
-    
+
     if args.verbose:
         print('Finished processing sample %s' % args.sample_id)
 
