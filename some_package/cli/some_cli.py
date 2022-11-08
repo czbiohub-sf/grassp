@@ -1,9 +1,11 @@
 import argparse
 
+from typing import Optional
+
 from some_package.some_subpackage import some_module
 
 
-def parse_args(argv):
+def parse_args(argv: Optional[str] = None) -> argparse.Namespace:
 
     parser = argparse.ArgumentParser()
 
@@ -15,11 +17,11 @@ def parse_args(argv):
         '--verbose', dest='verbose', action='store_true', required=False, default=False
     )
 
-    args = parser.parse_args(argv.split(' ') if argv else None)
+    args = parser.parse_args(argv.split(' ') if argv is not None else None)
     return args
 
 
-def main(argv=None):
+def main(argv: Optional[str] = None) -> None:
     '''
     A demo CLI interface that calls the method
     `some_package.some_subpackage.some_module.some_method`
