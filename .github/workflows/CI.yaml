@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install the package
-      run: pip install -e .'[test]'
+      run: pip install -e .'[dev,test]'
 
     - name: Run formatting/linting
       run:  make lint

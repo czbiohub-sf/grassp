@@ -1,3 +1,8 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+xsbuild-backend = "setuptools.build_meta"
+
+
 [project]
 name =  "some_package"
 description = "Example Python package repo"
@@ -34,7 +39,7 @@ dev = [
     "isort~=5.10",
     "pre-commit~=2.19",
     "pylint~=2.14",
-    "mypy==0.99*"
+    "mypy==0.990"
 ]
 test = [
     "pytest~=7.1",
@@ -53,11 +58,6 @@ some-cli = "some_package.cli.some_cli:main"
 homepage = "https://github.com/czbiohub/some-package"
 documentation = "https://github.com/czbiohub/some-package"
 repository = "https://github.com/czbiohub/some-package"
-
-
-[build-system]
-requires = ["setuptools", "setuptools-scm"]
-xsbuild-backend = "setuptools.build_meta"
 
 
 [tool.setuptools]
