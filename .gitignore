@@ -120,3 +120,4 @@ ENV/
 
 # mypy
 .mypy_cache/
+.dmypy.json

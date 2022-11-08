@@ -1,10 +1,11 @@
-
 import argparse
+
+from typing import Optional
 
 from some_package.some_subpackage import some_module
 
 
-def parse_args(argv):
+def parse_args(argv: Optional[str] = None) -> argparse.Namespace:
 
     parser = argparse.ArgumentParser()
 
@@ -16,15 +17,16 @@ def parse_args(argv):
         '--verbose', dest='verbose', action='store_true', required=False, default=False
     )
 
-    args = parser.parse_args(argv.split(' ') if argv else None)
+    args = parser.parse_args(argv.split(' ') if argv is not None else None)
     return args
 
 
-def main(argv=None):
+def main(argv: Optional[str] = None) -> None:
     '''
-    A demo CLI interface that calls the method `some_package.some_subpackage.some_module.some_method`
-    It has a required --sample-id argument and an optional --verbose flag.
+    A demo CLI interface that calls the method
+    `some_package.some_subpackage.some_module.some_method`
 
+    It has a required --sample-id argument and an optional --verbose flag.
     The command-line alias 'some-cli' is defined in setup.py to point to this method.
 
     Example usage:
@@ -48,9 +50,9 @@ def main(argv=None):
 
     if args.verbose:
         print('Processing sample %s' % args.sample_id)
-        
+
     some_module.some_method(args.sample_id)
-    
+
     if args.verbose:
         print('Finished processing sample %s' % args.sample_id)
 
