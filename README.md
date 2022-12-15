@@ -34,6 +34,8 @@ pip install -e .'[dev]'
 
 9.  Optionally, disable static type checking (see [below](#static-type-checking) for details).
 
+10. Update the `AUTHORS` file as appropriate (this is especially important for projects that will become public, as this file is referred to in the `LICENSE`).
+
 
 ## Features and design decisions
 ### Defining package and project metadata
@@ -71,8 +73,8 @@ This template is configured to use `pytest` for running tests. Please refer to t
 ### Makefile
 This template includes a makefile with a few basic development-related commands to install the package in editable mode and run linting, typechecking, and testing. These commands may be useful as-is but can of course be modified to accomodate per-project constraints. They also serve to document how the developer tools (black, flake8, pylint, mypy, pre-commit) are intended to be used.
 
-### Biohub software license
-This template includes the open-source BSD-based software license under which all Biohub software projects should be released.
+### Software license
+Biohub software projects should be licensed under the standard 3-clause BSD license. A copy of this license is included in this repo. Please be sure to update the `AUTHORS` file as appropriate, as this file is referred to by the license.
 
 ## Features *not* included in this template
 This template omits, or is agnostic to, several elements of the software development lifecycle that are important for some Python packages, depending on their purpose and scope. Most prominently, it does not include any build or release tooling and it does not specify a virtual-environment manager (e.g., `conda`, `mamba`, `poetry`). It also does not include tooling to calculate/track test coverage.
