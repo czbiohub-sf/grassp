@@ -19,15 +19,6 @@ lint:
 pre-commit:
 	pre-commit run --all-files
 
-.PHONY: typecheck
-typecheck:
-	mypy $(PACKAGE_NAME)
-
-# run mypy as a daemon (much faster)
-.PHONY: typecheck-d
-typecheck-d:
-	dmypy run -- $(PACKAGE_NAME)
-
 .PHONY: test
 test:
 	pytest -v

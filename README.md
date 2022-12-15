@@ -64,17 +64,14 @@ If any of the hooks fail, the commit itself is rejected (but the changes remain 
 
 Note that pre-commit hooks are only a first line of defense; more elaborate checks and testing should be run automatically when a PR is opened or modified (see the 'Testing and CI' section below) and it is a good practice to require that a PR must pass CI before it can be merged.
 
-### Static type checking
-This template supports the use of [`mypy`](http://mypy-lang.org/) for static type checking. Suggested settings for `mypy` are defined in `pyproject.toml` and the `Makefile` includes a command to run `mypy` in daemon mode (which is recommended, as it is much faster). However, static type checking is not always necessary or useful, and the decision to use it is a judgement call that depends on the scope and purpose of each new project. For this reason, `mypy` is not configured as a pre-commit hook and it can easily be dropped from the CI workflow by commenting out the typechecking section of the CI config (see below).
-
 ### Testing and CI
 This template is configured to use `pytest` for running tests. Please refer to the [pytest docs](https://docs.pytest.org/en/7.2.x/) for details about how to define tests and test fixtures. A basic CI workflow that is run using GitHub actions is defined in `.github/workflows/CI.yaml` and includes both the pre-commit hooks discussed above, static type checking, and testing with pytest. Tests can also be run locally using `make test`.
 
 ### Makefile
-This template includes a makefile with a few basic development-related commands to install the package in editable mode and run linting, typechecking, and testing. These commands may be useful as-is but can of course be modified to accomodate per-project constraints. They also serve to document how the developer tools (black, flake8, pylint, mypy, pre-commit) are intended to be used.
+This template includes a makefile with a few basic development-related commands to install the package in editable mode, run the linters, and run tests. These commands may be useful as-is but can of course be modified to accomodate per-project constraints. They also serve to document how the developer tools (black, flake8, pylint, pre-commit) are intended to be used.
 
 ### Software license
 Biohub software projects should be licensed under the standard 3-clause BSD license. A copy of this license is included in this repo. Please be sure to update the `AUTHORS` file as appropriate, as this file is referred to by the license.
 
 ## Features *not* included in this template
-This template omits, or is agnostic to, several elements of the software development lifecycle that are important for some Python packages, depending on their purpose and scope. Most prominently, it does not include any build or release tooling and it does not specify a virtual-environment manager (e.g., `conda`, `mamba`, `poetry`). It also does not include tooling to calculate/track test coverage.
+This template omits, or is agnostic to, several common aspects of software development that are important for some Python packages, depending on their purpose and scope. Most prominently, it does not include any build or release tooling and it does not specify a virtual-environment manager (e.g., `conda`, `mamba`, `venv`, etc). It also does not use static type checking (e.g., `mypy`) and it does not include tooling to calculate/track test coverage (e.g., `pytest-cov`).

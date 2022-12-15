@@ -27,8 +27,5 @@ jobs:
     - name: Run formatting/linting
       run:  make lint
 
-    - name: Typecheck
-      run:  make typecheck
-
     - name: Run tests
       run: make test
