@@ -13,6 +13,7 @@ client/dist/
 .vscode/
 *.code-workspace
 .DS_Store
+.obsidian
 
 # node-related
 *.tgz
