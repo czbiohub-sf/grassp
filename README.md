@@ -1,6 +1,30 @@
 # Biohub Python project template
 This repo contains a template for starting new Python projects at the Biohub. It adheres to various best practices for organizing and configuring Python packages and also includes the developer tooling and test infrastructure that have become de facto standards within the open-source Python community. See the [Features](#Features) section below for details.
 
+## Organization
+The structure of this repo is illustrated below.
+```
+├── some_package                  # top-level python package directory
+│   ├── __init__.py
+│   ├── conftest.py               # pytest configuration and test fixtures
+│   ├── cli
+│   │   ├── __init__.py
+│   │   └── some_cli.py           # example CLI module (defined as an entrypoint in pyproject.toml)
+│   ├── some_subpackage           # an example subpackage
+│   │   ├── __init__.py
+│   │   └── some_module.py        # an example submodule
+│   └── tests                     # tests as a subpackage of the main package
+│       ├── __init__.py
+│       └── test_placeholder.py
+├── LICENSE
+├── MANIFEST.in
+├── Makefile
+├── README.md
+├── pyproject.toml   # all project metadata and configs for dev and build tools
+├── setup.cfg        # flake8 config (flake8 does not support pyproject.toml)
+└── setup.py         # shim to enable editable pip installs
+```
+
 ## Usage
 To use this template as the basis of a new Python project, follow the steps below.
 
@@ -16,7 +40,7 @@ git clone git@github.com/czbiohub:python-package-template my-new-project
 git remote set-url origin git@github.com:czbiohub/my-new-project
 ```
 
-4. Change the package name by changing the name of the `some_package` subdirectory and the project name in `pyproject.toml`. By convention, package names are identical to project/repo names but with dashes replaced by underscores; for example, `my-new-project` would contain a Python package called `my_new_project`. (Of course, for complex projects with multiple packages, this rule breaks down).
+4. Change the package name by changing the name of the `some_package` directory *and* the project name in `pyproject.toml`. By convention, package names are identical to project/repo names but with dashes replaced by underscores; for example, `my-new-project` would contain a Python package called `my_new_project`. (Of course, for complex projects with multiple packages, this guideline breaks down).
 
 5. Update all project-specific metadata in `pyproject.toml` (including the package description, authors, classifiers, dependencies, URLs, CLI entrypoints, etc).
 
