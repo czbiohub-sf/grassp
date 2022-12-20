@@ -56,9 +56,15 @@ pip install -e .'[dev]'
 
 8. Remove or rename the example CLI and example subpackage.
 
-9.  Optionally, disable static type checking (see [below](#static-type-checking) for details).
+9. Update the `AUTHORS` file as appropriate (this is especially important for projects that will become public, as this file is referred to in the `LICENSE`).
 
-10. Update the `AUTHORS` file as appropriate (this is especially important for projects that will become public, as this file is referred to in the `LICENSE`).
+10. Once you are ready to build a release you can install build dependencies, make a build, and publish on PyPI with:
+```sh
+make setup-build
+make build
+make publish
+```
+Note that the final publishing step requires authentication with an account on [pypi.org](https://pypi.org/).
 
 
 ## Features and design decisions
@@ -98,4 +104,8 @@ This template includes a makefile with a few basic development-related commands 
 Biohub software projects should be licensed under the standard 3-clause BSD license. A copy of this license is included in this repo. Please be sure to update the `AUTHORS` file as appropriate, as this file is referred to by the license.
 
 ## Features *not* included in this template
-This template omits, or is agnostic to, several common aspects of software development that are important for some Python packages, depending on their purpose and scope. Most prominently, it does not include any build or release tooling and it does not specify a virtual-environment manager (e.g., `conda`, `mamba`, `venv`, etc). It also does not use static type checking (e.g., `mypy`) and it does not include tooling to calculate/track test coverage (e.g., `pytest-cov`).
+This template omits, or is agnostic to, several common aspects of software development
+that are important for some Python packages, depending on their purpose and scope. Most
+prominently, it does not specify a virtual-environment manager (e.g., `conda`, `mamba`,
+`venv`, etc). It also does not use static type checking (e.g., `mypy`) and it does not
+include tooling to calculate/track test coverage (e.g., `pytest-cov`).

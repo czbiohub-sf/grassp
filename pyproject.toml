@@ -1,7 +1,9 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-xsbuild-backend = "setuptools.build_meta"
-
+requires = [
+  "setuptools >= 42",
+  "wheel",
+  "setuptools_scm[toml]>=3.4"
+]
 
 [project]
 name =  "some_package"
@@ -39,13 +41,15 @@ dev = [
     "isort~=5.10",
     "pre-commit~=2.19",
     "pylint~=2.14",
-]
-test = [
     "pytest~=7.1",
 ]
 notebook = [
     "jupyterlab",
     "matplotlib",
+]
+build = [
+    "twine",
+    "build",
 ]
 
 

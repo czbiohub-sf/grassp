@@ -22,3 +22,15 @@ pre-commit:
 .PHONY: test
 test:
 	pytest -v
+
+.PHONY: setup-build
+setup-build:
+	pip install -e .'[build]'
+
+.PHONY: build
+build:
+	python -m build
+
+.PHONY: publish
+publish:
+	twine upload dist/*
