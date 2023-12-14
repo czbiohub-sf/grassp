@@ -32,12 +32,12 @@ To use this template as the basis of a new Python project, follow the steps belo
 
 2. Clone this repo into a directory named after your new project:
 ```sh
-git clone git@github.com/czbiohub:python-package-template my-new-project
+git clone git@github.com/czbiohub-sf:python-package-template.git my-new-project
 ```
 
 3. Update the URL of the remote repo to point to your new repository:
 ```sh
-git remote set-url origin git@github.com:czbiohub/my-new-project
+git remote set-url origin git@github.com:czbiohub-sf/my-new-project
 ```
 
 4. Change the package name by changing the name of the `some_package` directory *and* the project name in `pyproject.toml`. By convention, package names are identical to project/repo names but with dashes replaced by underscores; for example, `my-new-project` would contain a Python package called `my_new_project`. (Of course, for complex projects with multiple packages, this guideline breaks down).
