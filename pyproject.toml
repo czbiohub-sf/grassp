@@ -6,8 +6,8 @@ requires = [
 ]
 
 [project]
-name =  "some_package"
-description = "Example Python package repo"
+name =  "orgipy"
+description = "A python package to facilitate Organellar profiling"
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.7, <4.0"
@@ -29,7 +29,9 @@ classifiers = [
 dependencies = [
     "numpy",
     "pandas",
-    "requests",
+    "scanpy[leiden]",
+    "alphastats"
+
 ]
 
 
@@ -66,7 +68,7 @@ repository = "https://github.com/czbiohub/some-package"
 [tool.setuptools]
 # explicitly specify the package name
 # TODO: is there a better way to do this?
-packages = ["some_package"]
+packages = ["orgipy"]
 
 # allow use of __file__ to load data files included in the package
 zip-safe = false
