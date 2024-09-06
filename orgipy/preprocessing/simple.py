@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import List
 
+import numpy as np
 import scanpy
 
 from anndata import AnnData
@@ -24,4 +25,11 @@ def remove_contaminants(data: AnnData, filter_columns: List[str] | None = None) 
 def filter_proteins_per_replicate(
     data: AnnData, grouping_columns: List[str], min_samples: int = 1
 ):
+    groups = data.obs.groupby(grouping_columns)
+    gene_subset = np.repeat(True, repeats=data.n_vars)
+    for _, g in groups:
+        ad_sub = data[g.index, :]
+        gs, _ = filter_proteins(ad_sub, min_cells=min_samples, inplace=False)
+        gene_subset = gene_subset & gs
+    data = data[:, gene_subset]
     return data
