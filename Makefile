@@ -1,4 +1,4 @@
-PACKAGE_NAME := some_package
+PACKAGE_NAME := orgipy
 
 .PHONY: setup-develop
 setup-develop:
