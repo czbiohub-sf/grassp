@@ -23,13 +23,21 @@ def remove_contaminants(data: AnnData, filter_columns: List[str] | None = None) 
 
 
 def filter_proteins_per_replicate(
-    data: AnnData, grouping_columns: List[str], min_samples: int = 1
+    data: AnnData,
+    grouping_columns: str | List[str],
+    min_replicates: int = 1,
+    min_samples: int = 1,
+    inplace: bool = True,
 ):
     groups = data.obs.groupby(grouping_columns)
-    gene_subset = np.repeat(True, repeats=data.n_vars)
+    gene_subset = np.repeat(0, repeats=data.n_vars)
     for _, g in groups:
+        # print(_)
         ad_sub = data[g.index, :]
-        gs, _ = filter_proteins(ad_sub, min_cells=min_samples, inplace=False)
-        gene_subset = gene_subset & gs
-    data = data[:, gene_subset]
-    return data
+        gs, _ = filter_proteins(ad_sub, min_cells=min_replicates, inplace=False)
+        gene_subset = gene_subset + gs
+    gene_subset = gene_subset >= min_samples
+    if inplace:
+        data = data[:, gene_subset]
+        return data
+    return gene_subset
