@@ -2,9 +2,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import List
+    from typing import Callable, List, Optional
+
+    import numpy as np
+
+    # Define a type hint for functions that take an ndarray and an optional axis argument
+    NDArrayAxisFunction = Callable[[np.ndarray, Optional[int]], np.ndarray]
 
 import numpy as np
+import pandas as pd
 import scanpy
 
 from anndata import AnnData
@@ -41,3 +47,27 @@ def filter_proteins_per_replicate(
         data = data[:, gene_subset]
         return data
     return gene_subset
+
+
+def aggregate_replicates(
+    data: AnnData, grouping_columns: str | List[str], agg_func: NDArrayAxisFunction = np.median
+):
+    groups = data.obs.groupby(grouping_columns)
+    X_list = []
+    obs_list = []
+    # Determine obs columns to keep
+    g = groups.get_group(list(groups.groups)[0])
+    unique_col_indices = g.nunique() == 1
+
+    for _, ind in groups.indices.items():
+        g = data.obs.iloc[ind]
+        obs_sub = g.loc[g.index[[0]], unique_col_indices]
+        obs_sub["n_merged_replicates"] = ind.size
+        X_sub = data.X[ind, :]
+        X_sub = agg_func(X_sub, axis=0)
+        X_list.append(X_sub)
+        obs_list.append(obs_sub)
+    obs = pd.concat(obs_list, axis=0)
+    X = np.vstack(X_list)
+    retdata = AnnData(X=X, obs=obs, var=data.var)
+    return retdata
