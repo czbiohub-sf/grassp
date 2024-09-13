@@ -69,5 +69,29 @@ def aggregate_replicates(
         obs_list.append(obs_sub)
     obs = pd.concat(obs_list, axis=0)
     X = np.vstack(X_list)
-    retdata = AnnData(X=X, obs=obs, var=data.var)
+    retdata = AnnData(X=X, obs=obs, var=data.var, uns=data.uns, varp=data.varp, varm=data.varm)
+    return retdata
+
+
+def aggregate_proteins(
+    data: AnnData, grouping_columns: str | List[str], agg_func: NDArrayAxisFunction = np.median
+):
+    groups = data.var.groupby(grouping_columns)
+    X_list = []
+    var_list = []
+    # Determine obs columns to keep
+    g = groups.get_group(list(groups.groups)[0])
+    unique_col_indices = g.nunique() == 1
+
+    for _, ind in groups.indices.items():
+        g = data.var.iloc[ind]
+        var_sub = g.loc[g.index[[0]], unique_col_indices]
+        var_sub["n_merged_proteins"] = ind.size
+        X_sub = data.X[:, ind]
+        X_sub = agg_func(X_sub, axis=1)
+        X_list.append(X_sub)
+        var_list.append(var_sub)
+    var = pd.concat(var_list, axis=0)
+    X = np.vstack(X_list).T
+    retdata = AnnData(X=X, obs=data.obs, var=var, uns=data.uns, obsp=data.obsp, obsm=data.obsm)
     return retdata
