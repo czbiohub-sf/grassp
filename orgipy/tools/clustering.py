@@ -98,3 +98,70 @@ def get_n_nearest_neighbors(G, node: str, order: int = 1, n: int = 10):
         all_neighbors.update(current_neighbors)
         i += 1
     return all_neighbors
+
+
+def _modified_jaccard_coeff(
+    row: pd.Series,
+    organelle_counts: pd.Series,
+    norm_degrees_to_def_top_partites: bool = True,
+    min_partite_deg: int = 3,
+):
+    if norm_degrees_to_def_top_partites:
+        counts = row
+        counts[counts < min_partite_deg] = 0
+        counts_norm = counts / organelle_counts[counts.index]
+        counts_norm = counts_norm.sort_values(ascending=False)
+        counts = counts[counts_norm.index]
+        nl = counts.iloc[:2].replace(0, np.nan)
+    else:
+        nl = row.nlargest(2)
+
+    d1, d2 = nl.values
+    k1, k2 = nl.index
+    # p_second_largest = organelle_counts[k2] / organelle_counts.sum()
+    # p_interfacial = -scipy.stats.binom.logsf(d2-1, d1+d2, p_second_largest)
+    jaccard = (d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
+    # d1overd2 = d2/d1#(d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
+    return jaccard, d1, d2, k1, k2
+
+
+def calculate_interfacialness_score(
+    data: AnnData,
+    compartment_annotation_column: str,
+    neighbors_key: str | None = None,
+    obsp: str | None = None,
+    exclude_category: str | List[str] | None = None,
+) -> AnnData:
+
+    if compartment_annotation_column not in data.obs.columns:
+        raise ValueError(
+            f"Compartment annotation column {compartment_annotation_column} not found in .obs"
+        )
+
+    # Get full protein x protein matrix filled with annotations
+    df = _get_knn_annotation_df(
+        data, compartment_annotation_column, exclude_category=exclude_category
+    )
+    # Mask non-neighbors with np.nan
+    adjacency = sc._utils._choose_graph(data, obsp, neighbors_key=neighbors_key)
+    mask = ~(adjacency != 0).todense()  # This avoids expensive conn == 0 for sparse matrices
+    df[mask] = np.nan
+    vc = df.apply(lambda x: x.value_counts(dropna=True), axis=1).fillna(0).astype('Int64')
+
+    # For each protein, calculate the modified jaccard coefficient
+    organelle_counts = data.obs[compartment_annotation_column].value_counts()
+    res = vc.apply(
+        _modified_jaccard_coeff,
+        axis=1,
+        result_type='expand',
+        organelle_counts=organelle_counts,
+    )
+    res.columns = ["jaccard_score", "jaccard_d1", "jaccard_d2", "jaccard_k1", "jaccard_k2"]
+    res["jaccard_d2"].replace(np.nan, 0, inplace=True)  # nans come from zero counts
+    res["jaccard_score"].replace(np.nan, 0, inplace=True)  # nans come from zero counts
+
+    # Annotate the data with the interfacialness scores
+    res.index = data.obs.index
+    data.obs = pd.concat([data.obs, res], axis=1)
+
+    return data
