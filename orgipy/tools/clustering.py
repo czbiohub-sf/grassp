@@ -11,19 +11,32 @@ import pandas as pd
 import scanpy as sc
 
 
+def _get_knn_annotation_df(
+    data: AnnData, obs_ann_col: str, exclude_category: str | List[str] | None = None
+) -> pd.DataFrame:
+    """
+    Get a dataframe with a column of .obs repeated for each protein.
+    """
+    nrow = data.obs.shape[0]
+    obs_ann = data.obs[obs_ann_col]
+    if isinstance(exclude_category, str):
+        exclude_category = [exclude_category]
+    if exclude_category is not None:
+        obs_ann.replace(exclude_category, np.nan, inplace=True)
+
+    df = pd.DataFrame(np.tile(obs_ann, (nrow, 1)))
+    return df
+
+
 def knn_annotation(
     data: AnnData,
-    orig_ann_col: str,
+    obs_ann_col: str,
     key_added: str = "consensus_graph_annotation",
     exclude_category: str | List[str] | None = None,
 ) -> AnnData:
-    nrow = data.obs.shape[0]
-    orig_ann = data.obs[orig_ann_col]
-    if isinstance(exclude_category, str):
-        exclude_category = [exclude_category]
-    orig_ann.replace(exclude_category, np.nan, inplace=True)
 
-    df = pd.DataFrame(np.tile(orig_ann, (nrow, 1)))
+    df = _get_knn_annotation_df(data, obs_ann_col, exclude_category)
+
     conn = data.obsp['distances']
     mask = ~(conn != 0).todense()  # This avoids expensive conn == 0 for sparse matrices
     df[mask] = np.nan
