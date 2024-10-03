@@ -4,4 +4,5 @@ from .clustering import (
     knn_annotation,
     to_knn_graph,
 )
-from .enrichment import rank_proteins_groups
+from .enrichment import calculate_cluster_enrichment, rank_proteins_groups
+from .integration import aligned_umap, remodeling_score
