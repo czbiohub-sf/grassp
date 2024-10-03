@@ -45,12 +45,14 @@ def filter_proteins_per_replicate(
     gene_subset = gene_subset >= min_samples
     if inplace:
         data = data[:, gene_subset]
-        return data
+        return data.copy()
     return gene_subset
 
 
 def aggregate_replicates(
-    data: AnnData, grouping_columns: str | List[str], agg_func: NDArrayAxisFunction = np.median
+    data: AnnData,
+    grouping_columns: str | List[str],
+    agg_func: NDArrayAxisFunction = np.median,
 ):
     groups = data.obs.groupby(grouping_columns)
     X_list = []
@@ -74,7 +76,9 @@ def aggregate_replicates(
 
 
 def aggregate_proteins(
-    data: AnnData, grouping_columns: str | List[str], agg_func: NDArrayAxisFunction = np.median
+    data: AnnData,
+    grouping_columns: str | List[str],
+    agg_func: NDArrayAxisFunction = np.median,
 ):
     groups = data.var.groupby(grouping_columns)
     X_list = []
