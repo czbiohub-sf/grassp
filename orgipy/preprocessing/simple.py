@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Callable, List, Optional
+    from typing import Callable, Collection, List, Optional
 
     import numpy as np
 
@@ -19,10 +19,14 @@ filter_samples = scanpy.pp.filter_cells
 filter_proteins = scanpy.pp.filter_genes
 
 
-def remove_contaminants(data: AnnData, filter_columns: List[str] | None = None) -> AnnData:
+def remove_contaminants(
+    data: AnnData, filter_columns: List[str] | None = None, filter_value: str | None = None
+) -> AnnData:
     if filter_columns is None:
         filter_columns = data.uns["RawInfo"]["filter_columns"]
 
+    if filter_value is not None:
+        data.var[filter_columns] = data.var[filter_columns].eq(filter_value)
     is_contaminant = data.var[filter_columns].any(axis=1)
     data = data[:, ~is_contaminant]
     return data
@@ -99,3 +103,39 @@ def aggregate_proteins(
     X = np.vstack(X_list).T
     retdata = AnnData(X=X, obs=data.obs, var=var, uns=data.uns, obsp=data.obsp, obsm=data.obsm)
     return retdata
+
+
+def calculate_qc_metrics(
+    data: AnnData,
+    qc_vars: Collection[str] | str = (),
+    percent_top: Collection[int] | None = (50, 100, 200, 500),
+    layer: str | None = None,
+    use_raw: bool = False,
+    inplace: bool = False,
+    log1p: bool = True,
+    parallel: bool | None = None,
+) -> AnnData:
+
+    df = scanpy.pp.calculate_qc_metrics(
+        data,
+        expr_type='intensity',
+        var_type='proteins',
+        inplace=True,
+        layer=layer,
+        use_raw=use_raw,
+        log1p=log1p,
+        parallel=parallel,
+        percent_top=percent_top,
+        qc_vars=qc_vars,
+    )
+
+    if not inplace:
+        return df
+
+
+def highly_variable_proteins(
+    data: AnnData, inplace: bool = True, n_top_proteins: int | None = None, **kwargs
+) -> AnnData:
+    return scanpy.pp.highly_variable_genes(
+        data, inplace=inplace, n_top_genes=n_top_proteins, **kwargs
+    )
