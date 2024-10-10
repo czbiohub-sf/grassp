@@ -13,7 +13,9 @@ import pandas as pd
 
 
 def read(
-    loader: alphastats.BaseLoader, x_dtype: Union[np.dtype, type, int, float, None] = None
+    loader: alphastats.BaseLoader,
+    x_dtype: Union[np.dtype, type, int, float, None] = None,
+    proteins_as_obs: bool = False,
 ) -> anndata.AnnData:
     import alphastats
 
@@ -49,10 +51,15 @@ def read(
     adata.obs["Sample_name"] = adata.obs.index.str.replace(sample_regex, "", regex=True)
     adata.obs.set_index(keys="Sample_name", drop=False, inplace=True)
 
+    # Proteins could either be in the rows or columns
+    if proteins_as_obs:
+        adata = adata.T
+
     # Add properties of the experiment to uns
     adata.uns["RawInfo"] = {
         "software": software,
         "filter_columns": filter_columns,
         "gene_names": gene_names,
     }
+    adata.uns["proteins_as_obs"] = proteins_as_obs
     return adata

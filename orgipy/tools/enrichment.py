@@ -5,8 +5,11 @@ if TYPE_CHECKING:
     from anndata import AnnData
 
 import gseapy
+import numpy as np
 import pandas as pd
 import scanpy
+
+from scipy import cluster, spatial
 
 rank_proteins_groups = scanpy.tl.rank_genes_groups
 
@@ -56,3 +59,24 @@ def calculate_cluster_enrichment(
         if return_enrichment_res:
             return data, enrichr_results
         return data
+
+
+# Calculate pairwise distance matrix between samples
+def calculate_distance_matrix(
+    data: AnnData,
+    distance_metric: str = "correlation",
+    linkage_method: str = "average",
+    linkage_metric: str = "cosine",
+) -> pd.DataFrame:
+
+    distance_matrix = spatial.distance.pdist(data.X, metric=distance_metric)
+    linkage = cluster.hierarchy.linkage(
+        distance_matrix, method=linkage_method, metric=linkage_metric
+    )  # Hierarchical clustering
+    row_order = np.array(
+        cluster.hierarchy.dendrogram(linkage, no_plot=True, orientation='bottom')['leaves']
+    )
+
+    distance_matrix = spatial.distance.squareform(distance_matrix)
+    distance_matrix = distance_matrix[row_order, :][:, row_order]
+    distance_matrix.shape
