@@ -1,4 +1,8 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -76,3 +80,72 @@ def highly_variable_proteins(
     if show:
         return None
     return plt.gca()
+
+
+def bait_volcano_plots(
+    data: AnnData,
+    baits: List[str] | None = None,
+    sig_cutoff: float = 0.05,
+    lfc_cutoff: float = 2,
+    n_cols: int = 3,
+    base_figsize: float = 5,
+    annotate_top_n: int = 10,
+    color_by: str | None = None,
+    highlight: List[str] | None = None,
+    show: bool = False,
+):
+    if baits is None:
+        baits = data.var_names.tolist()
+    else:
+        assert set(baits).issubset(data.var_names)
+
+    n_baits = len(baits)
+    n_cols = min(n_cols, n_baits)
+    n_rows = np.ceil(n_baits / n_cols).astype(int)
+    fig, axs = plt.subplots(
+        n_rows, n_cols, figsize=(base_figsize * n_cols, base_figsize * n_rows)
+    )
+    for i, bait in enumerate(baits):
+        ax = axs.flatten()[i]
+        data_sub = data[:, bait]
+        enrichments = data_sub.X[:, 0]
+        if "pvals" not in data_sub.layers.keys():
+            raise ValueError("anndata object must contain a 'pvals' layer")
+        pvals = -np.log10(data_sub.layers["pvals"][:, 0])
+        print(pvals)
+        lim = np.abs(pvals).max()
+        ax.scatter(enrichments, pvals, c="black", s=1, marker=".")
+        ax.axhline(-np.log10(sig_cutoff), color="black", linestyle="--")
+        ax.axvline(lfc_cutoff, color="black", linestyle="--")
+        ax.axvline(-lfc_cutoff, color="black", linestyle="--")
+        mask = (np.abs(enrichments) > lfc_cutoff) & (pvals > -np.log10(sig_cutoff))
+        ax.scatter(enrichments[mask], pvals[mask], c="red", s=1, marker=".")
+        ax.set_xlim(-lim, lim)
+        ax.set_title(bait)
+        if highlight is not None:
+            hl_mask = data.obs_names.isin(highlight)
+            ax.scatter(
+                enrichments[hl_mask],
+                pvals[hl_mask],
+                c="blue",
+                s=20,
+                marker=".",
+                label="highlight",
+            )
+        if annotate_top_n > 0:
+            top_n = np.argsort(pvals)[::-1][:annotate_top_n]
+            for j in top_n:
+                ax.text(
+                    enrichments[j],
+                    pvals[j],
+                    data.obs_names[j],
+                    fontsize=8,
+                    ha="center",
+                    va="center",
+                )
+        if i % n_cols == 0:
+            ax.set_ylabel("-log10(p-value)")
+        if i >= n_baits - n_cols:
+            ax.set_xlabel("log2(fold change)")
+    if not show:
+        return axs
