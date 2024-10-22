@@ -91,20 +91,18 @@ def filter_proteins_per_replicate(
     min_replicates: int = 1,
     min_samples: int = 1,
     inplace: bool = True,
-):
+) -> np.ndarray | None:
     confirm_proteins_as_obs(data)
     groups = data.var.groupby(grouping_columns)
     protein_subset = np.repeat(0, repeats=data.n_obs)
     for _, g in groups:
-        # print(_)
         ad_sub = data[:, g.index]
         gs, _ = filter_proteins(ad_sub, min_samples=min_replicates, inplace=False)
         protein_subset = protein_subset + gs
     gene_subset = protein_subset >= min_samples
-    if inplace:
-        data = data[gene_subset, :]
-        return data.copy()
-    return gene_subset
+    if not inplace:
+        return gene_subset
+    data._inplace_subset_obs(data.obs.index[gene_subset])
 
 
 def aggregate_proteins(
@@ -175,7 +173,7 @@ def calculate_qc_metrics(
 
     confirm_proteins_as_obs(data)
     dfs = scanpy.pp.calculate_qc_metrics(
-        data.T,
+        data.copy().T,
         expr_type=expr_type,
         var_type=var_type,
         inplace=False,
@@ -190,7 +188,7 @@ def calculate_qc_metrics(
         return dfs
     var_df, obs_df = dfs
     obs_df.columns = obs_df.columns.str.replace(
-        "cells", var_type
+        "cells", "sample"
     )  # This fixes a bug in scanpy
     data.obs = pd.concat([data.obs, obs_df], axis=1)
     data.obs = data.obs.loc[:, ~data.obs.columns.duplicated(keep="last")]
@@ -229,5 +227,23 @@ def highly_variable_proteins(
         data._inplace_subset_var(df["highly_variable"])
 
 
-def pca(data: AnnData, **kwargs) -> None:
-    scanpy.pp.pca(data.T, **kwargs)
+def normalize_total(
+    data: AnnData,
+    copy: bool = False,
+    inplace: bool = True,
+    **kwargs,
+) -> AnnData | dict[str, np.ndarray] | None:
+    data = data.T.copy()
+    dat = scanpy.pp.normalize_total(
+        data.T,
+        inplace=False,
+        **kwargs,
+    )
+    if copy:
+        return data
+    elif not inplace:
+        return dat
+
+
+# def pca(data: AnnData, **kwargs) -> None:
+#     scanpy.pp.pca(data.T, **kwargs)

@@ -7,5 +7,6 @@ from .simple import (
     filter_proteins_per_replicate,
     filter_samples,
     highly_variable_proteins,
+    normalize_total,
     remove_contaminants,
 )
