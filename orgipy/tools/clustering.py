@@ -10,6 +10,58 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 
+# Find a good resolution for the leiden clustering
+# For this we use the fact that we have good ground truth labels for mitochondria
+# The following code will start with low resolution and increse it until the clustering splits mitochondria apart
+
+
+def _majority_cluster_fraction(series):
+    return series.value_counts().max() / series.value_counts().sum()
+
+
+def leiden_mito_sweep(
+    data: AnnData,
+    starting_resolution: float = 0.5,
+    resolution_increments: float = 0.5,
+    min_mito_fraction: float = 0.9,
+    increment_threshold: float = 0.005,
+    protein_ground_truth_column: str = "protein_ground_truth",
+    **leiden_kwargs,
+) -> None:
+
+    over_before = True
+    mito_majority_fraction = 1
+    data.obs["leiden"] = "0"
+    while resolution_increments > increment_threshold:
+        # Binary search for the highest resolution that is over the fraction by less than precision_threshold
+        leiden_col = data.obs["leiden"]
+        last_mito_majority_fraction = mito_majority_fraction
+        sc.tl.leiden(data, resolution=starting_resolution, **leiden_kwargs)
+        test_col = data.obs.loc[
+            data.obs[protein_ground_truth_column] == "mitochondria", "leiden"
+        ]
+        mito_majority_fraction = _majority_cluster_fraction(test_col)
+        print(f"Resolution: {starting_resolution}, Increment: {resolution_increments}")
+        print(f"Majority mito cluster fraction: {mito_majority_fraction}")
+
+        currently_over = mito_majority_fraction > min_mito_fraction
+        if over_before != currently_over:
+            resolution_increments /= 2
+        starting_resolution += (
+            resolution_increments if currently_over else -resolution_increments
+        )
+        over_before = currently_over
+
+    # Set the leiden clusters to the last resolution
+    if not currently_over:
+        data.obs["leiden"] = leiden_col
+        data.uns["leiden"]["params"]["resolution"] = (
+            starting_resolution - resolution_increments
+        )
+        data.uns["leiden"]["mito_majority_fraction"] = last_mito_majority_fraction
+    else:
+        data.uns["leiden"]["mito_majority_fraction"] = mito_majority_fraction
+
 
 def _get_knn_annotation_df(
     data: AnnData, obs_ann_col: str, exclude_category: str | List[str] | None = None
