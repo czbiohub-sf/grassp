@@ -188,7 +188,7 @@ def calculate_qc_metrics(
         return dfs
     var_df, obs_df = dfs
     obs_df.columns = obs_df.columns.str.replace(
-        "cells", "sample"
+        "cells", "samples"
     )  # This fixes a bug in scanpy
     data.obs = pd.concat([data.obs, obs_df], axis=1)
     data.obs = data.obs.loc[:, ~data.obs.columns.duplicated(keep="last")]
