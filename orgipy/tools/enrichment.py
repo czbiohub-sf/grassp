@@ -16,13 +16,13 @@ rank_proteins_groups = scanpy.tl.rank_genes_groups
 
 def calculate_cluster_enrichment(
     data: AnnData,
-    cluster_key="leiden",
-    gene_name_key="Gene_name_canonical",
-    gene_sets="custom_goterms_genes_reviewed.gmt",
-    obs_key_added="Cell_compartment",
+    cluster_key: str = "leiden",
+    gene_name_key: str = "Gene_name_canonical",
+    gene_sets: str = "custom_goterms_genes_reviewed.gmt",
+    obs_key_added: str = "Cell_compartment",
     enrichment_ranking_metric: Literal["P-value", "Odds Ratio", "Combined Score"] = "P-value",
-    return_enrichment_res=True,
-    inplace=True,
+    return_enrichment_res: bool = True,
+    inplace: bool = True,
 ):
     obs_df = data.obs
     groups = obs_df.groupby(cluster_key)
