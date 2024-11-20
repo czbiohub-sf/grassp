@@ -72,8 +72,11 @@ def filter_proteins(
 
 
 def remove_contaminants(
-    data: AnnData, filter_columns: List[str] | None = None, filter_value: str | None = None
-) -> AnnData:
+    data: AnnData,
+    filter_columns: List[str] | None = None,
+    filter_value: str | None = None,
+    inplace: bool = True,
+) -> AnnData | None:
     confirm_proteins_as_obs(data)
     if filter_columns is None:
         filter_columns = data.uns["RawInfo"]["filter_columns"]
@@ -81,8 +84,9 @@ def remove_contaminants(
     if filter_value is not None:
         data.obs[filter_columns] = data.obs[filter_columns].eq(filter_value)
     is_contaminant = data.obs[filter_columns].any(axis=1)
-    data = data[~is_contaminant, :]
-    return data
+    if not inplace:
+        return data.copy()[~is_contaminant, :]
+    data._inplace_subset_obs(data.obs.index[~is_contaminant])
 
 
 def filter_proteins_per_replicate(
@@ -190,10 +194,8 @@ def calculate_qc_metrics(
     obs_df.columns = obs_df.columns.str.replace(
         "cells", "samples"
     )  # This fixes a bug in scanpy
-    data.obs = pd.concat([data.obs, obs_df], axis=1)
-    data.obs = data.obs.loc[:, ~data.obs.columns.duplicated(keep="last")]
-    data.var = pd.concat([data.var, var_df], axis=1)
-    data.var = data.var.loc[:, ~data.var.columns.duplicated(keep="last")]
+    data.obs[obs_df.columns] = obs_df
+    data.var[var_df.columns] = var_df
 
 
 def highly_variable_proteins(
