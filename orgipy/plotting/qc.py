@@ -92,6 +92,7 @@ def bait_volcano_plots(
     annotate_top_n: int = 10,
     color_by: str | None = None,
     highlight: List[str] | None = None,
+    title: str | None = None,
     show: bool = False,
 ):
     if baits is None:
@@ -105,6 +106,8 @@ def bait_volcano_plots(
     fig, axs = plt.subplots(
         n_rows, n_cols, figsize=(base_figsize * n_cols, base_figsize * n_rows)
     )
+    if title is not None:
+        fig.suptitle(title)
     for i, bait in enumerate(baits):
         ax = axs.flatten()[i]
         data_sub = data[:, bait]
@@ -112,7 +115,6 @@ def bait_volcano_plots(
         if "pvals" not in data_sub.layers.keys():
             raise ValueError("anndata object must contain a 'pvals' layer")
         pvals = -np.log10(data_sub.layers["pvals"][:, 0])
-        print(pvals)
         lim = np.abs(pvals).max()
         ax.scatter(enrichments, pvals, c="black", s=1, marker=".")
         ax.axhline(-np.log10(sig_cutoff), color="black", linestyle="--")
