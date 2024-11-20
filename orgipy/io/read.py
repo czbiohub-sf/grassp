@@ -45,11 +45,13 @@ def read(
     X = df.loc[:, intensity_col_mask]
     obs = pd.DataFrame(index=X.columns)
     var.set_index(index_column, inplace=True)
+    var.index = var.index.astype(str)
     adata = anndata.AnnData(X=X.to_numpy(dtype=x_dtype).T, var=var, obs=obs)
     adata.obs["Intensity_col"] = adata.obs.index
     sample_regex = re.compile(intensity_column.replace("[sample]", ""))
     adata.obs["Sample_name"] = adata.obs.index.str.replace(sample_regex, "", regex=True)
     adata.obs.set_index(keys="Sample_name", drop=False, inplace=True)
+    obs.index = obs.index.astype(str)
 
     # Proteins could either be in the rows or columns
     if proteins_as_obs:
