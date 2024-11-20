@@ -3,6 +3,7 @@ from .simple import (
     aggregate_proteins,
     aggregate_samples,
     calculate_qc_metrics,
+    drop_excess_MQ_metadata,
     filter_proteins,
     filter_proteins_per_replicate,
     filter_samples,

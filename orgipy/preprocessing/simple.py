@@ -245,5 +245,18 @@ def normalize_total(
         return dat
 
 
+def drop_excess_MQ_metadata(
+    data: AnnData,
+    colname_regex: str = "Peptide|peptide|MS/MS|Evidence IDs|Taxonomy|Oxidation|Intensity|Identification type|Sequence coverage|MS/MS count",
+    inplace: bool = True,
+) -> AnnData | None:
+    obs = data.obs
+    drop_mask = obs.columns.str.contains(colname_regex, regex=True)
+    obs = obs.loc[:, ~drop_mask]
+    if not inplace:
+        return obs
+    data.obs = obs
+
+
 # def pca(data: AnnData, **kwargs) -> None:
 #     scanpy.pp.pca(data.T, **kwargs)
