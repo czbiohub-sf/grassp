@@ -40,6 +40,8 @@ def aligned_umap(
     # Make sure all anndata objects have the same var_names and obs_names
     if align_data:
         data_sub_list = align_adatas(data_list)
+    else:
+        data_sub_list = data_list
 
     assert reduce(lambda x, y: x.var_names == y.var_names, data_sub_list).all()
     assert reduce(lambda x, y: x.obs_names == y.obs_names, data_sub_list).all()
