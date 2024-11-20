@@ -30,8 +30,13 @@ dependencies = [
     "numpy",
     "pandas",
     "scanpy[leiden]",
-    "alphastats"
-
+    "alphastats",
+    "anndata",
+    "scipy",
+    "networkx",
+    "scikit-learn",
+    "matplotlib",
+    "umap-learn",
 ]
 
 
