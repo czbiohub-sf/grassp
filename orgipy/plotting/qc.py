@@ -96,7 +96,7 @@ def bait_volcano_plots(
     show: bool = False,
 ):
     if baits is None:
-        baits = data.var_names.tolist()
+        baits = list(data.var_names)
     else:
         assert set(baits).issubset(data.var_names)
 
