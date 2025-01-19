@@ -37,6 +37,8 @@ dependencies = [
     "scikit-learn",
     "matplotlib",
     "umap-learn",
+    "pysankeybeta",
+    "gseapy",
 ]
 
 
