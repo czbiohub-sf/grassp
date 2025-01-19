@@ -6,7 +6,7 @@ requires = [
 ]
 
 [project]
-name =  "orgipy"
+name =  "grassp"
 description = "A python package to facilitate Organellar profiling"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -74,7 +74,7 @@ repository = "https://github.com/czbiohub/some-package"
 [tool.setuptools]
 # explicitly specify the package name
 # TODO: is there a better way to do this?
-packages = ["orgipy"]
+packages = ["grassp"]
 
 # allow use of __file__ to load data files included in the package
 zip-safe = false

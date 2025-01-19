@@ -1,4 +1,4 @@
-PACKAGE_NAME := orgipy
+PACKAGE_NAME := grassp
 
 .PHONY: setup-develop
 setup-develop:
