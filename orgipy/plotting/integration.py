@@ -70,6 +70,7 @@ def aligned_umap(
     data: AnnData,
     data2: AnnData,
     highlight_hits: List[str] | np.ndarray[bool, Any] | None = None,
+    highlight_annotation_col: str | None = None,
     aligned_umap_key: str = "X_aligned_umap",
     data1_label: str = "data1",
     data2_label: str = "data2",
@@ -124,7 +125,7 @@ def aligned_umap(
         embedding1_hits = embedding1[highlight_hits]
         embedding2_hits = embedding2[highlight_hits]
         # Plot trajectory lines
-        for start, end in zip(embedding1_hits, embedding2_hits):
+        for i, (start, end) in enumerate(zip(embedding1_hits, embedding2_hits)):
             # Draw line
             ax.plot(
                 [start[0], end[0]],
@@ -134,8 +135,20 @@ def aligned_umap(
                 alpha=0.5,
             )
             # Draw marker at the end point
-        for start, end in zip(embedding1_hits, embedding2_hits):
             ax.scatter(start[0], start[1], color="black", s=30, marker="*", edgecolor=None)
+            if highlight_annotation_col is not None:
+                # Add annotation
+                ax.annotate(
+                    data.obs.loc[highlight_hits, highlight_annotation_col].iloc[i],
+                    (start[0], start[1]),
+                    color="black",
+                    fontsize=5,
+                    bbox=dict(facecolor="white", edgecolor="none", alpha=0.7, pad=0.5),
+                    ha="right",
+                    va="bottom",
+                    xytext=(5, 5),
+                    textcoords="offset points",
+                )
 
     # Combine scatter plot legend with remodeling legend
     handles, labels = ax.get_legend_handles_labels()
