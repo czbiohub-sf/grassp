@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 
 import numpy as np
+import scipy.sparse
 
 from anndata import AnnData
 
@@ -30,16 +31,22 @@ def impute_gaussian(
     if not inplace:
         data = data.copy()
     X = data.X
+    if X is None:
+        raise ValueError("data.X is None")
+
+    # Convert to dense if sparse
+    if scipy.sparse.issparse(X):
+        X = X.toarray()
 
     zero_mask = X != 0
     n_zeros = X.size - zero_mask.sum()
 
     if per_sample:
-        pmean = X.mean(axis=0, where=zero_mask)
-        stdev = X.std(axis=0, where=zero_mask)
+        pmean = np.ma.array(X, mask=~zero_mask).mean(axis=0)
+        stdev = np.ma.array(X, mask=~zero_mask).std(axis=0)
     else:
-        pmean = X.mean(where=zero_mask)
-        stdev = X.std(where=zero_mask)
+        pmean = np.ma.array(X, mask=~zero_mask).mean()
+        stdev = np.ma.array(X, mask=~zero_mask).std()
 
     imp_mean = pmean - distance * stdev
     imp_stdev = stdev * width

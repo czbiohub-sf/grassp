@@ -13,6 +13,7 @@ import scanpy
 import seaborn as sns
 
 from matplotlib import gridspec
+from matplotlib.markers import MarkerStyle
 
 
 def remodeling_score(
@@ -42,7 +43,7 @@ def remodeling_score(
     axs = [ax0, ax1]
 
     show = scanpy.settings.autoshow if show is None else show
-    scanpy.plotting._utils.savefig_or_show("remodeling_score", show=show, save=save)
+    scanpy.pl._utils.savefig_or_show("remodeling_score", show=show, save=save)
     if show:
         return None
     return axs
@@ -99,31 +100,31 @@ def aligned_umap(
 
     # Plot the two embeddings as scatter plots
     ax.scatter(
-        embedding1[:, 0],
-        embedding1[:, 1],
+        np.asarray(embedding1)[:, 0],
+        np.asarray(embedding1)[:, 1],
         c=data1_colors,
         s=size,
         alpha=alpha,
         label=data1_label,
-        marker=".",
+        marker=MarkerStyle("."),
         linewidths=0,
         edgecolor=None,
     )
     ax.scatter(
-        embedding2[:, 0],
-        embedding2[:, 1],
+        np.asarray(embedding2)[:, 0],
+        np.asarray(embedding2)[:, 1],
         c=data2_colors,
         s=size,
         alpha=alpha,
         label=data2_label,
-        marker="+",
+        marker=MarkerStyle("+"),
         linewidths=1,
         edgecolor=None,
     )
 
     if highlight_hits is not None:
-        embedding1_hits = embedding1[highlight_hits]
-        embedding2_hits = embedding2[highlight_hits]
+        embedding1_hits = np.asarray(embedding1)[highlight_hits]
+        embedding2_hits = np.asarray(embedding2)[highlight_hits]
         # Plot trajectory lines
         for i, (start, end) in enumerate(zip(embedding1_hits, embedding2_hits)):
             # Draw line
@@ -135,11 +136,18 @@ def aligned_umap(
                 alpha=0.5,
             )
             # Draw marker at the end point
-            ax.scatter(start[0], start[1], color="black", s=30, marker="*", edgecolor=None)
+            ax.scatter(
+                start[0],
+                start[1],
+                color="black",
+                s=30,
+                marker=MarkerStyle("*"),
+                edgecolor=None,
+            )
             if highlight_annotation_col is not None:
                 # Add annotation
                 ax.annotate(
-                    data.obs.loc[highlight_hits, highlight_annotation_col].iloc[i],
+                    str(data.obs.loc[highlight_hits[i], highlight_annotation_col]),
                     (start[0], start[1]),
                     color="black",
                     fontsize=5,
@@ -163,7 +171,7 @@ def aligned_umap(
     ax.set_yticks([])
 
     show = scanpy.settings.autoshow if show is None else show
-    scanpy.plotting._utils.savefig_or_show("aligned_umap", show=show, save=save)
+    scanpy.pl._utils.savefig_or_show("aligned_umap", show=show, save=save)
     if show:
         return None
     return ax
@@ -174,7 +182,7 @@ def remodeling_sankey(
     data2: AnnData,
     cluster_key: str = "leiden",
     ax: plt.Axes | None = None,
-    aspect: float = 20,
+    aspect: int = 20,
     fontsize: int = 12,
     figsize: tuple[float, float] = (10, 11),
     show: bool | None = None,
@@ -219,7 +227,7 @@ def remodeling_sankey(
     )
 
     show = scanpy.settings.autoshow if show is None else show
-    scanpy.plotting._utils.savefig_or_show("aligned_umap", show=show, save=save)
+    scanpy.pl._utils.savefig_or_show("remodeling_sankey", show=show, save=save)
     if show:
         return None
     return ax

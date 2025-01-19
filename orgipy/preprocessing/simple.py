@@ -31,7 +31,6 @@ def filter_samples(
     inplace: bool = True,
     copy: bool = False,
 ) -> AnnData | tuple[np.ndarray, np.ndarray] | None:
-
     if isinstance(data, AnnData):
         confirm_proteins_as_obs(data)
 
@@ -56,7 +55,6 @@ def filter_proteins(
     inplace: bool = True,
     copy: bool = False,
 ) -> AnnData | tuple[np.ndarray, np.ndarray] | None:
-
     if isinstance(data, AnnData):
         confirm_proteins_as_obs(data)
 
@@ -174,7 +172,6 @@ def calculate_qc_metrics(
     parallel: bool | None = None,
     subset: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame] | None:
-
     confirm_proteins_as_obs(data)
     dfs = scanpy.pp.calculate_qc_metrics(
         data.copy().T,
@@ -229,6 +226,7 @@ def highly_variable_proteins(
         data._inplace_subset_var(df["highly_variable"])
 
 
+# @TODO: This needs fixing. Does not return the scaled  with inplace=True
 def normalize_total(
     data: AnnData,
     copy: bool = False,
