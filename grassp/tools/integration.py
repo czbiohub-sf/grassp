@@ -11,14 +11,28 @@ import numpy as np
 import umap
 
 
-def align_adatas(data_list: List[AnnData]) -> List[AnnData]:
-    var_intersect = reduce(lambda x, y: x.var_names.intersection(y.var_names), data_list)
-    obs_intersect = reduce(lambda x, y: x.obs_names.intersection(y.obs_names), data_list)
+def align_adatas(
+    data_list: List[AnnData], intersect_obs: bool = True, intersect_var: bool = True
+) -> List[AnnData]:
+    if intersect_obs:
+        obs_intersect = reduce(
+            lambda x, y: x.obs_names.intersection(y.obs_names), data_list
+        )
+    else:
+        obs_intersect = None
+    if intersect_var:
+        var_intersect = reduce(
+            lambda x, y: x.var_names.intersection(y.var_names), data_list
+        )
+    else:
+        var_intersect = None
     data_sub_list = []
     for data in data_list:
         data_sub = data.copy()
-        data_sub = data_sub[:, var_intersect]
-        data_sub = data_sub[obs_intersect, :]
+        if var_intersect is not None:
+            data_sub = data_sub[:, var_intersect]
+        if obs_intersect is not None:
+            data_sub = data_sub[obs_intersect, :]
         data_sub_list.append(data_sub)
 
     return data_sub_list
