@@ -31,6 +31,33 @@ def filter_samples(
     inplace: bool = True,
     copy: bool = False,
 ) -> AnnData | tuple[np.ndarray, np.ndarray] | None:
+    """Filter samples based on number of counts or proteins.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix of shape `n_obs` x `n_vars`. Rows correspond to proteins
+        and columns to samples.
+    min_counts
+        Minimum number of counts required for a sample to pass filtering.
+    min_proteins
+        Minimum number of proteins expressed required for a sample to pass filtering.
+    max_counts
+        Maximum number of counts required for a sample to pass filtering.
+    max_proteins
+        Maximum number of proteins expressed required for a sample to pass filtering.
+    inplace
+        Perform computation inplace or return result.
+    copy
+        If an AnnData is passed, determines whether a copy is returned.
+
+    Returns
+    -------
+    Depending on `inplace` and input type, returns either:
+        - None if `inplace=True`
+        - AnnData if input is AnnData and `inplace=False`
+        - A tuple of arrays (retained_samples, retained_proteins) if input is not AnnData
+    """
     if isinstance(data, AnnData):
         confirm_proteins_as_obs(data)
 
@@ -55,6 +82,33 @@ def filter_proteins(
     inplace: bool = True,
     copy: bool = False,
 ) -> AnnData | tuple[np.ndarray, np.ndarray] | None:
+    """Filter proteins based on number of counts or samples.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix of shape `n_obs` x `n_vars`. Rows correspond to proteins
+        and columns to samples.
+    min_counts
+        Minimum number of counts required for a protein to pass filtering.
+    min_samples
+        Minimum number of samples expressed required for a protein to pass filtering.
+    max_counts
+        Maximum number of counts required for a protein to pass filtering.
+    max_samples
+        Maximum number of samples expressed required for a protein to pass filtering.
+    inplace
+        Perform computation inplace or return result.
+    copy
+        If an AnnData is passed, determines whether a copy is returned.
+
+    Returns
+    -------
+    Depending on `inplace` and input type, returns either:
+        - None if `inplace=True`
+        - AnnData if input is AnnData and `inplace=False`
+        - A tuple of arrays (retained_proteins, retained_samples) if input is not AnnData
+    """
     if isinstance(data, AnnData):
         confirm_proteins_as_obs(data)
 
@@ -75,6 +129,27 @@ def remove_contaminants(
     filter_value: str | None = None,
     inplace: bool = True,
 ) -> AnnData | None:
+    """Remove contaminant proteins from the data matrix.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    filter_columns
+        Column names in data.obs to use for filtering contaminants. If None, uses
+        columns specified in data.uns['RawInfo']['filter_columns'].
+    filter_value
+        If provided, first convert filter columns to boolean by comparing to this value.
+        If None, assumes filter columns are already boolean.
+    inplace
+        Whether to modify data in place or return a copy.
+
+    Returns
+    -------
+    AnnData or None
+        If inplace=False, returns filtered data. If inplace=True, returns None.
+    """
+
     confirm_proteins_as_obs(data)
     if filter_columns is None:
         filter_columns = data.uns["RawInfo"]["filter_columns"]
@@ -94,6 +169,34 @@ def filter_proteins_per_replicate(
     min_samples: int = 1,
     inplace: bool = True,
 ) -> np.ndarray | None:
+    """Filter proteins based on detection in replicates.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    grouping_columns
+        Column name(s) in data.var to group samples into replicates.
+    min_replicates
+        Minimum number of replicates a protein must be detected in to pass filtering.
+    min_samples
+        Minimum number of sample groups a protein must be detected in to pass filtering.
+    inplace
+        Whether to modify data in place or return a copy.
+
+    Returns
+    -------
+    numpy.ndarray or None
+        If inplace=False, returns boolean mask indicating which proteins passed filtering.
+        If inplace=True, returns None and modifies input data.
+
+    Notes
+    -----
+    This function filters proteins based on their detection pattern across replicates.
+    For each group of samples (defined by grouping_columns), it requires proteins to be
+    detected in at least min_replicates samples. The protein must pass this threshold
+    in at least min_samples groups to be kept.
+    """
     confirm_proteins_as_obs(data)
     groups = data.var.groupby(grouping_columns)
     protein_subset = np.repeat(0, repeats=data.n_obs)
@@ -111,7 +214,30 @@ def aggregate_proteins(
     data: AnnData,
     grouping_columns: str | List[str],
     agg_func: NDArrayAxisFunction = np.median,
-):
+) -> AnnData:
+    """Aggregate proteins based on grouping columns.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    grouping_columns
+        Column name(s) in data.obs to group proteins by.
+    agg_func
+        Function to aggregate proteins within each group. Must take an array and axis
+        argument. Default is np.median.
+
+    Returns
+    -------
+    AnnData
+        New AnnData object with aggregated proteins.
+
+    Notes
+    -----
+    This function aggregates proteins based on shared values in the specified grouping
+    columns. For each group, the proteins are combined using the provided aggregation
+    function. The resulting AnnData object has one observation per unique group.
+    """
     groups = data.obs.groupby(grouping_columns)
     X_list = []
     obs_list = []
@@ -129,7 +255,9 @@ def aggregate_proteins(
         obs_list.append(obs_sub)
     obs = pd.concat(obs_list, axis=0)
     X = np.vstack(X_list)
-    retdata = AnnData(X=X, obs=obs, var=data.var, uns=data.uns, varp=data.varp, varm=data.varm)
+    retdata = AnnData(
+        X=X, obs=obs, var=data.var, uns=data.uns, varp=data.varp, varm=data.varm
+    )
     return retdata
 
 
@@ -137,7 +265,30 @@ def aggregate_samples(
     data: AnnData,
     grouping_columns: str | List[str],
     agg_func: NDArrayAxisFunction = np.median,
-):
+) -> AnnData:
+    """Aggregate samples based on grouping columns.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    grouping_columns
+        Column name(s) in data.var to group samples by.
+    agg_func
+        Function to aggregate samples within each group. Must take an array and axis
+        argument. Default is np.median.
+
+    Returns
+    -------
+    AnnData
+        New AnnData object with aggregated samples.
+
+    Notes
+    -----
+    This function aggregates samples based on shared values in the specified grouping
+    columns. For each group, the samples are combined using the provided aggregation
+    function. The resulting AnnData object has one variable per unique group.
+    """
     groups = data.var.groupby(grouping_columns)
     X_list = []
     var_list = []
@@ -155,7 +306,9 @@ def aggregate_samples(
         var_list.append(var_sub)
     var = pd.concat(var_list, axis=0)
     X = np.vstack(X_list).T
-    retdata = AnnData(X=X, obs=data.obs, var=var, uns=data.uns, obsp=data.obsp, obsm=data.obsm)
+    retdata = AnnData(
+        X=X, obs=data.obs, var=var, uns=data.uns, obsp=data.obsp, obsm=data.obsm
+    )
     return retdata
 
 
@@ -170,8 +323,50 @@ def calculate_qc_metrics(
     var_type: str = "proteins",
     expr_type: str = "intensity",
     parallel: bool | None = None,
-    subset: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame] | None:
+    """Calculate quality control metrics.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    qc_vars
+        Keys for boolean columns in .var that indicate a protein is a quality control
+        protein.
+    percent_top
+        Which proportions of top proteins to compute as QC metrics.
+        Set to None to disable.
+    layer
+        If provided, use `data.layers[layer]` for expression values.
+    use_raw
+        If True, use `data.raw` for expression values.
+    inplace
+        Whether to add metrics to input object or return them.
+    log1p
+        If True, compute log1p of expression values.
+    var_type
+        Name for variables (e.g. 'proteins', 'genes', etc).
+    expr_type
+        Name for expression values (e.g. 'intensity', 'counts', etc).
+    parallel
+        Whether to parallelize computation.
+
+    Returns
+    -------
+    If not inplace, returns a tuple containing:
+        - A DataFrame with protein-based metrics (var)
+        - A DataFrame with sample-based metrics (obs)
+    If inplace, returns None and adds metrics to the input object.
+
+    Notes
+    -----
+    Calculates quality control metrics for both proteins and samples, including:
+        - Number of samples expressing each protein
+        - Total intensity per sample
+        - Number of proteins detected per sample
+        - Percentage of intensity from top proteins
+    """
+
     confirm_proteins_as_obs(data)
     dfs = scanpy.pp.calculate_qc_metrics(
         data.copy().T,
@@ -204,6 +399,45 @@ def highly_variable_proteins(
     batch_key: str | None = None,
     **kwargs,
 ) -> pd.DataFrame | None:
+    """Identify highly variable proteins.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    inplace
+        Whether to store results in data.obs or return them.
+    n_top_proteins
+        Number of highly-variable proteins to keep. If None, use flavor-specific defaults.
+    flavor
+        Method for identifying highly variable proteins. Options are:
+        'seurat' - Seurat's method (default)
+        'cell_ranger' - Cell Ranger's method
+        'seurat_v3' - Seurat v3 method
+        'seurat_v3_paper' - Method from Seurat v3 paper
+    subset
+        Whether to subset the data to highly variable proteins.
+    batch_key
+        If specified, highly-variable proteins are selected within each batch separately.
+    **kwargs
+        Additional arguments to pass to scanpy.pp.highly_variable_genes.
+
+    Returns
+    -------
+    pandas.DataFrame or None
+        If inplace=False, returns DataFrame of highly variable proteins.
+        If inplace=True, returns None and stores results in data.obs.
+
+    Notes
+    -----
+    This function identifies highly variable proteins using methods adapted from
+    single-cell RNA sequencing analysis. The results are stored in data.obs with
+    the following fields:
+        - highly_variable: boolean indicator
+        - means: mean expression
+        - dispersions: dispersion of expression
+        - dispersions_norm: normalized dispersion
+    """
     confirm_proteins_as_obs(data)
     df = scanpy.pp.highly_variable_genes(
         data.T, inplace=False, n_top_genes=n_top_proteins, **kwargs
@@ -233,6 +467,32 @@ def normalize_total(
     inplace: bool = True,
     **kwargs,
 ) -> AnnData | dict[str, np.ndarray] | None:
+    """Normalize expression values for each sample to sum to a constant value.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    copy
+        Whether to modify data in place or return a copy.
+    inplace
+        Whether to modify data in place or return normalization factors.
+    **kwargs
+        Additional arguments to pass to scanpy.pp.normalize_total.
+
+    Returns
+    -------
+    AnnData or dict or None
+        If copy=True, returns a copy of the AnnData object.
+        If inplace=False, returns dictionary containing normalization factors.
+        If inplace=True, returns None and modifies input data.
+
+    Notes
+    -----
+    This function normalizes each sample (column) to have the same total counts.
+    By default, after normalization each sample will sum to 1e6.
+    """
+
     data = data.T.copy()
     dat = scanpy.pp.normalize_total(
         data.T,
@@ -250,6 +510,31 @@ def drop_excess_MQ_metadata(
     colname_regex: str = "Peptide|peptide|MS/MS|Evidence IDs|Taxonomy|Oxidation|Intensity|Identification type|Sequence coverage|MS/MS count",
     inplace: bool = True,
 ) -> AnnData | None:
+    """Drop excess metadata columns from MaxQuant output.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    colname_regex
+        Regular expression pattern to match column names that should be dropped.
+        Default pattern matches common MaxQuant metadata columns.
+    inplace
+        Whether to modify data in place or return filtered metadata.
+
+    Returns
+    -------
+    AnnData or None
+        If inplace=False, returns filtered metadata.
+        If inplace=True, returns None and modifies input data.
+
+    Notes
+    -----
+    This function removes metadata columns that match the provided regular expression
+    pattern. The default pattern removes common MaxQuant metadata columns that are
+    typically not needed for downstream analysis.
+    """
+
     obs = data.obs
     drop_mask = obs.columns.str.contains(colname_regex, regex=True)
     obs = obs.loc[:, ~drop_mask]

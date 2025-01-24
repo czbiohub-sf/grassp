@@ -32,16 +32,45 @@ def protein_clustermap(
     ] = "cosine",
     palette="Blues_r",
 ) -> None:
+    """Create a clustered heatmap of protein distances with annotations.
+
+    Parameters
+    ----------
+    data
+        Annotated data matrix with proteins as observations (rows)
+    annotation_key
+        Key in data.obs for annotating proteins
+    distance_metric
+        Distance metric to use for calculating pairwise distances between proteins.
+        One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
+    linkage_method
+        Method for hierarchical clustering.
+        One of 'single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward'
+    linkage_metric
+        Distance metric to use for hierarchical clustering.
+        One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
+    palette
+        Color palette for the heatmap. Default is 'Blues_r'
+
+    Returns
+    -------
+    None
+        Displays the clustered heatmap
+    """
 
     distance_matrix = sp.distance.pdist(data.X, metric=distance_metric)
     linkage = sch.linkage(distance_matrix, method=linkage_method, metric=linkage_metric)
-    row_order = np.array(sch.dendrogram(linkage, no_plot=True, orientation='bottom')['leaves'])
+    row_order = np.array(
+        sch.dendrogram(linkage, no_plot=True, orientation="bottom")["leaves"]
+    )
     distance_matrix = sp.distance.squareform(distance_matrix)
     distance_matrix = distance_matrix[row_order, :][:, row_order]
 
     gt = data.obs[annotation_key].values[row_order]
     unique_categories = np.unique(gt)
-    lut = dict(zip(unique_categories, sns.color_palette("tab20", len(unique_categories))))
+    lut = dict(
+        zip(unique_categories, sns.color_palette("tab20", len(unique_categories)))
+    )
     row_colors = pd.Series(gt).astype(str).map(lut).to_numpy()
 
     g = sns.clustermap(
@@ -59,7 +88,11 @@ def protein_clustermap(
             0.03,
         ),  # color bar location coordinates in this format (left, bottom, width, height),
         # cbar_pos=None,
-        cbar_kws={"orientation": "horizontal", "label": "distance", "extend": "neither"},
+        cbar_kws={
+            "orientation": "horizontal",
+            "label": "distance",
+            "extend": "neither",
+        },
         robust=True,
         figsize=(24, 22),
         xticklabels=False,
@@ -77,7 +110,8 @@ def protein_clustermap(
     g.ax_heatmap.set_ylabel("")
 
     handles = [
-        mpatches.Patch(color=lut[category], label=category) for category in unique_categories
+        mpatches.Patch(color=lut[category], label=category)
+        for category in unique_categories
     ]
 
     # Add the legend

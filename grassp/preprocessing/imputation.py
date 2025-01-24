@@ -25,6 +25,43 @@ def impute_gaussian(
     random_state: AnyRandom = 0,
     inplace: bool = True,
 ) -> np.ndarray | None:
+    """Impute missing values using a Gaussian distribution.
+
+    This function imputes missing values (zeros) in the data matrix using a Gaussian
+    distribution. The parameters of the Gaussian are derived from the observed (non-zero)
+    values, with the mean shifted downward by a specified number of standard deviations.
+
+    Parameters
+    ----------
+    data
+        Annotated data matrix with proteins as observations (rows).
+    width
+        Width of the Gaussian distribution used for imputation, as a fraction of the
+        standard deviation of observed values. Default is 0.3.
+    distance
+        Number of standard deviations below the mean of observed values to center the
+        imputation distribution. Default is 1.8.
+    per_sample
+        If True, calculate parameters separately for each sample (column).
+        If False, use global parameters. Default is True.
+    random_state
+        Seed for random number generation. Default is 0.
+    inplace
+        If True, modify data in place. If False, return a copy. Default is True.
+
+    Returns
+    -------
+    numpy.ndarray or None
+        If inplace=False, returns the imputed data matrix.
+        If inplace=True, returns None and modifies the input data.
+
+    Notes
+    -----
+    This implements a simple but effective imputation strategy commonly used in
+    proteomics data analysis. Missing values are assumed to be below detection limit
+    and are imputed from a Gaussian distribution with parameters derived from the
+    observed values but shifted downward.
+    """
     confirm_proteins_as_obs(data)
     np.random.seed(random_state)
 

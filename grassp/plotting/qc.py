@@ -22,7 +22,36 @@ def highly_variable_proteins(
     show: bool | None = None,
     save: bool | str | None = None,
     log: bool = False,
-) -> None:
+) -> None | plt.Axes:
+    """Plot dispersions versus means for highly variable proteins.
+
+    Parameters
+    ----------
+    adata_or_result
+        Annotated data matrix or DataFrame/recarray containing results from
+        highly_variable_proteins computation.
+    highly_variable_proteins
+        Whether to plot highly variable proteins or all proteins. Default: True.
+    show
+        Show the plot. If None, use scanpy's plotting settings.
+    save
+        If True or a str, save the figure. A string is appended to the default
+        filename. Infer the filetype if ending on {'.pdf', '.png', '.svg'}.
+    log
+        Plot on log scale. Default: False.
+
+    Returns
+    -------
+    matplotlib.pyplot.Axes or None
+        If `show=False`, returns matplotlib axes object. Otherwise returns None and shows or saves the plot.
+
+    Notes
+    -----
+    This is a modified version of scanpy's highly_variable_genes plot adapted for
+    proteomics data. It shows the relationship between mean protein intensity and
+    dispersion/variance, highlighting highly variable proteins.
+    """
+
     if isinstance(adata_or_result, AnnData):
         result = adata_or_result.obs
         seurat_v3_flavor = adata_or_result.uns["hvg"]["flavor"] == "seurat_v3"
@@ -94,7 +123,40 @@ def bait_volcano_plots(
     highlight: List[str] | None = None,
     title: str | None = None,
     show: bool = False,
-):
+) -> None | plt.Axes:
+    """Create volcano plots for bait enrichment analysis.
+
+    Parameters
+    ----------
+    data
+        Annotated data matrix with proteins as observations (rows) and baits as variables (columns).
+        Must contain a 'pvals' layer with p-values.
+    baits
+        List of bait names to plot. If None, plot all baits in data.var_names.
+    sig_cutoff
+        P-value significance cutoff for highlighting enriched proteins.
+    lfc_cutoff
+        Log fold change cutoff for highlighting enriched proteins.
+    n_cols
+        Number of columns in the plot grid.
+    base_figsize
+        Base figure size for each subplot.
+    annotate_top_n
+        Number of top proteins to annotate with text labels.
+    color_by
+        Column in data.obs to color points by.
+    highlight
+        List of protein names to highlight in blue.
+    title
+        Title for the overall figure.
+    show
+        Whether to display the plot.
+
+    Returns
+    -------
+    None or matplotlib.axes.Axes
+        If show=True, returns None. Otherwise returns the matplotlib axes.
+    """
     if baits is None:
         baits = list(data.var_names)
     else:

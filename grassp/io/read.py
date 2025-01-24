@@ -17,6 +17,29 @@ def read(
     x_dtype: Union[np.dtype, type, int, float, None] = None,
     proteins_as_obs: bool = False,
 ) -> anndata.AnnData:
+    """Read proteomics data into an AnnData object.
+
+    Parameters
+    ----------
+    loader
+        A loader object from alphastats that contains the raw proteomics data and metadata
+    x_dtype
+        Data type to use for the intensity matrix, by default None
+    proteins_as_obs
+        If True, proteins will be stored in obs (rows) rather than var (columns), by default False
+
+
+    Notes
+    -----
+    The loader object must contain:
+    - rawinput: DataFrame with protein data
+    - software: Name of proteomics software used
+    - index_column: Column name containing protein identifiers
+    - intensity_column: Column name pattern for intensity values
+    - filter_columns: Columns used for filtering
+    - gene_names: Gene name mapping information
+    """
+
     import alphastats
 
     alphastats.DataSet._check_loader(
@@ -36,7 +59,9 @@ def read(
     # get the intensity columns
     if isinstance(intensity_column, str):
         intensity_regex = re.compile(intensity_column.replace("[sample]", ".*"))
-        intensity_col_mask = df.columns.map(lambda x: intensity_regex.search(x) is not None)
+        intensity_col_mask = df.columns.map(
+            lambda x: intensity_regex.search(x) is not None
+        )
     else:
         intensity_col_mask = df.columns.isin(intensity_column)
 

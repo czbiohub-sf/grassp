@@ -14,6 +14,23 @@ import umap
 def align_adatas(
     data_list: List[AnnData], intersect_obs: bool = True, intersect_var: bool = True
 ) -> List[AnnData]:
+    """Align multiple AnnData objects by intersecting their observations and variables.
+
+    Parameters
+    ----------
+    data_list
+        List of AnnData objects to align
+    intersect_obs
+        Whether to intersect observations (rows) across all objects
+    intersect_var
+        Whether to intersect variables (columns) across all objects
+
+    Returns
+    -------
+    list
+        List of aligned AnnData objects with matching observations and variables
+    """
+
     if intersect_obs:
         obs_intersect = reduce(
             lambda x, y: x.obs_names.intersection(y.obs_names), data_list
@@ -51,6 +68,40 @@ def aligned_umap(
     verbose: bool = False,
     n_components: int = 2,
 ) -> umap.AlignedUMAP:
+    """Calculate aligned UMAP embeddings for multiple datasets.
+
+    Parameters
+    ----------
+    data_list
+        List of AnnData objects to align
+    align_data
+        Whether to align data by intersecting observations and variables
+    return_data_objects
+        Whether to return aligned AnnData objects with UMAP embeddings
+    n_neighbors
+        Number of neighbors to use for UMAP
+    metric
+        Distance metric for UMAP
+    min_dist
+        Minimum distance between points in UMAP embedding
+    alignment_regularisation
+        Strength of alignment regularization between datasets
+    n_epochs
+        Number of epochs to optimize embeddings
+    random_state
+        Random seed for reproducibility
+    verbose
+        Whether to display progress updates
+    n_components
+        Number of dimensions for UMAP embedding
+
+    Returns
+    -------
+    data_sub_list or umap.AlignedUMAP
+        If return_data_objects is True, returns list of aligned AnnData objects with UMAP embeddings.
+        Otherwise returns fitted AlignedUMAP object.
+    """
+
     # Make sure all anndata objects have the same var_names and obs_names
     if align_data:
         data_sub_list = align_adatas(data_list)
@@ -107,6 +158,20 @@ def remodeling_score(
     aligned_umap_key: str = "X_aligned_umap",
     key_added: str = "remodeling_score",
 ) -> List[AnnData]:
+    """Get aligned UMAP embeddings from each AnnData object.
+
+    Parameters
+    ----------
+    data_list
+        List of AnnData objects containing aligned UMAP embeddings
+    aligned_umap_key
+        Key in .obsm where aligned UMAP embeddings are stored
+
+    Returns
+    -------
+    embeddings
+        List of numpy arrays containing aligned UMAP embeddings
+    """
     embeddings = [data.obsm[aligned_umap_key] for data in data_list]
     remodeling_score = _remodeling_score(embeddings)
     for i, data in enumerate(data_list):

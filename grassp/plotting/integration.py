@@ -21,6 +21,25 @@ def remodeling_score(
     show: bool | None = None,
     save: bool | str | None = None,
 ) -> List[plt.Axes] | None:
+    """Plot remodeling score distribution.
+
+    Parameters
+    ----------
+    remodeling_score
+        Array of remodeling scores to plot
+    show
+        Show the plot. If None, use scanpy's plotting settings
+    save
+        If True or a str, save the figure. A string is appended to the default
+        filename. Infer the filetype if ending on {'.pdf', '.png', '.svg'}
+
+    Returns
+    -------
+    list or None
+        If show=False, returns list of matplotlib axes objects for histogram and boxplot.
+        If show=True, returns None and displays plot.
+    """
+
     # Create grid layout
     gs = gridspec.GridSpec(2, 1, height_ratios=[5, 1])
     # Histogram
@@ -59,7 +78,23 @@ remodeling_legend = [
 ]
 
 
-def _get_cluster_colors(data: AnnData, color_key: str = "leiden") -> np.ndarray[str, Any]:
+def _get_cluster_colors(
+    data: AnnData, color_key: str = "leiden"
+) -> np.ndarray[str, Any]:
+    """Get cluster colors for a given color key.
+
+    Parameters
+    ----------
+    data
+        Annotated data matrix
+    color_key
+        Key in data.obs to use for coloring
+
+    Returns
+    -------
+    np.ndarray
+        Array of colors for the given color key
+    """
     if f"{color_key}_colors" not in data.uns.keys():
         scanpy.pl._utils._set_default_colors_for_categorical_obs(data, color_key)
     return np.array(
@@ -85,6 +120,49 @@ def aligned_umap(
     show: bool | None = None,
     save: bool | str | None = None,
 ) -> plt.Axes | None:
+    """Plot aligned UMAP embeddings for two datasets.
+
+    Parameters
+    ----------
+    data
+        First annotated data matrix
+    data2
+        Second annotated data matrix
+    highlight_hits
+        List of protein names or boolean mask to highlight trajectories between datasets
+    highlight_annotation_col
+        Column in data.obs to use for highlighting specific proteins
+    aligned_umap_key
+        Key in data.obsm containing aligned UMAP coordinates
+    data1_label
+        Label for first dataset in legend
+    data2_label
+        Label for second dataset in legend
+    color_by
+        Whether to color by 'perturbation' or 'cluster'
+    data1_color
+        Color for first dataset points if coloring by perturbation
+    data2_color
+        Color for second dataset points if coloring by perturbation
+    figsize
+        Size of the figure in inches
+    size
+        Size of scatter points
+    alpha
+        Transparency of scatter points
+    ax
+        Matplotlib axes to plot on
+    show
+        Whether to display the plot
+    save
+        Whether to save the plot and optional filename
+
+    Returns
+    -------
+    matplotlib.pyplot.Axes or None
+        If show=False returns the axes object, otherwise returns None
+    """
+
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
 
@@ -188,6 +266,35 @@ def remodeling_sankey(
     show: bool | None = None,
     save: bool | str | None = None,
 ) -> plt.Axes | None:
+    """Plot a Sankey diagram showing protein transitions between clusters.
+
+    Parameters
+    ----------
+    data
+        First annotated data matrix
+    data2
+        Second annotated data matrix
+    cluster_key
+        Key in data.obs and data2.obs containing cluster assignments
+    ax
+        Matplotlib axes object to plot on. If None, creates new figure
+    aspect
+        Aspect ratio of the plot
+    fontsize
+        Font size for labels
+    figsize
+        Size of the figure in inches
+    show
+        Show the plot. If None, use scanpy's plotting settings
+    save
+        If True or a str, save the figure. A string is appended to the default
+        filename. Infer the filetype if ending on {'.pdf', '.png', '.svg'}
+
+    Returns
+    -------
+    ax or None
+        If show=False, returns matplotlib axes object. Otherwise returns None
+    """
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
 
