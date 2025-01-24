@@ -2,6 +2,9 @@
 ignore/
 output/
 cache/
+grassp/datasets/external/mmc*
+grassp/datasets/external/elife*
+grassp/datasets/external/uniprot_sp_accessions.tsv
 
 tests/output/
 client/.npm/
