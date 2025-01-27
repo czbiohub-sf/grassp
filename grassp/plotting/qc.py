@@ -177,13 +177,13 @@ def bait_volcano_plots(
         if "pvals" not in data_sub.layers.keys():
             raise ValueError("anndata object must contain a 'pvals' layer")
         pvals = -np.log10(data_sub.layers["pvals"][:, 0])
-        lim = np.abs(pvals).max()
         ax.scatter(enrichments, pvals, c="black", s=1, marker=".")
         ax.axhline(-np.log10(sig_cutoff), color="black", linestyle="--")
         ax.axvline(lfc_cutoff, color="black", linestyle="--")
         ax.axvline(-lfc_cutoff, color="black", linestyle="--")
         mask = (np.abs(enrichments) > lfc_cutoff) & (pvals > -np.log10(sig_cutoff))
         ax.scatter(enrichments[mask], pvals[mask], c="red", s=1, marker=".")
+        lim = np.abs(enrichments).max()
         ax.set_xlim(-lim, lim)
         ax.set_title(bait)
         if highlight is not None:
