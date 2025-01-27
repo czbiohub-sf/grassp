@@ -57,7 +57,7 @@ def calculate_enrichment_vs_untagged(
     # Create aggregated data with the desired output shape
     grouping_columns = [subcellular_enrichment_column] + covariates.tolist()
     data_aggr = aggregate_samples(data, grouping_columns=grouping_columns)
-    data_aggr.var_names = data_aggr.var_names.str.replace("_1", "")
+    data_aggr.var_names = data_aggr.var_names.str.replace("_\d+", "", regex=True)
 
     if original_intensities_key is not None:
         data_aggr.layers[original_intensities_key] = data_aggr.X
@@ -90,4 +90,5 @@ def calculate_enrichment_vs_untagged(
 
     # Now remove the untagged samples
     data_aggr = data_aggr[:, data_aggr.var[subcellular_enrichment_column] != untagged_name]
+    data_aggr.var.drop(columns=["_experimental_condition"], inplace=True)
     return data_aggr
