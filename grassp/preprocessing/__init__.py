@@ -12,4 +12,4 @@ from .simple import (
     remove_contaminants,
 )
 
-from .enrichment import calculate_enrichment_vs_untagged
+from .enrichment import calculate_enrichment_vs_untagged, calculate_enrichment_vs_all
