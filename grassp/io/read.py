@@ -68,6 +68,7 @@ def read(
     # Convert to anndata object
     var = df.loc[:, ~intensity_col_mask]
     X = df.loc[:, intensity_col_mask]
+    X = X.replace(np.nan, 0)
     obs = pd.DataFrame(index=X.columns)
     var.set_index(index_column, inplace=True)
     var.index = var.index.astype(str)
