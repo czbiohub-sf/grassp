@@ -31,6 +31,7 @@ def protein_clustermap(
         "euclidean", "cosine", "correlation", "cityblock", "jaccard", "hamming"
     ] = "cosine",
     palette="Blues_r",
+    show: bool = True,
 ) -> None:
     """Create a clustered heatmap of protein distances with annotations.
 
@@ -51,6 +52,8 @@ def protein_clustermap(
         One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
     palette
         Color palette for the heatmap. Default is 'Blues_r'
+    show
+        If True, display the heatmap. If False, return the Axes object.
 
     Returns
     -------
@@ -125,6 +128,9 @@ def protein_clustermap(
     )
 
     plt.gca().add_artist(col_legend1)
+    if show:
+        return None
+    return g
 
 
 # def grouped_heatmap(

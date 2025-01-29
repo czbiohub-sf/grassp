@@ -112,7 +112,8 @@ def knn_annotation(
     obs_ann_col: str,
     key_added: str = "consensus_graph_annotation",
     exclude_category: str | List[str] | None = None,
-) -> AnnData:
+    inplace: bool = True,
+) -> AnnData | None:
     """Annotate proteins based on their k-nearest neighbors.
 
     For each protein, looks at its k-nearest neighbors and assigns the most common
@@ -128,10 +129,12 @@ def knn_annotation(
         Key under which to add the annotations in data.obs
     exclude_category
         Category or list of categories to exclude from annotation propagation
+    inplace
+        If True, modify the data in place. If False, return the modified data.
 
     Returns
     -------
-    data
+    None | AnnData
         Modified AnnData object with new annotations in .obs[key_added]
     """
     df = _get_knn_annotation_df(data, obs_ann_col, exclude_category)
@@ -144,7 +147,7 @@ def knn_annotation(
         :, 0
     ]  # take the first if there are ties
     data.obs[key_added] = majority_cluster.values
-    return data
+    return data if not inplace else None
 
 
 def to_knn_graph(
