@@ -153,6 +153,8 @@ def remove_contaminants(
     confirm_proteins_as_obs(data)
     if filter_columns is None:
         filter_columns = data.uns["RawInfo"]["filter_columns"]
+    elif isinstance(filter_columns, str):
+        filter_columns = [filter_columns]
 
     if filter_value is not None:
         data.obs[filter_columns] = data.obs[filter_columns].eq(filter_value)
