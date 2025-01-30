@@ -34,12 +34,11 @@ def silhouette_score(
     """
     mask = data.obs[gt_col].notna()
     data_sub = data[mask]
-    ss = sklearn.metrics.silhouette_samples(
-        data_sub.obsm[use_rep], data_sub.obs[gt_col]
-    )
+    sub_obs = data_sub.obs.copy()
+    ss = sklearn.metrics.silhouette_samples(data_sub.obsm[use_rep], sub_obs[gt_col])
     if inplace:
-        data_sub.obs[key_added] = ss
-        cluster_mean_ss = data_sub.obs.groupby(gt_col)[key_added].mean()
+        sub_obs[key_added] = ss
+        cluster_mean_ss = sub_obs.groupby(gt_col)[key_added].mean()
         data.uns[key_added] = {
             "mean_silhouette_score": ss.mean(),
             "cluster_mean_silhouette": cluster_mean_ss.to_dict(),
