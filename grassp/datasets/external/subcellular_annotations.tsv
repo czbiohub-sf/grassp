@@ -16,14 +16,14 @@ Q9NY61	AATF	Nucleolus
 P80404	ABAT	Mitochondrion		
 Q9BZC7	ABCA2	Early endosome		
 Q99758	ABCA3	Lysosome		
-P08183	ABCB1	Recycling endosome		Cell membrane
+P08183	ABCB1	Recycling endosome	Cell membrane	Cell membrane
 Q9NRK6	ABCB10	Mitochondrion		
-O75027	ABCB7	Mitochondrion		
-Q9NUT2	ABCB8	Mitochondrion		
+O75027	ABCB7	Mitochondrion	Mitochondrion	
+Q9NUT2	ABCB8	Mitochondrion	Mitochondrion	
 P33527	ABCC1	Cell membrane		
 Q5T3U5	ABCC10	Lysosome		
-O15439	ABCC4	Cell membrane		
-O15440	ABCC5	Early endosome		
+O15439	ABCC4	Cell membrane	Cell membrane	
+O15440	ABCC5	Early endosome	Cell membrane	
 P33897	ABCD1	Peroxisome	Peroxisome	Peroxisome
 P28288	ABCD3	Peroxisome		Peroxisome
 O14678	ABCD4	Endoplasmic reticulum		
@@ -31,7 +31,7 @@ Q8NE71	ABCF1	Stress granule
 Q9UG63	ABCF2	Translation		
 Q9NUQ8	ABCF3	Stress granule		
 Q9NUJ1	ABHD10	Mitochondrion		
-Q8NFV4	ABHD11	Mitochondrion		
+Q8NFV4	ABHD11	Mitochondrion	Mitochondrion	
 Q8N2K0	ABHD12	Endoplasmic reticulum	Endoplasmic reticulum	
 Q96IU4	ABHD14B	Cytosol		
 O95870	ABHD16A	Endoplasmic reticulum		
@@ -51,18 +51,18 @@ Q9ULW3	ABT1	Nucleolus
 Q8N961	ABTB2	Cytosol		
 A6QL63	ABTB3	Cytosol		
 P09110	ACAA1	Peroxisome		Peroxisome
-P42765	ACAA2	Mitochondrion		
+P42765	ACAA2	Mitochondrion	Mitochondrion	
 Q13085	ACACA	Cytosol		
-Q6JQN1	ACAD10	Mitochondrion		
+Q6JQN1	ACAD10	Mitochondrion	Mitochondrion	
 Q709F0	ACAD11	Peroxisome	Peroxisome	
-Q9UKU7	ACAD8	Mitochondrion		
+Q9UKU7	ACAD8	Mitochondrion	Mitochondrion	
 Q9H845	ACAD9	Mitochondrion		
-P11310	ACADM	Mitochondrion		Mitochondrion
-P16219	ACADS	Mitochondrion		
-P45954	ACADSB	Mitochondrion		Mitochondrion
-P49748	ACADVL	Mitochondrion		
+P11310	ACADM	Mitochondrion	Mitochondrion	Mitochondrion
+P16219	ACADS	Mitochondrion	Mitochondrion	
+P45954	ACADSB	Mitochondrion	Mitochondrion	Mitochondrion
+P49748	ACADVL	Mitochondrion	Mitochondrion	
 Q15057	ACAP2	Cytosol		
-P24752	ACAT1	Mitochondrion		Mitochondrion
+P24752	ACAT1	Mitochondrion	Mitochondrion	Mitochondrion
 Q9BWD1	ACAT2	Cytosol		
 Q9H3P7	ACBD3	trans-Golgi network		
 Q5T8D3	ACBD5	Peroxisome		Peroxisome
@@ -72,7 +72,7 @@ Q96AP0	ACD	Nucleus
 Q9UKV3	ACIN1	Nucleus	Nucleus	
 P53396	ACLY	Cytosol		
 P21399	ACO1	Cytosol		
-Q99798	ACO2	Mitochondrion		
+Q99798	ACO2	Mitochondrion	Mitochondrion	
 Q9NPJ3	ACOT13	Mitochondrion		Mitochondrion
 P49753	ACOT2	Mitochondrion		
 O00154	ACOT7	Cytosol		
@@ -84,7 +84,7 @@ P24666	ACP1	Cytosol	Cytosol
 P11117	ACP2	Lysosome	Lysosome	Lysosome
 Q9NPH0	ACP6	Mitochondrion		
 Q96CM8	ACSF2	Mitochondrion		
-Q4G176	ACSF3	Mitochondrion		
+Q4G176	ACSF3	Mitochondrion	Mitochondrion	
 P33121	ACSL1	Endoplasmic reticulum	Peroxisome	
 O95573	ACSL3	Endoplasmic reticulum	Endoplasmic reticulum	
 O60488	ACSL4	Early endosome	Golgi apparatus	
@@ -95,8 +95,8 @@ P68032	ACTC1	Cytoskeleton
 P63261	ACTG1	Cytoskeleton		Actin binding proteins
 O96019	ACTL6A	Nucleus		
 Q5BKX5	ACTMAP	Cytosol	Cytosol	
-P12814	ACTN1	Cell membrane		Actin binding proteins
-O43707	ACTN4	Cytoskeleton		Actin binding proteins
+P12814	ACTN1	Cell membrane	Cytoskeleton	Actin binding proteins
+O43707	ACTN4	Cytoskeleton	Cytoskeleton	Actin binding proteins
 Q9NZ32	ACTR10	Cytosol		
 P42025	ACTR1B	Cytosol		
 P61160	ACTR2	Cytoskeleton		
@@ -111,7 +111,7 @@ P00813	ADA	Cytosol
 O14672	ADAM10	Cell membrane	Endoplasmic reticulum	
 O75078	ADAM11	Cell membrane		
 Q13444	ADAM15	Endoplasmic reticulum		
-P78536	ADAM17	Endoplasmic reticulum		Cell membrane
+P78536	ADAM17	Endoplasmic reticulum	Cell membrane	Cell membrane
 Q9P0K1	ADAM22	Cell membrane		
 Q13443	ADAM9	Recycling endosome		Cell membrane
 Q9UHI8	ADAMTS1	Early endosome		
@@ -121,12 +121,12 @@ Q7Z6V5	ADAT2	Cytosol	Cytosol
 Q96EY9	ADAT3	Cytosol	Cytosol	
 Q86TW2	ADCK1	Mitochondrion		
 O60266	ADCY3	Cell membrane		
-O43306	ADCY6	Cell membrane		
-O60503	ADCY9	Cell membrane		
+O43306	ADCY6	Cell membrane	Cell membrane	
+O60503	ADCY9	Cell membrane	Cell membrane	
 P35611	ADD1	Cytoskeleton		
 P35612	ADD2	Cytoskeleton		
 Q9UEY8	ADD3	Cytoskeleton		
-P48960	ADGRE5	Recycling endosome		Cell membrane
+P48960	ADGRE5	Recycling endosome	Cell membrane	Cell membrane
 O94910	ADGRL1	Cell membrane		
 O95490	ADGRL2	Cell membrane		
 Q9HAR2	ADGRL3	Cell membrane		
@@ -146,10 +146,10 @@ P30520	ADSS2	Cytosol
 Q8N556	AFAP1	Cytoskeleton		
 P55196	AFDN	Cell membrane		
 Q9UHB7	AFF4	Nucleus		
-Q8WV93	AFG1L	Mitochondrion		
+Q8WV93	AFG1L	Mitochondrion	Mitochondrion	
 Q8NB90	AFG2A	Proteasome		
 Q9BVQ7	AFG2B	Nucleus		
-Q9Y4W6	AFG3L2	Mitochondrion		
+Q9Y4W6	AFG3L2	Mitochondrion	Mitochondrion	
 Q6ULP2	AFTPH	Early endosome		
 P20933	AGA	Lysosome	Lysosome	
 P52594	AGFG1	Cytoskeleton		
@@ -176,16 +176,16 @@ Q09666	AHNAK	Cell membrane
 Q8IVF2	AHNAK2	Cell membrane		
 P35869	AHR	Cytosol	Cytosol	
 O95433	AHSA1	Cytosol		
-Q96BJ3	AIDA	Cell membrane		
+Q96BJ3	AIDA	Cell membrane	Cell membrane	
 Q9BQI0	AIF1L	Cytosol		
-O95831	AIFM1	Mitochondrion		
+O95831	AIFM1	Mitochondrion	Mitochondrion	
 Q13155	AIMP2	Endoplasmic reticulum		Large protein complex
 O00170	AIP	Cytosol		
 Q9NX04	AIRIM	Translation		
 P00568	AK1	Cytosol		
 P54819	AK2	Mitochondrion		Mitochondrion
 Q9UIJ7	AK3	Mitochondrion		
-P27144	AK4	Mitochondrion		Mitochondrion
+P27144	AK4	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y3D8	AK6	Cytosol		
 Q92667	AKAP1	Mitochondrion		Mitochondrion
 Q9UKA4	AKAP11	Endoplasmic reticulum		
@@ -206,7 +206,7 @@ Q96B36	AKT1S1	Lysosome
 P31751	AKT2	Cytosol		
 Q9Y243	AKT3	Cytosol		
 Q9H8T0	AKTIP	Cytosol	Cytosol	
-P13196	ALAS1	Mitochondrion		
+P13196	ALAS1	Mitochondrion	Mitochondrion	
 Q13740	ALCAM	Cell membrane		
 Q8IZ83	ALDH16A1	Cytosol		
 P54886	ALDH18A1	Mitochondrion		
@@ -215,15 +215,15 @@ P47895	ALDH1A3	Cytosol
 P30837	ALDH1B1	Mitochondrion		Mitochondrion
 O75891	ALDH1L1	Mitochondrion		
 Q3SY69	ALDH1L2	Mitochondrion		
-P05091	ALDH2	Mitochondrion		
+P05091	ALDH2	Mitochondrion	Mitochondrion	
 P51648	ALDH3A2	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
-P30038	ALDH4A1	Mitochondrion		Mitochondrion
+P30038	ALDH4A1	Mitochondrion	Mitochondrion	Mitochondrion
 P51649	ALDH5A1	Mitochondrion		Mitochondrion
-Q02252	ALDH6A1	Mitochondrion		
+Q02252	ALDH6A1	Mitochondrion	Mitochondrion	
 P49419	ALDH7A1	Mitochondrion		Mitochondrion
-P49189	ALDH9A1	Mitochondrion		
+P49189	ALDH9A1	Mitochondrion	Mitochondrion	
 P04075	ALDOA	Cytosol		
-P09972	ALDOC	Cytosol		
+P09972	ALDOC	Cytosol	Cell membrane	
 Q9BT22	ALG1	Endoplasmic reticulum	Endoplasmic reticulum	
 Q5BKT4	ALG10	Endoplasmic reticulum		
 Q2TAA5	ALG11	Endoplasmic reticulum		
@@ -242,7 +242,7 @@ Q96Q83	ALKBH3	Cytosol
 Q9NXW9	ALKBH4	Cytosol		
 Q6P6C2	ALKBH5	Nucleolus		
 Q3KRA9	ALKBH6	Cytosol		
-Q9BT30	ALKBH7	Mitochondrion		
+Q9BT30	ALKBH7	Mitochondrion	Mitochondrion	
 Q96BT7	ALKBH8	Cytosol	Cytosol	
 Q8TCU4	ALMS1	Centrosome	Centrosome	
 Q96Q42	ALS2	Cytosol		
@@ -289,20 +289,20 @@ Q6ZW76	ANKS3	Cytosol
 Q9H8Y5	ANKZF1	Translation		
 Q9NQW6	ANLN	Cell membrane		
 Q9NW15	ANO10	Endoplasmic reticulum	Endoplasmic reticulum	
-Q4KMQ2	ANO6	Recycling endosome		Cell membrane
+Q4KMQ2	ANO6	Recycling endosome	Cell membrane	Cell membrane
 P39687	ANP32A	Cytosol		
 Q92688	ANP32B	Cytosol		
 Q9BTT0	ANP32E	Cytosol		
 Q9BQD7	ANTKMT	Mitochondrion		
-Q9H6X2	ANTXR1	Cell membrane		Cell membrane
+Q9H6X2	ANTXR1	Cell membrane	Cell membrane	Cell membrane
 P04083	ANXA1	Cytosol		
 P50995	ANXA11	Cytosol		
-P07355	ANXA2	Cytoskeleton		
+P07355	ANXA2	Cytoskeleton	Cell membrane	
 P12429	ANXA3	Cytosol		
 P09525	ANXA4	Cytosol		
 P08758	ANXA5	Cytosol		
 P08133	ANXA6	Cytosol		
-P20073	ANXA7	Cytosol		
+P20073	ANXA7	Cytosol	Stress granule	
 Q63HQ0	AP1AR	trans-Golgi network		
 Q10567	AP1B1	Early endosome		Large protein complex
 O43747	AP1G1	Early endosome		Large protein complex
@@ -313,7 +313,7 @@ P56377	AP1S2	Early endosome
 Q96PC3	AP1S3	Early endosome		
 O95782	AP2A1	Cytoskeleton		Cell membrane
 O94973	AP2A2	Cytoskeleton		Cell membrane
-P63010	AP2B1	Cell membrane		
+P63010	AP2B1	Cell membrane	Cell membrane	
 Q96CW1	AP2M1	Cell membrane		Cell membrane
 P53680	AP2S1	Cell membrane		Cell membrane
 O00203	AP3B1	Lysosome		Endosome
@@ -346,7 +346,7 @@ Q9NRW3	APOBEC3C	Translation
 P02656	APOC3	Early endosome		
 Q9BQE5	APOL2	Endoplasmic reticulum	Endoplasmic reticulum	
 Q9BUR5	APOO	Mitochondrion		
-Q6UXV4	APOOL	Mitochondrion		
+Q6UXV4	APOOL	Mitochondrion	Mitochondrion	
 P05067	APP	Early endosome		Endosome
 Q92624	APPBP2	Cytosol	Cytosol	
 Q9UKG1	APPL1	Cytosol		
@@ -360,7 +360,7 @@ P48444	ARCN1	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic re
 P84077	ARF1	Cytosol		Golgi apparatus
 P18085	ARF4	Endoplasmic reticulum-Golgi intermediate compartment		
 P84085	ARF5	Golgi apparatus		
-P62330	ARF6	Cell membrane		
+P62330	ARF6	Cell membrane	Cell membrane	
 Q8N6T3	ARFGAP1	trans-Golgi network		
 Q9NP61	ARFGAP3	Golgi apparatus		
 Q9Y6D6	ARFGEF1	Cytosol		
@@ -406,7 +406,7 @@ O95376	ARIH2	Cytosol
 Q96B23	ARK2N	Cytosol		
 P40616	ARL1	Golgi apparatus		Golgi apparatus
 Q8N8L6	ARL10	Mitochondrion		
-Q3SXY8	ARL13B	Recycling endosome		
+Q3SXY8	ARL13B	Recycling endosome	Cell membrane	
 Q9NXU5	ARL15	Cell membrane		
 P36404	ARL2	Mitochondrion		
 Q9Y2Y0	ARL2BP	Cytosol		
@@ -501,32 +501,32 @@ Q9Y2G3	ATP11B	Recycling endosome
 Q8NB49	ATP11C	Cell membrane		
 Q9HD20	ATP13A1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q9NQ11	ATP13A2	Lysosome		
-Q9H7F0	ATP13A3	Recycling endosome		
-P05023	ATP1A1	Cell membrane		Cell membrane
+Q9H7F0	ATP13A3	Recycling endosome	Cell membrane	
+P05023	ATP1A1	Cell membrane	Cell membrane	Cell membrane
 P50993	ATP1A2	Cytoskeleton		
 P13637	ATP1A3	Cell membrane		
 Q13733	ATP1A4	Cell membrane		
-P05026	ATP1B1	Cell membrane		Cell membrane
-P54709	ATP1B3	Cell membrane		Cell membrane
+P05026	ATP1B1	Cell membrane	Cell membrane	Cell membrane
+P54709	ATP1B3	Cell membrane	Cell membrane	Cell membrane
 Q9Y6H3	ATP23	Nucleus		
 P16615	ATP2A2	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
-P20020	ATP2B1	Cell membrane		Cell membrane
-P23634	ATP2B4	Cell membrane		Cell membrane
+P20020	ATP2B1	Cell membrane	Cell membrane	Cell membrane
+P23634	ATP2B4	Cell membrane	Cell membrane	Cell membrane
 P98194	ATP2C1	Golgi apparatus		Golgi apparatus
-P25705	ATP5F1A	Mitochondrion		Mitochondrion
-P06576	ATP5F1B	Mitochondrion		Mitochondrion
-P36542	ATP5F1C	Mitochondrion		Mitochondrion
-P30049	ATP5F1D	Mitochondrion		
-P56381	ATP5F1E	Mitochondrion		
-Q9UII2	ATP5IF1	Mitochondrion		Mitochondrion
-P56385	ATP5ME	Mitochondrion		Mitochondrion
+P25705	ATP5F1A	Mitochondrion	Mitochondrion	Mitochondrion
+P06576	ATP5F1B	Mitochondrion	Mitochondrion	Mitochondrion
+P36542	ATP5F1C	Mitochondrion	Mitochondrion	Mitochondrion
+P30049	ATP5F1D	Mitochondrion	Mitochondrion	
+P56381	ATP5F1E	Mitochondrion	Mitochondrion	
+Q9UII2	ATP5IF1	Mitochondrion	Mitochondrion	Mitochondrion
+P56385	ATP5ME	Mitochondrion	Mitochondrion	Mitochondrion
 P56134	ATP5MF	Mitochondrion		
 O75964	ATP5MG	Mitochondrion		Mitochondrion
 Q96IX5	ATP5MK	Mitochondrion		
-P24539	ATP5PB	Mitochondrion		Mitochondrion
+P24539	ATP5PB	Mitochondrion	Mitochondrion	Mitochondrion
 O75947	ATP5PD	Mitochondrion		Mitochondrion
-P18859	ATP5PF	Mitochondrion		
-P48047	ATP5PO	Mitochondrion		Mitochondrion
+P18859	ATP5PF	Mitochondrion	Mitochondrion	
+P48047	ATP5PO	Mitochondrion	Mitochondrion	Mitochondrion
 Q15904	ATP6AP1	Endoplasmic reticulum		Endosome
 O75787	ATP6AP2	Endoplasmic reticulum	Endoplasmic reticulum	
 Q93050	ATP6V0A1	Recycling endosome		Endosome
@@ -548,19 +548,19 @@ P98198	ATP8B2	Recycling endosome
 O75110	ATP9A	Recycling endosome		
 O43861	ATP9B	trans-Golgi network		
 Q5TC12	ATPAF1	Mitochondrion		
-Q8N5M1	ATPAF2	Mitochondrion		
+Q8N5M1	ATPAF2	Mitochondrion	Mitochondrion	
 Q13535	ATR	Nucleus		
 O75882	ATRN	Early endosome		
 P46100	ATRX	Nucleus	Nucleus	
 Q9UBB4	ATXN10	Cytosol		
-Q99700	ATXN2	Stress granule		
-Q8WWM7	ATXN2L	Stress granule		
+Q99700	ATXN2	Stress granule	Stress granule	
+Q8WWM7	ATXN2L	Stress granule	Stress granule	
 P54252	ATXN3	Cytosol	Cytosol	
 O15265	ATXN7	Nucleus	Nucleus	
 Q5T6C5	ATXN7L2	Nucleus		
 Q14CW9	ATXN7L3	Nucleus	Nucleus	
 Q96GX2	ATXN7L3B	Cytosol		
-Q13825	AUH	Mitochondrion		
+Q13825	AUH	Mitochondrion	Mitochondrion	
 Q9Y679	AUP1	Endoplasmic reticulum	Endoplasmic reticulum	
 O14965	AURKA	Nucleus		
 Q96GD4	AURKB	Nucleus		
@@ -606,7 +606,7 @@ Q8NFJ9	BBS1	Cytosol
 Q96RK4	BBS4	Centrosome		
 Q8IWZ6	BBS7	Cytosol		
 Q8WY36	BBX	Nucleus	Nucleus	
-P50895	BCAM	Cell membrane		Cell membrane
+P50895	BCAM	Cell membrane	Cell membrane	Cell membrane
 Q9UHQ4	BCAP29	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P51572	BCAP31	Endoplasmic reticulum	Endoplasmic reticulum	
 O75934	BCAS2	Nucleus		
@@ -614,9 +614,9 @@ Q9H6U6	BCAS3	Cytosol
 P54687	BCAT1	Cytosol		
 O15382	BCAT2	Mitochondrion		
 Q7Z5W3	BCDIN3D	Cytosol		
-P12694	BCKDHA	Mitochondrion		Mitochondrion
-P21953	BCKDHB	Mitochondrion		Mitochondrion
-O14874	BCKDK	Mitochondrion		
+P12694	BCKDHA	Mitochondrion	Mitochondrion	Mitochondrion
+P21953	BCKDHB	Mitochondrion	Mitochondrion	Mitochondrion
+O14874	BCKDK	Mitochondrion	Mitochondrion	
 O95999	BCL10	Cytosol		
 Q9H165	BCL11A	Nucleus		
 Q07817	BCL2L1	Mitochondrion		
@@ -630,8 +630,8 @@ Q9NYF8	BCLAF1	Nucleus
 Q6W2J9	BCOR	Nucleus		
 Q5H9F3	BCORL1	Nucleus		
 P11274	BCR	Cytosol		
-Q9Y276	BCS1L	Mitochondrion		
-Q02338	BDH1	Mitochondrion		
+Q9Y276	BCS1L	Mitochondrion	Mitochondrion	
+Q02338	BDH1	Mitochondrion	Mitochondrion	
 Q9BUT1	BDH2	Cytosol		
 A6H8Y1	BDP1	Nucleus	Nucleus	
 Q14457	BECN1	Early endosome		
@@ -639,7 +639,7 @@ Q5T5X7	BEND3	Nucleus	Nucleus
 O15155	BET1	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic reticulum-Golgi intermediate compartment
 Q9NYM9	BET1L	Golgi apparatus		
 Q96G01	BICD1	Recycling endosome		
-Q8TD16	BICD2	Cell membrane		
+Q8TD16	BICD2	Cell membrane	Cell membrane	
 Q9NZM4	BICRA	Nucleus		
 Q6AI39	BICRAL	Nucleus	Nucleus	
 P55957	BID	Cytosol		
@@ -681,7 +681,7 @@ Q96GS4	BORCS6	Lysosome
 Q96B45	BORCS7	Lysosome		
 Q96FH0	BORCS8	Lysosome		
 P07738	BPGM	Cytosol	Cytosol	
-Q86WA6	BPHL	Mitochondrion		
+Q86WA6	BPHL	Mitochondrion	Mitochondrion	
 O95861	BPNT1	Cytosol		
 Q9NX62	BPNT2	Golgi apparatus	Golgi apparatus	
 Q12830	BPTF	Nucleus		
@@ -711,7 +711,7 @@ Q9ULD4	BRPF3	Nucleus
 Q8IWQ3	BRSK2	Cytosol		
 Q9NSI6	BRWD1	Nucleus	Nucleus	
 Q9NW68	BSDC1	Golgi apparatus	Golgi apparatus	
-P35613	BSG	Cell membrane		Cell membrane
+P35613	BSG	Cell membrane	Cell membrane	Cell membrane
 O14981	BTAF1	Nucleus		
 Q9BX70	BTBD2	Golgi apparatus		
 Q96Q07	BTBD9	Cell membrane		
@@ -747,7 +747,7 @@ A1L170	C1orf226	Cell membrane
 Q9BWL3	C1orf43	Endoplasmic reticulum		
 Q9BV19	C1orf50	Cytosol	Cytosol	
 Q8N6N3	C1orf52	Cytosol		
-Q07021	C1QBP	Mitochondrion		
+Q07021	C1QBP	Mitochondrion	Mitochondrion	
 O14523	C2CD2L	Endoplasmic reticulum		
 Q4AC94	C2CD3	Centrosome	Centrosome	
 Q86YS7	C2CD5	Cell membrane		
@@ -786,7 +786,7 @@ Q08289	CACNB2	Nucleus
 Q8WUQ7	CACTIN	Nucleus		
 Q9HB71	CACYBP	Cytosol		
 P27708	CAD	Cytosol		
-Q9BY67	CADM1	Cell membrane		Cell membrane
+Q9BY67	CADM1	Cell membrane	Cell membrane	Cell membrane
 Q8NFZ8	CADM4	Cell membrane		
 Q86UW7	CADPS2	Cytosol		
 Q9P1Z2	CALCOCO1	Cytosol	Cytosol	
@@ -819,7 +819,7 @@ O75808	CAPN15	Cytosol
 O15484	CAPN5	Cell membrane		
 Q9Y6W3	CAPN7	Cytosol		
 P04632	CAPNS1	Cytosol		
-Q14444	CAPRIN1	Stress granule		
+Q14444	CAPRIN1	Stress granule	Stress granule	
 P52907	CAPZA1	Cytoskeleton		
 P47755	CAPZA2	Cytoskeleton		
 P47756	CAPZB	Cytoskeleton		
@@ -852,7 +852,7 @@ Q6NZI2	CAVIN1	Cell membrane
 Q13951	CBFB	Cytosol		
 P22681	CBL	Cytosol		
 P16152	CBR1	Mitochondrion		
-Q8N4T8	CBR4	Mitochondrion		
+Q8N4T8	CBR4	Mitochondrion	Mitochondrion	
 P35520	CBS	Cytosol		
 P83916	CBX1	Nucleus		
 Q14781	CBX2	Nucleus		
@@ -895,7 +895,7 @@ A6NKD9	CCDC85C	Cell membrane
 Q9H6F5	CCDC86	Nucleolus		
 Q3V6T2	CCDC88A	Endoplasmic reticulum		
 Q9Y3X0	CCDC9	Stress granule		
-Q9GZT6	CCDC90B	Mitochondrion		
+Q9GZT6	CCDC90B	Mitochondrion	Mitochondrion	
 Q7Z6B0	CCDC91	Cytosol	Cytosol	
 Q567U6	CCDC93	Early endosome		
 Q96F63	CCDC97	Nucleolus		
@@ -922,22 +922,22 @@ P40227	CCT6A	Cytoskeleton		Large protein complex
 Q99832	CCT7	Cytoskeleton		Large protein complex
 P50990	CCT8	Cytoskeleton		Large protein complex
 P86790	CCZ1B	Lysosome		
-Q6YHK3	CD109	Cell membrane		Cell membrane
-P48509	CD151	Cell membrane		
-Q5ZPR3	CD276	Cell membrane		
+Q6YHK3	CD109	Cell membrane	Cell membrane	Cell membrane
+P48509	CD151	Cell membrane	Cell membrane	
+Q5ZPR3	CD276	Cell membrane	Cell membrane	
 Q9Y5K6	CD2AP	Cytoskeleton		
 O95400	CD2BP2	Nucleus		
 Q8IX05	CD302	Recycling endosome		
 Q9NPF0	CD320	Endoplasmic reticulum		
 P25942	CD40	Cell membrane		
-P15529	CD46	Cell membrane		Cell membrane
-Q08722	CD47	Cell membrane		Cell membrane
-P19256	CD58	Cell membrane		Cell membrane
+P15529	CD46	Cell membrane	Cell membrane	Cell membrane
+Q08722	CD47	Cell membrane	Cell membrane	Cell membrane
+P19256	CD58	Cell membrane	Cell membrane	Cell membrane
 P08962	CD63	Cell membrane	Lysosome	
-P60033	CD81	Cell membrane		
-P21926	CD9	Cell membrane		Cell membrane
-P14209	CD99	Cell membrane		Cell membrane
-Q8TCZ2	CD99L2	Cell membrane		
+P60033	CD81	Cell membrane	Cell membrane	
+P21926	CD9	Cell membrane	Cell membrane	Cell membrane
+P14209	CD99	Cell membrane	Cell membrane	Cell membrane
+Q8TCZ2	CD99L2	Cell membrane	Cell membrane	
 Q13042	CDC16	Nucleus		
 Q12834	CDC20	Nucleus		
 Q9UJX2	CDC23	Nucleus		
@@ -948,7 +948,7 @@ P49427	CDC34	Cytosol
 Q16543	CDC37	Cytosol		
 Q7L3B6	CDC37L1	Cytosol	Cytosol	
 O60508	CDC40	Nucleus		
-P60953	CDC42	Cell membrane		
+P60953	CDC42	Cell membrane	Cell membrane	
 Q5VT25	CDC42BPA	Cytoskeleton		
 Q9Y5S2	CDC42BPB	Cytoskeleton		
 Q00587	CDC42EP1	Cell membrane		
@@ -1004,9 +1004,9 @@ P17676	CEBPB	Nucleus	Nucleus
 P53567	CEBPG	Nucleus	Nucleus	
 Q03701	CEBPZ	Nucleolus	Nucleus	
 Q9BXF3	CECR2	Nucleus		
-Q92879	CELF1	Nucleus		
+Q92879	CELF1	Nucleus	Stress granule	
 Q9HCU4	CELSR2	Cell membrane		
-Q9UHN6	CEMIP2	Recycling endosome		
+Q9UHN6	CEMIP2	Recycling endosome	Cell membrane	
 Q86UT8	CENATAC	Nucleus		
 P07199	CENPB	Nucleus	Nucleus	
 Q03188	CENPC	Nucleus	Nucleus	
@@ -1067,9 +1067,9 @@ Q13111	CHAF1A	Nucleus
 Q13112	CHAF1B	Nucleus		
 Q96JM3	CHAMP1	Nucleus		
 Q96BP2	CHCHD1	Mitochondrion		
-Q8WYQ3	CHCHD10	Mitochondrion		
+Q8WYQ3	CHCHD10	Mitochondrion	Mitochondrion	
 Q9Y6H1	CHCHD2	Mitochondrion		
-Q9NX63	CHCHD3	Mitochondrion		Mitochondrion
+Q9NX63	CHCHD3	Mitochondrion	Mitochondrion	Mitochondrion
 Q8N4Q1	CHCHD4	Mitochondrion		
 Q9BRQ6	CHCHD6	Mitochondrion		
 O14646	CHD1	Nucleus		
@@ -1122,7 +1122,7 @@ Q96RK0	CIC	Nucleus
 Q9BW66	CINP	Cytosol		
 Q8TCG1	CIP2A	Cytosol		
 Q86X95	CIR1	Nucleolus		
-Q14011	CIRBP	Nucleus		
+Q14011	CIRBP	Nucleus	Stress granule	
 Q9NZ45	CISD1	Mitochondrion		Mitochondrion
 Q8N5K1	CISD2	Endoplasmic reticulum	Endoplasmic reticulum	
 O14578	CIT	Cell membrane		
@@ -1141,11 +1141,11 @@ P51790	CLCN3	trans-Golgi network		Endosome
 P51795	CLCN5	trans-Golgi network		
 P51798	CLCN7	Lysosome		Lysosome
 P56749	CLDN12	Cell membrane		
-Q9NY35	CLDND1	Cell membrane		
+Q9NY35	CLDND1	Cell membrane	Cell membrane	
 Q2KHT3	CLEC16A	Golgi apparatus		
 O14967	CLGN	Endoplasmic reticulum		
 O00299	CLIC1	Cytosol		
-Q9Y696	CLIC4	Cell membrane		
+Q9Y696	CLIC4	Cell membrane	Cell membrane	
 Q96NY7	CLIC6	Cytosol		
 Q14677	CLINT1	Early endosome		
 P30622	CLIP1	Cytosol		
@@ -1159,11 +1159,11 @@ O75503	CLN5	Lysosome
 Q9NWW5	CLN6	Endoplasmic reticulum		
 Q9UBY8	CLN8	Endoplasmic reticulum		
 P54105	CLNS1A	Cytosol		
-Q9H078	CLPB	Mitochondrion		
-Q16740	CLPP	Mitochondrion		Mitochondrion
+Q9H078	CLPB	Mitochondrion	Mitochondrion	
+Q16740	CLPP	Mitochondrion	Mitochondrion	Mitochondrion
 O96005	CLPTM1	Endoplasmic reticulum	Endoplasmic reticulum	
 Q96KA5	CLPTM1L	Endoplasmic reticulum	Endoplasmic reticulum	
-O76031	CLPX	Mitochondrion		Mitochondrion
+O76031	CLPX	Mitochondrion	Mitochondrion	Mitochondrion
 Q9HAW4	CLSPN	Cytosol		
 O94985	CLSTN1	Golgi apparatus		
 P09496	CLTA	Early endosome		Large protein complex
@@ -1174,8 +1174,8 @@ O75153	CLUH	Stress granule
 Q8N0X4	CLYBL	Mitochondrion		
 Q8NFW8	CMAS	Nucleolus		
 Q96DG6	CMBL	Cytosol		
-Q7Z7K0	CMC1	Mitochondrion		
-Q9NRP2	CMC2	Mitochondrion		
+Q7Z7K0	CMC1	Mitochondrion	Mitochondrion	
+Q9NRP2	CMC2	Mitochondrion	Mitochondrion	
 P56277	CMC4	Mitochondrion		
 Q8IY22	CMIP	Cytosol		
 P30085	CMPK1	Cytosol		
@@ -1191,7 +1191,7 @@ Q9P003	CNIH4	Endoplasmic reticulum
 Q6P9H4	CNKSR3	Cell membrane		
 Q15417	CNN3	Cytoskeleton		
 Q9H8M5	CNNM2	Cell membrane		Cell membrane
-Q8NE01	CNNM3	Cell membrane		Cell membrane
+Q8NE01	CNNM3	Cell membrane	Cell membrane	Cell membrane
 Q6P4Q7	CNNM4	Cell membrane		
 A5YKK6	CNOT1	Stress granule		Large protein complex
 Q9H9A5	CNOT10	Stress granule		Large protein complex
@@ -1204,7 +1204,7 @@ Q96LI5	CNOT6L	Stress granule		Large protein complex
 Q9UIV1	CNOT7	Stress granule		Large protein complex
 Q9UFF9	CNOT8	Stress granule		Large protein complex
 Q92600	CNOT9	Stress granule		
-P09543	CNP	Cell membrane		
+P09543	CNP	Cell membrane	Cell membrane	
 Q9Y2B0	CNPY2	Endoplasmic reticulum	Endoplasmic reticulum	
 Q9BT09	CNPY3	Endoplasmic reticulum		
 Q8N129	CNPY4	Endoplasmic reticulum	Endoplasmic reticulum	
@@ -1219,10 +1219,10 @@ Q9GZY4	COA1	Mitochondrion
 Q9Y2R0	COA3	Mitochondrion		Mitochondrion
 Q9NYJ1	COA4	Mitochondrion		
 Q86WW8	COA5	Nucleus		
-Q5JTJ3	COA6	Mitochondrion		
+Q5JTJ3	COA6	Mitochondrion	Mitochondrion	
 Q96BR5	COA7	Mitochondrion		Mitochondrion
 Q13057	COASY	Mitochondrion		
-O75128	COBL	Cytoskeleton		
+O75128	COBL	Cytoskeleton	Cytoskeleton	
 O43405	COCH	Early endosome		
 Q8WTW3	COG1	Golgi apparatus		
 Q14746	COG2	Golgi apparatus		Golgi apparatus
@@ -1270,34 +1270,34 @@ Q9H9Q2	COPS7B	Cytosol
 Q99627	COPS8	Cytosol		
 Q8WXC6	COPS9	Cytosol		
 P61923	COPZ1	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic reticulum-Golgi intermediate compartment	Large protein complex
-Q9NZJ6	COQ3	Mitochondrion		
-Q5HYK3	COQ5	Mitochondrion		
-Q9Y2Z9	COQ6	Mitochondrion		
-Q99807	COQ7	Mitochondrion		
-Q8NI60	COQ8A	Mitochondrion		
+Q9NZJ6	COQ3	Mitochondrion	Mitochondrion	
+Q5HYK3	COQ5	Mitochondrion	Mitochondrion	
+Q9Y2Z9	COQ6	Mitochondrion	Mitochondrion	
+Q99807	COQ7	Mitochondrion	Mitochondrion	
+Q8NI60	COQ8A	Mitochondrion	Mitochondrion	
 Q96D53	COQ8B	Mitochondrion		
-O75208	COQ9	Mitochondrion		
+O75208	COQ9	Mitochondrion	Mitochondrion	
 P31146	CORO1A	Cell membrane		
-Q9BR76	CORO1B	Cytoskeleton		Actin binding proteins
+Q9BR76	CORO1B	Cytoskeleton	Cytoskeleton	Actin binding proteins
 Q9ULV4	CORO1C	Cytoskeleton		Actin binding proteins
-Q92828	CORO2A	Cytoskeleton		Actin binding proteins
+Q92828	CORO2A	Cytoskeleton	Cytoskeleton	Actin binding proteins
 P57737	CORO7	Cytosol		
 Q14019	COTL1	Cytosol		
 Q12887	COX10	Nucleus		
-Q9Y6N1	COX11	Mitochondrion		
-Q7KZN9	COX15	Mitochondrion		
-Q14061	COX17	Mitochondrion		
+Q9Y6N1	COX11	Mitochondrion	Mitochondrion	
+Q7KZN9	COX15	Mitochondrion	Mitochondrion	
+Q14061	COX17	Mitochondrion	Mitochondrion	
 Q49B96	COX19	Mitochondrion		
 Q5RI15	COX20	Mitochondrion		
-P13073	COX4I1	Mitochondrion		Mitochondrion
-P20674	COX5A	Mitochondrion		Mitochondrion
-P10606	COX5B	Mitochondrion		
-P12074	COX6A1	Mitochondrion		
-P14854	COX6B1	Mitochondrion		
-P09669	COX6C	Mitochondrion		Mitochondrion
-P14406	COX7A2	Mitochondrion		
+P13073	COX4I1	Mitochondrion	Mitochondrion	Mitochondrion
+P20674	COX5A	Mitochondrion	Mitochondrion	Mitochondrion
+P10606	COX5B	Mitochondrion	Mitochondrion	
+P12074	COX6A1	Mitochondrion	Mitochondrion	
+P14854	COX6B1	Mitochondrion	Mitochondrion	
+P09669	COX6C	Mitochondrion	Mitochondrion	Mitochondrion
+P14406	COX7A2	Mitochondrion	Mitochondrion	
 O14548	COX7A2L	Mitochondrion		
-P15954	COX7C	Mitochondrion		Mitochondrion
+P15954	COX7C	Mitochondrion	Mitochondrion	Mitochondrion
 P10176	COX8A	Mitochondrion		
 O75976	CPD	trans-Golgi network		
 P16870	CPE	Early endosome		
@@ -1316,7 +1316,7 @@ Q9UKF6	CPSF3	Nucleus
 Q16630	CPSF6	Nucleus		
 Q8N684	CPSF7	Nucleus		
 P50416	CPT1A	Endoplasmic reticulum		Mitochondrion
-P23786	CPT2	Mitochondrion		
+P23786	CPT2	Mitochondrion	Mitochondrion	
 Q5TA50	CPTP	Cytosol	Cytosol	
 Q9H3G5	CPVL	Lysosome		
 P29373	CRABP2	Cytosol		
@@ -1324,7 +1324,7 @@ Q6ZU35	CRACD	Cytoskeleton
 Q9BSW2	CRACR2A	Recycling endosome		
 P78560	CRADD	Cytosol	Cytosol	
 Q96RY5	CRAMP1	Nucleus		
-P43155	CRAT	Mitochondrion		
+P43155	CRAT	Mitochondrion	Mitochondrion	
 O75575	CRCP	Cytosol		
 P16220	CREB1	Nucleus		
 Q02930	CREB5	Nucleus		
@@ -1350,22 +1350,22 @@ Q68DQ2	CRYBG3	Cytosol
 P07320	CRYGD	Cytosol		
 Q08257	CRYZ	Mitochondrion		
 O95825	CRYZL1	Early endosome		
-O75390	CS	Mitochondrion		Mitochondrion
+O75390	CS	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y600	CSAD	Cytosol	Cytosol	
-O75534	CSDE1	Stress granule		
+O75534	CSDE1	Stress granule	Stress granule	
 P55060	CSE1L	Cytosol		
 P41240	CSK	Cytosol		
 P48729	CSNK1A1	Nucleus		
 P48730	CSNK1D	Centrosome		
 P78368	CSNK1G2	Recycling endosome		
-Q9Y6M4	CSNK1G3	Recycling endosome		
+Q9Y6M4	CSNK1G3	Recycling endosome	Cell membrane	
 P68400	CSNK2A1	Cytosol		Large protein complex
 P19784	CSNK2A2	Cytosol		Large protein complex
 P67870	CSNK2B	Cytosol		Large protein complex
-Q6UVK1	CSPG4	Cell membrane		Cell membrane
+Q6UVK1	CSPG4	Cell membrane	Cell membrane	Cell membrane
 O95196	CSPG5	Cell membrane		
 Q1MSJ5	CSPP1	Centrosome	Centrosome	
-Q16527	CSRP2	Cell membrane		
+Q16527	CSRP2	Cell membrane	Cytoskeleton	
 P01034	CST3	Golgi apparatus		
 P04080	CSTB	Cytosol		
 Q05048	CSTF1	Nucleus		
@@ -1400,7 +1400,7 @@ P09668	CTSH	Lysosome	Lysosome
 P07711	CTSL	Lysosome	Lysosome	Lysosome
 O60911	CTSV	Lysosome		
 Q9UBR2	CTSZ	Lysosome	Early endosome	Lysosome
-Q14247	CTTN	Cytoskeleton		Actin binding proteins
+Q14247	CTTN	Cytoskeleton	Cytoskeleton	Actin binding proteins
 Q8WZ74	CTTNBP2	Cytoskeleton		
 Q9P2B4	CTTNBP2NL	Cytoskeleton		
 Q7Z7A3	CTU1	Cytosol		
@@ -1419,7 +1419,7 @@ Q9HCG8	CWC22	Nucleus
 Q9NXE8	CWC25	Nucleus		
 Q6UX04	CWC27	Nucleus		
 Q2TBE0	CWF19L2	Nucleus		
-P78310	CXADR	Cell membrane		Cell membrane
+P78310	CXADR	Cell membrane	Cell membrane	Cell membrane
 Q8TB03	CXorf38	Cytosol		
 Q9P0U4	CXXC1	Nucleus		
 O14569	CYB561D2	Golgi apparatus	Endoplasmic reticulum	
@@ -1429,8 +1429,8 @@ Q9UHQ9	CYB5R1	Mitochondrion
 P00387	CYB5R3	Endoplasmic reticulum		
 Q7L1T6	CYB5R4	Cytosol		
 Q9BQA9	CYBC1	Endoplasmic reticulum		
-P08574	CYC1	Mitochondrion		
-P99999	CYCS	Mitochondrion		Mitochondrion
+P08574	CYC1	Mitochondrion	Mitochondrion	
+P99999	CYCS	Mitochondrion	Mitochondrion	Mitochondrion
 Q7L576	CYFIP1	Cytoskeleton		
 Q96F07	CYFIP2	Cytoskeleton		
 Q9NQC7	CYLD	Cytosol		
@@ -1439,7 +1439,7 @@ Q4G0S4	CYP27C1	Nucleus
 Q7Z449	CYP2U1	Endoplasmic reticulum		
 Q16850	CYP51A1	Endoplasmic reticulum	Endoplasmic reticulum	
 Q9BWK5	CYREN	Cytosol		
-Q9NUQ9	CYRIB	Cytosol		
+Q9NUQ9	CYRIB	Cytosol	Cell membrane	
 Q9H1C7	CYSTM1	trans-Golgi network		
 Q15438	CYTH1	Cell membrane		
 Q9NWV4	CZIB	Cytosol		
@@ -1449,19 +1449,19 @@ Q86T65	DAAM2	Cell membrane
 P98082	DAB2	Cell membrane		Cell membrane
 Q9UI36	DACH1	Nucleus		
 P61803	DAD1	Endoplasmic reticulum	Endoplasmic reticulum	
-Q14118	DAG1	Cell membrane		Cell membrane
+Q14118	DAG1	Cell membrane	Cell membrane	Cell membrane
 Q8NCG7	DAGLB	trans-Golgi network		
 Q5D0E6	DALRD3	Cytosol	Cytosol	
 P51397	DAP	Cytosol		
 P51398	DAP3	Mitochondrion		Mitochondrion
 O43293	DAPK3	Cytoskeleton		
 Q6PI48	DARS2	Mitochondrion		Mitochondrion
-Q96EP5	DAZAP1	Nucleus		
+Q96EP5	DAZAP1	Nucleus	Stress granule	
 P07108	DBI	Cytosol		
 Q16643	DBN1	Cytoskeleton		Actin binding proteins
 Q9H9R9	DBNDD1	Cytosol		
-Q9UJU6	DBNL	Cytoskeleton		
-P11182	DBT	Mitochondrion		Mitochondrion
+Q9UJU6	DBNL	Cytoskeleton	Cytoskeleton	
+P11182	DBT	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y4B6	DCAF1	Cytosol		
 Q5QP82	DCAF10	Cytosol		
 Q8TEB1	DCAF11	Cytosol	Cytosol	
@@ -1489,7 +1489,7 @@ Q9H773	DCTPP1	Cytosol
 Q9BTE7	DCUN1D5	Nucleus		
 Q7Z4W1	DCXR	Mitochondrion		
 Q9BW61	DDA1	Cytosol		
-O94760	DDAH1	Cytosol		
+O94760	DDAH1	Cytosol	Cell membrane	
 O95865	DDAH2	Cell membrane		
 Q8NEL9	DDHD1	Cytosol		
 O94830	DDHD2	Early endosome		
@@ -1498,7 +1498,7 @@ P39656	DDOST	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q16832	DDR2	Cytosol		Cell membrane
 Q96HY6	DDRGK1	Endoplasmic reticulum	Endoplasmic reticulum	
 P30046	DDT	Cytosol		
-Q92499	DDX1	Stress granule		
+Q92499	DDX1	Stress granule	Stress granule	
 Q13206	DDX10	Nucleolus		
 Q96FC9	DDX11	Cytosol		
 A8MPP1	DDX11L8	Cytosol		
@@ -1514,7 +1514,7 @@ Q9NUL7	DDX28	Mitochondrion
 Q9H8H2	DDX31	Nucleolus		
 O00148	DDX39A	Nucleus		
 Q13838	DDX39B	Nucleus		
-O00571	DDX3X	Nucleus		
+O00571	DDX3X	Nucleus	Stress granule	
 Q9UJV9	DDX41	Nucleus		
 Q86XP3	DDX42	Nucleus		
 Q7L014	DDX46	Nucleus		
@@ -1529,7 +1529,7 @@ Q8NHQ9	DDX55	Nucleolus
 Q9NY93	DDX56	Nucleolus		
 P26196	DDX6	Stress granule	P-body	
 O75398	DEAF1	Nucleus	Nucleus	
-Q16698	DECR1	Mitochondrion		
+Q16698	DECR1	Mitochondrion	Mitochondrion	
 Q9NUI1	DECR2	Peroxisome		Peroxisome
 Q9H4E7	DEF6	14-3-3 scaffold		
 Q6ZN54	DEF8	Lysosome		
@@ -1570,13 +1570,13 @@ O75911	DHRS3	Endoplasmic reticulum	Endoplasmic reticulum
 Q9BTZ2	DHRS4	Endoplasmic reticulum	Peroxisome	
 Q9Y394	DHRS7	Endoplasmic reticulum	Endoplasmic reticulum	
 Q6IAN0	DHRS7B	Endoplasmic reticulum	Endoplasmic reticulum	
-Q96HY7	DHTKD1	Mitochondrion		
+Q96HY7	DHTKD1	Mitochondrion	Mitochondrion	
 O43143	DHX15	Nucleus		
 Q7Z478	DHX29	Stress granule		
 Q7L2E3	DHX30	Mitochondrion		
 Q9H6R0	DHX33	Nucleolus	Nucleus	
 Q9H5Z1	DHX35	Nucleus		
-Q9H2U1	DHX36	Stress granule		
+Q9H2U1	DHX36	Stress granule	Stress granule	
 Q8IY37	DHX37	Nucleolus		
 Q92620	DHX38	Cytosol		
 Q8IX18	DHX40	Nucleus		
@@ -1601,14 +1601,14 @@ Q8TF46	DIS3L	Cytosol
 Q8IYB7	DIS3L2	Cytosol		
 Q9NRI5	DISC1	Early endosome		
 O60832	DKC1	Nucleolus		
-P10515	DLAT	Mitochondrion		Mitochondrion
-P09622	DLD	Mitochondrion		Mitochondrion
+P10515	DLAT	Mitochondrion	Mitochondrion	Mitochondrion
+P09622	DLD	Mitochondrion	Mitochondrion	Mitochondrion
 Q12959	DLG1	Cell membrane		
 Q92796	DLG3	Cell membrane		
 Q8TDM6	DLG5	Cell membrane		
 Q9Y2H0	DLGAP4	Cell membrane		
 Q15398	DLGAP5	Nucleus		
-P36957	DLST	Mitochondrion		Mitochondrion
+P36957	DLST	Mitochondrion	Mitochondrion	Mitochondrion
 Q07687	DLX2	Nucleus	Nucleus	
 P56179	DLX6	Nucleus		
 Q96GE9	DMAC1	Mitochondrion		
@@ -1622,7 +1622,7 @@ P51530	DNA2	Cytosol
 Q96MX6	DNAAF10	Translation		
 Q9NVR5	DNAAF2	Cytosol		
 Q86Y56	DNAAF5	Cytosol		
-Q96EY1	DNAJA3	Mitochondrion		Mitochondrion
+Q96EY1	DNAJA3	Mitochondrion	Mitochondrion	Mitochondrion
 P25685	DNAJB1	Cytosol		
 Q9UBS4	DNAJB11	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q9NXW2	DNAJB12	Endoplasmic reticulum	Endoplasmic reticulum	
@@ -1630,7 +1630,7 @@ Q8TBM8	DNAJB14	Endoplasmic reticulum	Endoplasmic reticulum
 Q9UDY4	DNAJB4	Cytosol		
 Q96KC8	DNAJC1	Endoplasmic reticulum	Endoplasmic reticulum	
 Q8IXB1	DNAJC10	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
-Q9NVH1	DNAJC11	Mitochondrion		
+Q9NVH1	DNAJC11	Mitochondrion	Mitochondrion	
 Q9UKB3	DNAJC12	Cytosol	Cytosol	
 O75165	DNAJC13	trans-Golgi network	Early endosome	Endosome
 Q6Y2X3	DNAJC14	Endoplasmic reticulum		
@@ -1696,10 +1696,10 @@ Q9BPU6	DPYSL5	Cytosol
 Q6UX65	DRAM2	Lysosome		
 Q9Y295	DRG1	Translation		
 Q9NRR4	DROSHA	Nucleolus		
-Q02487	DSC2	Cell membrane		Cell membrane
+Q02487	DSC2	Cell membrane	Cell membrane	Cell membrane
 Q14574	DSC3	Cell membrane		
 Q9UL01	DSE	Golgi apparatus		
-Q14126	DSG2	Cell membrane		Cell membrane
+Q14126	DSG2	Cell membrane	Cell membrane	Cell membrane
 Q03001	DST	Cell membrane		
 P60981	DSTN	Cytoskeleton		
 Q8TEA8	DTD1	Mitochondrion		
@@ -1739,9 +1739,9 @@ Q99848	EBNA1BP2	Nucleolus
 Q15125	EBP	Endoplasmic reticulum	Endoplasmic reticulum	
 O95905	ECD	Cytosol		
 P42892	ECE1	Recycling endosome		
-Q13011	ECH1	Mitochondrion		
+Q13011	ECH1	Mitochondrion	Mitochondrion	
 Q9NTX5	ECHDC1	Mitochondrion		
-P30084	ECHS1	Mitochondrion		Mitochondrion
+P30084	ECHS1	Mitochondrion	Mitochondrion	Mitochondrion
 P42126	ECI1	Mitochondrion		Mitochondrion
 O75521	ECI2	Peroxisome		
 Q5VYK3	ECPAS	Proteasome		
@@ -1769,10 +1769,10 @@ P52803	EFNA5	trans-Golgi network
 P98172	EFNB1	Cell membrane		
 P52799	EFNB2	Cell membrane		
 Q15768	EFNB3	Cell membrane		
-Q14156	EFR3A	Cell membrane		Cell membrane
+Q14156	EFR3A	Cell membrane	Cell membrane	Cell membrane
 Q15029	EFTUD2	Nucleus		
 Q9UHF1	EGFL7	Endoplasmic reticulum-Golgi intermediate compartment		
-P00533	EGFR	Cell membrane		Cell membrane
+P00533	EGFR	Cell membrane	Cell membrane	Cell membrane
 Q9GZT9	EGLN1	Nucleus		
 Q8NDI1	EHBP1	Cytosol		
 Q8N3D4	EHBP1L1	Cell membrane		
@@ -1800,34 +1800,34 @@ Q14152	EIF3A	Stress granule		Large protein complex
 P55884	EIF3B	Stress granule		Large protein complex
 Q99613	EIF3C	Stress granule		Large protein complex
 O15371	EIF3D	Stress granule		Large protein complex
-P60228	EIF3E	Stress granule		Large protein complex
+P60228	EIF3E	Stress granule	Stress granule	Large protein complex
 O00303	EIF3F	Translation		Large protein complex
-O75821	EIF3G	Stress granule		Large protein complex
-O15372	EIF3H	Stress granule		Large protein complex
+O75821	EIF3G	Stress granule	Stress granule	Large protein complex
+O15372	EIF3H	Stress granule	Stress granule	Large protein complex
 Q13347	EIF3I	Stress granule		Large protein complex
-O75822	EIF3J	Stress granule		
+O75822	EIF3J	Stress granule	Stress granule	
 Q9UBQ5	EIF3K	Translation		Large protein complex
-Q9Y262	EIF3L	Stress granule		Large protein complex
+Q9Y262	EIF3L	Stress granule	Stress granule	Large protein complex
 Q7L2H7	EIF3M	Translation		Large protein complex
-P60842	EIF4A1	Stress granule		Large protein complex
+P60842	EIF4A1	Stress granule	Stress granule	Large protein complex
 Q14240	EIF4A2	Stress granule		Large protein complex
 P38919	EIF4A3	Nucleus		Large protein complex
-P23588	EIF4B	Stress granule		Large protein complex
+P23588	EIF4B	Stress granule	Stress granule	Large protein complex
 P06730	EIF4E	Stress granule		Large protein complex
 O60573	EIF4E2	Stress granule		Large protein complex
 Q8N5X7	EIF4E3	Cytosol		
 Q13541	EIF4EBP1	Cytosol		
 Q13542	EIF4EBP2	Cytosol		
 Q9NRA8	EIF4ENIF1	P-body		Large protein complex
-Q04637	EIF4G1	Stress granule		Large protein complex
+Q04637	EIF4G1	Stress granule	Stress granule	Large protein complex
 P78344	EIF4G2	Stress granule		Large protein complex
 O43432	EIF4G3	Stress granule		Large protein complex
-Q15056	EIF4H	Translation		Large protein complex
+Q15056	EIF4H	Translation	Stress granule	Large protein complex
 P55010	EIF5	Stress granule		
 Q9GZV4	EIF5A2	Cytosol		
 O60841	EIF5B	Stress granule		
 Q9BQ52	ELAC2	Mitochondrion		Mitochondrion
-Q15717	ELAVL1	Nucleus		
+Q15717	ELAVL1	Nucleus	Stress granule	
 Q12926	ELAVL2	Stress granule		
 P32519	ELF1	Nucleus		
 Q15723	ELF2	Nucleus		
@@ -1879,19 +1879,19 @@ Q5NDL2	EOGT	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q09472	EP300	Nucleus		
 Q96L91	EP400	Nucleus	Nucleus	
 Q6ZTU2	EP400P1	Nucleus	Nucleus	
-P11171	EPB41	Cytoskeleton		
-Q9H4G0	EPB41L1	Cell membrane		
-O43491	EPB41L2	Cytoskeleton		
+P11171	EPB41	Cytoskeleton	Cell membrane	
+Q9H4G0	EPB41L1	Cell membrane	Cell membrane	
+O43491	EPB41L2	Cytoskeleton	Cell membrane	
 Q9Y2J2	EPB41L3	Cytoskeleton	Cytosol	
 Q9HCM4	EPB41L5	Cell membrane		
 Q9H2F5	EPC1	Cell membrane	Nucleus	
 Q52LR7	EPC2	Nucleus	Nucleus	
-P29317	EPHA2	Cell membrane		Cell membrane
+P29317	EPHA2	Cell membrane	Cell membrane	Cell membrane
 P29320	EPHA3	Cell membrane		
 P54764	EPHA4	Cell membrane		
 Q15375	EPHA7	Cell membrane		
 P29323	EPHB2	Cell membrane		
-P54760	EPHB4	Cell membrane		Cell membrane
+P54760	EPHB4	Cell membrane	Cell membrane	Cell membrane
 P07099	EPHX1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P34913	EPHX2	Peroxisome	Peroxisome	
 Q8IUS5	EPHX4	Endoplasmic reticulum		
@@ -1899,12 +1899,12 @@ Q9Y6I3	EPN1	Cytoskeleton
 O95208	EPN2	Cell membrane		
 P58107	EPPK1	Cytosol		
 P07814	EPRS1	Cytosol		Large protein complex
-P42566	EPS15	Cytoskeleton		
+P42566	EPS15	Cytoskeleton	Cell membrane	
 Q9UBC2	EPS15L1	Cytoskeleton		Cell membrane
 Q12929	EPS8	Cell membrane		
-O75616	ERAL1	Mitochondrion		
+O75616	ERAL1	Mitochondrion	Mitochondrion	
 Q9NZ08	ERAP1	Endoplasmic reticulum	Endoplasmic reticulum	
-P04626	ERBB2	Cell membrane		
+P04626	ERBB2	Cell membrane	Cell membrane	
 Q96RT1	ERBIN	Cell membrane		
 Q8IUD2	ERC1	Cytoskeleton		
 P18074	ERCC2	Nucleus		
@@ -1939,10 +1939,10 @@ P62508	ESRRG	Nucleus
 Q9BSJ8	ESYT1	Endoplasmic reticulum		
 A0FGR8	ESYT2	Endoplasmic reticulum		
 Q9NY74	ETAA1	Nucleus		
-P13804	ETFA	Mitochondrion		Mitochondrion
-P38117	ETFB	Mitochondrion		Mitochondrion
-Q16134	ETFDH	Mitochondrion		
-O95571	ETHE1	Mitochondrion		
+P13804	ETFA	Mitochondrion	Mitochondrion	Mitochondrion
+P38117	ETFB	Mitochondrion	Mitochondrion	Mitochondrion
+Q16134	ETFDH	Mitochondrion	Mitochondrion	
+O95571	ETHE1	Mitochondrion	Mitochondrion	
 Q9HBU6	ETNK1	Endoplasmic reticulum		
 P41162	ETV3	Nucleolus		
 Q9NVM1	EVA1B	Cell membrane		
@@ -1979,7 +1979,7 @@ Q99504	EYA3	Cytosol
 Q92800	EZH1	Nucleus		
 Q15910	EZH2	Nucleolus		
 P15311	EZR	Cell membrane		
-Q9Y624	F11R	Cell membrane		Cell membrane
+Q9Y624	F11R	Cell membrane	Cell membrane	Cell membrane
 P25116	F2R	Cell membrane		
 P23610	F8A1; F8A2; F8A3	Early endosome		
 Q0VG06	FAAP100	Cytosol		
@@ -1991,7 +1991,7 @@ Q9UNN5	FAF1	Nucleus
 Q96CS3	FAF2	Endoplasmic reticulum		
 P16930	FAH	Cytosol		
 Q6P587	FAHD1	Mitochondrion		
-Q96GK7	FAHD2A	Mitochondrion		
+Q96GK7	FAHD2A	Mitochondrion	Mitochondrion	
 Q6P2I3	FAHD2B	Nucleus		
 Q9NVQ4	FAIM	Cytosol		
 Q9H098	FAM107B	Cytosol		
@@ -2000,7 +2000,7 @@ Q9NRY5	FAM114A2	Golgi apparatus
 Q9C073	FAM117A	14-3-3 scaffold		
 Q9NWS6	FAM118A	Cytosol	Cytosol	
 Q9BPY3	FAM118B	Cytosol	Cytosol	
-Q9NZB2	FAM120A	Stress granule		
+Q9NZB2	FAM120A	Stress granule	Stress granule	
 Q9NX05	FAM120C	Stress granule		
 Q5BKY9	FAM133B	Nucleus		
 Q9P2D6	FAM135A	Cytosol		
@@ -2021,7 +2021,7 @@ Q96ND0	FAM210A	Mitochondrion
 Q96KR6	FAM210B	Mitochondrion		
 Q8IW50	FAM219A	trans-Golgi network		
 Q5XKK7	FAM219B	trans-Golgi network		
-Q9H0X4	FAM234A	Cell membrane		
+Q9H0X4	FAM234A	Cell membrane	Cell membrane	
 A2RU67	FAM234B	Early endosome		
 Q8N8J7	FAM241A	Endoplasmic reticulum		
 Q96D05	FAM241B	Endoplasmic reticulum		
@@ -2035,7 +2035,7 @@ A6ND36	FAM83G	14-3-3 scaffold
 Q6ZRV2	FAM83H	Cytosol		
 Q9UBU6	FAM8A1	Endoplasmic reticulum		
 Q658Y4	FAM91A1	trans-Golgi network		
-Q8NCA5	FAM98A	Stress granule		
+Q8NCA5	FAM98A	Stress granule	Stress granule	
 Q52LJ0	FAM98B	Nucleus		
 O15360	FANCA	Cytosol		
 Q8NB91	FANCB	Cytosol		
@@ -2045,12 +2045,12 @@ O15287	FANCG	Cytosol
 Q9NW38	FANCL	Cytosol		
 Q8WVX9	FAR1	Peroxisome		Peroxisome
 Q96K12	FAR2	Peroxisome		
-Q9Y4F1	FARP1	Cell membrane		Cell membrane
+Q9Y4F1	FARP1	Cell membrane	Cell membrane	Cell membrane
 O94887	FARP2	Cytoskeleton		
-O95363	FARS2	Mitochondrion		Mitochondrion
+O95363	FARS2	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y285	FARSA	Translation		
 Q9NSD9	FARSB	Stress granule		
-P25445	FAS	Cell membrane		Cell membrane
+P25445	FAS	Cell membrane	Cell membrane	Cell membrane
 P49327	FASN	Cytosol		
 Q53R41	FASTKD1	Mitochondrion		
 Q9NYY8	FASTKD2	Mitochondrion		
@@ -2092,16 +2092,16 @@ O94868	FCHSD2	Cell membrane
 Q8N0W3	FCSK	Cytosol	Cytosol	
 P37268	FDFT1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P14324	FDPS	Mitochondrion		
-P10109	FDX1	Mitochondrion		Mitochondrion
+P10109	FDX1	Mitochondrion	Mitochondrion	Mitochondrion
 Q6P4F2	FDX2	Mitochondrion		
-P22570	FDXR	Mitochondrion		Mitochondrion
-P22830	FECH	Mitochondrion		
+P22570	FDXR	Mitochondrion	Mitochondrion	Mitochondrion
+P22830	FECH	Mitochondrion	Mitochondrion	
 Q9UK73	FEM1B	Mitochondrion		
 Q96JP0	FEM1C	Cytosol		
 Q96AC1	FERMT2	Cytoskeleton		
 Q9UHY8	FEZ2	Cytosol	Cytosol	
 Q9NVK5	FGFR1OP2	Endoplasmic reticulum		
-P07954	FH	Mitochondrion		Mitochondrion
+P07954	FH	Mitochondrion	Mitochondrion	Mitochondrion
 Q8N612	FHIP1B	Cytosol		
 Q5W0V3	FHIP2A	Golgi apparatus		
 Q86V87	FHIP2B	Cytosol	Cytosol	
@@ -2109,7 +2109,7 @@ P49789	FHIT	Cytosol
 Q13642	FHL1	Nucleus	Cytosol	
 Q13643	FHL3	Cytosol		
 Q9Y613	FHOD1	Cytosol		
-O43427	FIBP	Cell membrane		
+O43427	FIBP	Cell membrane	Cell membrane	
 Q92562	FIG4	Lysosome		
 Q9NSG2	FIRRM	Cytosol		
 Q9Y3D6	FIS1	Endoplasmic reticulum		
@@ -2132,18 +2132,18 @@ Q8NFF5	FLAD1	Mitochondrion
 Q8NFG4	FLCN	Cytosol		
 Q13045	FLII	Cytoskeleton		
 P21333	FLNA	Cytoskeleton		Actin binding proteins
-O75369	FLNB	Cytoskeleton		Actin binding proteins
+O75369	FLNB	Cytoskeleton	Cytoskeleton	Actin binding proteins
 Q14315	FLNC	Cell membrane		
 O75955	FLOT1	Lysosome		
 Q14254	FLOT2	Lysosome		
 P35916	FLT4	Cell membrane		
-Q9Y5Y0	FLVCR1	Cell membrane		
+Q9Y5Y0	FLVCR1	Cell membrane	Cell membrane	
 Q4VC44	FLYWCH1	Nucleus	Nucleus	
 Q96CP2	FLYWCH2	Nucleus		
 Q96HJ9	FMC1	Mitochondrion		
 Q9NZ56	FMN2	Cell membrane		
 Q96PY5	FMNL2	Cytoskeleton		
-Q06787	FMR1	Stress granule		
+Q06787	FMR1	Stress granule	Stress granule	
 Q9HA64	FN3KRP	Cytosol		
 Q96RU3	FNBP1	Cytosol		
 Q5T0N5	FNBP1L	Cell membrane		
@@ -2178,7 +2178,7 @@ Q9BZ67	FRMD8	Cell membrane
 Q6ZNA5	FRRS1	Cell membrane		
 Q8WU20	FRS2	Cell membrane		
 O94915	FRYL	14-3-3 scaffold	Cytosol	
-Q16658	FSCN1	Cytosol		
+Q16658	FSCN1	Cytosol	Cell membrane	
 Q9BTV5	FSD1	Nucleus		
 Q12841	FSTL1	Endoplasmic reticulum		
 P02794	FTH1	Lysosome		
@@ -2186,25 +2186,25 @@ P02792	FTL	Lysosome
 Q9C0B1	FTO	Cytosol		
 Q9UET6	FTSJ1	Cell membrane		
 Q8IY81	FTSJ3	Nucleolus		
-Q96I24	FUBP3	Stress granule		
+Q96I24	FUBP3	Stress granule	Stress granule	
 P04066	FUCA1	Lysosome	Lysosome	
 Q9BTY2	FUCA2	Lysosome		
 Q8IVP5	FUNDC1	Mitochondrion		
 Q9BWH2	FUNDC2	Mitochondrion		
 A2VDF0	FUOM	Cytosol		
-P35637	FUS	Nucleus		
+P35637	FUS	Nucleus	Stress granule	
 Q495W5	FUT11	Endoplasmic reticulum		
 Q9BYC5	FUT8	Golgi apparatus		
-Q16595	FXN	Mitochondrion		
-P51114	FXR1	Stress granule		
-P51116	FXR2	Stress granule		
+Q16595	FXN	Mitochondrion	Mitochondrion	
+P51114	FXR1	Stress granule	Stress granule	
+P51116	FXR2	Stress granule	Stress granule	
 Q9H0Q3	FXYD6	Cell membrane		
 Q9BQS8	FYCO1	Lysosome		
 P06241	FYN	Cell membrane		Cell membrane
 Q96QD9	FYTTD1	Nucleus		
 O60353	FZD6	Cell membrane		
-Q13283	G3BP1	Stress granule		
-Q9UN86	G3BP2	Stress granule		
+Q13283	G3BP1	Stress granule	Stress granule	
+Q9UN86	G3BP2	Stress granule	Stress granule	
 Q9BUM1	G6PC3	Endoplasmic reticulum	Endoplasmic reticulum	
 P11413	G6PD	Cytosol		
 P10253	GAA	Lysosome	Lysosome	Lysosome
@@ -2240,16 +2240,16 @@ Q9H706	GAREM1	Cytosol
 O15063	GARRE1	14-3-3 scaffold		
 P41250	GARS1	Mitochondrion	Golgi apparatus	
 P22102	GART	Cytosol		
-P54826	GAS1	Cell membrane		Cell membrane
+P54826	GAS1	Cell membrane	Cell membrane	Cell membrane
 P43694	GATA4	Nucleus		
 Q92908	GATA6	Nucleus	Nucleus	
 Q8WUU5	GATAD1	Nucleus	Nucleus	
 Q86YP4	GATAD2A	Nucleus	Nucleus	
 Q8WXI9	GATAD2B	Nucleus		
-O75879	GATB	Mitochondrion		
-O43716	GATC	Mitochondrion		
+O75879	GATB	Mitochondrion	Mitochondrion	
+O43716	GATC	Mitochondrion	Mitochondrion	
 Q8NB37	GATD1	Early endosome		
-P0DPI2	GATD3	Mitochondrion		
+P0DPI2	GATD3	Mitochondrion	Mitochondrion	
 P04062	GBA1	Lysosome	Lysosome	Lysosome
 Q9HCG7	GBA2	Endoplasmic reticulum		
 Q04446	GBE1	Cytosol		
@@ -2258,7 +2258,7 @@ P28676	GCA	Cytosol	Cytosol
 O75600	GCAT	Mitochondrion		
 Q96CN9	GCC1	Golgi apparatus		
 Q8IWJ2	GCC2	Golgi apparatus		Golgi apparatus
-Q92947	GCDH	Mitochondrion		Mitochondrion
+Q92947	GCDH	Mitochondrion	Mitochondrion	Mitochondrion
 P30047	GCHFR	Cytosol		
 P23434	GCSH	Mitochondrion		
 Q8TB36	GDAP1	Mitochondrion		
@@ -2279,8 +2279,8 @@ O00258	GET1	Endoplasmic reticulum
 O43681	GET3	Endoplasmic reticulum		
 Q7L5D6	GET4	Early endosome		
 P55789	GFER	Mitochondrion		
-Q96RP9	GFM1	Mitochondrion		
-Q969S9	GFM2	Mitochondrion		
+Q96RP9	GFM1	Mitochondrion	Mitochondrion	
+Q969S9	GFM2	Mitochondrion	Mitochondrion	
 Q9NXC2	GFOD1	Recycling endosome		
 Q3B7J2	GFOD2	Recycling endosome		
 Q06210	GFPT1	Cytosol		
@@ -2295,7 +2295,7 @@ Q92820	GGH	Lysosome	Lysosome	Lysosome
 O95749	GGPS1	Cytosol	Cytosol	
 Q9UJ14	GGT7	Endoplasmic reticulum		
 Q8N2G8	GHDC	Endoplasmic reticulum	Endoplasmic reticulum	
-Q9H3K2	GHITM	Mitochondrion		
+Q9H3K2	GHITM	Mitochondrion	Mitochondrion	
 Q8IVV7	GID4	Cytosol		
 O75420	GIGYF1	Lysosome		
 Q6Y7W6	GIGYF2	Stress granule		
@@ -2318,7 +2318,7 @@ P16278	GLB1	Lysosome	Lysosome	Lysosome
 Q8IW92	GLB1L2	Golgi apparatus		
 Q86VQ1	GLCCI1	Cytosol		
 O94923	GLCE	Golgi apparatus		
-P23378	GLDC	Mitochondrion		
+P23378	GLDC	Mitochondrion	Mitochondrion	
 Q53GS7	GLE1	Endoplasmic reticulum	Endoplasmic reticulum-Golgi intermediate compartment	
 Q92896	GLG1	trans-Golgi network		Golgi apparatus
 P10071	GLI3	Nucleus		
@@ -2331,7 +2331,7 @@ P35754	GLRX	Cytosol
 Q9NS18	GLRX2	Mitochondrion		
 O76003	GLRX3	Cytosol		
 Q86SX6	GLRX5	Mitochondrion		
-O94925	GLS	Mitochondrion		
+O94925	GLS	Mitochondrion	Mitochondrion	
 Q68CQ7	GLT8D1	Golgi apparatus	Golgi apparatus	
 Q9NZD2	GLTP	Cytosol		
 P00367	GLUD1	Mitochondrion		Mitochondrion
@@ -2348,25 +2348,25 @@ Q9Y5P6	GMPPB	Cytosol	Cytosol
 P36959	GMPR	Cytosol		
 Q9P2T1	GMPR2	Cytosol		
 P49915	GMPS	Cytosol		
-P29992	GNA11	Cell membrane		
-Q14344	GNA13	Cell membrane		
-P63096	GNAI1	Cell membrane		
-P04899	GNAI2	Cell membrane		
-P08754	GNAI3	Cell membrane		
-P50148	GNAQ	Cell membrane		
+P29992	GNA11	Cell membrane	Cell membrane	
+Q14344	GNA13	Cell membrane	Cell membrane	
+P63096	GNAI1	Cell membrane	Cell membrane	
+P04899	GNAI2	Cell membrane	Cell membrane	
+P08754	GNAI3	Cell membrane	Cell membrane	
+P50148	GNAQ	Cell membrane	Cell membrane	
 P63092	GNAS	Cell membrane		Cell membrane
 P19086	GNAZ	Cell membrane		
-P62873	GNB1	Cell membrane		
+P62873	GNB1	Cell membrane	Cell membrane	
 Q9BYB4	GNB1L	Cytosol		
-P62879	GNB2	Cell membrane		
-Q9HAV0	GNB4	Cell membrane		
+P62879	GNB2	Cell membrane	Cell membrane	
+Q9HAV0	GNB4	Cell membrane	Cell membrane	
 O14775	GNB5	Cytosol	Cytosol	
 Q9Y223	GNE	Cytosol		
 P50151	GNG10	Cell membrane		
-Q9UBI6	GNG12	Cell membrane		
+Q9UBI6	GNG12	Cell membrane	Cell membrane	
 P59768	GNG2	Cell membrane		
 P50150	GNG4	Cell membrane		
-P63218	GNG5	Cell membrane		
+P63218	GNG5	Cell membrane	Cell membrane	
 O60262	GNG7	Cell membrane		
 P36915	GNL1	Cytosol		
 Q13823	GNL2	Nucleolus		
@@ -2379,10 +2379,10 @@ Q9UJJ9	GNPTG	Golgi apparatus
 P15586	GNS	Lysosome	Lysosome	Lysosome
 Q92805	GOLGA1	Golgi apparatus		
 Q08379	GOLGA2	Golgi apparatus		Golgi apparatus
-Q08378	GOLGA3	Golgi apparatus		Golgi apparatus
+Q08378	GOLGA3	Golgi apparatus	Cytoskeleton	Golgi apparatus
 Q13439	GOLGA4	Golgi apparatus		Golgi apparatus
 Q8TBA6	GOLGA5	Golgi apparatus		Golgi apparatus
-Q7Z5G4	GOLGA7	Cell membrane		
+Q7Z5G4	GOLGA7	Cell membrane	Cell membrane	
 Q14789	GOLGB1	Golgi apparatus	Golgi apparatus	Golgi apparatus
 O00461	GOLIM4	Golgi apparatus	Golgi apparatus	Golgi apparatus
 Q8NBJ4	GOLM1	trans-Golgi network		Golgi apparatus
@@ -2412,13 +2412,13 @@ Q5T3I0	GPATCH4	Nucleolus
 Q9UKJ3	GPATCH8	Nucleus		
 Q86WP2	GPBP1	Stress granule		
 Q9HC44	GPBP1L1	Stress granule		
-P35052	GPC1	Cell membrane		
+P35052	GPC1	Cell membrane	Cell membrane	
 P51654	GPC3	Cell membrane		
 O75487	GPC4	Cell membrane		
 Q9Y625	GPC6	Cell membrane		
 Q9NPB8	GPCPD1	Cytosol	Cytosol	
 Q8N335	GPD1L	Endoplasmic reticulum		
-P43304	GPD2	Mitochondrion		
+P43304	GPD2	Mitochondrion	Mitochondrion	
 Q9NQX3	GPHN	Cytoskeleton	Cytosol	
 P06744	GPI	Cytosol		
 Q9HCN4	GPN1	Cytosol		
@@ -2431,7 +2431,7 @@ Q13585	GPR50	Cell membrane
 P0CG08	GPR89B	Endoplasmic reticulum-Golgi intermediate compartment		
 Q96D09	GPRASP2	14-3-3 scaffold		
 Q9NZH0	GPRC5B	Recycling endosome		
-Q7Z2K8	GPRIN1	Cell membrane		Cell membrane
+Q7Z2K8	GPRIN1	Cell membrane	Cell membrane	Cell membrane
 Q13098	GPS1	Cytosol		
 Q86YR5	GPSM1	Cytosol		
 P81274	GPSM2	Cytosol	Cytosol	
@@ -2447,14 +2447,14 @@ Q9Y3R0	GRIP1	Cytosol
 Q4V328	GRIPAP1	Cytosol		
 P43250	GRK6	Cell membrane		
 P28799	GRN	Endoplasmic reticulum		
-Q9HAV7	GRPEL1	Mitochondrion		Mitochondrion
+Q9HAV7	GRPEL1	Mitochondrion	Mitochondrion	Mitochondrion
 Q8TAA5	GRPEL2	Mitochondrion		Mitochondrion
 Q12849	GRSF1	Mitochondrion		
 Q9BQ67	GRWD1	Nucleus		
 O60443	GSDME	Cytosol		
 P49840	GSK3A	Cell membrane		
 Q9P0R6	GSKIP	Cytosol	Cytosol	
-P15170	GSPT1	Cytosol		
+P15170	GSPT1	Cytosol	Stress granule	
 P00390	GSR	Mitochondrion		Mitochondrion
 P48637	GSS	Cytosol		
 Q8NEC7	GSTCD	Cytosol	Cytosol	
@@ -2487,7 +2487,7 @@ O43824	GTPBP6	Mitochondrion
 Q8N3Z3	GTPBP8	Mitochondrion		
 Q9NYZ3	GTSE1	Nucleolus		
 Q02153	GUCY1B1	Endoplasmic reticulum		
-Q8N442	GUF1	Mitochondrion		
+Q8N442	GUF1	Mitochondrion	Mitochondrion	
 Q16774	GUK1	Mitochondrion		
 P08236	GUSB	Endoplasmic reticulum	Lysosome	
 Q4G148	GXYLT1	Endoplasmic reticulum		
@@ -2516,16 +2516,16 @@ Q9P035	HACD3	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q8IYU2	HACE1	Cytosol		
 Q9UJ83	HACL1	Peroxisome		Peroxisome
 Q16836	HADH	Mitochondrion		Mitochondrion
-P40939	HADHA	Mitochondrion		
+P40939	HADHA	Mitochondrion	Mitochondrion	
 P55084	HADHB	Mitochondrion		
-Q16775	HAGH	Mitochondrion		Mitochondrion
+Q16775	HAGH	Mitochondrion	Mitochondrion	Mitochondrion
 P12081	HARS1	Cytosol		
 P49590	HARS2	Mitochondrion		Mitochondrion
 Q8TF76	HASPIN	Nucleolus	Nucleus	
 O14929	HAT1	Cytosol		
 O00165	HAX1	Mitochondrion		
 Q9Y450	HBS1L	Cytosol		
-P53701	HCCS	Mitochondrion		Mitochondrion
+P53701	HCCS	Mitochondrion	Mitochondrion	Mitochondrion
 P51610	HCFC1	Nucleus		
 Q9Y5Z7	HCFC2	Nucleus	Nucleus	
 Q13547	HDAC1	Nucleus		
@@ -2554,7 +2554,7 @@ Q5T447	HECTD3	Cytosol
 Q9Y4D8	HECTD4	14-3-3 scaffold		
 Q8NG08	HELB	Cytosol	Cytosol	
 Q9NRZ9	HELLS	Nucleus		
-P42694	HELZ	Stress granule		
+P42694	HELZ	Stress granule	Stress granule	
 Q9BYK8	HELZ2	Stress granule		
 Q15751	HERC1	Cytosol		
 O95714	HERC2	Endoplasmic reticulum		
@@ -2571,15 +2571,15 @@ Q9Y5J3	HEY1	Nucleus
 Q9BTY7	HGH1	Cytosol		
 O14964	HGS	Lysosome		Endosome
 Q68CP4	HGSNAT	Lysosome		
-P31937	HIBADH	Mitochondrion		
-Q6NVY1	HIBCH	Mitochondrion		
+P31937	HIBADH	Mitochondrion	Mitochondrion	
+Q6NVY1	HIBCH	Mitochondrion	Mitochondrion	
 Q96JB3	HIC2	Nucleus		
 Q9NWT6	HIF1AN	Cytosol	Cytosol	
 Q9Y241	HIGD1A	Mitochondrion		
-Q9BW72	HIGD2A	Mitochondrion		
+Q9BW72	HIGD2A	Mitochondrion	Mitochondrion	
 Q53FT3	HIKESHI	Cytosol		
 P49773	HINT1	Cytosol		
-Q9BX68	HINT2	Mitochondrion		
+Q9BX68	HINT2	Mitochondrion	Mitochondrion	
 Q9NQE9	HINT3	trans-Golgi network		
 O00291	HIP1	Cell membrane		
 O75146	HIP1R	Cell membrane		
@@ -2588,7 +2588,7 @@ Q9BW71	HIRIP3	Cytoskeleton
 P15822	HIVEP1	Nucleus		
 P19367	HK1	Mitochondrion		
 P52789	HK2	Mitochondrion		
-P04439	HLA-A	Endoplasmic reticulum		
+P04439	HLA-A	Endoplasmic reticulum	Cell membrane	
 P10321	HLA-C	Endoplasmic reticulum		
 P20036	HLA-DPA1	Endoplasmic reticulum		
 P01920	HLA-DQB1	Endoplasmic reticulum		
@@ -2616,9 +2616,9 @@ P30519	HMOX2	Endoplasmic reticulum	Endoplasmic reticulum
 Q9NP08	HMX1	Nucleus		
 Q13151	HNRNPA0	Nucleus		Large protein complex
 P09651	HNRNPA1	Nucleus		Large protein complex
-P22626	HNRNPA2B1	Nucleus		Large protein complex
-P51991	HNRNPA3	Nucleus		Large protein complex
-Q99729	HNRNPAB	Nucleus		Large protein complex
+P22626	HNRNPA2B1	Nucleus	Stress granule	Large protein complex
+P51991	HNRNPA3	Nucleus	Stress granule	Large protein complex
+Q99729	HNRNPAB	Nucleus	Stress granule	Large protein complex
 P07910	HNRNPC	Nucleus	Nucleus	Large protein complex
 Q14103	HNRNPD	Nucleus		Large protein complex
 O14979	HNRNPDL	Nucleus		Large protein complex
@@ -2671,9 +2671,9 @@ Q8NBQ5	HSD17B11	Endoplasmic reticulum	Endoplasmic reticulum
 Q53GQ0	HSD17B12	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P51659	HSD17B4	Peroxisome	Peroxisome	Peroxisome
 P56937	HSD17B7	Endoplasmic reticulum		
-Q92506	HSD17B8	Mitochondrion		Mitochondrion
+Q92506	HSD17B8	Mitochondrion	Mitochondrion	Mitochondrion
 Q3SXM5	HSDL1	Mitochondrion		
-Q6YN16	HSDL2	Nucleus		
+Q6YN16	HSDL2	Nucleus	Mitochondrion	
 Q00613	HSF1	Cytosol		
 Q03933	HSF2	Nucleus		
 P07900	HSP90AA1	Cytosol		
@@ -2691,11 +2691,11 @@ O95757	HSPA4L	Cytosol
 P11021	HSPA5	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P17066	HSPA6	Nucleus		
 P11142	HSPA8	Cytosol		
-P38646	HSPA9	Mitochondrion		Mitochondrion
-P04792	HSPB1	Cytosol		
+P38646	HSPA9	Mitochondrion	Mitochondrion	Mitochondrion
+P04792	HSPB1	Cytosol	Stress granule	
 Q96EW2	HSPBAP1	Cytosol	Cytosol	
 Q9NZL4	HSPBP1	Cytosol		
-P10809	HSPD1	Mitochondrion		Mitochondrion
+P10809	HSPD1	Mitochondrion	Mitochondrion	Mitochondrion
 P61604	HSPE1	Mitochondrion		Mitochondrion
 Q92598	HSPH1	Cytosol		
 Q9BUP3	HTATIP2	Endoplasmic reticulum		
@@ -2711,17 +2711,17 @@ A2RU49	HYKK	Cytosol	Cytosol
 Q9Y4L1	HYOU1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q9NX55	HYPK	Translation		
 Q2TAA2	IAH1	Cytosol	Cytosol	
-Q9NSE4	IARS2	Mitochondrion		Mitochondrion
-Q5T440	IBA57	Mitochondrion		
+Q9NSE4	IARS2	Mitochondrion	Mitochondrion	Mitochondrion
+Q5T440	IBA57	Mitochondrion	Mitochondrion	
 Q9P2D0	IBTK	Stress granule		
 Q8NDH6	ICA1L	Cytosol		
 Q9Y2F5	ICE1	Nucleus		
 P14735	IDE	Translation		
 O75874	IDH1	Cytosol		
-P48735	IDH2	Mitochondrion		
-P50213	IDH3A	Mitochondrion		
-O43837	IDH3B	Mitochondrion		Mitochondrion
-P51553	IDH3G	Mitochondrion		
+P48735	IDH2	Mitochondrion	Mitochondrion	
+P50213	IDH3A	Mitochondrion	Mitochondrion	
+O43837	IDH3B	Mitochondrion	Mitochondrion	Mitochondrion
+P51553	IDH3G	Mitochondrion	Mitochondrion	
 Q13907	IDI1	Mitochondrion		
 Q9Y5U9	IER3IP1	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic reticulum-Golgi intermediate compartment	
 P13284	IFI30	Lysosome	Lysosome	Lysosome
@@ -2738,15 +2738,15 @@ Q8IY31	IFT20	Golgi apparatus
 Q9H7X7	IFT22	Cytosol		
 Q9Y547	IFT25	Cytosol		
 Q9BW83	IFT27	Cytosol		
-P08069	IGF1R	Cell membrane		Cell membrane
-Q9NZI8	IGF2BP1	Stress granule		
-Q9Y6M1	IGF2BP2	Stress granule		
-O00425	IGF2BP3	Stress granule		
+P08069	IGF1R	Cell membrane	Cell membrane	Cell membrane
+Q9NZI8	IGF2BP1	Stress granule	Stress granule	
+Q9Y6M1	IGF2BP2	Stress granule	Stress granule	
+O00425	IGF2BP3	Stress granule	Stress granule	
 P11717	IGF2R	Early endosome		Endosome
 P18065	IGFBP2	Golgi apparatus		
 P38935	IGHMBP2	Translation		
-O75054	IGSF3	Cell membrane		
-Q969P0	IGSF8	Cell membrane		Cell membrane
+O75054	IGSF3	Cell membrane	Cell membrane	
+Q969P0	IGSF8	Cell membrane	Cell membrane	Cell membrane
 Q13123	IK	Nucleus		
 Q70UQ0	IKBIP	Endoplasmic reticulum	Endoplasmic reticulum	
 O14920	IKBKB	Cytosol		
@@ -2758,7 +2758,7 @@ Q12906	ILF3	Nucleus
 Q13418	ILK	Cytoskeleton		
 Q9H6K1	ILRUN	Cytosol		
 A1L0T0	ILVBL	Endoplasmic reticulum	Endoplasmic reticulum	
-Q16891	IMMT	Mitochondrion		Mitochondrion
+Q16891	IMMT	Mitochondrion	Mitochondrion	Mitochondrion
 Q9NV31	IMP3	Nucleolus		
 Q96G21	IMP4	Nucleolus		
 P29218	IMPA1	Cytosol		
@@ -2784,7 +2784,7 @@ P32019	INPP5B	Cytosol
 Q9Y2H2	INPP5F	Cytosol		
 Q9BT40	INPP5K	Endoplasmic reticulum		
 O15357	INPPL1	Cytosol		
-P06213	INSR	Cell membrane		Cell membrane
+P06213	INSR	Cell membrane	Cell membrane	Cell membrane
 Q8N201	INTS1	Nucleus		
 Q9NVR2	INTS10	Nucleus	Nucleus	
 Q5TA45	INTS11	Nucleus		
@@ -2820,9 +2820,9 @@ P48200	IREB2	Cytosol
 Q8WZA9	IRGQ	Cytosol	Cytosol	
 Q9Y4H2	IRS2	14-3-3 scaffold		
 O14654	IRS4	Cell membrane		
-Q9BUE6	ISCA1	Mitochondrion		
-Q86U28	ISCA2	Mitochondrion		
-Q9H1K1	ISCU	Mitochondrion		
+Q9BUE6	ISCA1	Mitochondrion	Mitochondrion	
+Q86U28	ISCA2	Mitochondrion	Mitochondrion	
+Q9H1K1	ISCU	Mitochondrion	Mitochondrion	
 Q9H9L3	ISG20L2	Nucleolus		
 Q96A47	ISL2	Nucleus		
 Q96CN7	ISOC1	Endoplasmic reticulum		
@@ -2833,16 +2833,16 @@ Q9NPH2	ISYNA1	Cytosol
 Q96J02	ITCH	Early endosome		
 Q8TB96	ITFG1	Recycling endosome		
 Q969R8	ITFG2	Lysosome		
-P56199	ITGA1	Cell membrane		
-P17301	ITGA2	Cell membrane		
+P56199	ITGA1	Cell membrane	Cell membrane	
+P17301	ITGA2	Cell membrane	Cell membrane	
 P13612	ITGA4	Cell membrane		
-P08648	ITGA5	Cell membrane		
-P23229	ITGA6	Cell membrane		Cell membrane
-P06756	ITGAV	Cell membrane		Cell membrane
+P08648	ITGA5	Cell membrane	Cell membrane	
+P23229	ITGA6	Cell membrane	Cell membrane	Cell membrane
+P06756	ITGAV	Cell membrane	Cell membrane	Cell membrane
 P05556	ITGB1	Cell membrane	Endoplasmic reticulum	
 O14713	ITGB1BP1	Recycling endosome		
 Q13352	ITGB3BP	Nucleus	Nucleus	
-P18084	ITGB5	Cell membrane		Cell membrane
+P18084	ITGB5	Cell membrane	Cell membrane	Cell membrane
 Q9Y287	ITM2B	Cell membrane		
 Q9NQX7	ITM2C	Early endosome		
 Q9BY32	ITPA	Cytosol		
@@ -2855,15 +2855,15 @@ Q14573	ITPR3	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P28290	ITPRID2	Endoplasmic reticulum		
 Q8IWB1	ITPRIP	Endoplasmic reticulum		
 Q6GPH6	ITPRIPL1	Endoplasmic reticulum		
-Q15811	ITSN1	Cytoskeleton		Cell membrane
+Q15811	ITSN1	Cytoskeleton	Cell membrane	Cell membrane
 Q9NZM3	ITSN2	Cell membrane		
-P26440	IVD	Mitochondrion		Mitochondrion
+P26440	IVD	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y6Y0	IVNS1ABP	Cytosol	Cytosol	
 Q96ST2	IWS1	Cytosol		
 Q6IE81	JADE1	Nucleus		
 Q92613	JADE3	Nucleus		
 Q8N5M9	JAGN1	Endoplasmic reticulum	Endoplasmic reticulum	
-P23458	JAK1	Cell membrane		
+P23458	JAK1	Cell membrane	Cell membrane	
 Q9BX67	JAM3	Cell membrane		
 Q92833	JARID2	Nucleus	Nucleus	
 Q15652	JMJD1C	Nucleus		
@@ -2878,7 +2878,7 @@ Q9UK76	JPT1	Cytosol
 Q9H910	JPT2	Cytosol		
 P05412	JUN	Nucleus	Nucleus	
 P17535	JUND	Nucleus		
-P14923	JUP	Cell membrane		
+P14923	JUP	Cell membrane	Cell membrane	
 Q63ZY3	KANK2	Cytoskeleton		
 Q7Z3B3	KANSL1	Nucleus	Nucleus	
 Q9H9L4	KANSL2	Nucleus		
@@ -2929,7 +2929,7 @@ Q7Z7F0	KHDC4	Nucleus
 Q07666	KHDRBS1	Nucleus		
 O75525	KHDRBS3	Nucleus		
 P50053	KHK	Cytosol	Cytosol	
-Q92945	KHSRP	Nucleus		
+Q92945	KHSRP	Nucleus	Stress granule	
 Q92628	KIAA0232	Cytosol		
 Q8IZA0	KIAA0319L	trans-Golgi network		
 O60268	KIAA0513	Cytosol		
@@ -2970,7 +2970,7 @@ Q92845	KIFAP3	Cytosol	Cytosol
 Q96EK5	KIFBP	Cytosol		
 Q9BW19	KIFC1	Nucleolus		
 O60870	KIN	Translation		
-Q96J84	KIRREL1	Cell membrane		Cell membrane
+Q96J84	KIRREL1	Cell membrane	Cell membrane	Cell membrane
 Q07866	KLC1	14-3-3 scaffold		
 Q9H0B6	KLC2	14-3-3 scaffold		
 Q6P597	KLC3	14-3-3 scaffold		
@@ -3003,12 +3003,12 @@ Q86Y97	KMT5C	Nucleus	Nucleus
 Q8NG31	KNL1	Cytosol		
 Q1ED39	KNOP1	Nucleolus		
 P50748	KNTC1	Cytosol		
-P52294	KPNA1	Cytosol		
+P52294	KPNA1	Cytosol	Stress granule	
 O00505	KPNA3	Cytosol		
 O00629	KPNA4	Cytosol		
 O60684	KPNA6	Cytosol		
 Q9Y664	KPTN	Lysosome	Cytosol	
-P01116	KRAS	Cell membrane		
+P01116	KRAS	Cell membrane	Cell membrane	
 Q8N9T8	KRI1	Nucleolus		
 Q13601	KRR1	Nucleolus		
 P05783	KRT18	Cytoskeleton		
@@ -3019,10 +3019,10 @@ Q9BQD3	KXD1	Lysosome
 Q16773	KYAT1	Cytosol		
 Q6YP21	KYAT3	Mitochondrion		
 Q9UN81	L1RE1	Stress granule		
-Q9H9P8	L2HGDH	Mitochondrion		
+Q9H9P8	L2HGDH	Mitochondrion	Mitochondrion	
 Q96EM0	L3HYPDH	Cytosol	Cytosol	
 Q969R5	L3MBTL2	Nucleus		
-P83111	LACTB	Mitochondrion		Mitochondrion
+P83111	LACTB	Mitochondrion	Mitochondrion	Mitochondrion
 Q53H82	LACTB2	Mitochondrion		
 O15230	LAMA5	Endoplasmic reticulum		
 P07942	LAMB1	Endoplasmic reticulum	Endoplasmic reticulum	
@@ -3038,11 +3038,11 @@ O43504	LAMTOR5	Lysosome		Lysosome
 P28838	LAP3	Mitochondrion		
 Q6PKG0	LARP1	Stress granule		
 Q659C4	LARP1B	Stress granule		
-Q71RC2	LARP4	Stress granule		
+Q71RC2	LARP4	Stress granule	Stress granule	
 Q92615	LARP4B	Stress granule		
 Q9BRS8	LARP6	Cytosol		
 Q4G0J3	LARP7	Nucleolus		
-Q15031	LARS2	Mitochondrion		Mitochondrion
+Q15031	LARS2	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y4W2	LAS1L	Nucleus		
 Q14847	LASP1	Cytosol		
 O95835	LATS1	14-3-3 scaffold		
@@ -3066,14 +3066,14 @@ Q9Y2U8	LEMD3	Endoplasmic reticulum
 Q96BZ8	LENG1	Nucleus		
 Q96PV6	LENG8	Nucleus		
 Q8WVC0	LEO1	Nucleus		
-O95202	LETM1	Mitochondrion		Mitochondrion
-Q6P1Q0	LETMD1	Mitochondrion		
+O95202	LETM1	Mitochondrion	Mitochondrion	Mitochondrion
+Q6P1Q0	LETMD1	Mitochondrion	Mitochondrion	
 P09382	LGALS1	Cytosol		
 Q08380	LGALS3BP	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q3ZCW2	LGALSL	Cytosol	Cytosol	
 Q99538	LGMN	Lysosome	Lysosome	
 Q9H008	LHPP	Cytosol		
-O43766	LIAS	Mitochondrion		
+O43766	LIAS	Mitochondrion	Mitochondrion	
 P18858	LIG1	Cytosol		
 P49916	LIG3	Endoplasmic reticulum		
 Q9UHB6	LIMA1	Cytoskeleton		
@@ -3086,11 +3086,11 @@ Q96GY3	LIN37	Nucleus
 Q52LA3	LIN52	Nucleus	Nucleus	
 Q6MZP7	LIN54	Nucleus	Nucleus	
 O14910	LIN7A	Cytoskeleton		
-Q9NUP9	LIN7C	Cell membrane		Cell membrane
+Q9NUP9	LIN7C	Cell membrane	Cell membrane	Cell membrane
 Q5TKA1	LIN9	Nucleus		
 P38571	LIPA	Lysosome	Lysosome	Lysosome
 Q9Y234	LIPT1	Mitochondrion		
-A6NK58	LIPT2	Mitochondrion		
+A6NK58	LIPT2	Mitochondrion	Mitochondrion	
 Q15334	LLGL1	Cell membrane		
 Q9BRT6	LLPH	Nucleolus		
 P49257	LMAN1	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic reticulum-Golgi intermediate compartment
@@ -3103,13 +3103,13 @@ Q9BU23	LMF2	Endoplasmic reticulum	Endoplasmic reticulum
 P02545	LMNA	Nucleus		
 P20700	LMNB1	Nucleus		
 Q03252	LMNB2	Nucleus		
-Q8WWI1	LMO7	Cytoskeleton		Actin binding proteins
+Q8WWI1	LMO7	Cytoskeleton	Cytoskeleton	Actin binding proteins
 P29536	LMOD1	Cytoskeleton		
 Q8IWU2	LMTK2	Recycling endosome		
 Q9UIQ6	LNPEP	Recycling endosome		
 Q9C0E8	LNPK	Endoplasmic reticulum	Endoplasmic reticulum	
 Q8N448	LNX2	Cytosol	Cytosol	
-P36776	LONP1	Mitochondrion		Mitochondrion
+P36776	LONP1	Mitochondrion	Mitochondrion	Mitochondrion
 Q86WA8	LONP2	Peroxisome		
 Q1L5Z9	LONRF2	Cytosol		
 Q8NF37	LPCAT1	Endoplasmic reticulum	Endoplasmic reticulum	
@@ -3134,7 +3134,7 @@ O94898	LRIG2	Endoplasmic reticulum
 Q07954	LRP1	Recycling endosome		
 P98164	LRP2	Recycling endosome		
 P30533	LRPAP1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
-P42704	LRPPRC	Mitochondrion		
+P42704	LRPPRC	Mitochondrion	Mitochondrion	
 Q9BTT6	LRRC1	Cell membrane		
 Q15048	LRRC14	Cytosol	Cytosol	
 Q8TCA0	LRRC20	Cytosol	Cytosol	
@@ -3143,14 +3143,14 @@ Q15345	LRRC41	Nucleus
 Q9Y546	LRRC42	Cytosol		
 Q8N1G4	LRRC47	Stress granule		
 Q9NT99	LRRC4B	Cell membrane		
-Q8N9N7	LRRC57	Cell membrane		
+Q8N9N7	LRRC57	Cell membrane	Cell membrane	
 Q96AG4	LRRC59	Endoplasmic reticulum	Endoplasmic reticulum	
-Q8IWT6	LRRC8A	Cell membrane		Cell membrane
+Q8IWT6	LRRC8A	Cell membrane	Cell membrane	Cell membrane
 Q6P9F7	LRRC8B	Cell membrane		
 Q8TDW0	LRRC8C	Cell membrane		
 Q6NSJ5	LRRC8E	Cell membrane		
 Q32MZ4	LRRFIP1	Cytoskeleton		
-Q9Y608	LRRFIP2	Cytoskeleton		
+Q9Y608	LRRFIP2	Cytoskeleton	Cytoskeleton	
 Q9UFC0	LRWD1	Nucleus	Nucleus	
 Q9H089	LSG1	Endoplasmic reticulum	Endoplasmic reticulum	
 O15116	LSM1	P-body	P-body	
@@ -3164,7 +3164,7 @@ Q9Y4Z0	LSM4	Nucleus	P-body
 Q9Y4Y9	LSM5	P-body	P-body	
 P62312	LSM6	Nucleus	P-body	
 O95777	LSM8	Nucleus		
-Q86X29	LSR	Cell membrane		Cell membrane
+Q86X29	LSR	Cell membrane	Cell membrane	Cell membrane
 P48449	LSS	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P09960	LTA4H	Cytosol		
 Q14766	LTBP1	Golgi apparatus		
@@ -3180,8 +3180,8 @@ O75608	LYPLA1	Mitochondrion
 O95372	LYPLA2	Cytosol		
 Q5VWZ2	LYPLAL1	Mitochondrion		
 Q9NU23	LYRM2	Mitochondrion		
-Q9HD34	LYRM4	Mitochondrion		
-Q5U5X0	LYRM7	Mitochondrion		Mitochondrion
+Q9HD34	LYRM4	Mitochondrion	Mitochondrion	
+Q5U5X0	LYRM7	Mitochondrion	Mitochondrion	Mitochondrion
 Q96S90	LYSMD1	Early endosome		
 Q7Z3D4	LYSMD3	Endoplasmic reticulum-Golgi intermediate compartment		
 Q8WZA0	LZIC	Cytosol		
@@ -3208,7 +3208,7 @@ Q96A72	MAGOHB	Nucleus
 Q9H0U3	MAGT1	Endoplasmic reticulum	Endoplasmic reticulum	
 Q8WWC4	MAIP1	Mitochondrion		
 Q9BXY0	MAK16	Nucleolus	Nucleus	
-Q96EH3	MALSU1	Mitochondrion		Mitochondrion
+Q96EH3	MALSU1	Mitochondrion	Mitochondrion	Mitochondrion
 Q9UDY8	MALT1	Cytosol		
 Q92585	MAML1	Nucleus		
 P33908	MAN1A1	Golgi apparatus		
@@ -3264,10 +3264,10 @@ P10636	MAPT	Nucleus
 Q9NX47	MARCHF5	Mitochondrion		
 O60337	MARCHF6	Endoplasmic reticulum		
 P29966	MARCKS	Cell membrane		
-P49006	MARCKSL1	Cell membrane		
+P49006	MARCKSL1	Cell membrane	Cell membrane	
 Q9Y4F3	MARF1	P-body		
 Q7KZI7	MARK2	14-3-3 scaffold		
-Q96GW9	MARS2	Mitochondrion		
+Q96GW9	MARS2	Mitochondrion	Mitochondrion	
 Q6P0Q8	MAST2	14-3-3 scaffold		
 O60307	MAST3	Cytosol		
 Q96GX5	MASTL	Cytosol	Cytosol	
@@ -3286,9 +3286,9 @@ Q68D91	MBLAC2	Cell membrane	Golgi apparatus
 Q9NR56	MBNL1	Stress granule		
 Q6ZWT7	MBOAT2	Endoplasmic reticulum		
 Q96N66	MBOAT7	Endoplasmic reticulum	Endoplasmic reticulum	
-P43121	MCAM	Cell membrane		Cell membrane
-Q8IVS2	MCAT	Mitochondrion		Mitochondrion
-Q96RQ3	MCCC1	Mitochondrion		Mitochondrion
+P43121	MCAM	Cell membrane	Cell membrane	Cell membrane
+Q8IVS2	MCAT	Mitochondrion	Mitochondrion	Mitochondrion
+Q96RQ3	MCCC1	Mitochondrion	Mitochondrion	Mitochondrion
 Q9HCC0	MCCC2	Mitochondrion		Mitochondrion
 Q96PE7	MCEE	Mitochondrion		
 O15068	MCF2L	Early endosome		
@@ -3316,7 +3316,7 @@ Q96AQ8	MCUR1	Mitochondrion
 Q14676	MDC1	Nucleus	Nucleus	
 Q9P1T7	MDFIC	Cell membrane		
 P40925	MDH1	Cytosol		
-P40926	MDH2	Mitochondrion		Mitochondrion
+P40926	MDH2	Mitochondrion	Mitochondrion	Mitochondrion
 P21741	MDK	trans-Golgi network		
 O15151	MDM4	Cytosol	Cytosol	
 Q9NU22	MDN1	Nucleus		
@@ -3327,7 +3327,7 @@ Q9HAF1	MEAF6	Nucleus
 Q6P9B6	MEAK7	Cell membrane		
 Q03112	MECOM	Nucleus		
 P51608	MECP2	Nucleus	Nucleus	
-Q9BV79	MECR	Mitochondrion		
+Q9BV79	MECR	Mitochondrion	Mitochondrion	
 Q15648	MED1	Translation		
 Q9BTT4	MED10	Nucleus		
 Q93074	MED12	Nucleus		
@@ -3354,13 +3354,13 @@ Q9NWA0	MED9	Translation	Nucleus
 Q7Z7M0	MEGF8	Endoplasmic reticulum		
 O00470	MEIS1	Nucleus		
 Q14680	MELK	Nucleus		
-P08582	MELTF	Cell membrane		Cell membrane
+P08582	MELTF	Cell membrane	Cell membrane	Cell membrane
 Q9Y316	MEMO1	Cytosol		
 O00255	MEN1	Nucleus	Nucleus	
 Q7L2J0	MEPCE	Nucleolus		
 Q12866	MERTK	Cell membrane		
 Q14696	MESD	Endoplasmic reticulum	Endoplasmic reticulum	
-P08581	MET	Cell membrane		Cell membrane
+P08581	MET	Cell membrane	Cell membrane	Cell membrane
 P53582	METAP1	Stress granule		
 Q6UB28	METAP1D	Mitochondrion		
 P50579	METAP2	Stress granule		
@@ -3382,7 +3382,7 @@ P55082	MFAP3	Cell membrane
 O75121	MFAP3L	Cell membrane		
 Q9GZY8	MFF	Mitochondrion		Mitochondrion
 Q08431	MFGE8	Endoplasmic reticulum		
-Q8IWA4	MFN1	Mitochondrion		Mitochondrion
+Q8IWA4	MFN1	Mitochondrion	Mitochondrion	Mitochondrion
 O95140	MFN2	Mitochondrion		Mitochondrion
 Q9H3U5	MFSD1	Lysosome		
 Q14728	MFSD10	Endoplasmic reticulum		
@@ -3405,7 +3405,7 @@ Q86YT6	MIB1	Centrosome
 Q8TDZ2	MICAL1	Cytosol		
 Q7RTP6	MICAL3	Cytosol		
 Q8N3F8	MICALL1	Recycling endosome		
-Q5TGZ0	MICOS10	Mitochondrion		
+Q5TGZ0	MICOS10	Mitochondrion	Mitochondrion	
 Q5XKP0	MICOS13	Mitochondrion		
 Q9BPX6	MICU1	Mitochondrion		
 Q8IYU8	MICU2	Mitochondrion		Mitochondrion
@@ -3423,7 +3423,7 @@ Q9H8M7	MINDY3	Cytosol	Cytosol
 Q8N4C8	MINK1	Cytoskeleton		
 Q9UNW1	MINPP1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q9NXC5	MIOS	Stress granule		
-Q99797	MIPEP	Mitochondrion		Mitochondrion
+Q99797	MIPEP	Mitochondrion	Mitochondrion	Mitochondrion
 Q8TD10	MIPOL1	Cell membrane		
 Q9H081	MIS12	Nucleus		
 Q6P0N0	MIS18BP1	Nucleus	Nucleus	
@@ -3450,7 +3450,7 @@ Q96EY8	MMAB	Mitochondrion		Mitochondrion
 Q9Y4U1	MMACHC	Cytosol		
 Q9H3L0	MMADHC	Mitochondrion		
 Q8N4V1	MMGT1	Endoplasmic reticulum		
-P51511	MMP15	Cell membrane		
+P51511	MMP15	Cell membrane	Cell membrane	
 A0A0U1RRL7	MMP24OS	Mitochondrion		
 Q96T76	MMS19	Cytosol		
 Q6ZRQ5	MMS22L	Nucleus		
@@ -3481,9 +3481,9 @@ Q8NHP6	MOSPD2	Endoplasmic reticulum	Endoplasmic reticulum
 Q9HCE1	MOV10	Stress granule		
 Q6UVY6	MOXD1	Cell membrane		
 Q9Y5U8	MPC1	Mitochondrion		
-O95563	MPC2	Mitochondrion		
+O95563	MPC2	Mitochondrion	Mitochondrion	
 O75352	MPDU1	Endoplasmic reticulum		
-O75970	MPDZ	Cytoskeleton		
+O75970	MPDZ	Cytoskeleton	Cytoskeleton	
 P29372	MPG	Nucleus		
 O00566	MPHOSPH10	Nucleolus		
 Q99549	MPHOSPH8	Nucleus		
@@ -3497,93 +3497,93 @@ Q6WCQ1	MPRIP	Cell membrane		Actin binding proteins
 P25325	MPST	Mitochondrion		
 P39210	MPV17	Mitochondrion		
 Q567V2	MPV17L2	Nucleus		
-O95297	MPZL1	Cell membrane		
+O95297	MPZL1	Cell membrane	Cell membrane	
 Q9UBG0	MRC2	Recycling endosome		
 P49959	MRE11	Nucleus		
 Q9Y605	MRFAP1	Nucleus		
 B2RBV5	MRFAP1L2	Cytosol		
 Q9NV56	MRGBP	Nucleolus		
 Q9BV20	MRI1	Cytosol		
-Q6IN84	MRM1	Mitochondrion		
+Q6IN84	MRM1	Mitochondrion	Mitochondrion	
 Q9UI43	MRM2	Mitochondrion		
 Q9HC36	MRM3	Mitochondrion		Mitochondrion
-Q9BYD6	MRPL1	Mitochondrion		Mitochondrion
-Q7Z7H8	MRPL10	Mitochondrion		Mitochondrion
-Q9Y3B7	MRPL11	Mitochondrion		Mitochondrion
-P52815	MRPL12	Mitochondrion		
-Q9BYD1	MRPL13	Mitochondrion		Mitochondrion
+Q9BYD6	MRPL1	Mitochondrion	Mitochondrion	Mitochondrion
+Q7Z7H8	MRPL10	Mitochondrion	Mitochondrion	Mitochondrion
+Q9Y3B7	MRPL11	Mitochondrion	Mitochondrion	Mitochondrion
+P52815	MRPL12	Mitochondrion	Mitochondrion	
+Q9BYD1	MRPL13	Mitochondrion	Mitochondrion	Mitochondrion
 Q6P1L8	MRPL14	Mitochondrion		Mitochondrion
 Q9P015	MRPL15	Mitochondrion		Mitochondrion
-Q9NX20	MRPL16	Mitochondrion		Mitochondrion
-Q9NRX2	MRPL17	Mitochondrion		Mitochondrion
+Q9NX20	MRPL16	Mitochondrion	Mitochondrion	Mitochondrion
+Q9NRX2	MRPL17	Mitochondrion	Mitochondrion	Mitochondrion
 Q9H0U6	MRPL18	Mitochondrion		Mitochondrion
-P49406	MRPL19	Mitochondrion		Mitochondrion
-Q5T653	MRPL2	Mitochondrion		Mitochondrion
-Q9BYC9	MRPL20	Mitochondrion		Mitochondrion
-Q7Z2W9	MRPL21	Mitochondrion		Mitochondrion
-Q9NWU5	MRPL22	Mitochondrion		Mitochondrion
+P49406	MRPL19	Mitochondrion	Mitochondrion	Mitochondrion
+Q5T653	MRPL2	Mitochondrion	Mitochondrion	Mitochondrion
+Q9BYC9	MRPL20	Mitochondrion	Mitochondrion	Mitochondrion
+Q7Z2W9	MRPL21	Mitochondrion	Mitochondrion	Mitochondrion
+Q9NWU5	MRPL22	Mitochondrion	Mitochondrion	Mitochondrion
 Q16540	MRPL23	Mitochondrion		Mitochondrion
-Q96A35	MRPL24	Mitochondrion		Mitochondrion
+Q96A35	MRPL24	Mitochondrion	Mitochondrion	Mitochondrion
 Q9P0M9	MRPL27	Mitochondrion		Mitochondrion
-Q13084	MRPL28	Mitochondrion		Mitochondrion
-P09001	MRPL3	Mitochondrion		Mitochondrion
-Q8TCC3	MRPL30	Mitochondrion		Mitochondrion
+Q13084	MRPL28	Mitochondrion	Mitochondrion	Mitochondrion
+P09001	MRPL3	Mitochondrion	Mitochondrion	Mitochondrion
+Q8TCC3	MRPL30	Mitochondrion	Mitochondrion	Mitochondrion
 Q9BYC8	MRPL32	Mitochondrion		Mitochondrion
-O75394	MRPL33	Mitochondrion		
-Q9BQ48	MRPL34	Mitochondrion		
+O75394	MRPL33	Mitochondrion	Mitochondrion	
+Q9BQ48	MRPL34	Mitochondrion	Mitochondrion	
 Q9BZE1	MRPL37	Mitochondrion		Mitochondrion
 Q96DV4	MRPL38	Mitochondrion		Mitochondrion
 Q9NYK5	MRPL39	Mitochondrion		Mitochondrion
-Q9BYD3	MRPL4	Mitochondrion		Mitochondrion
-Q9NQ50	MRPL40	Mitochondrion		
+Q9BYD3	MRPL4	Mitochondrion	Mitochondrion	Mitochondrion
+Q9NQ50	MRPL40	Mitochondrion	Mitochondrion	
 Q8IXM3	MRPL41	Mitochondrion		Mitochondrion
 Q9Y6G3	MRPL42	Mitochondrion		
-Q8N983	MRPL43	Mitochondrion		Mitochondrion
-Q9H9J2	MRPL44	Mitochondrion		Mitochondrion
+Q8N983	MRPL43	Mitochondrion	Mitochondrion	Mitochondrion
+Q9H9J2	MRPL44	Mitochondrion	Mitochondrion	Mitochondrion
 Q9BRJ2	MRPL45	Mitochondrion		Mitochondrion
-Q9H2W6	MRPL46	Mitochondrion		Mitochondrion
-Q9HD33	MRPL47	Mitochondrion		Mitochondrion
+Q9H2W6	MRPL46	Mitochondrion	Mitochondrion	Mitochondrion
+Q9HD33	MRPL47	Mitochondrion	Mitochondrion	Mitochondrion
 Q96GC5	MRPL48	Mitochondrion		Mitochondrion
-Q13405	MRPL49	Mitochondrion		Mitochondrion
+Q13405	MRPL49	Mitochondrion	Mitochondrion	Mitochondrion
 Q8N5N7	MRPL50	Mitochondrion		Mitochondrion
 Q4U2R6	MRPL51	Mitochondrion		
 Q86TS9	MRPL52	Mitochondrion		
-Q96EL3	MRPL53	Mitochondrion		Mitochondrion
+Q96EL3	MRPL53	Mitochondrion	Mitochondrion	Mitochondrion
 Q6P161	MRPL54	Mitochondrion		
-Q7Z7F7	MRPL55	Mitochondrion		Mitochondrion
+Q7Z7F7	MRPL55	Mitochondrion	Mitochondrion	Mitochondrion
 Q9BQC6	MRPL57	Mitochondrion		
 Q14197	MRPL58	Mitochondrion		
-Q9BYD2	MRPL9	Mitochondrion		Mitochondrion
+Q9BYD2	MRPL9	Mitochondrion	Mitochondrion	Mitochondrion
 P82664	MRPS10	Mitochondrion		Mitochondrion
 P82912	MRPS11	Mitochondrion		Mitochondrion
-O15235	MRPS12	Mitochondrion		Mitochondrion
-O60783	MRPS14	Mitochondrion		Mitochondrion
-P82914	MRPS15	Mitochondrion		Mitochondrion
-Q9Y3D3	MRPS16	Mitochondrion		Mitochondrion
-Q9Y2R5	MRPS17	Mitochondrion		Mitochondrion
-Q9NVS2	MRPS18A	Mitochondrion		Mitochondrion
+O15235	MRPS12	Mitochondrion	Mitochondrion	Mitochondrion
+O60783	MRPS14	Mitochondrion	Mitochondrion	Mitochondrion
+P82914	MRPS15	Mitochondrion	Mitochondrion	Mitochondrion
+Q9Y3D3	MRPS16	Mitochondrion	Mitochondrion	Mitochondrion
+Q9Y2R5	MRPS17	Mitochondrion	Mitochondrion	Mitochondrion
+Q9NVS2	MRPS18A	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y676	MRPS18B	Mitochondrion		Mitochondrion
-Q9Y3D5	MRPS18C	Mitochondrion		
-Q9Y399	MRPS2	Mitochondrion		Mitochondrion
-P82921	MRPS21	Mitochondrion		
+Q9Y3D5	MRPS18C	Mitochondrion	Mitochondrion	
+Q9Y399	MRPS2	Mitochondrion	Mitochondrion	Mitochondrion
+P82921	MRPS21	Mitochondrion	Mitochondrion	
 P82650	MRPS22	Mitochondrion		Mitochondrion
-Q9Y3D9	MRPS23	Mitochondrion		Mitochondrion
+Q9Y3D9	MRPS23	Mitochondrion	Mitochondrion	Mitochondrion
 Q96EL2	MRPS24	Mitochondrion		Mitochondrion
 P82663	MRPS25	Mitochondrion		Mitochondrion
-Q9BYN8	MRPS26	Mitochondrion		Mitochondrion
-Q92552	MRPS27	Mitochondrion		Mitochondrion
+Q9BYN8	MRPS26	Mitochondrion	Mitochondrion	Mitochondrion
+Q92552	MRPS27	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y2Q9	MRPS28	Mitochondrion		Mitochondrion
 Q9NP92	MRPS30	Mitochondrion		Mitochondrion
 Q92665	MRPS31	Mitochondrion		Mitochondrion
 Q9Y291	MRPS33	Mitochondrion		
-P82930	MRPS34	Mitochondrion		Mitochondrion
-P82673	MRPS35	Mitochondrion		Mitochondrion
+P82930	MRPS34	Mitochondrion	Mitochondrion	Mitochondrion
+P82673	MRPS35	Mitochondrion	Mitochondrion	Mitochondrion
 KGD4	MRPS36	Mitochondrion		
-P82675	MRPS5	Mitochondrion		Mitochondrion
+P82675	MRPS5	Mitochondrion	Mitochondrion	Mitochondrion
 P82932	MRPS6	Mitochondrion		Mitochondrion
-Q9Y2R9	MRPS7	Mitochondrion		Mitochondrion
-P82933	MRPS9	Mitochondrion		Mitochondrion
-Q96E11	MRRF	Mitochondrion		
+Q9Y2R9	MRPS7	Mitochondrion	Mitochondrion	Mitochondrion
+P82933	MRPS9	Mitochondrion	Mitochondrion	Mitochondrion
+Q96E11	MRRF	Mitochondrion	Mitochondrion	
 Q9HD23	MRS2	Mitochondrion		
 Q969V6	MRTFA	Cytoskeleton		
 Q9ULH7	MRTFB	Cytoskeleton		
@@ -3593,20 +3593,20 @@ A0A1W2PQ72	MSANTD7	Nucleus
 P43246	MSH2	Nucleus		
 P20585	MSH3	Nucleus		
 P52701	MSH6	Endoplasmic reticulum		
-O43347	MSI1	Stress granule		
-Q96DH6	MSI2	Stress granule		
+O43347	MSI1	Stress granule	Stress granule	
+Q96DH6	MSI2	Stress granule	Stress granule	
 Q68DK7	MSL1	Nucleus	Nucleus	
 Q9HCI7	MSL2	Nucleus	Nucleus	
 Q8N5Y2	MSL3	Nucleus	Nucleus	
 Q15800	MSMO1	Endoplasmic reticulum	Endoplasmic reticulum	
-P26038	MSN	Cell membrane		
+P26038	MSN	Cell membrane	Cell membrane	
 Q9UJ68	MSRA	Cytosol		
-Q9Y3D2	MSRB2	Mitochondrion		
+Q9Y3D2	MSRB2	Mitochondrion	Mitochondrion	
 Q9BUK6	MSTO1	Cytosol		
-P00846	MT-ATP6	Mitochondrion		
+P00846	MT-ATP6	Mitochondrion	Mitochondrion	
 P03928	MT-ATP8	Mitochondrion		
 P00395	MT-CO1	Mitochondrion		
-P00403	MT-CO2	Nucleus		Mitochondrion
+P00403	MT-CO2	Nucleus	Mitochondrion	Mitochondrion
 P00414	MT-CO3	Mitochondrion		
 P00156	MT-CYB	Mitochondrion		
 P03886	MT-ND1	Mitochondrion		
@@ -3623,7 +3623,7 @@ Q5VT66	MTARC1	Mitochondrion		Mitochondrion
 Q969Z3	MTARC2	Mitochondrion	Peroxisome	Mitochondrion
 Q96DY7	MTBP	Nucleus		
 Q9NZJ7	MTCH1	Mitochondrion		Mitochondrion
-Q9Y6C9	MTCH2	Mitochondrion		Mitochondrion
+Q9Y6C9	MTCH2	Mitochondrion	Mitochondrion	Mitochondrion
 Q86UE4	MTDH	Endoplasmic reticulum	Endoplasmic reticulum	
 Q99551	MTERF1	Mitochondrion		
 Q96E29	MTERF3	Mitochondrion		
@@ -3634,14 +3634,14 @@ Q9UDX5	MTFP1	Nucleus
 Q15390	MTFR1	Mitochondrion		
 Q9H019	MTFR1L	Mitochondrion		
 Q6P444	MTFR2	Mitochondrion		
-Q9BT17	MTG1	Mitochondrion		
+Q9BT17	MTG1	Mitochondrion	Mitochondrion	
 Q9H4K7	MTG2	Mitochondrion		
 P11586	MTHFD1	Stress granule		
 Q6UB35	MTHFD1L	Mitochondrion		Mitochondrion
 P13995	MTHFD2	Mitochondrion		
 P42898	MTHFR	Endoplasmic reticulum	Cytosol	
 P49914	MTHFS	Mitochondrion		
-P46199	MTIF2	Mitochondrion		
+P46199	MTIF2	Mitochondrion	Mitochondrion	
 Q9H2K0	MTIF3	Mitochondrion		
 Q13496	MTM1	Cell membrane		
 Q13613	MTMR1	Cytosol		
@@ -3652,7 +3652,7 @@ Q9NYA4	MTMR4	Endoplasmic reticulum-Golgi intermediate compartment
 Q9Y217	MTMR6	trans-Golgi network		
 Q96EF0	MTMR8	Early endosome		
 Q96QG7	MTMR9	trans-Golgi network		
-Q9Y2Z2	MTO1	Mitochondrion		
+Q9Y2Z2	MTO1	Mitochondrion	Mitochondrion	
 P42345	MTOR	Lysosome		
 Q9NVV4	MTPAP	Mitochondrion		
 P58546	MTPN	Cytoskeleton		
@@ -3662,8 +3662,8 @@ O75570	MTRF1	Mitochondrion
 Q9UGC7	MTRF1L	Mitochondrion		
 Q9UBK8	MTRR	Cytosol		
 Q8N3F0	MTURN	Cytosol		
-Q13505	MTX1	Mitochondrion		
-O75431	MTX2	Mitochondrion		
+Q13505	MTX1	Mitochondrion	Mitochondrion	
+O75431	MTX2	Mitochondrion	Mitochondrion	
 Q5HYI7	MTX3	Mitochondrion		
 Q969V5	MUL1	Mitochondrion		
 Q96NY9	MUS81	Translation		
@@ -3683,18 +3683,18 @@ Q9P2K5	MYEF2	Endoplasmic reticulum
 Q9HB07	MYG1	Cytosol		
 P35580	MYH10	Cytoskeleton		Actin binding proteins
 Q7Z406	MYH14	Cytosol		
-P35579	MYH9	Cytoskeleton		Actin binding proteins
-O14950	MYL12B	Cytoskeleton		Actin binding proteins
-P60660	MYL6	Cytoskeleton		Actin binding proteins
-P14649	MYL6B	Cytosol		
+P35579	MYH9	Cytoskeleton	Cytoskeleton	Actin binding proteins
+O14950	MYL12B	Cytoskeleton	Cytoskeleton	Actin binding proteins
+P60660	MYL6	Cytoskeleton	Cytoskeleton	Actin binding proteins
+P14649	MYL6B	Cytosol	Cytoskeleton	
 Q15746	MYLK	Cytosol		
 Q9HD67	MYO10	Cell membrane		
-Q92614	MYO18A	Cytoskeleton		
+Q92614	MYO18A	Cytoskeleton	Cytoskeleton	
 Q96H55	MYO19	Mitochondrion		
-O43795	MYO1B	Cell membrane		
+O43795	MYO1B	Cell membrane	Cell membrane	
 O00159	MYO1C	Cell membrane		
 O94832	MYO1D	Cell membrane		
-Q12965	MYO1E	Cytosol		
+Q12965	MYO1E	Cytosol	Cell membrane	
 Q9NQX4	MYO5C	Cell membrane		
 Q9UM54	MYO6	Cell membrane		
 B2RTY4	MYO9A	Nucleus	Cytosol	
@@ -3788,49 +3788,49 @@ Q9UN36	NDRG2	Cytosol
 Q9UGV2	NDRG3	Cytosol		
 Q9ULP0	NDRG4	Cytosol		
 P52848	NDST1	Golgi apparatus		
-O95299	NDUFA10	Mitochondrion		Mitochondrion
+O95299	NDUFA10	Mitochondrion	Mitochondrion	Mitochondrion
 Q86Y39	NDUFA11	Nucleus		
-Q9UI09	NDUFA12	Mitochondrion		
+Q9UI09	NDUFA12	Mitochondrion	Mitochondrion	
 Q9P0J0	NDUFA13	Mitochondrion		
-O43678	NDUFA2	Mitochondrion		
+O43678	NDUFA2	Mitochondrion	Mitochondrion	
 O95167	NDUFA3	Mitochondrion		
 O00483	NDUFA4	Mitochondrion		
-Q16718	NDUFA5	Mitochondrion		
-P56556	NDUFA6	Mitochondrion		
-O95182	NDUFA7	Mitochondrion		
-P51970	NDUFA8	Mitochondrion		
-Q16795	NDUFA9	Mitochondrion		Mitochondrion
+Q16718	NDUFA5	Mitochondrion	Mitochondrion	
+P56556	NDUFA6	Mitochondrion	Mitochondrion	
+O95182	NDUFA7	Mitochondrion	Mitochondrion	
+P51970	NDUFA8	Mitochondrion	Mitochondrion	
+Q16795	NDUFA9	Mitochondrion	Mitochondrion	Mitochondrion
 O14561	NDUFAB1	Mitochondrion		
-Q9Y375	NDUFAF1	Mitochondrion		
+Q9Y375	NDUFAF1	Mitochondrion	Mitochondrion	
 Q8N183	NDUFAF2	Mitochondrion		
 Q9BU61	NDUFAF3	Mitochondrion		Mitochondrion
-Q9P032	NDUFAF4	Mitochondrion		
-Q5TEU4	NDUFAF5	Mitochondrion		
+Q9P032	NDUFAF4	Mitochondrion	Mitochondrion	
+Q5TEU4	NDUFAF5	Mitochondrion	Mitochondrion	
 Q330K2	NDUFAF6	Mitochondrion		
 Q7L592	NDUFAF7	Mitochondrion		
 O75438	NDUFB1	Mitochondrion		
-O96000	NDUFB10	Mitochondrion		
-Q9NX14	NDUFB11	Mitochondrion		Mitochondrion
+O96000	NDUFB10	Mitochondrion	Mitochondrion	
+Q9NX14	NDUFB11	Mitochondrion	Mitochondrion	Mitochondrion
 O43676	NDUFB3	Mitochondrion		Mitochondrion
 O95168	NDUFB4	Mitochondrion		
-O43674	NDUFB5	Mitochondrion		Mitochondrion
-O95139	NDUFB6	Mitochondrion		
+O43674	NDUFB5	Mitochondrion	Mitochondrion	Mitochondrion
+O95139	NDUFB6	Mitochondrion	Mitochondrion	
 P17568	NDUFB7	Mitochondrion		
-O95169	NDUFB8	Mitochondrion		
-Q9Y6M9	NDUFB9	Mitochondrion		
+O95169	NDUFB8	Mitochondrion	Mitochondrion	
+Q9Y6M9	NDUFB9	Mitochondrion	Mitochondrion	
 O43677	NDUFC1	Mitochondrion		
-O95298	NDUFC2	Mitochondrion		
-P28331	NDUFS1	Mitochondrion		Mitochondrion
-O75306	NDUFS2	Mitochondrion		
+O95298	NDUFC2	Mitochondrion	Mitochondrion	
+P28331	NDUFS1	Mitochondrion	Mitochondrion	Mitochondrion
+O75306	NDUFS2	Mitochondrion	Mitochondrion	
 O75489	NDUFS3	Mitochondrion		
-O43181	NDUFS4	Mitochondrion		
-O43920	NDUFS5	Mitochondrion		
-O75380	NDUFS6	Mitochondrion		
-O75251	NDUFS7	Mitochondrion		
-O00217	NDUFS8	Mitochondrion		
-P49821	NDUFV1	Mitochondrion		
-P19404	NDUFV2	Mitochondrion		Mitochondrion
-P56181	NDUFV3	Mitochondrion		
+O43181	NDUFS4	Mitochondrion	Mitochondrion	
+O43920	NDUFS5	Mitochondrion	Mitochondrion	
+O75380	NDUFS6	Mitochondrion	Mitochondrion	
+O75251	NDUFS7	Mitochondrion	Mitochondrion	
+O00217	NDUFS8	Mitochondrion	Mitochondrion	
+P49821	NDUFV1	Mitochondrion	Mitochondrion	
+P19404	NDUFV2	Mitochondrion	Mitochondrion	Mitochondrion
+P56181	NDUFV3	Mitochondrion	Mitochondrion	
 Q8NC96	NECAP1	Cell membrane		
 Q9NVZ3	NECAP2	Cell membrane		
 Q15223	NECTIN1	Cell membrane		
@@ -3859,7 +3859,7 @@ Q9UQ49	NEU3	Cell membrane
 Q96JN8	NEURL4	Endoplasmic reticulum		
 Q0ZGT2	NEXN	Cytoskeleton		
 P21359	NF1	14-3-3 scaffold		
-P35240	NF2	Cytoskeleton		
+P35240	NF2	Cytoskeleton	Cell membrane	
 O94916	NFAT5	Cytosol		
 O95644	NFATC1	Nucleus		
 Q14934	NFATC4	Cytosol		
@@ -3872,8 +3872,8 @@ Q15653	NFKBIB	Cytosol
 O00221	NFKBIE	Cytosol		
 Q9UBC1	NFKBIL1	Nucleus	Nucleus	
 Q6P4R8	NFRKB	Nucleus		
-Q9Y697	NFS1	Mitochondrion		
-Q9UMS0	NFU1	Mitochondrion		
+Q9Y697	NFS1	Mitochondrion	Mitochondrion	
+Q9UMS0	NFU1	Mitochondrion	Mitochondrion	
 Q12986	NFX1	Nucleus		
 Q6ZNB6	NFXL1	Endoplasmic reticulum	Endoplasmic reticulum	
 P23511	NFYA	Nucleus		
@@ -3884,7 +3884,7 @@ Q8N5V2	NGEF	Cytosol
 Q96IV0	NGLY1	Proteasome		
 Q9NPE2	NGRN	Mitochondrion		
 Q9H9Q4	NHEJ1	Nucleus		
-O14745	NHERF1	Cell membrane		
+O14745	NHERF1	Cell membrane	Cell membrane	
 Q15599	NHERF2	Recycling endosome		
 Q8NBF2	NHLRC2	Cytosol		
 Q5JS37	NHLRC3	Lysosome		
@@ -3970,7 +3970,7 @@ P06748	NPM1	Nucleus
 O75607	NPM3	Nucleus		
 Q8WTW4	NPRL2	Lysosome		
 Q12980	NPRL3	Lysosome		
-Q9Y639	NPTN	Cell membrane		Cell membrane
+Q9Y639	NPTN	Cell membrane	Cell membrane	Cell membrane
 Q15818	NPTX1	Endoplasmic reticulum	Endoplasmic reticulum	
 P15559	NQO1	Cytosol		
 P16083	NQO2	Cytosol		
@@ -3981,7 +3981,7 @@ P10589	NR2F1	Nucleus
 P24468	NR2F2	Nucleus		
 P10588	NR2F6	Nucleus		
 P04150	NR3C1	Cytosol		
-P01111	NRAS	Cell membrane		
+P01111	NRAS	Cell membrane	Cell membrane	
 Q96F24	NRBF2	Cytosol		
 Q9UHY1	NRBP1	Cytosol		
 Q92823	NRCAM	Cell membrane		
@@ -4052,31 +4052,31 @@ P53370	NUDT6	Mitochondrion
 Q8WV74	NUDT8	Mitochondrion		
 Q9BW91	NUDT9	Mitochondrion		
 Q9UHK0	NUFIP1	Nucleus		
-Q7Z417	NUFIP2	Stress granule		
+Q7Z417	NUFIP2	Stress granule	Stress granule	
 Q14980	NUMA1	Nucleus	Nucleus	
 P49757	NUMB	Cell membrane		
 Q9Y6R0	NUMBL	Cytoskeleton		
-P57740	NUP107	Endoplasmic reticulum		Nuclear pore complex
-Q8WUM0	NUP133	Endoplasmic reticulum		Nuclear pore complex
-P49790	NUP153	Nucleus		
-O75694	NUP155	Endoplasmic reticulum		Nuclear pore complex
-Q12769	NUP160	Endoplasmic reticulum		Nuclear pore complex
-Q5SRE5	NUP188	Endoplasmic reticulum		Nuclear pore complex
-Q92621	NUP205	Endoplasmic reticulum		Nuclear pore complex
+P57740	NUP107	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q8WUM0	NUP133	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+P49790	NUP153	Nucleus	Nuclear pore complex	
+O75694	NUP155	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q12769	NUP160	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q5SRE5	NUP188	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q92621	NUP205	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
 Q8TEM1	NUP210	Endoplasmic reticulum	Endoplasmic reticulum	Nuclear pore complex
-P35658	NUP214	Endoplasmic reticulum		Nuclear pore complex
-Q8NFH5	NUP35	Endoplasmic reticulum		Nuclear pore complex
-Q8NFH4	NUP37	Endoplasmic reticulum		Nuclear pore complex
+P35658	NUP214	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q8NFH5	NUP35	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q8NFH4	NUP37	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
 O15504	NUP42	Nucleus		
-Q8NFH3	NUP43	Endoplasmic reticulum		
-Q9UKX7	NUP50	Nucleus		
-Q7Z3B4	NUP54	Nucleus		Nuclear pore complex
-Q9BVL2	NUP58	Endoplasmic reticulum		Nuclear pore complex
-P37198	NUP62	Endoplasmic reticulum		Nuclear pore complex
-Q9BW27	NUP85	Endoplasmic reticulum		Nuclear pore complex
-Q99567	NUP88	Endoplasmic reticulum		Nuclear pore complex
-Q8N1F7	NUP93	Nucleus		Nuclear pore complex
-P52948	NUP98	Endoplasmic reticulum		Nuclear pore complex
+Q8NFH3	NUP43	Endoplasmic reticulum	Nuclear pore complex	
+Q9UKX7	NUP50	Nucleus	Nuclear pore complex	
+Q7Z3B4	NUP54	Nucleus	Nuclear pore complex	Nuclear pore complex
+Q9BVL2	NUP58	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+P37198	NUP62	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q9BW27	NUP85	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q99567	NUP88	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
+Q8N1F7	NUP93	Nucleus	Nuclear pore complex	Nuclear pore complex
+P52948	NUP98	Endoplasmic reticulum	Nuclear pore complex	Nuclear pore complex
 Q96E22	NUS1	Endoplasmic reticulum		
 Q9BXS6	NUSAP1	Nucleus	Nucleus	
 P61970	NUTF2	Cytosol		
@@ -4094,15 +4094,15 @@ Q5BJF6	ODF2	Centrosome	Centrosome
 Q5SWX8	ODR4	Endoplasmic reticulum	Endoplasmic reticulum	
 O75665	OFD1	Centrosome	Centrosome	
 O60502	OGA	Cytosol		
-Q02218	OGDH	Mitochondrion		Mitochondrion
-Q9ULD0	OGDHL	Mitochondrion		
+Q02218	OGDH	Mitochondrion	Mitochondrion	Mitochondrion
+Q9ULD0	OGDHL	Mitochondrion	Mitochondrion	
 Q8N543	OGFOD1	Cytosol		
 Q6PK18	OGFOD3	Endoplasmic reticulum		
 Q9NZT2	OGFR	Cytosol		
 O15294	OGT	Mitochondrion		
 Q9NTK5	OLA1	Cytosol		
 Q96E52	OMA1	Mitochondrion		
-O60313	OPA1	Mitochondrion		
+O60313	OPA1	Mitochondrion	Mitochondrion	
 Q96CV9	OPTN	Cytosol	Cytosol	
 Q96SN7	ORAI2	Early endosome		
 Q13415	ORC1	Nucleus	Nucleus	
@@ -4137,7 +4137,7 @@ Q96BN8	OTULIN	Cytosol
 P32242	OTX1	Nucleus	Nucleus	
 Q8WZ82	OVCA2	Mitochondrion		
 Q15070	OXA1L	Mitochondrion		Mitochondrion
-P55809	OXCT1	Mitochondrion		Mitochondrion
+P55809	OXCT1	Mitochondrion	Mitochondrion	Mitochondrion
 Q5BKU9	OXLD1	Mitochondrion		
 Q96HP4	OXNAD1	Mitochondrion		
 Q8N573	OXR1	Cytosol		
@@ -4154,8 +4154,8 @@ Q9BRP4	PAAF1	Cytosol
 Q9H8K7	PAAT	Early endosome		
 Q96E09	PABIR1	Cytosol	Cytosol	
 Q7Z309	PABIR2	Cytosol	Cytosol	
-P11940	PABPC1	Stress granule		
-Q13310	PABPC4	Stress granule		
+P11940	PABPC1	Stress granule	Stress granule	
+Q13310	PABPC4	Stress granule	Stress granule	
 Q86U42	PABPN1	Nucleus		
 Q9H813	PACC1	Recycling endosome		
 Q86VP3	PACS2	14-3-3 scaffold		
@@ -4178,7 +4178,7 @@ O96013	PAK4	Cytoskeleton
 Q86YC2	PALB2	Nucleus	Nucleus	
 Q9ULE6	PALD1	Cytosol		
 Q8WX93	PALLD	Cytoskeleton		Actin binding proteins
-O75781	PALM	Cell membrane		Cell membrane
+O75781	PALM	Cell membrane	Cell membrane	Cell membrane
 Q9Y2D5	PALM2AKAP2	Cell membrane		
 A6NDB9	PALM3	Cell membrane		
 Q8N3R9	PALS1	Cell membrane		
@@ -4223,10 +4223,10 @@ Q96AQ6	PBXIP1	Endoplasmic reticulum
 P11498	PC	Mitochondrion		Mitochondrion
 P61457	PCBD1	Cytosol		
 Q9H0N5	PCBD2	Mitochondrion		
-P05165	PCCA	Mitochondrion		
-P05166	PCCB	Mitochondrion		
+P05165	PCCA	Mitochondrion	Mitochondrion	
+P05166	PCCB	Mitochondrion	Mitochondrion	
 Q9P2E7	PCDH10	Cell membrane		
-O60245	PCDH7	Cell membrane		Cell membrane
+O60245	PCDH7	Cell membrane	Cell membrane	Cell membrane
 Q9HC56	PCDH9	Cell membrane		
 O94913	PCF11	Nucleus		
 Q9BSM1	PCGF1	Nucleus		
@@ -4261,26 +4261,26 @@ O76074	PDE5A	Cytosol
 O43924	PDE6D	Cytosol		
 O60658	PDE8A	Cell membrane		
 Q9HBH1	PDF	Mitochondrion		
-P08559	PDHA1	Mitochondrion		Mitochondrion
-P11177	PDHB	Mitochondrion		Mitochondrion
-O00330	PDHX	Mitochondrion		Mitochondrion
+P08559	PDHA1	Mitochondrion	Mitochondrion	Mitochondrion
+P11177	PDHB	Mitochondrion	Mitochondrion	Mitochondrion
+O00330	PDHX	Mitochondrion	Mitochondrion	Mitochondrion
 P30101	PDIA3	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P13667	PDIA4	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q14554	PDIA5	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q15084	PDIA6	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q8N165	PDIK1L	Nucleus		
 Q15118	PDK1	Mitochondrion		
-Q15119	PDK2	Mitochondrion		
-Q15120	PDK3	Mitochondrion		
-O00151	PDLIM1	Cell membrane		
+Q15119	PDK2	Mitochondrion	Mitochondrion	
+Q15120	PDK3	Mitochondrion	Mitochondrion	
+O00151	PDLIM1	Cell membrane	Cytoskeleton	
 Q96JY6	PDLIM2	Cytosol		
 Q53GG5	PDLIM3	Cytosol		
 P50479	PDLIM4	Cytosol		
 Q96HC4	PDLIM5	Cytosol		
-Q9NR12	PDLIM7	Cell membrane		Actin binding proteins
+Q9NR12	PDLIM7	Cell membrane	Cytoskeleton	Actin binding proteins
 Q9P0J1	PDP1	Mitochondrion		Mitochondrion
 Q9P2J9	PDP2	Mitochondrion		
-O15530	PDPK1	Cytosol		
+O15530	PDPK1	Cytosol	Mitochondrion	
 Q8NCN5	PDPR	Mitochondrion		Mitochondrion
 Q29RF7	PDS5A	Nucleus		
 Q9NTI5	PDS5B	Nucleus		
@@ -4349,8 +4349,8 @@ O75167	PHACTR2	Cytoskeleton
 Q8IZ21	PHACTR4	Cytoskeleton		
 Q9BSU1	PHAF1	Cytosol		
 Q9H814	PHAX	Cytosol		
-P35232	PHB1	Mitochondrion		Mitochondrion
-Q99623	PHB2	Mitochondrion		
+P35232	PHB1	Mitochondrion	Mitochondrion	Mitochondrion
+Q99623	PHB2	Mitochondrion	Mitochondrion	
 P78364	PHC1	Nucleus	Nucleus	
 Q8IXK0	PHC2	Nucleus	Nucleus	
 Q8NDX5	PHC3	Nucleus	Nucleus	
@@ -4370,7 +4370,7 @@ P46020	PHKA1	Cytosol
 P46019	PHKA2	Cytosol	Cytosol	
 Q93100	PHKB	Cytosol		
 P15735	PHKG2	Cytosol		
-Q9Y5J5	PHLDA3	Cell membrane		
+Q9Y5J5	PHLDA3	Cell membrane	Cell membrane	
 Q86UU1	PHLDB1	Cell membrane		
 Q86SQ0	PHLDB2	Cytoskeleton		
 O60346	PHLPP1	Cytosol		
@@ -4419,7 +4419,7 @@ P78356	PIP4K2B	Cytoskeleton
 Q8TBX8	PIP4K2C	Cytoskeleton		
 Q86T03	PIP4P1	Lysosome		
 Q8N4L2	PIP4P2	Lysosome		
-Q99755	PIP5K1A	Cytoskeleton		
+Q99755	PIP5K1A	Cytoskeleton	Cell membrane	
 O60331	PIP5K1C	Cell membrane		
 O00625	PIR	Cytosol		
 Q9UG56	PISD	Mitochondrion		
@@ -4428,7 +4428,7 @@ Q00169	PITPNA	Cytosol
 P48739	PITPNB	Cytosol		
 Q9UKF7	PITPNC1	Cytosol		
 O00562	PITPNM1	Cytosol		
-Q5JRX3	PITRM1	Mitochondrion		Mitochondrion
+Q5JRX3	PITRM1	Mitochondrion	Mitochondrion	Mitochondrion
 P78337	PITX1	Nucleus		
 Q99697	PITX2	Nucleolus		
 Q8NG27	PJA1	Cytosol		
@@ -4449,7 +4449,7 @@ Q8NHP8	PLBD2	Lysosome	Lysosome	Lysosome
 Q9NQ66	PLCB1	Cell membrane		
 Q01970	PLCB3	Cell membrane		
 Q15147	PLCB4	Cell membrane		
-Q8N3E9	PLCD3	Cell membrane		
+Q8N3E9	PLCD3	Cell membrane	Cell membrane	
 P19174	PLCG1	Cytosol	Cytosol	
 P16885	PLCG2	Cytosol		
 Q4KWH8	PLCH1	14-3-3 scaffold		
@@ -4485,14 +4485,14 @@ Q14651	PLS1	Cytosol		Actin binding proteins
 P13797	PLS3	Cytosol		Actin binding proteins
 O15162	PLSCR1	Cell membrane		
 P55058	PLTP	Endoplasmic reticulum		
-Q9UIW2	PLXNA1	Cell membrane		Cell membrane
-O15031	PLXNB2	Cell membrane		Cell membrane
+Q9UIW2	PLXNA1	Cell membrane	Cell membrane	Cell membrane
+O15031	PLXNB2	Cell membrane	Cell membrane	Cell membrane
 Q8IYS1	PM20D2	Cytosol		
 P29590	PML	Early endosome		
 Q92871	PMM1	Cytosol		
 O15305	PMM2	Cytosol		
-Q10713	PMPCA	Mitochondrion		Mitochondrion
-O75439	PMPCB	Mitochondrion		Mitochondrion
+Q10713	PMPCA	Mitochondrion	Mitochondrion	Mitochondrion
+O75439	PMPCB	Mitochondrion	Mitochondrion	Mitochondrion
 Q68D20	PMS2CL	Cytosol		
 Q15126	PMVK	Cytosol		
 Q8N490	PNKD	Endoplasmic reticulum		
@@ -4509,7 +4509,7 @@ Q9NVS9	PNPO	Mitochondrion
 Q8TCS8	PNPT1	Mitochondrion		Mitochondrion
 Q8NBT0	POC1A	Nucleus	Centrosome	
 O00592	PODXL	Recycling endosome		
-Q9NZ53	PODXL2	Recycling endosome		
+Q9NZ53	PODXL2	Recycling endosome	Cell membrane	
 Q9H488	POFUT1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q9Y2G5	POFUT2	Endoplasmic reticulum		
 Q8NBL1	POGLUT1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
@@ -4520,7 +4520,7 @@ P06746	POLB	Nucleus
 P28340	POLD1	Cytosol		
 P49005	POLD2	Cytosol		
 Q15054	POLD3	Cytosol		
-Q9Y2S7	POLDIP2	Mitochondrion		
+Q9Y2S7	POLDIP2	Mitochondrion	Mitochondrion	
 Q9BY77	POLDIP3	Nucleus		
 Q07864	POLE	Cytosol		
 P56282	POLE2	Cell membrane		
@@ -4552,7 +4552,7 @@ Q9H1D9	POLR3F	Cytosol
 O15318	POLR3G	Cytosol	Cytosol	
 Q9Y535	POLR3H	Cytosol		
 Q9Y2Y1	POLR3K	Cytosol		
-O00411	POLRMT	Mitochondrion		Mitochondrion
+O00411	POLRMT	Mitochondrion	Mitochondrion	Mitochondrion
 Q96HA1	POM121	Endoplasmic reticulum		
 A8CG34	POM121C	Endoplasmic reticulum	Nucleus	
 Q8WZA1	POMGNT1	Golgi apparatus		
@@ -4569,7 +4569,7 @@ Q9NUX5	POT1	Nucleus
 P14859	POU2F1	Nucleus		
 P20265	POU3F2	Nucleus		
 Q15181	PPA1	Cytosol		
-Q9H2U2	PPA2	Mitochondrion		Mitochondrion
+Q9H2U2	PPA2	Mitochondrion	Mitochondrion	Mitochondrion
 Q9NQ55	PPAN	Nucleus		
 Q06203	PPAT	Cytosol		
 Q96CD2	PPCDC	Cytosol	Cytosol	
@@ -4585,7 +4585,7 @@ P23284	PPIB	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P45877	PPIC	Endoplasmic reticulum		
 Q08752	PPID	Cytosol		
 Q9UNP9	PPIE	Nucleus		
-P30405	PPIF	Mitochondrion		Mitochondrion
+P30405	PPIF	Mitochondrion	Mitochondrion	Mitochondrion
 Q13427	PPIG	Nucleus		
 O43447	PPIH	Nucleus		
 Q9Y3C6	PPIL1	Nucleus		
@@ -4605,7 +4605,7 @@ P62140	PPP1CB	Cytoskeleton
 P36873	PPP1CC	Cell membrane		
 Q96QC0	PPP1R10	Nucleus		
 O60927	PPP1R11	Cytosol		
-O14974	PPP1R12A	Cell membrane		
+O14974	PPP1R12A	Cell membrane	Cytoskeleton	
 O60237	PPP1R12B	Cytoskeleton		
 Q9BZL4	PPP1R12C	Cell membrane		
 Q96KQ4	PPP1R13B	Cell membrane		
@@ -4613,7 +4613,7 @@ Q8WUF5	PPP1R13L	Cytosol
 Q96C90	PPP1R14B	Cytosol		
 Q8TAE6	PPP1R14C	Cytosol		
 Q5SWA1	PPP1R15B	Endoplasmic reticulum		
-Q6NYC8	PPP1R18	Cytoskeleton		Actin binding proteins
+Q6NYC8	PPP1R18	Cytoskeleton	Cytoskeleton	Actin binding proteins
 P41236	PPP1R2	Cytosol		
 Q6ZMI0	PPP1R21	Early endosome		
 O75864	PPP1R37	Cytosol		
@@ -4649,7 +4649,7 @@ O75170	PPP6R2	Cytosol
 Q5VV67	PPRC1	Nucleus		
 P50897	PPT1	Lysosome	Lysosome	Lysosome
 Q9UMR5	PPT2	Lysosome	Lysosome	
-Q8NI37	PPTC7	Mitochondrion		
+Q8NI37	PPTC7	Mitochondrion	Mitochondrion	
 Q96BP3	PPWD1	Nucleus		
 O60828	PQBP1	Nucleus		
 O60831	PRAF2	Endoplasmic reticulum		
@@ -4662,7 +4662,7 @@ Q9HAZ2	PRDM16	Nucleus
 Q13029	PRDM2	Nucleus		
 Q06830	PRDX1	Cytosol		
 P32119	PRDX2	Cytosol		
-P30048	PRDX3	Mitochondrion		
+P30048	PRDX3	Mitochondrion	Mitochondrion	
 Q13162	PRDX4	Endoplasmic reticulum	Endoplasmic reticulum	
 P30044	PRDX5	Mitochondrion	Peroxisome	
 P30041	PRDX6	Cytosol		
@@ -4696,8 +4696,8 @@ O14744	PRMT5	Cytosol
 Q96LA8	PRMT6	Cytosol		
 Q9NVM4	PRMT7	Cytosol		
 Q6P2P2	PRMT9	Cytosol		
-P04156	PRNP	Cell membrane		
-Q9UNN8	PROCR	Cell membrane		
+P04156	PRNP	Cell membrane	Cell membrane	
+Q9UNN8	PROCR	Cell membrane	Cell membrane	
 O15091	PRORP	Mitochondrion		Mitochondrion
 P07225	PROS1	Endoplasmic reticulum		
 Q86WR7	PROSER2	Cell membrane		
@@ -4721,16 +4721,16 @@ Q9BWN1	PRR14	Cytoskeleton	Nucleus
 Q5THK1	PRR14L	Cytosol		
 P79522	PRR3	Nucleus	Nucleus	
 Q96M27	PRRC1	Golgi apparatus		
-P48634	PRRC2A	Stress granule		
+P48634	PRRC2A	Stress granule	Stress granule	
 Q5JSZ5	PRRC2B	Stress granule		
-Q9Y520	PRRC2C	Stress granule		
+Q9Y520	PRRC2C	Stress granule	Stress granule	
 Q9NRG1	PRTFDC1	Cytosol	Cytosol	
 Q86TP1	PRUNE1	Cytosol		
 Q9BRX8	PRXL2A	Endoplasmic reticulum		
 P07602	PSAP	Lysosome	Lysosome	Lysosome
 Q9Y617	PSAT1	Cytosol		
 Q9NYI0	PSD3	Cell membrane		
-P49768	PSEN1	Early endosome		
+P49768	PSEN1	Early endosome	Cell membrane	
 P49810	PSEN2	trans-Golgi network		
 O75475	PSIP1	Nucleus	Nucleus	
 P25786	PSMA1	Proteasome		Large protein complex
@@ -4783,7 +4783,7 @@ Q9H939	PSTPIP2	Nucleus
 Q7Z6K3	PTAR1	Cytosol	Cytosol	
 P26599	PTBP1	Nucleus		
 Q9UKA9	PTBP2	Nucleus		
-O95758	PTBP3	Nucleus		
+O95758	PTBP3	Nucleus	Stress granule	
 O75127	PTCD1	Mitochondrion		
 Q8WV60	PTCD2	Mitochondrion		
 Q96EY7	PTCD3	Mitochondrion		
@@ -4793,14 +4793,14 @@ P60484	PTEN	Cytosol
 Q96BW5	PTER	Cytosol	Cytosol	
 Q9H7Z7	PTGES2	Mitochondrion		
 Q15185	PTGES3	Cytosol		
-Q9P2B2	PTGFRN	Cell membrane		
+Q9P2B2	PTGFRN	Cell membrane	Cell membrane	
 Q8N8N7	PTGR2	Cytosol	Cytosol	
 Q8N4Q0	PTGR3	Mitochondrion		
 Q13308	PTK7	Cell membrane		
 P06454	PTMA	Cytosol		
 P20962	PTMS	Cytosol		
 Q86YD1	PTOV1	14-3-3 scaffold		
-Q93096	PTP4A1	Cell membrane		
+Q93096	PTP4A1	Cell membrane	Cell membrane	
 Q12974	PTP4A2	Cell membrane		
 Q15257	PTPA	Cytosol		
 A2A3K4	PTPDC1	Cytosol		
@@ -4814,11 +4814,11 @@ Q9H3S7	PTPN23	Cytosol
 P26045	PTPN3	14-3-3 scaffold		
 P43378	PTPN9	Early endosome		
 P18433	PTPRA	Cell membrane		
-P10586	PTPRF	Cell membrane		
+P10586	PTPRF	Cell membrane	Cell membrane	
 P23470	PTPRG	Cell membrane		
-Q12913	PTPRJ	Recycling endosome		Cell membrane
-Q15262	PTPRK	Cell membrane		Cell membrane
-Q13332	PTPRS	Cell membrane		
+Q12913	PTPRJ	Recycling endosome	Cell membrane	Cell membrane
+Q15262	PTPRK	Cell membrane	Cell membrane	Cell membrane
+Q13332	PTPRS	Cell membrane	Cell membrane	
 Q92729	PTPRU	Cell membrane		
 Q86Y79	PTRH1	Nucleus		
 Q9Y3E5	PTRH2	Endoplasmic reticulum		
@@ -4827,10 +4827,10 @@ Q03393	PTS	Cytosol
 P53801	PTTG1IP	Mitochondrion		
 Q08623	PUDP	Cytosol		
 Q9UHX1	PUF60	Nucleus		
-Q14671	PUM1	Stress granule		
-Q8TB72	PUM2	Stress granule		
+Q14671	PUM1	Stress granule	Stress granule	
+Q8TB72	PUM2	Stress granule	Stress granule	
 Q15397	PUM3	Nucleolus		
-Q00577	PURA	Stress granule		
+Q00577	PURA	Stress granule	Stress granule	
 Q96QR8	PURB	Stress granule		
 Q9Y606	PUS1	Mitochondrion		
 Q3MIT2	PUS10	Cytosol		
@@ -4838,7 +4838,7 @@ Q9BZE2	PUS3	Cytosol	Cytosol
 Q96PZ0	PUS7	Cytosol		
 Q9H0K6	PUS7L	Cytosol		
 Q8N0Z8	PUSL1	Mitochondrion		
-P15151	PVR	Cell membrane		Cell membrane
+P15151	PVR	Cell membrane	Cell membrane	Cell membrane
 Q13610	PWP1	Nucleus		
 Q15269	PWP2	Nucleus		
 Q96N64	PWWP2A	Nucleus	Nucleus	
@@ -4876,14 +4876,14 @@ Q6WKZ4	RAB11FIP1	Recycling endosome		Endosome
 Q7L804	RAB11FIP2	Recycling endosome		
 Q9BXF6	RAB11FIP5	Recycling endosome		Endosome
 Q6IQ22	RAB12	Cell membrane		
-P51153	RAB13	Cell membrane		
+P51153	RAB13	Cell membrane	Cell membrane	
 P61106	RAB14	Early endosome		Endosome
 Q9NP72	RAB18	Endoplasmic reticulum-Golgi intermediate compartment		
 P62820	RAB1A	Golgi apparatus	Endoplasmic reticulum-Golgi intermediate compartment	
 Q9H0U4	RAB1B	Golgi apparatus	Endoplasmic reticulum-Golgi intermediate compartment	
 Q9UL25	RAB21	Early endosome		
 Q9UL26	RAB22A	Cell membrane		
-Q9ULC3	RAB23	Cell membrane		
+Q9ULC3	RAB23	Cell membrane	Cell membrane	
 Q969Q5	RAB24	Endoplasmic reticulum		
 P51157	RAB28	Cytosol	Cytosol	
 O14966	RAB29	trans-Golgi network		
@@ -4894,7 +4894,7 @@ Q13636	RAB31	Early endosome
 Q13637	RAB32	Recycling endosome		
 Q9H082	RAB33B	trans-Golgi network		
 Q9BZG1	RAB34	Cell membrane		
-Q15286	RAB35	Cell membrane		
+Q15286	RAB35	Cell membrane	Cell membrane	
 Q14964	RAB39A	Lysosome		
 Q96DA2	RAB39B	trans-Golgi network		
 P20336	RAB3A	Golgi apparatus		
@@ -4910,7 +4910,7 @@ P61018	RAB4B	Early endosome
 P20339	RAB5A	Early endosome		
 P61020	RAB5B	Early endosome		
 P51148	RAB5C	Early endosome		
-P20340	RAB6A	Golgi apparatus		
+P20340	RAB6A	Golgi apparatus	Cell membrane	
 Q9NRW1	RAB6B	trans-Golgi network		
 P51149	RAB7A	Early endosome		
 P61006	RAB8A	Early endosome		
@@ -4929,7 +4929,7 @@ P53611	RABGGTB	Cytosol
 P47224	RABIF	Cytosol		
 Q9UNT1	RABL2B	Cytosol	Cytosol	
 Q5HYI8	RABL3	Endoplasmic reticulum-Golgi intermediate compartment		
-P63000	RAC1	Cell membrane		
+P63000	RAC1	Cell membrane	Cell membrane	
 P60763	RAC3	Cytoskeleton		
 Q9H0H5	RACGAP1	14-3-3 scaffold		
 P63244	RACK1	Translation		
@@ -4952,8 +4952,8 @@ P78406	RAE1	Endoplasmic reticulum
 P04049	RAF1	14-3-3 scaffold		
 Q7Z5J4	RAI1	Nucleus	Nucleus	
 Q9P0K7	RAI14	Cell membrane		Actin binding proteins
-P11233	RALA	Cell membrane		
-P11234	RALB	Cell membrane		
+P11233	RALA	Cell membrane	Cell membrane	
+P11234	RALB	Cell membrane	Cell membrane	
 Q15311	RALBP1	Cytoskeleton		
 Q6GYQ0	RALGAPA1	Recycling endosome		
 Q2PPJ7	RALGAPA2	Recycling endosome		
@@ -4969,12 +4969,12 @@ O60518	RANBP6	Mitochondrion
 Q96S59	RANBP9	Cytosol		
 P46060	RANGAP1	Endoplasmic reticulum		
 Q9HD47	RANGRF	Cytosol		
-P62834	RAP1A	Cell membrane		
-P61224	RAP1B	Cell membrane		
+P62834	RAP1A	Cell membrane	Cell membrane	
+P61224	RAP1B	Cell membrane	Cell membrane	
 P52306	RAP1GDS1	Cytosol	Cytosol	
 P10114	RAP2A	Cell membrane		
-P61225	RAP2B	Cell membrane		
-Q9Y3L5	RAP2C	Cell membrane		
+P61225	RAP2B	Cell membrane	Cell membrane	
+Q9Y3L5	RAP2C	Cell membrane	Cell membrane	
 Q13905	RAPGEF1	Cytosol		
 Q8TEU7	RAPGEF6	Cytosol		
 Q70E73	RAPH1	Cell membrane		
@@ -5029,8 +5029,8 @@ P52756	RBM5	Nucleus
 P78332	RBM6	Translation		
 Q9Y580	RBM7	Nucleus		
 Q9Y5S9	RBM8A	Nucleus		
-P29558	RBMS1	Stress granule		
-Q15434	RBMS2	Stress granule		
+P29558	RBMS1	Stress granule	Stress granule	
+Q15434	RBMS2	Stress granule	Stress granule	
 P38159	RBMX	Nucleus		
 Q9Y388	RBMX2	Nucleus		
 Q96E39	RBMXL1	Nucleus		
@@ -5104,12 +5104,12 @@ O43665	RGS10	Cytosol
 P49795	RGS19	Cell membrane		
 Q8TEB9	RHBDD1	Endoplasmic reticulum		
 Q6NTF9	RHBDD2	Golgi apparatus		
-Q6PJF5	RHBDF2	Cell membrane		
+Q6PJF5	RHBDF2	Cell membrane	Cell membrane	
 Q15382	RHEB	Cytosol		
 P61586	RHOA	Cell membrane		
 O94955	RHOBTB3	Cell membrane		
 P08134	RHOC	Cytosol		
-Q9HBH0	RHOF	Cell membrane		
+Q9HBH0	RHOF	Cell membrane	Cell membrane	
 P84095	RHOG	Cell membrane		
 P17081	RHOQ	Cell membrane		
 Q8IXI2	RHOT1	Mitochondrion		Mitochondrion
@@ -5175,13 +5175,13 @@ O43148	RNMT	Cytosol
 Q96LT9	RNPC3	Translation	Nucleus	
 Q9H4A4	RNPEP	Cytosol		
 Q15287	RNPS1	Nucleus		
-Q9Y6N7	ROBO1	Cell membrane		
+Q9Y6N7	ROBO1	Cell membrane	Cell membrane	
 Q9HCK4	ROBO2	Cell membrane		
 Q13464	ROCK1	Cell membrane		
 O75116	ROCK2	Cytoskeleton		
 Q9GZN7	ROGDI	Early endosome		
 P60602	ROMO1	Mitochondrion		
-O75695	RP2	Cell membrane		
+O75695	RP2	Cell membrane	Cell membrane	
 Q8TA86	RP9	Nucleus		
 P27694	RPA1	Nucleus		
 P15927	RPA2	Endoplasmic reticulum		
@@ -5193,49 +5193,49 @@ Q9H9Y2	RPF1	Nucleolus
 Q9H7B2	RPF2	Nucleolus		
 Q92834	RPGR	Cytosol	Cytosol	
 P49247	RPIA	Translation		
-P27635	RPL10	Translation		
-P62906	RPL10A	Translation		Large protein complex
-P62913	RPL11	Translation		Large protein complex
-P30050	RPL12	Translation		Large protein complex
-P26373	RPL13	Translation		Large protein complex
-P40429	RPL13A	Translation		
-P50914	RPL14	Translation		Large protein complex
-P61313	RPL15	Translation		Large protein complex
-P18621	RPL17	Translation		Large protein complex
-Q07020	RPL18	Translation		Large protein complex
-Q02543	RPL18A	Translation		Large protein complex
-P84098	RPL19	Translation		Large protein complex
-P46778	RPL21	Translation		Large protein complex
-P35268	RPL22	Translation		
-Q6P5R6	RPL22L1	Nucleus		
-P62829	RPL23	Translation		Large protein complex
-P62750	RPL23A	Translation		Large protein complex
-P83731	RPL24	Translation		Large protein complex
-P61254	RPL26	Translation		
-Q9UNX3	RPL26L1	Translation		
-P61353	RPL27	Translation		Large protein complex
-P46776	RPL27A	Translation		Large protein complex
-P46779	RPL28	Translation		Large protein complex
-P47914	RPL29	Translation		Large protein complex
-P39023	RPL3	Translation		Large protein complex
-P62888	RPL30	Translation		Large protein complex
-P62899	RPL31	Translation		Large protein complex
-P62910	RPL32	Translation		Large protein complex
-P49207	RPL34	Translation		
-P42766	RPL35	Translation		Large protein complex
-P18077	RPL35A	Translation		Large protein complex
-Q9Y3U8	RPL36	Translation		Large protein complex
-P83881	RPL36A	Translation		
-Q969Q0	RPL36AL	Translation		
-P61513	RPL37A	Translation		Large protein complex
-P63173	RPL38	Translation		
-P36578	RPL4	Translation		Large protein complex
-P46777	RPL5	Translation		Large protein complex
-Q02878	RPL6	Translation		Large protein complex
-P18124	RPL7	Translation		Large protein complex
-P62424	RPL7A	Translation		Large protein complex
-Q6DKI1	RPL7L1	Translation		
-P62917	RPL8	Translation		Large protein complex
+P27635	RPL10	Translation	Ribosome	
+P62906	RPL10A	Translation	Ribosome	Large protein complex
+P62913	RPL11	Translation	Ribosome	Large protein complex
+P30050	RPL12	Translation	Ribosome	Large protein complex
+P26373	RPL13	Translation	Ribosome	Large protein complex
+P40429	RPL13A	Translation	Ribosome	
+P50914	RPL14	Translation	Ribosome	Large protein complex
+P61313	RPL15	Translation	Ribosome	Large protein complex
+P18621	RPL17	Translation	Ribosome	Large protein complex
+Q07020	RPL18	Translation	Ribosome	Large protein complex
+Q02543	RPL18A	Translation	Ribosome	Large protein complex
+P84098	RPL19	Translation	Ribosome	Large protein complex
+P46778	RPL21	Translation	Ribosome	Large protein complex
+P35268	RPL22	Translation	Ribosome	
+Q6P5R6	RPL22L1	Nucleus	Ribosome	
+P62829	RPL23	Translation	Ribosome	Large protein complex
+P62750	RPL23A	Translation	Ribosome	Large protein complex
+P83731	RPL24	Translation	Ribosome	Large protein complex
+P61254	RPL26	Translation	Ribosome	
+Q9UNX3	RPL26L1	Translation	Ribosome	
+P61353	RPL27	Translation	Ribosome	Large protein complex
+P46776	RPL27A	Translation	Ribosome	Large protein complex
+P46779	RPL28	Translation	Ribosome	Large protein complex
+P47914	RPL29	Translation	Ribosome	Large protein complex
+P39023	RPL3	Translation	Ribosome	Large protein complex
+P62888	RPL30	Translation	Ribosome	Large protein complex
+P62899	RPL31	Translation	Ribosome	Large protein complex
+P62910	RPL32	Translation	Ribosome	Large protein complex
+P49207	RPL34	Translation	Ribosome	
+P42766	RPL35	Translation	Ribosome	Large protein complex
+P18077	RPL35A	Translation	Ribosome	Large protein complex
+Q9Y3U8	RPL36	Translation	Ribosome	Large protein complex
+P83881	RPL36A	Translation	Ribosome	
+Q969Q0	RPL36AL	Translation	Ribosome	
+P61513	RPL37A	Translation	Ribosome	Large protein complex
+P63173	RPL38	Translation	Ribosome	
+P36578	RPL4	Translation	Ribosome	Large protein complex
+P46777	RPL5	Translation	Ribosome	Large protein complex
+Q02878	RPL6	Translation	Ribosome	Large protein complex
+P18124	RPL7	Translation	Ribosome	Large protein complex
+P62424	RPL7A	Translation	Ribosome	Large protein complex
+Q6DKI1	RPL7L1	Translation	Ribosome	
+P62917	RPL8	Translation	Ribosome	Large protein complex
 P32969	RPL9; RPL9P7; RPL9P8; RPL9P9	Translation		Large protein complex
 P05388	RPLP0	Translation		Large protein complex
 P05386	RPLP1	Translation		
@@ -5248,44 +5248,44 @@ Q8N5L8	RPP25L	Stress granule
 P78346	RPP30	Nucleus		
 O75818	RPP40	Translation		
 Q5VT52	RPRD2	Nucleus		
-P46783	RPS10	Translation		
-P62280	RPS11	Translation		Large protein complex
-P25398	RPS12	Translation		Large protein complex
-P62277	RPS13	Translation		Large protein complex
-P62263	RPS14	Translation		Large protein complex
-P62841	RPS15	Stress granule		Large protein complex
-P62244	RPS15A	Translation		
-P62249	RPS16	Translation		Large protein complex
-P08708	RPS17	Translation		Large protein complex
-P62269	RPS18	Translation		Large protein complex
-P39019	RPS19	Translation		Large protein complex
-Q86WX3	RPS19BP1	Nucleolus		
-P15880	RPS2	Translation		Large protein complex
-P60866	RPS20	Stress granule		Large protein complex
-P63220	RPS21	Translation		Large protein complex
-P62266	RPS23	Translation		Large protein complex
-P62847	RPS24	Translation		Large protein complex
-P62851	RPS25	Translation		Large protein complex
+P46783	RPS10	Translation	Ribosome	
+P62280	RPS11	Translation	Ribosome	Large protein complex
+P25398	RPS12	Translation	Ribosome	Large protein complex
+P62277	RPS13	Translation	Ribosome	Large protein complex
+P62263	RPS14	Translation	Ribosome	Large protein complex
+P62841	RPS15	Stress granule	Ribosome	Large protein complex
+P62244	RPS15A	Translation	Ribosome	
+P62249	RPS16	Translation	Ribosome	Large protein complex
+P08708	RPS17	Translation	Ribosome	Large protein complex
+P62269	RPS18	Translation	Ribosome	Large protein complex
+P39019	RPS19	Translation	Ribosome	Large protein complex
+Q86WX3	RPS19BP1	Nucleolus	Ribosome	
+P15880	RPS2	Translation	Ribosome	Large protein complex
+P60866	RPS20	Stress granule	Ribosome	Large protein complex
+P63220	RPS21	Translation	Ribosome	Large protein complex
+P62266	RPS23	Translation	Ribosome	Large protein complex
+P62847	RPS24	Translation	Ribosome	Large protein complex
+P62851	RPS25	Translation	Ribosome	Large protein complex
 Q5JNZ5	RPS26P11	Stress granule		
-P42677	RPS27	Translation		
-P62979	RPS27A	Translation		
-Q71UM5	RPS27L	Translation		Large protein complex
-P62857	RPS28	Translation		Large protein complex
-P62273	RPS29	Translation		
-P23396	RPS3	Translation		Large protein complex
-P61247	RPS3A	Translation		Large protein complex
+P42677	RPS27	Translation	Ribosome	
+P62979	RPS27A	Translation	Ribosome	
+Q71UM5	RPS27L	Translation	Ribosome	Large protein complex
+P62857	RPS28	Translation	Ribosome	Large protein complex
+P62273	RPS29	Translation	Ribosome	
+P23396	RPS3	Translation	Ribosome	Large protein complex
+P61247	RPS3A	Translation	Ribosome	Large protein complex
 P62701	RPS4X	Stress granule		
-P46782	RPS5	Translation		Large protein complex
-P62753	RPS6	Stress granule		Large protein complex
+P46782	RPS5	Translation	Ribosome	Large protein complex
+P62753	RPS6	Stress granule	Ribosome	Large protein complex
 Q15418	RPS6KA1	Cytosol		
 P51812	RPS6KA3	Cytosol		
 O75582	RPS6KA5	Cytosol		
 P23443	RPS6KB1	Cytosol		
 Q9UBS0	RPS6KB2	Cytosol		
 Q96S38	RPS6KC1	Early endosome		
-P62081	RPS7	Translation		Large protein complex
-P62241	RPS8	Translation		Large protein complex
-P46781	RPS9	Translation		Large protein complex
+P62081	RPS7	Translation	Ribosome	Large protein complex
+P62241	RPS8	Translation	Ribosome	Large protein complex
+P46781	RPS9	Translation	Ribosome	Large protein complex
 P08865	RPSA	Translation		
 Q8N122	RPTOR	Lysosome		
 Q9UJJ7	RPUSD1	Cytosol	Cytosol	
@@ -5294,8 +5294,8 @@ Q6P087	RPUSD3	Mitochondrion
 Q96CM3	RPUSD4	Mitochondrion		
 Q7L523	RRAGA	Lysosome		
 Q9HB90	RRAGC	Lysosome		
-P10301	RRAS	Cell membrane		
-P62070	RRAS2	Cell membrane		
+P10301	RRAS	Cell membrane	Cell membrane	
+P62070	RRAS2	Cell membrane	Cell membrane	
 Q9P2E9	RRBP1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q92766	RREB1	Nucleus	Nucleus	
 P23921	RRM1	Cytosol		
@@ -5319,16 +5319,16 @@ Q96DX4	RSPRY1	Cell membrane
 Q96IZ7	RSRC1	Nucleus		
 Q7L4I2	RSRC2	Nucleus		
 Q15404	RSU1	Cell membrane		
-Q9Y3I0	RTCB	Stress granule		
+Q9Y3I0	RTCB	Stress granule	Stress granule	
 Q9NZ71	RTEL1	Cytosol		
 Q92541	RTF1	Cytosol		
 Q8IZC4	RTKN2	Cytosol		
 Q16799	RTN1	Endoplasmic reticulum		Endoplasmic reticulum membrane
 O95197	RTN3	Endoplasmic reticulum		Endoplasmic reticulum membrane
 Q9NQC3	RTN4	Endoplasmic reticulum		Endoplasmic reticulum membrane
-Q8WWV3	RTN4IP1	Mitochondrion		
+Q8WWV3	RTN4IP1	Mitochondrion	Mitochondrion	
 Q9BZR6	RTN4R	Cell membrane		
-Q9Y224	RTRAF	Stress granule		
+Q9Y224	RTRAF	Stress granule	Stress granule	
 Q96T51	RUFY1	Early endosome		
 Q8WXA3	RUFY2	Early endosome		
 Q7L099	RUFY3	Cytosol		
@@ -5341,7 +5341,7 @@ Q9Y3V2	RWDD3	Cytosol
 P19793	RXRA	Nucleus		
 P28702	RXRB	Nucleus		
 Q8N488	RYBP	Nucleus		
-P60903	S100A10	Cell membrane		
+P60903	S100A10	Cell membrane	Cell membrane	
 P31949	S100A11	Cytosol		
 Q99584	S100A13	Cytosol		
 Q96BU1	S100PBP	Nucleus		
@@ -5354,7 +5354,7 @@ Q9NXZ1	SAGE1	Nucleus
 Q9NSC2	SALL1	Nucleus		
 Q6SPF0	SAMD1	Nucleus		
 Q5PRF9	SAMD4B	Stress granule		
-Q9Y512	SAMM50	Mitochondrion		
+Q9Y512	SAMM50	Mitochondrion	Mitochondrion	
 Q9H0E3	SAP130	Nucleus	Nucleus	
 O00422	SAP18	Nucleus		
 O75446	SAP30	Nucleus		
@@ -5407,19 +5407,19 @@ Q0VDG4	SCRN3	Cytosol	Cytosol
 Q96KG9	SCYL1	Cytosol		
 Q6P3W7	SCYL2	Cytoskeleton		Endosome
 Q8IZE3	SCYL3	Cytosol		
-P18827	SDC1	Cell membrane		
-P34741	SDC2	Cell membrane		
+P18827	SDC1	Cell membrane	Cell membrane	
+P34741	SDC2	Cell membrane	Cell membrane	
 O75056	SDC3	Cell membrane		
 O00560	SDCBP	Lysosome		
 Q99470	SDF2	Endoplasmic reticulum	Endoplasmic reticulum	
 Q9HCN8	SDF2L1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q9BRK5	SDF4	Golgi apparatus		Golgi apparatus
-P31040	SDHA	Mitochondrion		
-Q9NX18	SDHAF2	Mitochondrion		Mitochondrion
+P31040	SDHA	Mitochondrion	Mitochondrion	
+Q9NX18	SDHAF2	Mitochondrion	Mitochondrion	Mitochondrion
 Q9NRP4	SDHAF3	Mitochondrion		
-Q5VUM1	SDHAF4	Mitochondrion		
-P21912	SDHB	Mitochondrion		Mitochondrion
-Q99643	SDHC	Mitochondrion		
+Q5VUM1	SDHAF4	Mitochondrion	Mitochondrion	
+P21912	SDHB	Mitochondrion	Mitochondrion	Mitochondrion
+Q99643	SDHC	Mitochondrion	Mitochondrion	
 Q7Z5N4	SDK1	Cell membrane		
 Q58EX2	SDK2	Cell membrane		
 Q9NRG7	SDR39U1	Mitochondrion		
@@ -5534,9 +5534,9 @@ Q96EQ0	SGTB	Cytosol
 Q9NRF2	SH2B1	Cytosol	Cytosol	
 O75368	SH3BGRL	Cytosol		
 Q9UJC5	SH3BGRL2	Cytosol		
-Q9H299	SH3BGRL3	Cytosol		
+Q9H299	SH3BGRL3	Cytosol	Cytoskeleton	
 Q9Y3L3	SH3BP1	Nucleus		
-Q9P0V3	SH3BP4	Cell membrane		
+Q9P0V3	SH3BP4	Cell membrane	Cell membrane	
 Q7L8J4	SH3BP5L	14-3-3 scaffold		
 Q5HYK7	SH3D19	Cytoskeleton		
 Q99961	SH3GL1	Cytosol		
@@ -5568,7 +5568,7 @@ Q8NDZ2	SIMC1	Nucleus
 Q96ST3	SIN3A	Nucleus		
 O75182	SIN3B	Nucleus		
 Q9NP50	SINHCAF	Nucleolus		
-Q96FS4	SIPA1	Cytoskeleton		
+Q96FS4	SIPA1	Cytoskeleton	Cytoskeleton	
 O43166	SIPA1L1	Cytoskeleton		
 Q9P2F8	SIPA1L2	Cytoskeleton		
 O60292	SIPA1L3	Cytoskeleton		
@@ -5595,10 +5595,10 @@ Q14493	SLBP	Nucleolus
 P55011	SLC12A2	Cell membrane		
 Q9UP95	SLC12A4	trans-Golgi network		
 Q9UHW9	SLC12A6	Recycling endosome		
-Q9Y666	SLC12A7	trans-Golgi network		Cell membrane
+Q9Y666	SLC12A7	trans-Golgi network	Cell membrane	Cell membrane
 Q9BXP2	SLC12A9	Early endosome		
 Q8N697	SLC15A4	Lysosome		
-P53985	SLC16A1	Cell membrane		Cell membrane
+P53985	SLC16A1	Cell membrane	Cell membrane	Cell membrane
 Q8TF71	SLC16A10	Cell membrane		
 P36021	SLC16A2	Cell membrane		
 Q6NT16	SLC18B1	Lysosome		
@@ -5606,45 +5606,45 @@ P41440	SLC19A1	Cell membrane
 O60779	SLC19A2	Cell membrane		
 P43005	SLC1A1	Recycling endosome		
 P43003	SLC1A3	Cell membrane		
-P43007	SLC1A4	Cell membrane		
-Q15758	SLC1A5	Cell membrane		Cell membrane
+P43007	SLC1A4	Cell membrane	Cell membrane	
+Q15758	SLC1A5	Cell membrane	Cell membrane	Cell membrane
 Q8WUM9	SLC20A1	Cell membrane		
 Q08357	SLC20A2	trans-Golgi network		
-P53007	SLC25A1	Mitochondrion		Mitochondrion
-Q9UBX3	SLC25A10	Mitochondrion		Mitochondrion
-Q02978	SLC25A11	Mitochondrion		Mitochondrion
-O75746	SLC25A12	Mitochondrion		
-Q9UJS0	SLC25A13	Mitochondrion		Mitochondrion
+P53007	SLC25A1	Mitochondrion	Mitochondrion	Mitochondrion
+Q9UBX3	SLC25A10	Mitochondrion	Mitochondrion	Mitochondrion
+Q02978	SLC25A11	Mitochondrion	Mitochondrion	Mitochondrion
+O75746	SLC25A12	Mitochondrion	Mitochondrion	
+Q9UJS0	SLC25A13	Mitochondrion	Mitochondrion	Mitochondrion
 O95258	SLC25A14	Mitochondrion		
-Q9Y619	SLC25A15	Mitochondrion		
+Q9Y619	SLC25A15	Mitochondrion	Mitochondrion	
 O43808	SLC25A17	Peroxisome	Peroxisome	Peroxisome
-Q9HC21	SLC25A19	Mitochondrion		
-O43772	SLC25A20	Mitochondrion		
+Q9HC21	SLC25A19	Mitochondrion	Mitochondrion	
+O43772	SLC25A20	Mitochondrion	Mitochondrion	
 Q9BQT8	SLC25A21	Mitochondrion		
 Q9H936	SLC25A22	Mitochondrion		Mitochondrion
 Q6NUK1	SLC25A24	Mitochondrion		Mitochondrion
-Q6KCM7	SLC25A25	Mitochondrion		
+Q6KCM7	SLC25A25	Mitochondrion	Mitochondrion	
 Q96A46	SLC25A28	Mitochondrion		
 Q8N8R3	SLC25A29	Mitochondrion		
-Q00325	SLC25A3	Mitochondrion		Mitochondrion
-Q5SVS4	SLC25A30	Mitochondrion		
+Q00325	SLC25A3	Mitochondrion	Mitochondrion	Mitochondrion
+Q5SVS4	SLC25A30	Mitochondrion	Mitochondrion	
 Q9H2D1	SLC25A32	Mitochondrion		
 Q96CQ1	SLC25A36	Mitochondrion		
-P12235	SLC25A4	Mitochondrion		
+P12235	SLC25A4	Mitochondrion	Mitochondrion	
 Q8TBP6	SLC25A40	Mitochondrion		
 Q96H78	SLC25A44	Nucleus		
 Q96AG3	SLC25A46	Mitochondrion		
-P05141	SLC25A5	Mitochondrion		Mitochondrion
+P05141	SLC25A5	Mitochondrion	Mitochondrion	Mitochondrion
 P12236	SLC25A6	Mitochondrion		Mitochondrion
 P50443	SLC26A2	Cell membrane		
 O14975	SLC27A2	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 Q5K4L6	SLC27A3	Endoplasmic reticulum		
 Q6P1M0	SLC27A4	Endoplasmic reticulum	Endoplasmic reticulum	
-Q99808	SLC29A1	Cell membrane		Cell membrane
-Q14542	SLC29A2	Cell membrane		
-P11166	SLC2A1	Cell membrane		Cell membrane
+Q99808	SLC29A1	Cell membrane	Cell membrane	Cell membrane
+Q14542	SLC29A2	Cell membrane	Cell membrane	
+P11166	SLC2A1	Cell membrane	Cell membrane	Cell membrane
 Q9NY64	SLC2A8	Lysosome		
-Q9Y6M5	SLC30A1	Cell membrane		Cell membrane
+Q9Y6M5	SLC30A1	Cell membrane	Cell membrane	Cell membrane
 Q8TAD4	SLC30A5	Golgi apparatus	Golgi apparatus	
 Q6NXT4	SLC30A6	Golgi apparatus		
 Q8NEW0	SLC30A7	Golgi apparatus		
@@ -5670,11 +5670,11 @@ Q99624	SLC38A3	Cell membrane
 Q9NVC3	SLC38A7	Lysosome		
 Q8NBW4	SLC38A9	Lysosome		
 Q9NY26	SLC39A1	Lysosome		
-Q9ULF5	SLC39A10	Cell membrane		
+Q9ULF5	SLC39A10	Cell membrane	Cell membrane	
 Q8N1S5	SLC39A11	Endoplasmic reticulum-Golgi intermediate compartment		
-Q15043	SLC39A14	Cell membrane		Cell membrane
-Q13433	SLC39A6	Cell membrane		Cell membrane
-P08195	SLC3A2	Cell membrane		Cell membrane
+Q15043	SLC39A14	Cell membrane	Cell membrane	Cell membrane
+Q13433	SLC39A6	Cell membrane	Cell membrane	Cell membrane
+P08195	SLC3A2	Cell membrane	Cell membrane	Cell membrane
 Q96GZ6	SLC41A3	Endoplasmic reticulum		
 O75387	SLC43A1	Cell membrane		
 Q8WWI5	SLC44A1	Cell membrane		
@@ -5682,23 +5682,23 @@ Q96FL8	SLC47A1	Cell membrane
 Q9BWU0	SLC4A1AP	Cytosol		
 P04920	SLC4A2	Cell membrane		
 Q9Y6M7	SLC4A7	Cell membrane		Cell membrane
-P53794	SLC5A3	Cell membrane		
-Q9Y289	SLC5A6	Cell membrane		
+P53794	SLC5A3	Cell membrane	Cell membrane	
+Q9Y289	SLC5A6	Cell membrane	Cell membrane	
 P48066	SLC6A11	Cell membrane		
 Q9H2J7	SLC6A15	Cell membrane		
 P48029	SLC6A8	Cell membrane		
-P48067	SLC6A9	Cell membrane		
+P48067	SLC6A9	Cell membrane	Cell membrane	
 P30825	SLC7A1	Cell membrane		Cell membrane
 P52569	SLC7A2	Cell membrane		
 Q8WY07	SLC7A3	Cell membrane		
-Q01650	SLC7A5	Cell membrane		Cell membrane
+Q01650	SLC7A5	Cell membrane	Cell membrane	Cell membrane
 Q92536	SLC7A6	Cell membrane		
 Q96CW6	SLC7A6OS	Cytosol	Cytosol	
 P19634	SLC9A1	Cell membrane		
 Q92581	SLC9A6	trans-Golgi network		
 Q6ZQN7	SLCO4C1	Recycling endosome		
 Q8IX21	SLF2	Nucleus	Nucleus	
-Q9GZT3	SLIRP	Mitochondrion		
+Q9GZT3	SLIRP	Mitochondrion	Mitochondrion	
 O94813	SLIT2	Cell membrane		
 O94991	SLITRK5	Cell membrane		
 Q9H2G2	SLK	Cytosol		
@@ -5728,7 +5728,7 @@ Q8IY18	SMC5	Nucleus
 Q96SB8	SMC6	Nucleus	Nucleus	
 A6NHR9	SMCHD1	Nucleus		
 Q8TEV9	SMCR8	Lysosome		
-Q9H4I9	SMDT1	Nucleus		
+Q9H4I9	SMDT1	Nucleus	Mitochondrion	
 Q86US8	SMG6	Stress granule		
 Q92540	SMG7	Stress granule		
 Q8ND04	SMG8	Nucleolus		
@@ -5751,7 +5751,7 @@ Q53HV7	SMUG1	Cytosol
 Q9NRG4	SMYD2	Cytosol		
 Q8IYR2	SMYD4	Cytosol	Cytosol	
 Q6GMV2	SMYD5	Cytosol		
-O00161	SNAP23	Cell membrane		Cell membrane
+O00161	SNAP23	Cell membrane	Cell membrane	Cell membrane
 O95721	SNAP29	Early endosome		
 Q5SQN1	SNAP47	trans-Golgi network		
 O60641	SNAP91	Cell membrane		
@@ -5782,7 +5782,7 @@ P62306	SNRPF	Nucleus
 A8MWD9	SNRPGP15	Nucleus		
 Q13424	SNTA1	Cell membrane		
 Q13884	SNTB1	Cell membrane		
-Q13425	SNTB2	Cell membrane		
+Q13425	SNTB2	Cell membrane	Cell membrane	
 P55769	SNU13	Nucleolus		
 O95149	SNUPN	Cytosol		
 Q13573	SNW1	Nucleus		
@@ -5802,15 +5802,15 @@ Q96L92	SNX27	Early endosome	Early endosome	Endosome
 Q8TEQ0	SNX29	Early endosome		
 O60493	SNX3	Early endosome		Endosome
 Q5VWJ9	SNX30	trans-Golgi network		Endosome
-Q8WV41	SNX33	Cytoskeleton		
+Q8WV41	SNX33	Cytoskeleton	Cell membrane	
 O95219	SNX4	trans-Golgi network		Endosome
 Q9UNH7	SNX6	Early endosome	Early endosome	Endosome
 Q9UNH6	SNX7	trans-Golgi network		
 Q9Y5X2	SNX8	trans-Golgi network		Endosome
-Q9Y5X1	SNX9	Cytoskeleton		
+Q9Y5X1	SNX9	Cytoskeleton	Cell membrane	
 P35610	SOAT1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 P00441	SOD1	Cytosol		
-P04179	SOD2	Mitochondrion		Mitochondrion
+P04179	SOD2	Mitochondrion	Mitochondrion	Mitochondrion
 MTCL2	SOGA1	14-3-3 scaffold		
 P18583	SON	Nucleus	Nucleus	
 Q9BX66	SORBS1	Cell membrane		
@@ -5861,10 +5861,10 @@ Q5T280	SPOUT1	Nucleus	Nucleus
 P35270	SPR	Mitochondrion		
 O43609	SPRY1	trans-Golgi network		
 Q8NCJ5	SPRYD3	14-3-3 scaffold		
-Q8WW59	SPRYD4	Mitochondrion		
+Q8WW59	SPRYD4	Mitochondrion	Mitochondrion	
 Q5W111	SPRYD7	trans-Golgi network	Endoplasmic reticulum-Golgi intermediate compartment	
-Q13813	SPTAN1	Cytoskeleton		Actin binding proteins
-Q01082	SPTBN1	Cytoskeleton		Actin binding proteins
+Q13813	SPTAN1	Cytoskeleton	Cytoskeleton	Actin binding proteins
+Q01082	SPTBN1	Cytoskeleton	Cytoskeleton	Actin binding proteins
 O15020	SPTBN2	Cytoskeleton		Actin binding proteins
 O15269	SPTLC1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 O15270	SPTLC2	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
@@ -5883,7 +5883,7 @@ Q8NEF9	SRFBP1	Nucleolus
 Q7Z6B7	SRGAP1	Cytosol		
 O75044	SRGAP2	14-3-3 scaffold		
 O43295	SRGAP3	Cytosol		
-P30626	SRI	Cytosol		
+P30626	SRI	Cytosol	Stress granule	
 P19623	SRM	Cytosol		
 P09132	SRP19	Endoplasmic reticulum		
 P61011	SRP54	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
@@ -5895,7 +5895,7 @@ Q9GZT4	SRR	Cytosol	Cytosol
 Q8IYB3	SRRM1	Nucleus		
 Q9UQ35	SRRM2	Nucleus		
 Q9BXP5	SRRT	Nucleus		
-Q07955	SRSF1	Nucleus		Large protein complex
+Q07955	SRSF1	Nucleus	Stress granule	Large protein complex
 O75494	SRSF10	Nucleus		
 Q05519	SRSF11	Nucleus		Large protein complex
 Q01130	SRSF2	Nucleus		Large protein complex
@@ -5937,11 +5937,11 @@ P52630	STAT2	Cytosol
 P40763	STAT3	Cytosol		
 P51692	STAT5B	Cytosol		
 P42226	STAT6	Cytosol		
-O95793	STAU1	Translation		
+O95793	STAU1	Translation	Stress granule	
 Q9NUL3	STAU2	Stress granule		
 O95210	STBD1	Endoplasmic reticulum		
 O76061	STC2	Endoplasmic reticulum		
-Q658P3	STEAP3	Recycling endosome		
+Q658P3	STEAP3	Recycling endosome	Cell membrane	
 Q15468	STIL	Cytosol	Centrosome	
 Q13586	STIM1	Endoplasmic reticulum	Endoplasmic reticulum	
 Q9P246	STIM2	Endoplasmic reticulum		
@@ -5964,12 +5964,12 @@ P16949	STMN1	Cytosol
 Q93045	STMN2	Cytosol		
 Q9NZ72	STMN3	Golgi apparatus		
 Q9H668	STN1	Cytosol		
-P27105	STOM	Cell membrane		
-Q9UJZ1	STOML2	Mitochondrion		
+P27105	STOM	Cell membrane	Cell membrane	
+Q9UJZ1	STOML2	Mitochondrion	Mitochondrion	
 Q9Y6Q2	STON1	Cytosol		
 CENPX	STRA13	Nucleus		
 Q7RTN6	STRADA	Cytosol		
-Q9Y3F4	STRAP	Stress granule		
+Q9Y3F4	STRAP	Stress granule	Stress granule	
 Q96SI9	STRBP	Nucleus		
 Q5VSL9	STRIP1	Endoplasmic reticulum		
 Q9ULQ0	STRIP2	Cytosol		
@@ -5985,20 +5985,20 @@ O14662	STX16	trans-Golgi network		Endosome
 P56962	STX17	Endoplasmic reticulum		
 Q9P2W9	STX18	Endoplasmic reticulum	Endoplasmic reticulum	
 P32856	STX2	Cell membrane		
-Q13277	STX3	Recycling endosome		Cell membrane
-Q12846	STX4	Cell membrane		Cell membrane
+Q13277	STX3	Recycling endosome	Cell membrane	Cell membrane
+Q12846	STX4	Cell membrane	Cell membrane	Cell membrane
 Q13190	STX5	Golgi apparatus	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic reticulum-Golgi intermediate compartment
 O43752	STX6	trans-Golgi network		Endosome
 O15400	STX7	Recycling endosome	Early endosome	Endosome
 Q9UNK0	STX8	Early endosome		Endosome
 P61764	STXBP1	Cell membrane		
-Q15833	STXBP2	Cell membrane		
-O00186	STXBP3	Cell membrane		Cell membrane
+Q15833	STXBP2	Cell membrane	Cell membrane	
+O00186	STXBP3	Cell membrane	Cell membrane	Cell membrane
 Q6ZWJ1	STXBP4	Stress granule		
 Q5T5C0	STXBP5	Early endosome		
-Q9P2R7	SUCLA2	Mitochondrion		Mitochondrion
-P53597	SUCLG1	Mitochondrion		Mitochondrion
-Q96I99	SUCLG2	Mitochondrion		Mitochondrion
+Q9P2R7	SUCLA2	Mitochondrion	Mitochondrion	Mitochondrion
+P53597	SUCLG1	Mitochondrion	Mitochondrion	Mitochondrion
+Q96I99	SUCLG2	Mitochondrion	Mitochondrion	Mitochondrion
 Q9UBS9	SUCO	Endoplasmic reticulum		
 Q9H7L9	SUDS3	Nucleus		
 Q9HAC7	SUGCT	Mitochondrion		
@@ -6020,8 +6020,8 @@ O75486	SUPT3H	Nucleus
 O00267	SUPT5H	Nucleus		
 Q7KZ85	SUPT6H	Nucleus		
 O94864	SUPT7L	Endoplasmic reticulum		
-Q8IYB8	SUPV3L1	Mitochondrion		Mitochondrion
-Q15526	SURF1	Mitochondrion		
+Q8IYB8	SUPV3L1	Mitochondrion	Mitochondrion	Mitochondrion
+Q15526	SURF1	Mitochondrion	Mitochondrion	
 Q15527	SURF2	Cytosol		
 O15260	SURF4	Endoplasmic reticulum	Endoplasmic reticulum-Golgi intermediate compartment	Endoplasmic reticulum-Golgi intermediate compartment
 O75683	SURF6	Nucleolus		
@@ -6030,7 +6030,7 @@ O43463	SUV39H1	Nucleus	Nucleus
 Q9H5I1	SUV39H2	Nucleus	Nucleus	
 Q15022	SUZ12	Nucleus		
 Q7L0J3	SV2A	trans-Golgi network		
-O95425	SVIL	Cytoskeleton		
+O95425	SVIL	Cytoskeleton	Cytoskeleton	
 Q8NHG7	SVIP	Cell membrane		
 Q9UH65	SWAP70	Cytosol		
 Q96A49	SYAP1	trans-Golgi network		
@@ -6038,7 +6038,7 @@ Q9NX95	SYBU	Nucleus
 O95926	SYF2	Nucleus		
 P43405	SYK	Cytosol		
 Q92797	SYMPK	Nucleus		
-O60506	SYNCRIP	Stress granule		
+O60506	SYNCRIP	Stress granule	Stress granule	
 Q8NF91	SYNE1	Endoplasmic reticulum		
 Q8WXH0	SYNE2	Endoplasmic reticulum		
 Q6ZMZ3	SYNE3	Nucleus	Nucleus	
@@ -6058,7 +6058,7 @@ Q5T011	SZT2	Lysosome
 Q8N5C8	TAB3	Cytosol		
 O75410	TACC1	Golgi apparatus		
 Q9Y6A5	TACC3	Cytosol		
-Q9BSH4	TACO1	Mitochondrion		
+Q9BSH4	TACO1	Mitochondrion	Mitochondrion	
 Q96BN2	TADA1	Nucleus		
 O75478	TADA2A	Nucleus	Nucleus	
 Q86TJ2	TADA2B	Nucleus	Nucleus	
@@ -6107,7 +6107,7 @@ Q17R31	TATDN3	Cytosol
 Q86VP1	TAX1BP1	Lysosome		
 Q86TI0	TBC1D1	14-3-3 scaffold		
 Q9BXI6	TBC1D10A	Cell membrane		
-Q4KMP7	TBC1D10B	Cytoskeleton		
+Q4KMP7	TBC1D10B	Cytoskeleton	Cell membrane	
 Q9NVG8	TBC1D13	Cytosol	Cytosol	
 Q8TC07	TBC1D15	Cytosol		
 Q8TBP0	TBC1D16	Cytosol		
@@ -6166,7 +6166,7 @@ Q86SX3	TEDC1	Nucleus
 Q7L2K0	TEDC2	Nucleus		
 Q96QE5	TEFM	Mitochondrion		
 Q9Y4R8	TELO2	Cytosol		
-Q9P273	TENM3	Cell membrane		
+Q9P273	TENM3	Cell membrane	Cell membrane	
 Q6PIY7	TENT2	Nucleus	Nucleus	
 Q96N21	TEPSIN	Cytosol		
 P54274	TERF1	Nucleus		
@@ -6193,7 +6193,7 @@ P02786	TFRC	Early endosome		Endosome
 O95455	TGDS	Cytosol		
 P01137	TGFB1	Endoplasmic reticulum	Endoplasmic reticulum	
 P36897	TGFBR1	Endoplasmic reticulum	Endoplasmic reticulum	
-Q03167	TGFBR3	Cell membrane		Cell membrane
+Q03167	TGFBR3	Cell membrane	Cell membrane	Cell membrane
 Q8WUH2	TGFBRAP1	Early endosome		
 Q9GZN2	TGIF2	Nucleus		
 P21980	TGM2	Cytosol	Cytosol	
@@ -6202,7 +6202,7 @@ Q96RS0	TGS1	Cytosol
 Q6YHU6	THADA	Cytosol	Cytosol	
 Q96EK4	THAP11	Nucleus		
 O43422	THAP12	Nucleus		
-Q5T1C6	THEM4	Mitochondrion		
+Q5T1C6	THEM4	Mitochondrion	Mitochondrion	
 Q8WUY1	THEM6	Endoplasmic reticulum	Endoplasmic reticulum	
 Q9NWX6	THG1L	Mitochondrion		
 Q8IYQ7	THNSL1	Mitochondrion		
@@ -6217,34 +6217,34 @@ Q9Y2W1	THRAP3	Nucleus
 Q9BU02	THTPA	Cytosol		
 Q9NXG2	THUMPD1	Cytosol		
 Q9P016	THYN1	Nucleus		
-P31483	TIA1	Nucleus		
-Q01085	TIAL1	Nucleus		
+P31483	TIA1	Nucleus	Stress granule	
+Q01085	TIAL1	Nucleus	Stress granule	
 Q96CG3	TIFA	Cytosol	Cytosol	
 Q9NQ88	TIGAR	Cytosol		
 Q96MW7	TIGD1	Nucleus		
 Q4W5G0	TIGD2	Nucleus	Nucleus	
 Q9UNS1	TIMELESS	Cytosol		
-P62072	TIMM10	Mitochondrion		
+P62072	TIMM10	Mitochondrion	Mitochondrion	
 Q9Y5J6	TIMM10B	Mitochondrion		
-Q9Y5L4	TIMM13	Mitochondrion		
-Q99595	TIMM17A	Mitochondrion		
+Q9Y5L4	TIMM13	Mitochondrion	Mitochondrion	
+Q99595	TIMM17A	Mitochondrion	Mitochondrion	
 O60830	TIMM17B	Mitochondrion		
-Q9BVV7	TIMM21	Mitochondrion		Mitochondrion
-Q9Y584	TIMM22	Mitochondrion		
+Q9BVV7	TIMM21	Mitochondrion	Mitochondrion	Mitochondrion
+Q9Y584	TIMM22	Mitochondrion	Mitochondrion	
 O14925	TIMM23	Mitochondrion		Mitochondrion
 Q9BSF4	TIMM29	Mitochondrion		
-O43615	TIMM44	Mitochondrion		
-Q3ZCQ8	TIMM50	Mitochondrion		Mitochondrion
+O43615	TIMM44	Mitochondrion	Mitochondrion	
+Q3ZCQ8	TIMM50	Mitochondrion	Mitochondrion	Mitochondrion
 O60220	TIMM8A	Mitochondrion		
-Q9Y5J9	TIMM8B	Mitochondrion		
-Q9Y5J7	TIMM9	Mitochondrion		
+Q9Y5J9	TIMM8B	Mitochondrion	Mitochondrion	
+Q9Y5J7	TIMM9	Mitochondrion	Mitochondrion	
 Q9NPL8	TIMMDC1	Mitochondrion		
 P01033	TIMP1	Endoplasmic reticulum		
 Q9BSI4	TINF2	Nucleus	Nucleus	
 O75663	TIPRL	Cytosol		
 Q5JTD0	TJAP1	Cytoskeleton		
-Q07157	TJP1	Cytoskeleton		
-Q9UDY2	TJP2	Cell membrane		
+Q07157	TJP1	Cytoskeleton	Cytoskeleton	
+Q9UDY2	TJP2	Cell membrane	Cytoskeleton	
 P04183	TK1	Cytosol		
 Q3LXA3	TKFC	Cytosol		
 Q96MV1	TLCD4	Endoplasmic reticulum		
@@ -6285,12 +6285,12 @@ P17152	TMEM11	Mitochondrion
 Q12893	TMEM115	Golgi apparatus		
 Q9BXJ8	TMEM120A	Endoplasmic reticulum		
 A0PK00	TMEM120B	Endoplasmic reticulum		
-Q9H061	TMEM126A	Mitochondrion		
+Q9H061	TMEM126A	Mitochondrion	Mitochondrion	
 Q8IUX1	TMEM126B	Mitochondrion		
 Q5BJH2	TMEM128	Endoplasmic reticulum		
 Q92545	TMEM131	Endoplasmic reticulum	Endoplasmic reticulum	
 A2VDJ0	TMEM131L	Endoplasmic reticulum		
-Q24JP5	TMEM132A	Cell membrane		
+Q24JP5	TMEM132A	Cell membrane	Cell membrane	
 Q86UB9	TMEM135	Peroxisome	Peroxisome	
 Q96AN5	TMEM143	Nucleus		
 Q9BVK8	TMEM147	Endoplasmic reticulum		
@@ -6369,7 +6369,7 @@ Q9UKE5	TNIK	Cell membrane
 Q15025	TNIP1	Cytosol		
 Q8NFZ5	TNIP2	Cytosol		
 Q9C0C2	TNKS1BP1	Stress granule		
-Q92973	TNPO1	Cytosol		
+Q92973	TNPO1	Cytosol	Stress granule	
 O14787	TNPO2	Cytosol		
 Q9Y5L0	TNPO3	Cytosol		
 O15417	TNRC18	Nucleus		
@@ -6382,14 +6382,14 @@ Q9H0E2	TOLLIP	Lysosome
 O60784	TOM1	Lysosome		
 O75674	TOM1L1	Cytosol		
 Q6ZVM7	TOM1L2	Cytosol	Cytosol	
-Q15388	TOMM20	Mitochondrion		
-Q9NS69	TOMM22	Mitochondrion		Mitochondrion
+Q15388	TOMM20	Mitochondrion	Mitochondrion	
+Q9NS69	TOMM22	Mitochondrion	Mitochondrion	Mitochondrion
 Q15785	TOMM34	Cytosol		
-O96008	TOMM40	Mitochondrion		Mitochondrion
+O96008	TOMM40	Mitochondrion	Mitochondrion	Mitochondrion
 Q8N4H5	TOMM5	Mitochondrion		Mitochondrion
 Q96B49	TOMM6	Mitochondrion		
-Q9P0U1	TOMM7	Mitochondrion		
-O94826	TOMM70	Mitochondrion		Mitochondrion
+Q9P0U1	TOMM7	Mitochondrion	Mitochondrion	
+O94826	TOMM70	Mitochondrion	Mitochondrion	Mitochondrion
 Q96HA7	TONSL	Nucleus		
 P11387	TOP1	Nucleus		
 Q969P6	TOP1MT	Mitochondrion		
@@ -6440,7 +6440,7 @@ Q6Q0C0	TRAF7	Cell membrane
 O14545	TRAFD1	Cytosol		
 Q9BWF2	TRAIP	Nucleus		
 Q15629	TRAM1	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
-Q12931	TRAP1	Mitochondrion		Mitochondrion
+Q12931	TRAP1	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y5R8	TRAPPC1	trans-Golgi network		Large protein complex
 P48553	TRAPPC10	Recycling endosome		Large protein complex
 Q7Z392	TRAPPC11	trans-Golgi network		Large protein complex
@@ -6460,7 +6460,7 @@ O60858	TRIM13	Endoplasmic reticulum
 Q14142	TRIM14	Early endosome		
 P36406	TRIM23	Cell membrane		
 O15164	TRIM24	Nucleus		
-Q14258	TRIM25	Stress granule		
+Q14258	TRIM25	Stress granule	Stress granule	
 P14373	TRIM27	Endoplasmic reticulum-Golgi intermediate compartment		
 O75382	TRIM3	Nucleus		
 Q13049	TRIM32	Golgi apparatus		
@@ -6516,7 +6516,7 @@ Q9Y3Q8	TSC22D4	Cytosol
 Q8NCE0	TSEN2	Cytosol		
 Q9BSV6	TSEN34	Cytosol		
 Q7Z6J9	TSEN54	Cytosol		
-P43897	TSFM	Mitochondrion		
+P43897	TSFM	Mitochondrion	Mitochondrion	
 Q99816	TSG101	Cytosol		
 Q63HK5	TSHZ3	Nucleus		
 Q8WUA8	TSKU	Golgi apparatus		
@@ -6588,7 +6588,7 @@ Q9GZX9	TWSG1	Endoplasmic reticulum
 P40222	TXLNA	Stress granule		
 Q9NUQ3	TXLNG	Stress granule		
 P10599	TXN	Cytosol		
-Q99757	TXN2	Mitochondrion		
+Q99757	TXN2	Mitochondrion	Mitochondrion	
 Q6PKC3	TXNDC11	Endoplasmic reticulum		
 O95881	TXNDC12	Endoplasmic reticulum		Endoplasmic reticulum
 Q96J42	TXNDC15	Endoplasmic reticulum	Endoplasmic reticulum	
@@ -6621,8 +6621,8 @@ A0AVT1	UBA6	Cytosol
 Q9BSL1	UBAC1	Cytosol		
 Q8NBM4	UBAC2	Endoplasmic reticulum	Endoplasmic reticulum	
 Q9NZ09	UBAP1	Cytosol	Cytosol	
-Q5T6F2	UBAP2	Stress granule		
-Q14157	UBAP2L	Stress granule		
+Q5T6F2	UBAP2	Stress granule	Stress granule	
+Q14157	UBAP2L	Stress granule	Stress granule	
 O00762	UBE2C	Cytosol		
 P51668	UBE2D1	Cytosol		
 P61077	UBE2D3	Cytosol		
@@ -6710,20 +6710,20 @@ Q92900	UPF1	Stress granule	P-body
 Q9HAU5	UPF2	Stress granule		
 Q9BZI7	UPF3B	Nucleus		
 Q96BW1	UPRT	Cytosol		
-Q9NVA1	UQCC1	Mitochondrion		
+Q9NVA1	UQCC1	Mitochondrion	Mitochondrion	
 Q9BRT2	UQCC2	Mitochondrion		
 Q6UW78	UQCC3	Mitochondrion		
 Q4G0I0	UQCC4	Mitochondrion		
 Q8WVI0	UQCC5	Mitochondrion		
 Q69YU5	UQCC6	Mitochondrion		
-Q9UDW1	UQCR10	Mitochondrion		
+Q9UDW1	UQCR10	Mitochondrion	Mitochondrion	
 O14957	UQCR11	Mitochondrion		
 P14927	UQCRB	Mitochondrion		Mitochondrion
-P31930	UQCRC1	Mitochondrion		Mitochondrion
-P22695	UQCRC2	Mitochondrion		Mitochondrion
-P47985	UQCRFS1	Mitochondrion		
+P31930	UQCRC1	Mitochondrion	Mitochondrion	Mitochondrion
+P22695	UQCRC2	Mitochondrion	Mitochondrion	Mitochondrion
+P47985	UQCRFS1	Mitochondrion	Mitochondrion	
 A0A096LP55	UQCRHL	Mitochondrion		
-O14949	UQCRQ	Mitochondrion		Mitochondrion
+O14949	UQCRQ	Mitochondrion	Mitochondrion	Mitochondrion
 O60287	URB1	Nucleolus	Nucleus	
 Q14146	URB2	Nucleolus		
 Q8TCY9	URGCP	Cytosol		
@@ -6735,7 +6735,7 @@ P22415	USF1	Nucleus	Nucleus
 Q15853	USF2	Nucleus		
 O60763	USO1	Golgi apparatus		
 O94782	USP1	Nucleus		
-Q14694	USP10	Stress granule		
+Q14694	USP10	Stress granule	Stress granule	
 P51784	USP11	Cytosol		
 O75317	USP12	Cell membrane		
 Q92995	USP13	Cytosol		
@@ -6790,7 +6790,7 @@ Q15836	VAMP3	Recycling endosome
 O75379	VAMP4	trans-Golgi network		
 P51809	VAMP7	Early endosome		Endosome
 Q9BV40	VAMP8	Recycling endosome		Endosome
-Q8TAA9	VANGL1	Cell membrane		Cell membrane
+Q8TAA9	VANGL1	Cell membrane	Cell membrane	Cell membrane
 Q9ULK5	VANGL2	Cell membrane		
 Q9P0L0	VAPA	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
 O95292	VAPB	Endoplasmic reticulum	Endoplasmic reticulum	Endoplasmic reticulum
@@ -6804,8 +6804,8 @@ P61758	VBP1	Cytoskeleton
 P18206	VCL	Cytosol		
 Q96JH7	VCPIP1	Cytosol		
 Q9H867	VCPKMT	Cytosol	Cytosol	
-P21796	VDAC1	Mitochondrion		Mitochondrion
-P45880	VDAC2	Mitochondrion		Mitochondrion
+P21796	VDAC1	Mitochondrion	Mitochondrion	Mitochondrion
+P45880	VDAC2	Mitochondrion	Mitochondrion	Mitochondrion
 Q9Y277	VDAC3	Mitochondrion		Mitochondrion
 Q14119	VEZF1	Nucleus		
 Q9HBM0	VEZT	Endoplasmic reticulum		
@@ -6851,10 +6851,10 @@ Q8IV63	VRK3	Endoplasmic reticulum
 Q9NP79	VTA1	Cytosol		
 Q96AJ9	VTI1A	trans-Golgi network		Endosome
 Q9UEU0	VTI1B	Early endosome		Endosome
-A3KMH1	VWA8	Mitochondrion		
+A3KMH1	VWA8	Mitochondrion	Mitochondrion	
 Q7Z5K2	WAPL	Nucleus		
 P23381	WARS1	Cytosol		
-Q9UGM6	WARS2	Mitochondrion		Mitochondrion
+Q9UGM6	WARS2	Mitochondrion	Mitochondrion	Mitochondrion
 Q92558	WASF1	Cytoskeleton		
 Q9Y6W5	WASF2	Cytoskeleton		
 Q9UPY6	WASF3	Cytoskeleton		
@@ -6957,14 +6957,14 @@ Q9NRH1	YAE1	Cytosol	Cytosol
 Q8IY57	YAF2	Nucleus		
 P46937	YAP1	Cytoskeleton		
 P54577	YARS1	Cytosol		
-Q9Y2Z4	YARS2	Mitochondrion		Mitochondrion
+Q9Y2Z4	YARS2	Mitochondrion	Mitochondrion	Mitochondrion
 P58557	YBEY	Mitochondrion		
-P67809	YBX1	Stress granule		
-P16989	YBX3	Stress granule		
+P67809	YBX1	Stress granule	Stress granule	
+P16989	YBX3	Stress granule	Stress granule	
 A8MPS7	YDJC	Cytosol		
 Q9ULM3	YEATS2	Nucleus	Nucleus	
 O95619	YEATS4	Nucleus		
-P07947	YES1	Cell membrane		
+P07947	YES1	Cell membrane	Cell membrane	
 O95070	YIF1A	Golgi apparatus		
 Q5BJH7	YIF1B	Endoplasmic reticulum-Golgi intermediate compartment		
 Q9Y548	YIPF1	trans-Golgi network		
@@ -6981,9 +6981,9 @@ P62699	YPEL5	Cytosol
 Q86U90	YRDC	Cytosol		
 Q96MU7	YTHDC1	Nucleus		
 Q9H6S0	YTHDC2	P-body		
-Q9BYJ9	YTHDF1	Stress granule		Large protein complex
-Q9Y5A9	YTHDF2	Stress granule		Large protein complex
-Q7Z739	YTHDF3	Stress granule		Large protein complex
+Q9BYJ9	YTHDF1	Stress granule	Stress granule	Large protein complex
+Q9Y5A9	YTHDF2	Stress granule	Stress granule	Large protein complex
+Q7Z739	YTHDF3	Stress granule	Stress granule	Large protein complex
 P31946	YWHAB	14-3-3 scaffold		Large protein complex
 P62258	YWHAE	14-3-3 scaffold		Large protein complex
 P61981	YWHAG	14-3-3 scaffold		Large protein complex
@@ -7022,7 +7022,7 @@ P61129	ZC3H6	Endoplasmic reticulum
 Q8IWR0	ZC3H7A	Stress granule		
 Q9UGR2	ZC3H7B	Stress granule		
 Q8N5P1	ZC3H8	Nucleolus		
-Q7Z2W4	ZC3HAV1	Translation		
+Q7Z2W4	ZC3HAV1	Translation	Stress granule	
 Q86WB0	ZC3HC1	Cytosol		
 Q9NQZ6	ZC4H2	Nucleus		
 Q8TBK6	ZCCHC10	Nucleus		
@@ -7042,7 +7042,7 @@ Q8IUH5	ZDHHC17	Golgi apparatus
 Q9NUE0	ZDHHC18	Cell membrane		
 Q5W0Z9	ZDHHC20	Cell membrane		
 Q9NYG2	ZDHHC3	Golgi apparatus		
-Q9C0B5	ZDHHC5	Cell membrane		Cell membrane
+Q9C0B5	ZDHHC5	Cell membrane	Cell membrane	Cell membrane
 Q9H6R6	ZDHHC6	Endoplasmic reticulum		
 P37275	ZEB1	Nucleus		
 O60315	ZEB2	Nucleus		
@@ -7201,10 +7201,10 @@ O43264	ZW10	Endoplasmic reticulum
 Q9H900	ZWILCH	Cytosol	Cytosol	
 O95229	ZWINT	Cytosol		
 Q9C0D3	ZYG11B	Cytosol		
-Q15942	ZYX	Cytoskeleton		
+Q15942	ZYX	Cytoskeleton	Cytoskeleton	
 O43149	ZZEF1	Cytosol		
 Q8IYH5	ZZZ3	Nucleus	Nucleus	
-Q9UPQ0	LIMCH1			Actin binding proteins
+Q9UPQ0	LIMCH1		Cytoskeleton	Actin binding proteins
 Q0P6D6	CCDC15		Centrosome	
 Q96NB1	CEP20		Centrosome	
 Q8NHQ1	CEP70		Centrosome	
@@ -7417,34 +7417,34 @@ Q96RQ9	IL4I1		Lysosome
 P05164	MPO		Lysosome	
 Q8WWR8	NEU4		Lysosome	
 P17405	SMPD1		Lysosome	
-P28330	ACADL			
-Q3MIX3	ADCK5			
-Q8IWW8	ADHFE1			
-Q5SQH8	C6orf136			
-Q96MF6	COQ10A			
-Q9H8M1	COQ10B			
-Q9Y3A0	COQ4			
-Q96I36	COX14			
-P24310	COX7A1			
-O95886	DLGAP3			
-Q86YB7	ECHDC2			
-Q96DC8	ECHDC3			
-Q6IPR1	ETFRF1			
-Q16798	ME3			
-P0DKB6	MPC1L			
-Q9P0J6	MRPL36			
-Q49AM1	MTERF2			
-O95178	NDUFB2			
-Q16654	PDK4			
-O43272	PRODH			
-A6NFY7	SDHAF1			
-O14521	SDHD			
-Q3KQZ1	SLC25A35			
-Q86VD7	SLC25A42			
-Q969M1	TOMM40L			
-P07919	UQCRH			
-Q5VU65	NUP210L			
-Q9H1M0	NUP62CL			
+P28330	ACADL		Mitochondrion	
+Q3MIX3	ADCK5		Mitochondrion	
+Q8IWW8	ADHFE1		Mitochondrion	
+Q5SQH8	C6orf136		Mitochondrion	
+Q96MF6	COQ10A		Mitochondrion	
+Q9H8M1	COQ10B		Mitochondrion	
+Q9Y3A0	COQ4		Mitochondrion	
+Q96I36	COX14		Mitochondrion	
+P24310	COX7A1		Mitochondrion	
+O95886	DLGAP3		Mitochondrion	
+Q86YB7	ECHDC2		Mitochondrion	
+Q96DC8	ECHDC3		Mitochondrion	
+Q6IPR1	ETFRF1		Mitochondrion	
+Q16798	ME3		Mitochondrion	
+P0DKB6	MPC1L		Mitochondrion	
+Q9P0J6	MRPL36		Mitochondrion	
+Q49AM1	MTERF2		Mitochondrion	
+O95178	NDUFB2		Mitochondrion	
+Q16654	PDK4		Mitochondrion	
+O43272	PRODH		Mitochondrion	
+A6NFY7	SDHAF1		Mitochondrion	
+O14521	SDHD		Mitochondrion	
+Q3KQZ1	SLC25A35		Mitochondrion	
+Q86VD7	SLC25A42		Mitochondrion	
+Q969M1	TOMM40L		Mitochondrion	
+P07919	UQCRH		Mitochondrion	
+Q5VU65	NUP210L		Nuclear pore complex	
+Q9H1M0	NUP62CL		Nuclear pore complex	
 Q6UWZ7	ABRAXAS1		Nucleus	
 Q8WTP8	AEN		Nucleus	
 Q9H672	ASB7		Nucleus	
@@ -7596,72 +7596,72 @@ Q9UJM8	HAO1		Peroxisome
 Q9NYQ3	HAO2		Peroxisome	
 O60683	PEX10		Peroxisome	
 Q9P0Z9	PIPOX		Peroxisome	
-Q92887	ABCC2			Cell membrane
-Q9UNQ0	ABCG2			
-P43353	ALDH3B1			
-P10696	ALPG			
-P09923	ALPI			
-P05187	ALPP			Cell membrane
-A6NMY6	ANXA2P2			
-Q16720	ATP2B3			Cell membrane
-P30530	AXL			Cell membrane
-P0DP23	CALM1			
-P16070	CD44			Cell membrane
-P08174	CD55			Cell membrane
-P13987	CD59			Cell membrane
-Q9Y6N8	CDH10			Cell membrane
-Q9H6B4	CLMP			Cell membrane
-P14384	CPM			Cell membrane
-P61073	CXCR4			
-Q08345	DDR1			Cell membrane
-Q9HAK2	EBF2			
-P17813	ENG			
-P13726	F3			
-P15328	FOLR1			Cell membrane
-P05362	ICAM1			Cell membrane
-Q9NPH3	IL1RAP			Cell membrane
-P26006	ITGA3			Cell membrane
-P21583	KITLG			
-P32004	L1CAM			Cell membrane
-O75581	LRP6			
-O95274	LYPD3			Cell membrane
-Q99547	MPHOSPH6			
-Q13421	MSLN			
-P17342	NPR3			Cell membrane
-Q96D31	ORAI1			
-O14917	PCDH17			Cell membrane
-Q53GA4	PHLDA2			
-Q9Y4D7	PLXND1			Cell membrane
-P15153	RAC2			
-P62745	RHOB			
-Q01974	ROR2			Cell membrane
-Q86UN3	RTN4RL2			Cell membrane
-P31431	SDC4			
-Q99985	SEMA3C			
-O15427	SLC16A3			Cell membrane
-Q8TDB8	SLC2A14			
-P11169	SLC2A3			Cell membrane
-Q8IWA5	SLC44A2			
-Q9UPY5	SLC7A11			
-Q96BD0	SLCO4A1			Cell membrane
-P60880	SNAP25			
-Q969X1	TMBIM1			
-O00220	TNFRSF10A			
-O14817	TSPAN4			
-Q6EMK4	VASN			
-Q96L21	RPL10L			
-P61927	RPL37			
-P62891	RPL39			
-Q96EH5	RPL39L			
-Q92901	RPL3L			
-P62945	RPL41			
-P62854	RPS26			Large protein complex
-A0A8I5KQE6	RPSA2			
-P15924	DSP			
-P56537	EIF6			
-Q9Y5V3	MAGED1			
-Q15366	PCBP2			
-Q16514	TAF12			
+Q92887	ABCC2		Cell membrane	Cell membrane
+Q9UNQ0	ABCG2		Cell membrane	
+P43353	ALDH3B1		Cell membrane	
+P10696	ALPG		Cell membrane	
+P09923	ALPI		Cell membrane	
+P05187	ALPP		Cell membrane	Cell membrane
+A6NMY6	ANXA2P2		Cell membrane	
+Q16720	ATP2B3		Cell membrane	Cell membrane
+P30530	AXL		Cell membrane	Cell membrane
+P0DP23	CALM1		Cell membrane	
+P16070	CD44		Cell membrane	Cell membrane
+P08174	CD55		Cell membrane	Cell membrane
+P13987	CD59		Cell membrane	Cell membrane
+Q9Y6N8	CDH10		Cell membrane	Cell membrane
+Q9H6B4	CLMP		Cell membrane	Cell membrane
+P14384	CPM		Cell membrane	Cell membrane
+P61073	CXCR4		Cell membrane	
+Q08345	DDR1		Cell membrane	Cell membrane
+Q9HAK2	EBF2		Cell membrane	
+P17813	ENG		Cell membrane	
+P13726	F3		Cell membrane	
+P15328	FOLR1		Cell membrane	Cell membrane
+P05362	ICAM1		Cell membrane	Cell membrane
+Q9NPH3	IL1RAP		Cell membrane	Cell membrane
+P26006	ITGA3		Cell membrane	Cell membrane
+P21583	KITLG		Cell membrane	
+P32004	L1CAM		Cell membrane	Cell membrane
+O75581	LRP6		Cell membrane	
+O95274	LYPD3		Cell membrane	Cell membrane
+Q99547	MPHOSPH6		Cell membrane	
+Q13421	MSLN		Cell membrane	
+P17342	NPR3		Cell membrane	Cell membrane
+Q96D31	ORAI1		Cell membrane	
+O14917	PCDH17		Cell membrane	Cell membrane
+Q53GA4	PHLDA2		Cell membrane	
+Q9Y4D7	PLXND1		Cell membrane	Cell membrane
+P15153	RAC2		Cell membrane	
+P62745	RHOB		Cell membrane	
+Q01974	ROR2		Cell membrane	Cell membrane
+Q86UN3	RTN4RL2		Cell membrane	Cell membrane
+P31431	SDC4		Cell membrane	
+Q99985	SEMA3C		Cell membrane	
+O15427	SLC16A3		Cell membrane	Cell membrane
+Q8TDB8	SLC2A14		Cell membrane	
+P11169	SLC2A3		Cell membrane	Cell membrane
+Q8IWA5	SLC44A2		Cell membrane	
+Q9UPY5	SLC7A11		Cell membrane	
+Q96BD0	SLCO4A1		Cell membrane	Cell membrane
+P60880	SNAP25		Cell membrane	
+Q969X1	TMBIM1		Cell membrane	
+O00220	TNFRSF10A		Cell membrane	
+O14817	TSPAN4		Cell membrane	
+Q6EMK4	VASN		Cell membrane	
+Q96L21	RPL10L		Ribosome	
+P61927	RPL37		Ribosome	
+P62891	RPL39		Ribosome	
+Q96EH5	RPL39L		Ribosome	
+Q92901	RPL3L		Ribosome	
+P62945	RPL41		Ribosome	
+P62854	RPS26		Ribosome	Large protein complex
+A0A8I5KQE6	RPSA2		Ribosome	
+P15924	DSP		Stress granule	
+P56537	EIF6		Stress granule	
+Q9Y5V3	MAGED1		Stress granule	
+Q15366	PCBP2		Stress granule	
+Q16514	TAF12		Stress granule	
 P60709	ACTB			Actin binding proteins
 O94875	SORBS2			Actin binding proteins
 Q9HBG4	ATP6V0A4			Endosome
