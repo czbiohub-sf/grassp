@@ -5193,49 +5193,49 @@ Q9H9Y2	RPF1	Nucleolus
 Q9H7B2	RPF2	Nucleolus		
 Q92834	RPGR	Cytosol	Cytosol	
 P49247	RPIA	Translation		
-P27635	RPL10	Translation	Ribosome	
-P62906	RPL10A	Translation	Ribosome	Large protein complex
-P62913	RPL11	Translation	Ribosome	Large protein complex
-P30050	RPL12	Translation	Ribosome	Large protein complex
-P26373	RPL13	Translation	Ribosome	Large protein complex
-P40429	RPL13A	Translation	Ribosome	
-P50914	RPL14	Translation	Ribosome	Large protein complex
-P61313	RPL15	Translation	Ribosome	Large protein complex
-P18621	RPL17	Translation	Ribosome	Large protein complex
-Q07020	RPL18	Translation	Ribosome	Large protein complex
-Q02543	RPL18A	Translation	Ribosome	Large protein complex
-P84098	RPL19	Translation	Ribosome	Large protein complex
-P46778	RPL21	Translation	Ribosome	Large protein complex
-P35268	RPL22	Translation	Ribosome	
-Q6P5R6	RPL22L1	Nucleus	Ribosome	
-P62829	RPL23	Translation	Ribosome	Large protein complex
-P62750	RPL23A	Translation	Ribosome	Large protein complex
-P83731	RPL24	Translation	Ribosome	Large protein complex
-P61254	RPL26	Translation	Ribosome	
-Q9UNX3	RPL26L1	Translation	Ribosome	
-P61353	RPL27	Translation	Ribosome	Large protein complex
-P46776	RPL27A	Translation	Ribosome	Large protein complex
-P46779	RPL28	Translation	Ribosome	Large protein complex
-P47914	RPL29	Translation	Ribosome	Large protein complex
-P39023	RPL3	Translation	Ribosome	Large protein complex
-P62888	RPL30	Translation	Ribosome	Large protein complex
-P62899	RPL31	Translation	Ribosome	Large protein complex
-P62910	RPL32	Translation	Ribosome	Large protein complex
-P49207	RPL34	Translation	Ribosome	
-P42766	RPL35	Translation	Ribosome	Large protein complex
-P18077	RPL35A	Translation	Ribosome	Large protein complex
-Q9Y3U8	RPL36	Translation	Ribosome	Large protein complex
-P83881	RPL36A	Translation	Ribosome	
-Q969Q0	RPL36AL	Translation	Ribosome	
-P61513	RPL37A	Translation	Ribosome	Large protein complex
-P63173	RPL38	Translation	Ribosome	
-P36578	RPL4	Translation	Ribosome	Large protein complex
-P46777	RPL5	Translation	Ribosome	Large protein complex
-Q02878	RPL6	Translation	Ribosome	Large protein complex
-P18124	RPL7	Translation	Ribosome	Large protein complex
-P62424	RPL7A	Translation	Ribosome	Large protein complex
-Q6DKI1	RPL7L1	Translation	Ribosome	
-P62917	RPL8	Translation	Ribosome	Large protein complex
+P27635	RPL10	Translation	Translation	
+P62906	RPL10A	Translation	Translation	Large protein complex
+P62913	RPL11	Translation	Translation	Large protein complex
+P30050	RPL12	Translation	Translation	Large protein complex
+P26373	RPL13	Translation	Translation	Large protein complex
+P40429	RPL13A	Translation	Translation	
+P50914	RPL14	Translation	Translation	Large protein complex
+P61313	RPL15	Translation	Translation	Large protein complex
+P18621	RPL17	Translation	Translation	Large protein complex
+Q07020	RPL18	Translation	Translation	Large protein complex
+Q02543	RPL18A	Translation	Translation	Large protein complex
+P84098	RPL19	Translation	Translation	Large protein complex
+P46778	RPL21	Translation	Translation	Large protein complex
+P35268	RPL22	Translation	Translation	
+Q6P5R6	RPL22L1	Nucleus	Translation	
+P62829	RPL23	Translation	Translation	Large protein complex
+P62750	RPL23A	Translation	Translation	Large protein complex
+P83731	RPL24	Translation	Translation	Large protein complex
+P61254	RPL26	Translation	Translation	
+Q9UNX3	RPL26L1	Translation	Translation	
+P61353	RPL27	Translation	Translation	Large protein complex
+P46776	RPL27A	Translation	Translation	Large protein complex
+P46779	RPL28	Translation	Translation	Large protein complex
+P47914	RPL29	Translation	Translation	Large protein complex
+P39023	RPL3	Translation	Translation	Large protein complex
+P62888	RPL30	Translation	Translation	Large protein complex
+P62899	RPL31	Translation	Translation	Large protein complex
+P62910	RPL32	Translation	Translation	Large protein complex
+P49207	RPL34	Translation	Translation	
+P42766	RPL35	Translation	Translation	Large protein complex
+P18077	RPL35A	Translation	Translation	Large protein complex
+Q9Y3U8	RPL36	Translation	Translation	Large protein complex
+P83881	RPL36A	Translation	Translation	
+Q969Q0	RPL36AL	Translation	Translation	
+P61513	RPL37A	Translation	Translation	Large protein complex
+P63173	RPL38	Translation	Translation	
+P36578	RPL4	Translation	Translation	Large protein complex
+P46777	RPL5	Translation	Translation	Large protein complex
+Q02878	RPL6	Translation	Translation	Large protein complex
+P18124	RPL7	Translation	Translation	Large protein complex
+P62424	RPL7A	Translation	Translation	Large protein complex
+Q6DKI1	RPL7L1	Translation	Translation	
+P62917	RPL8	Translation	Translation	Large protein complex
 P32969	RPL9; RPL9P7; RPL9P8; RPL9P9	Translation		Large protein complex
 P05388	RPLP0	Translation		Large protein complex
 P05386	RPLP1	Translation		
@@ -5248,44 +5248,44 @@ Q8N5L8	RPP25L	Stress granule
 P78346	RPP30	Nucleus		
 O75818	RPP40	Translation		
 Q5VT52	RPRD2	Nucleus		
-P46783	RPS10	Translation	Ribosome	
-P62280	RPS11	Translation	Ribosome	Large protein complex
-P25398	RPS12	Translation	Ribosome	Large protein complex
-P62277	RPS13	Translation	Ribosome	Large protein complex
-P62263	RPS14	Translation	Ribosome	Large protein complex
-P62841	RPS15	Stress granule	Ribosome	Large protein complex
-P62244	RPS15A	Translation	Ribosome	
-P62249	RPS16	Translation	Ribosome	Large protein complex
-P08708	RPS17	Translation	Ribosome	Large protein complex
-P62269	RPS18	Translation	Ribosome	Large protein complex
-P39019	RPS19	Translation	Ribosome	Large protein complex
-Q86WX3	RPS19BP1	Nucleolus	Ribosome	
-P15880	RPS2	Translation	Ribosome	Large protein complex
-P60866	RPS20	Stress granule	Ribosome	Large protein complex
-P63220	RPS21	Translation	Ribosome	Large protein complex
-P62266	RPS23	Translation	Ribosome	Large protein complex
-P62847	RPS24	Translation	Ribosome	Large protein complex
-P62851	RPS25	Translation	Ribosome	Large protein complex
+P46783	RPS10	Translation	Translation	
+P62280	RPS11	Translation	Translation	Large protein complex
+P25398	RPS12	Translation	Translation	Large protein complex
+P62277	RPS13	Translation	Translation	Large protein complex
+P62263	RPS14	Translation	Translation	Large protein complex
+P62841	RPS15	Stress granule	Translation	Large protein complex
+P62244	RPS15A	Translation	Translation	
+P62249	RPS16	Translation	Translation	Large protein complex
+P08708	RPS17	Translation	Translation	Large protein complex
+P62269	RPS18	Translation	Translation	Large protein complex
+P39019	RPS19	Translation	Translation	Large protein complex
+Q86WX3	RPS19BP1	Nucleolus	Translation	
+P15880	RPS2	Translation	Translation	Large protein complex
+P60866	RPS20	Stress granule	Translation	Large protein complex
+P63220	RPS21	Translation	Translation	Large protein complex
+P62266	RPS23	Translation	Translation	Large protein complex
+P62847	RPS24	Translation	Translation	Large protein complex
+P62851	RPS25	Translation	Translation	Large protein complex
 Q5JNZ5	RPS26P11	Stress granule		
-P42677	RPS27	Translation	Ribosome	
-P62979	RPS27A	Translation	Ribosome	
-Q71UM5	RPS27L	Translation	Ribosome	Large protein complex
-P62857	RPS28	Translation	Ribosome	Large protein complex
-P62273	RPS29	Translation	Ribosome	
-P23396	RPS3	Translation	Ribosome	Large protein complex
-P61247	RPS3A	Translation	Ribosome	Large protein complex
+P42677	RPS27	Translation	Translation	
+P62979	RPS27A	Translation	Translation	
+Q71UM5	RPS27L	Translation	Translation	Large protein complex
+P62857	RPS28	Translation	Translation	Large protein complex
+P62273	RPS29	Translation	Translation	
+P23396	RPS3	Translation	Translation	Large protein complex
+P61247	RPS3A	Translation	Translation	Large protein complex
 P62701	RPS4X	Stress granule		
-P46782	RPS5	Translation	Ribosome	Large protein complex
-P62753	RPS6	Stress granule	Ribosome	Large protein complex
+P46782	RPS5	Translation	Translation	Large protein complex
+P62753	RPS6	Stress granule	Translation	Large protein complex
 Q15418	RPS6KA1	Cytosol		
 P51812	RPS6KA3	Cytosol		
 O75582	RPS6KA5	Cytosol		
 P23443	RPS6KB1	Cytosol		
 Q9UBS0	RPS6KB2	Cytosol		
 Q96S38	RPS6KC1	Early endosome		
-P62081	RPS7	Translation	Ribosome	Large protein complex
-P62241	RPS8	Translation	Ribosome	Large protein complex
-P46781	RPS9	Translation	Ribosome	Large protein complex
+P62081	RPS7	Translation	Translation	Large protein complex
+P62241	RPS8	Translation	Translation	Large protein complex
+P46781	RPS9	Translation	Translation	Large protein complex
 P08865	RPSA	Translation		
 Q8N122	RPTOR	Lysosome		
 Q9UJJ7	RPUSD1	Cytosol	Cytosol	
@@ -7649,14 +7649,14 @@ Q969X1	TMBIM1		Cell membrane
 O00220	TNFRSF10A		Cell membrane	
 O14817	TSPAN4		Cell membrane	
 Q6EMK4	VASN		Cell membrane	
-Q96L21	RPL10L		Ribosome	
-P61927	RPL37		Ribosome	
-P62891	RPL39		Ribosome	
-Q96EH5	RPL39L		Ribosome	
-Q92901	RPL3L		Ribosome	
-P62945	RPL41		Ribosome	
-P62854	RPS26		Ribosome	Large protein complex
-A0A8I5KQE6	RPSA2		Ribosome	
+Q96L21	RPL10L		Translation	
+P61927	RPL37		Translation	
+P62891	RPL39		Translation	
+Q96EH5	RPL39L		Translation	
+Q92901	RPL3L		Translation	
+P62945	RPL41		Translation	
+P62854	RPS26		Translation	Large protein complex
+A0A8I5KQE6	RPSA2		Translation	
 P15924	DSP		Stress granule	
 P56537	EIF6		Stress granule	
 Q9Y5V3	MAGED1		Stress granule	
