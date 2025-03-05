@@ -300,7 +300,7 @@ def aggregate_samples(
 
     for _, ind in groups.indices.items():
         g = data.var.iloc[ind]
-        var_sub = g.loc[g.index[[0]], unique_col_indices]
+        var_sub = g.loc[:, unique_col_indices].iloc[[0]]
         var_sub["n_merged_samples"] = ind.size
         X_sub = data.X[:, ind]
         X_sub = agg_func(X_sub, axis=1)
