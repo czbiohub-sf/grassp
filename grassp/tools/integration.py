@@ -31,16 +31,14 @@ def align_adatas(
         List of aligned AnnData objects with matching observations and variables
     """
 
+    obs = [data.obs_names for data in data_list]
     if intersect_obs:
-        obs_intersect = reduce(
-            lambda x, y: x.obs_names.intersection(y.obs_names), data_list
-        )
+        obs_intersect = reduce(lambda x, y: x.intersection(y), obs)
     else:
         obs_intersect = None
     if intersect_var:
-        var_intersect = reduce(
-            lambda x, y: x.var_names.intersection(y.var_names), data_list
-        )
+        var = [data.var_names for data in data_list]
+        var_intersect = reduce(lambda x, y: x.intersection(y), var)
     else:
         var_intersect = None
     data_sub_list = []
@@ -108,11 +106,15 @@ def aligned_umap(
     else:
         data_sub_list = data_list
 
-    assert reduce(lambda x, y: x.var_names == y.var_names, data_sub_list).all()
-    assert reduce(lambda x, y: x.obs_names == y.obs_names, data_sub_list).all()
+    var_names = [data.var_names for data in data_sub_list]
+    assert all(var_names[0].equals(index) for index in var_names[1:])
+    obs_names = [data.obs_names for data in data_sub_list]
+    assert all(obs_names[0].equals(index) for index in obs_names[1:])
 
     embeddings = [data.X for data in data_sub_list]
-    constant_relations = [{i: i for i in range(data_sub_list[0].shape[0])}]
+    constant_relation = {i: i for i in range(data_sub_list[0].shape[0])}
+    constant_relations = [constant_relation.copy() for i in range(len(embeddings) - 1)]
+    # return constant_relations
     neighbors_mapper = umap.AlignedUMAP(
         n_neighbors=n_neighbors,
         metric=metric,
