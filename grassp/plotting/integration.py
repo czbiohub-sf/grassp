@@ -169,6 +169,23 @@ def aligned_umap(
     if color_by == "cluster":
         data1_colors = _get_cluster_colors(data, data1_color)
         data2_colors = _get_cluster_colors(data2, data2_color)
+
+        # Create cluster legend handles
+        cluster_handles = []
+        unique_clusters = data.obs[data1_color].cat.categories
+        cluster_colors = data.uns[f"{data1_color}_colors"]
+        for cluster, color in zip(unique_clusters, cluster_colors):
+            cluster_handles.append(
+                mlines.Line2D(
+                    [],
+                    [],
+                    color=color,
+                    marker="o",
+                    linestyle="None",
+                    markersize=8,
+                    label=cluster,
+                )
+            )
     else:
         data1_colors = data1_color
         data2_colors = data2_color
@@ -225,7 +242,7 @@ def aligned_umap(
             if highlight_annotation_col is not None:
                 # Add annotation
                 ax.annotate(
-                    str(data.obs.loc[highlight_hits[i], highlight_annotation_col]),
+                    str(data.obs.loc[highlight_hits, highlight_annotation_col].iloc[i]),
                     (start[0], start[1]),
                     color="black",
                     fontsize=5,
@@ -240,8 +257,23 @@ def aligned_umap(
     handles, labels = ax.get_legend_handles_labels()
     combined_handles = handles + remodeling_legend
 
-    # Add combined legend to the plot
-    ax.legend(handles=combined_handles)
+    # Add legends to the right of the plot
+    if color_by == "cluster":
+        # First legend for dataset and remodeling markers
+        ax.legend(handles=combined_handles, bbox_to_anchor=(1.15, 1), loc="upper left")
+        # Second legend for clusters
+        ax.legend(
+            handles=cluster_handles,
+            bbox_to_anchor=(1.15, 0.5),
+            loc="center left",
+            title="Clusters",
+        )
+    else:
+        # Single legend if not coloring by cluster
+        ax.legend(handles=combined_handles, bbox_to_anchor=(1.15, 1), loc="upper left")
+
+    # Adjust layout to prevent legend cutoff
+    plt.tight_layout()
 
     ax.set_xlabel(f"{aligned_umap_key.replace('X_', '')}1")
     ax.set_ylabel(f"{aligned_umap_key.replace('X_', '')}2")
