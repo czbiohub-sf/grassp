@@ -12,10 +12,12 @@ import numpy as np
 
 def calculate_enrichment_vs_untagged(
     data: AnnData,
-    covariates: Optional[list[str]] = None,
+    covariates: Optional[list[str]] = [],
     subcellular_enrichment_column: str = "subcellular_enrichment",
     untagged_name: str = "UNTAGGED",
     original_intensities_key: Optional[str] = None,
+    drop_untagged: bool = True,
+    keep_raw: bool = True,
 ) -> AnnData:
     """Calculate enrichment scores and p-values with a t-test comparing tagged vs untagged samples.
 
@@ -30,6 +32,12 @@ def calculate_enrichment_vs_untagged(
         Column in .var containing subcellular enrichment labels
     untagged_name
         Label in subcellular_enrichment_column identifying untagged control samples
+    original_intensities_key
+        Key in data.layers to store the original intensities
+    drop_untagged
+        Whether to drop the untagged samples from the returned AnnData object
+    keep_raw
+        Whether to keep the unaggregated data in the .raw attribute of the returned AnnData object
 
     Returns
     -------
@@ -40,14 +48,18 @@ def calculate_enrichment_vs_untagged(
         Raw values are stored in .layers["raw"].
     """
 
-    if covariates is None:
-        covariates = data.var.columns[data.var.columns.str.startswith("covariate_")]
-    else:
-        # Check that all covariates are in the data
-        for c in covariates:
-            if c not in data.var.columns:
-                raise ValueError(f"Covariate {c} not found in data.var.columns")
+    # if covariates is None:
+    #     covariates = data.var.columns[data.var.columns.str.startswith("covariate_")]
+    # else:
+    # Check that all covariates are in the data
+    if data.is_view:
+        data = data.copy()
+    for c in covariates:
+        if c not in data.var.columns:
+            raise ValueError(f"Covariate {c} not found in data.var.columns")
 
+    if not isinstance(covariates, list):
+        covariates = [covariates]
     # Create a temporary column that contains the experimental conditions
     data.var["_experimental_condition"] = data.var[covariates].apply(
         lambda x: "_".join(x.dropna().astype(str)),
@@ -55,7 +67,7 @@ def calculate_enrichment_vs_untagged(
     )
 
     # Create aggregated data with the desired output shape
-    grouping_columns = [subcellular_enrichment_column] + covariates.tolist()
+    grouping_columns = [subcellular_enrichment_column] + covariates
     data_aggr = aggregate_samples(data, grouping_columns=grouping_columns)
     data_aggr.var_names = data_aggr.var_names.str.replace(r"_\d+", "", regex=True)
 
@@ -68,7 +80,8 @@ def calculate_enrichment_vs_untagged(
             :, data.var["_experimental_condition"] == experimental_condition
         ]
         intensities_control = data_sub[
-            :, data_sub.var[subcellular_enrichment_column] == untagged_name
+            :,
+            data_sub.var[subcellular_enrichment_column].str.match(untagged_name),
         ].X
         if intensities_control.shape[1] == 0:
             raise ValueError(
@@ -93,13 +106,16 @@ def calculate_enrichment_vs_untagged(
                     "Multiple samples found for condition: " + experimental_condition
                 )
             data_aggr.layers["pvals"][:, aggr_mask] = pv[:, None]
-            data_aggr[:, aggr_mask].X = lfc[:, None]
+            data_aggr.X[:, aggr_mask] = lfc[:, None]
 
     # Now remove the untagged samples
-    data_aggr = data_aggr[
-        :, data_aggr.var[subcellular_enrichment_column] != untagged_name
-    ]
+    if drop_untagged:
+        data_aggr = data_aggr[
+            :, ~data_aggr.var[subcellular_enrichment_column].str.match(untagged_name)
+        ]
     data_aggr.var.drop(columns=["_experimental_condition"], inplace=True)
+    if keep_raw:
+        data_aggr.raw = data.copy()
     return data_aggr
 
 
@@ -107,7 +123,9 @@ def calculate_enrichment_vs_all(
     adata: AnnData,
     covariates: Optional[list[str]] = None,
     subcellular_enrichment_column: str = "subcellular_enrichment",
+    correlation_threshold: float = 1.0,
     original_intensities_key: str | None = "original_intensities",
+    keep_raw: bool = True,
 ) -> AnnData:
     """Calculate enrichment of each subcellular enrichment vs all other samples as the background.
 
@@ -122,6 +140,8 @@ def calculate_enrichment_vs_all(
         Column in adata.var containing subcellular enrichment labels
     original_intensities_key
         If provided, store the original intensities in this layer
+    keep_raw
+        Whether to keep the unaggregated data in the .raw attribute of the returned AnnData object
 
     Returns
     -------
@@ -155,10 +175,12 @@ def calculate_enrichment_vs_all(
         data_aggr.layers[original_intensities_key] = data_aggr.X
     data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
 
+    corr_matrix = np.corrcoef(data_aggr.X.T)
+
     for experimental_condition in data_aggr.var["_experimental_condition"].unique():
-        intensities_control = data[
-            :, data.var["_experimental_condition"] != experimental_condition
-        ].X
+        mask = data_aggr.var["_experimental_condition"] != experimental_condition
+        intensities_control = data_aggr[:, mask].X
+        intensities_ip = data_aggr[:, ~mask].X
         intensities_ip = data[
             :, data.var["_experimental_condition"] == experimental_condition
         ].X
@@ -169,4 +191,6 @@ def calculate_enrichment_vs_all(
         data_aggr[:, aggr_mask].X = lfc[:, None]
 
     data_aggr.var.drop(columns=["_experimental_condition"], inplace=True)
+    if keep_raw:
+        data_aggr.raw = data.copy()
     return data_aggr
