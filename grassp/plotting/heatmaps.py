@@ -133,6 +133,50 @@ def protein_clustermap(
     return g
 
 
+def sample_heatmap(
+    data: AnnData,
+    distance_metric: Literal[
+        "euclidean", "cosine", "correlation", "cityblock", "jaccard", "hamming"
+    ] = "correlation",
+    show: bool = True,
+) -> sns.matrix.ClusterGrid | None:
+    """
+    Plot a clustermap showing the correlation between samples.
+
+    Parameters
+    ----------
+    data
+        2D numpy array where rows are samples and columns are features.
+    distance_metric
+        Distance metric to use for calculating pairwise distances between proteins.
+        One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
+    show
+        Whether to display the plot.
+
+    Returns
+    -------
+    sns.matrix.ClusterGrid or None
+        If show=True, returns None. Otherwise returns the seaborn ClusterGrid object.
+    """
+    # Compute the correlation matrix
+    corr = np.corrcoef(data.X, rowvar=False)
+    print(corr.shape)
+    # Create a clustermap with var_names as annotations
+    g = sns.clustermap(
+        corr,
+        cmap="viridis",
+        row_cluster=True,
+        col_cluster=True,
+        # dendrogram_ratio=(0.0, 0.0),
+        xticklabels=data.var_names,
+        yticklabels=data.var_names,
+    )
+    if show:
+        plt.show()
+        return None
+    return g
+
+
 # def grouped_heatmap(
 #     data: AnnData,
 #     protein_grouping_key: str,
