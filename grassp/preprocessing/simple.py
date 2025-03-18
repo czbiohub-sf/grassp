@@ -109,8 +109,8 @@ def filter_proteins(
         - AnnData if input is AnnData and `inplace=False`
         - A tuple of arrays (retained_proteins, retained_samples) if input is not AnnData
     """
-    if isinstance(data, AnnData):
-        confirm_proteins_as_obs(data)
+    # if isinstance(data, AnnData):
+    #     confirm_proteins_as_obs(data)
 
     return scanpy.pp.filter_cells(
         data,
@@ -267,6 +267,7 @@ def aggregate_samples(
     data: AnnData,
     grouping_columns: str | List[str],
     agg_func: NDArrayAxisFunction = np.median,
+    keep_raw: bool = False,
 ) -> AnnData:
     """Aggregate samples based on grouping columns.
 
@@ -279,6 +280,8 @@ def aggregate_samples(
     agg_func
         Function to aggregate samples within each group. Must take an array and axis
         argument. Default is np.median.
+    keep_raw
+        Whether to keep the unaggregated data in the .raw attribute of the returned AnnData object.
 
     Returns
     -------
@@ -294,6 +297,7 @@ def aggregate_samples(
     groups = data.var.groupby(grouping_columns)
     X_list = []
     var_list = []
+    layers_dict = {layer: [] for layer in data.layers.keys()}
     # Determine obs columns to keep
     g = groups.get_group(list(groups.groups)[0])
     unique_col_indices = g.nunique() == 1
@@ -306,11 +310,30 @@ def aggregate_samples(
         X_sub = agg_func(X_sub, axis=1)
         X_list.append(X_sub)
         var_list.append(var_sub)
+
+        # Aggregate layers
+        for layer_name, layer_data in data.layers.items():
+            layer_sub = layer_data[:, ind]
+            layer_sub = agg_func(layer_sub, axis=1)
+            layers_dict[layer_name].append(layer_sub)
+
     var = pd.concat(var_list, axis=0)
     X = np.vstack(X_list).T
+    aggregated_layers = {
+        layer: np.vstack(layer_list).T for layer, layer_list in layers_dict.items()
+    }
     retdata = AnnData(
-        X=X, obs=data.obs, var=var, uns=data.uns, obsp=data.obsp, obsm=data.obsm
+        X=X,
+        obs=data.obs,
+        var=var,
+        uns=data.uns,
+        obsp=data.obsp,
+        obsm=data.obsm,
+        layers=aggregated_layers,
     )
+    if keep_raw:
+        retdata.raw = data.copy()
+
     return retdata
 
 
