@@ -83,3 +83,78 @@ def calinski_habarasz_score(
         data.uns[key_added] = ch
     else:
         return ch
+
+
+def qsep_score(
+    data: AnnData,
+    label_key: str,
+    use_rep: str = "X",
+    distance_key: str = "full_distances",
+    inplace: bool = True,
+) -> None | np.ndarray:
+    """Calculate QSep scores for spatial proteomics data.
+
+    Parameters
+    ----------
+    data : AnnData
+        Annotated data matrix.
+    label_key : str
+        Key in data.obs containing cluster labels.
+    use_rep : str, optional
+        Key for representation to use for distance calculation.
+        Either 'X' or a key in data.obsm. Defaults to 'X'.
+    distance_key : str, optional
+        Key under which to store the full distances in data.obs.
+        Defaults to 'full_distances'.
+    inplace : bool, optional
+        If True, store results in data, else return matrices.
+        Defaults to True.
+
+    Returns
+    -------
+    None or np.ndarray
+        If inplace=True, returns None and stores results in data.
+        If inplace=False, returns cluster_distances.
+    """
+    # Get data matrix
+    if use_rep == "X":
+        X = data.X
+    else:
+        X = data.obsm[use_rep]
+
+    # Calculate pairwise distances between all points
+    full_distances = sklearn.metrics.pairwise_distances(X)
+
+    # Get valid clusters (non-NA)
+    mask = data.obs[label_key].notna()
+    valid_clusters = data.obs[label_key][mask].unique()
+
+    # Calculate cluster distances
+    cluster_distances = np.zeros((len(valid_clusters), len(valid_clusters)))
+    cluster_indices = {
+        cluster: np.where(data.obs[label_key] == cluster)[0]
+        for cluster in valid_clusters
+    }
+
+    for i, cluster1 in enumerate(valid_clusters):
+        for j, cluster2 in enumerate(valid_clusters):
+            idx1 = cluster_indices[cluster1]
+            idx2 = cluster_indices[cluster2]
+
+            # Get submatrix of distances between clusters
+            submatrix = full_distances[np.ix_(idx1, idx2)]
+            cluster_distances[i, j] = np.mean(submatrix)
+
+    if inplace:
+        # Store full distances
+        data.obs[distance_key] = pd.Series(
+            np.mean(full_distances, axis=1), index=data.obs.index
+        )
+
+        # Store cluster distances and metadata
+        data.uns["cluster_distances"] = {
+            "distances": cluster_distances,
+            "clusters": valid_clusters.tolist(),
+        }
+    else:
+        return cluster_distances

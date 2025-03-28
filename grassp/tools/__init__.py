@@ -7,4 +7,9 @@ from .clustering import (
 )
 from .enrichment import calculate_cluster_enrichment, rank_proteins_groups
 from .integration import align_adatas, aligned_umap, remodeling_score
-from .scoring import calinski_habarasz_score, silhouette_score
+from .scoring import (
+    calinski_habarasz_score,
+    class_balance,
+    qsep_score,
+    silhouette_score,
+)
