@@ -328,7 +328,6 @@ def qsep_boxplot(
                 }
             )
     plot_df = pd.DataFrame(plot_data)
-    print(plot_df)
 
     # Create boxplot
     sns.boxplot(
