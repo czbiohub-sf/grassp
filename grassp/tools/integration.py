@@ -180,3 +180,174 @@ def remodeling_score(
         data.obs[key_added] = remodeling_score
 
     return data_list
+
+
+def mr_score(
+    data: AnnData,
+    condition_key: str,
+    replicate_key: str,
+    mcd_proportion: float = 0.75,
+    assume_centered: bool = True,
+    n_iterations: int = 11,
+    key_added: str = "mr_scores",
+) -> None:
+    """Calculate MR scores for protein translocation analysis.
+
+    Parameters
+    ----------
+    data : AnnData
+        Annotated data matrix with proteins as observations and fractions as variables
+    condition_key : str
+        Key in data.var specifying experimental conditions
+    replicate_key : str
+        Key in data.var specifying biological replicates
+    mcd_proportion : float, optional
+        Proportion of data to use for MCD calculation. Defaults to 0.75
+    n_iterations : int, optional
+        Number of iterations for robust MCD calculation. Defaults to 101
+    key_added : str, optional
+        Key under which to store results in data.uns. Defaults to "mr_scores"
+
+    Returns
+    -------
+    None
+        Stores results in data.uns[key_added]
+    """
+    from sklearn.covariance import MinCovDet
+    from scipy.stats import chi2
+    from statsmodels.stats.multitest import multipletests
+
+    # Check inputs
+    if condition_key not in data.var:
+        raise ValueError(f"Condition key {condition_key} not found in data.var")
+    if replicate_key not in data.var:
+        raise ValueError(f"Replicate key {replicate_key} not found in data.var")
+
+    conditions = data.var[condition_key].unique()
+    if len(conditions) != 2:
+        raise ValueError("Exactly 2 conditions are required")
+    control_name = conditions[0]
+    treatment_name = conditions[1]
+
+    # Get unique replicates
+    replicates = data.var[replicate_key].unique()
+    if len(replicates) != 3:
+        raise ValueError("Exactly 3 biological replicates are required")
+
+    # import matplotlib.pyplot as plt
+
+    # Calculate difference profiles for each replicate
+    diff_profiles = []
+    for rep in replicates:
+        control_mask = (data.var[condition_key] == control_name) & (
+            data.var[replicate_key] == rep
+        )
+        treat_mask = (data.var[condition_key] == treatment_name) & (
+            data.var[replicate_key] == rep
+        )
+
+        # if not (control_mask.sum() == treat_mask.sum() == 5):
+        #     raise ValueError(f"Expected 5 fractions per condition in replicate {rep}")
+
+        # @TODO This assumes that the samples have the same order
+        diff = data[:, control_mask].X - data[:, treat_mask].X
+        # gt_proteins = ["EGFR", "GRB2", "PKN2", "SHC1"]
+        gt_proteins = ["PKN2", "PCM1", "KIF13A", "CLN5"]
+        # print(diff[data.obs.gene_name.isin(gt_proteins), :])
+        # _ = plt.hist(diff.flatten(), bins=100)
+        # plt.show()
+        diff_profiles.append(diff)
+
+    # Calculate M scores
+    p_values = np.zeros((data.n_obs, len(replicates), n_iterations))
+    for i in range(n_iterations):
+        for j, diff in enumerate(diff_profiles):
+            # Robust Mahalanobis distance calculation
+            mcd = MinCovDet(
+                support_fraction=mcd_proportion,
+                random_state=i,
+                assume_centered=assume_centered,
+            )
+            mcd.fit(diff)
+            # print("mcd.location_", mcd.location_)
+            # print("mcd.cov", mcd.covariance_)
+            if assume_centered:
+                distances = mcd.mahalanobis(diff)
+            else:
+                distances = mcd.mahalanobis(diff - mcd.location_)
+
+            # print(distances.shape)
+            # print(distances[data.obs.gene_name.isin(gt_proteins)])
+            # print(distances.shape)
+            # print(distances[data.obs.gene_name.isin(gt_proteins)])
+
+            # Convert to p-values using chi-square distribution (degrees of freedom = number of fractions)
+            df = control_mask.sum()
+            # print("df", df)
+            p_values[:, j, i] = chi2.sf(distances, df=df)
+
+    # Average M scores across iterations
+    # gt_proteins = ["EGFR", "GRB2", "PKN2", "SHC1"]
+    gt_proteins = ["PKN2", "PCM1", "KIF13A", "CLN5"]
+
+    # _ = plt.hist(p_values, bins=100)
+    # plt.show()
+    # print(p_values.shape)
+    p_values = p_values.astype(np.longdouble)
+    p_values = np.median(p_values, axis=2)
+
+    # print(p_values[data.obs.gene_name.isin(gt_proteins), :])
+    # print(p_values.dtype)
+    # _ = plt.hist(p_values, bins=100)
+    # plt.show()
+    # m_scores = -np.log10(m_scores)
+
+    # Take highest p-value (lowest M score) for each protein
+    max_p_values = np.max(p_values, axis=1)
+    # _ = plt.hist(max_p_values, bins=100)
+    # plt.show()
+
+    # Cube p-values and apply Benjamini-Hochberg correction
+    # p_values = 10 ** (-min_m_scores)
+    # print(max_p_values[data.obs.gene_name.isin(gt_proteins)])
+    # max_p_values = max_p_values.astype(
+    #     np.longdouble
+    # )  # Increase precision for very small p-values
+    p_values = np.power(max_p_values, 3)  # Cube p-values
+
+    # print(p_values[data.obs.gene_name.isin(gt_proteins)])
+    _, p_values_adj, _, _ = multipletests(p_values, method="fdr_bh")
+    # _ = plt.hist(p_values_adj, bins=100)
+    # plt.show()
+    # We add a small epsilon to avoid log(0)
+    final_m_scores = -np.log10(p_values_adj + np.finfo(np.float64).tiny).astype(
+        np.float64
+    )
+
+    # Calculate R scores (reproducibility)
+    r_scores = np.zeros(data.n_obs)
+    for i in range(data.n_obs):
+        correlations = []
+        # Calculate correlations between all pairs of replicates
+        for j in range(len(replicates)):
+            for k in range(j + 1, len(replicates)):
+                corr = np.corrcoef(diff_profiles[j][i], diff_profiles[k][i])[0, 1]
+                correlations.append(corr)
+        # Take lowest correlation as R score
+        r_scores[i] = np.min(correlations)
+
+    # Store results
+    data.obs[f"{key_added}_M"] = final_m_scores
+    data.obs[f"{key_added}_R"] = r_scores
+    data.uns[key_added] = {
+        "params": {
+            "mcd_proportion": mcd_proportion,
+            "n_iterations": n_iterations,
+            "control_name": control_name,
+            "treatment_name": treatment_name,
+        },
+    }
+
+    # Add scores to obs
+    data.obs[f"{key_added}_M"] = final_m_scores
+    data.obs[f"{key_added}_R"] = r_scores

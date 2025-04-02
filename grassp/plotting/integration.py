@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from anndata import AnnData
     from typing import List, Literal
+    from matplotlib.axes import Axes
+
 
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -367,6 +369,81 @@ def remodeling_sankey(
 
     show = scanpy.settings.autoshow if show is None else show
     scanpy.pl._utils.savefig_or_show("remodeling_sankey", show=show, save=save)
+    if show:
+        return None
+    return ax
+
+
+def mr_plot(
+    data: AnnData,
+    mr_key: str = "mr_scores",
+    ax: plt.Axes = None,
+    m_cutoffs: list[float] = [2, 3, 4],
+    r_cutoffs: list[float] = [0.68, 0.81, 0.93],
+    highlight_hits: bool = True,
+    show: bool | None = None,
+    save: bool | str | None = None,
+    **kwargs,
+) -> Axes | None:
+    """Create MR plot for protein translocation analysis with broken x-axis.
+
+    Parameters
+    ----------
+    data : AnnData
+        Annotated data matrix containing MR scores
+    mr_key : str, optional
+        Key in data.uns containing MR scores. Defaults to "mr_scores"
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot on. If None, current axes will be used
+    m_cutoffs : list[float], optional
+        M score cutoffs to show (lenient, stringent, very stringent)
+    r_cutoffs : list[float], optional
+        R score cutoffs to show (lenient, stringent, very stringent)
+    highlight_hits : bool, optional
+        Whether to highlight points passing lenient cutoffs
+    **kwargs
+        Additional arguments passed to plt.scatter
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        The axes object with the plot
+    """
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+    try:
+        m_scores = data.obs[f"{mr_key}_M"]
+        r_scores = data.obs[f"{mr_key}_R"]
+    except KeyError:
+        raise ValueError(
+            f"MR scores not found in data.obs['{mr_key}_M/R'], run gr.tl.mr_score first"
+        )
+
+    # Plot data
+    ax.scatter(m_scores, r_scores, alpha=0.5, s=10, color="black", marker=".", **kwargs)
+
+    if highlight_hits:
+        hits = (m_scores >= m_cutoffs[0]) & (r_scores >= r_cutoffs[0])
+        ax.scatter(m_scores[hits], r_scores[hits], color="red", s=20, marker=".")
+
+    # Add cutoff lines
+    colors = ["gray", "darkgray", "lightgray"]
+    for m_cut, color in zip(m_cutoffs, colors):
+        ax.axvline(m_cut, color=color, linestyle="--", alpha=0.5)
+    for r_cut, color in zip(r_cutoffs, colors):
+        ax.axhline(r_cut, color=color, linestyle="--", alpha=0.5)
+
+    # Set x-axis limits
+    ax.set_xlim(0, np.max(m_scores) + 5)
+
+    # Set labels
+    ax.set_xlabel("M score (-log10 Q-value)")
+    ax.set_ylabel("R score (minimum correlation)")
+    ax.set_title("MR Plot")
+
+    show = scanpy.settings.autoshow if show is None else show
+    scanpy.pl._utils.savefig_or_show("remodeling_score", show=show, save=save)
     if show:
         return None
     return ax
