@@ -10,6 +10,7 @@ import re
 import anndata
 import numpy as np
 import pandas as pd
+import urllib
 
 
 def read(
@@ -90,4 +91,55 @@ def read(
         "gene_names": gene_names,
     }
     adata.uns["proteins_as_obs"] = proteins_as_obs
+    return adata
+
+
+def read_prolocdata(file_name: str) -> anndata.AnnData:
+    """
+    Read a prolocdata file and return an AnnData object.
+    Parameters
+    ----------
+    file_name : str
+        The path to the prolocdata file or a URL.
+    Returns
+    -------
+    adata : AnnData
+    """
+    try:
+        import rdata
+    except ImportError:
+        raise Exception(
+            "To read prolocdata, please install the `rdata` python package (pip install rdata)."
+        )
+
+    parsed_url = urllib.parse.urlparse(file_name)
+    if parsed_url.scheme != "":
+        with urllib.request.urlopen(file_name) as dataset:
+            pdata = rdata.parser.parse_data(dataset.read(), extension="rda")
+    else:
+        pdata = rdata.parser.parse_file(file_name)
+    proloc_classes = {
+        "AnnotatedDataFrame": lambda x, y: x,
+        "Versions": lambda x, y: x,
+        "MSnProcess": lambda x, y: x,
+        "MSnSet": lambda x, y: x,
+        "MIAPE": lambda x, y: x,
+    }
+    pdata = rdata.conversion.convert(
+        pdata, constructor_dict={**proloc_classes, **rdata.conversion.DEFAULT_CLASS_MAP}
+    )
+    dataset_name = next(iter(pdata.keys()))
+    pdata = pdata[dataset_name]
+    # Create AnnData object
+    obs = pdata.featureData.data
+    var = pdata.phenoData.data
+    X = np.array(pdata.assayData.maps[0]["exprs"])
+    adata = anndata.AnnData(obs=obs, var=var, X=X)
+
+    # Add metadata
+    adata.uns["dataset_name"] = dataset_name
+    metadata = {k: v for k, v in vars(pdata.experimentData).items() if len(v) > 0}
+    del metadata[".__classVersion__"]
+    adata.uns["MIAPE_metadata"] = metadata
+
     return adata
