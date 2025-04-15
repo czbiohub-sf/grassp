@@ -8,6 +8,7 @@ from anndata import AnnData
 from .simple import aggregate_samples
 import scipy.stats as stats
 import numpy as np
+import warnings
 
 
 def calculate_enrichment_vs_untagged(
@@ -152,44 +153,55 @@ def calculate_enrichment_vs_all(
 
     data = adata.copy()
 
-    if covariates is None:
-        covariates = data.var.columns[data.var.columns.str.startswith("covariate_")]
-    else:
-        # Check that all covariates are in the data
-        for c in covariates:
-            if c not in data.var.columns:
-                raise ValueError(f"Covariate {c} not found in data.var.columns")
+    # if covariates is None:
+    #     covariates = data.var.columns[data.var.columns.str.startswith("covariate_")]
+    # else:
+    # Check that all covariates are in the data
+    for c in covariates:
+        if c not in data.var.columns:
+            raise ValueError(f"Covariate {c} not found in data.var.columns")
 
+    if not isinstance(covariates, list):
+        covariates = [covariates]
     # Create aggregated data with the desired output shape
-    grouping_columns = [subcellular_enrichment_column] + covariates.tolist()
+    grouping_columns = [subcellular_enrichment_column] + covariates
     # Create a temporary column that contains the experimental conditions
     data.var["_experimental_condition"] = data.var[grouping_columns].apply(
         lambda x: "_".join(x.dropna().astype(str)),
         axis=1,
     )
 
-    data_aggr = aggregate_samples(data, grouping_columns=grouping_columns)
+    data_aggr = aggregate_samples(
+        data, grouping_columns=grouping_columns, keep_raw=False
+    )
     data_aggr.var_names = data_aggr.var_names.str.replace(r"_\d+", "", regex=True)
 
     if original_intensities_key is not None:
         data_aggr.layers[original_intensities_key] = data_aggr.X
     data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
+    data_aggr.var["enriched_vs"] = ""
 
-    corr_matrix = np.corrcoef(data_aggr.X.T)
+    intensities = data_aggr.X.copy()
+    corr_matrix = np.corrcoef(intensities.T)
 
     for experimental_condition in data_aggr.var["_experimental_condition"].unique():
-        mask = data_aggr.var["_experimental_condition"] != experimental_condition
-        intensities_control = data_aggr[:, mask].X
-        intensities_ip = data_aggr[:, ~mask].X
-        intensities_ip = data[
-            :, data.var["_experimental_condition"] == experimental_condition
-        ].X
+        mask = data_aggr.var["_experimental_condition"] == experimental_condition
+        corr_mat_sub = corr_matrix[mask, :].mean(axis=0)
+        control_mask = ~mask & (corr_mat_sub < correlation_threshold)
+        if control_mask.sum() < 10:
+            warnings.warn(
+                f"Less than 10 ({control_mask.sum()}) control samples found for condition: {experimental_condition}"
+            )
+        intensities_control = intensities[:, control_mask]
+        intensities_ip = intensities[:, mask]
         scores, pv = stats.ttest_ind(intensities_ip.T, intensities_control.T)
         lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
         aggr_mask = data_aggr.var["_experimental_condition"] == experimental_condition
         data_aggr.layers["pvals"][:, aggr_mask] = pv[:, None]
         data_aggr[:, aggr_mask].X = lfc[:, None]
-
+        data_aggr.var.loc[aggr_mask, "enriched_vs"] = ",".join(
+            data_aggr.var_names[control_mask]
+        )
     data_aggr.var.drop(columns=["_experimental_condition"], inplace=True)
     if keep_raw:
         data_aggr.raw = data.copy()
