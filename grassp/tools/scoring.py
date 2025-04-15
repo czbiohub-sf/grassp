@@ -3,8 +3,54 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import numpy as np
+    from anndata import AnnData
 
 import sklearn.metrics
+import warnings
+import numpy as np
+import pandas as pd
+
+
+def class_balance(
+    data: AnnData, label_key: str, min_class_size: int = 10, seed: int = 42
+) -> AnnData:
+    """Balance classes in the data.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data matrix.
+    label_key : str
+        Key in adata.obs containing cluster labels.
+    min_class_size : int, optional
+        Minimum number of samples per class. Defaults to 10.
+    """
+    # Check if label_key is in adata.obs
+    if label_key not in data.obs.columns:
+        raise ValueError(f"Label key {label_key} not found in adata.obs")
+    # Remove all samples with missing labels
+    data_sub = data[data.obs[label_key].notna()]
+    # Check if smallest class has at least min_class_size samples
+    min_class_s = data_sub.obs[label_key].value_counts().min()
+    min_class = data_sub.obs[label_key].value_counts().idxmin()
+    if min_class_s < min_class_size:
+        raise ValueError(
+            f"Smallest class ({min_class}) has less than {min_class_size} samples."
+        )
+    if min_class_s < 10:
+        warnings.warn(
+            f"Smallest class ({min_class}) has less than 10 samples, this might not yield a stable score."
+        )
+
+    obs_names = []
+    for label in data_sub.obs[label_key].unique():
+        obs_names.extend(
+            data_sub.obs[data_sub.obs[label_key] == label]
+            .sample(min_class_s, replace=False, random_state=seed)
+            .index.values
+        )
+    data_sub = data_sub[obs_names, :]
+    return data_sub
 
 
 def silhouette_score(
@@ -50,7 +96,13 @@ def silhouette_score(
 
 
 def calinski_habarasz_score(
-    data, gt_col, use_rep="X_umap", key_added="ch_score", inplace=True
+    data,
+    gt_col,
+    use_rep="X_umap",
+    key_added="ch_score",
+    class_balance=False,
+    inplace=True,
+    seed=42,
 ) -> None | float:
     """Calculate Calinski-Harabasz score for clustered data.
 
@@ -76,6 +128,22 @@ def calinski_habarasz_score(
     """
     mask = data.obs[gt_col].notna()
     data_sub = data[mask]
+    if class_balance:
+        min_class_size = data_sub.obs[gt_col].value_counts().min()
+        if min_class_size < 10:
+            warnings.warn(
+                f"Smallest class has less than 10 samples, this might not yield a stable score."
+            )
+        obs_names = []
+        print(data_sub.obs[gt_col].unique())
+        for label in data_sub.obs[gt_col].unique():
+            obs_names.extend(
+                data_sub.obs[data_sub.obs[gt_col] == label]
+                .sample(min_class_size, replace=False, random_state=seed)
+                .index.values
+            )
+        data_sub = data_sub[obs_names, :]
+    print(data_sub.shape)
     ch = sklearn.metrics.calinski_harabasz_score(
         data_sub.obsm[use_rep], data_sub.obs[gt_col]
     )
