@@ -4,6 +4,8 @@ from .clustering import (
     knn_annotation,
     leiden_mito_sweep,
     to_knn_graph,
+    tagm_map_train,
+    tagm_map_predict,
 )
 from .enrichment import calculate_cluster_enrichment, rank_proteins_groups
 from .integration import align_adatas, aligned_umap, remodeling_score
