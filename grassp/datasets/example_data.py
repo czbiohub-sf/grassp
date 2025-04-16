@@ -12,6 +12,12 @@ from .. import io
 from scanpy._settings import settings
 
 
+def hein_2024() -> AnnData:
+    filename = settings.datasetdir / "hein_2024.h5ad"
+    url = "https://drive.google.com/uc?export=download&id=1RMPQucHYbQgzIu-GcwoqApvwa8mODDOp"
+    return scanpy.read(filename, backup_url=url)
+
+
 def ithzak_2016() -> AnnData:
     filename = settings.datasetdir / "ithzak_2016.h5ad"
     url = "https://drive.google.com/uc?export=download&id=1zNSTVmJ-Xms86_WtDnjUROQpPXUEr2Ux"
