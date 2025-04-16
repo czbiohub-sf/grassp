@@ -775,6 +775,10 @@ def tagm_map_predict(
 
     if inplace:
         adata.obs["tagm.map.allocation"] = pred_all
+        if f"{params['gt_col']}_colors" in adata.uns:
+            adata.uns["tagm.map.allocation_colors"] = adata.uns[
+                f"{params['gt_col']}_colors"
+            ]
         adata.obs["tagm.map.probability"] = prob_all
 
         adata.obsm["tagm.map.probabilities"] = a
