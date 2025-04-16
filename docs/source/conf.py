@@ -47,6 +47,7 @@ exclude_patterns = []
 
 # The theme to use for HTML and HTML Help pages
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 # The theme is sphinx-book-theme, with patches for readthedocs-sphinx-search
 html_theme = "scanpydoc"

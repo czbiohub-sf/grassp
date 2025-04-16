@@ -1,0 +1,16 @@
+/* Adjust sidebar width */
+.bd-sidebar {
+    min-width: 300px;  /* Increase from default */
+    max-width: 450px; /* Set maximum width */
+}
+
+/* Ensure content adjusts properly */
+.bd-main {
+    flex-grow: 1;
+    max-width: 100%;
+}
+
+/* Optional: Adjust the navigation elements if needed */
+.bd-sidebar .nav {
+    padding-right: 1rem;
+} 
