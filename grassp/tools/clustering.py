@@ -12,6 +12,45 @@ import scanpy as sc
 from scipy.stats import multivariate_normal
 from scipy.special import gammaln
 from numpy.linalg import inv, det, eigvals
+import markov_clustering as mc
+
+
+def _get_clusters(matrix):
+    # get the attractors - non-zero elements of the matrix diagonal
+    attractors = matrix.diagonal().nonzero()[0]
+
+    col = np.zeros(matrix.shape[0])
+
+    # the nodes in the same row as each attractor form a cluster
+    for i, attractor in enumerate(attractors):
+        idx = matrix.getrow(attractor).nonzero()[1]
+        col[idx] = i
+    return col
+
+
+def markov_clustering(
+    adata: AnnData, resolution: float = 1.2, key_added: str = "mc_cluster"
+):
+    """
+    Perform Markov Clustering on the connectivity matrix.
+
+    Parameters
+    ----------
+    adata
+        The annotated data matrix.
+    resolution
+        The inflation parameter for the Markov Clustering (it is called resolution here for consistency with other clustering methods). Default is 1.2.
+    key_added
+        The key to add the cluster labels to in adata.obs. Default is "mc_cluster".
+    """
+    if "connectivities" not in adata.obsp:
+        raise ValueError(
+            "Connectivities matrix not found in adata.obsp, run `sc.pp.neighbors` first"
+        )
+    result = mc.run_mcl(adata.obsp["connectivities"], inflation=resolution)
+    adata.obs[key_added] = _get_clusters(result)
+    adata.obs[key_added] = adata.obs[key_added].astype("category")
+
 
 # Find a good resolution for the leiden clustering
 # For this we use the fact that we have good ground truth labels for mitochondria

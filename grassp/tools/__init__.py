@@ -1,4 +1,5 @@
 from .clustering import (
+    markov_clustering,
     calculate_interfacialness_score,
     get_n_nearest_neighbors,
     knn_annotation,
