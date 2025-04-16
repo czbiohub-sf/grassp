@@ -36,3 +36,12 @@ Many of scanpy's plotting functions can be directly used with grassp AnnData obj
    pl.remodeling_score
    pl.remodeling_sankey
 ``` 
+
+### Clustering
+```{eval-rst}
+.. autosummary::
+   :nosignatures:
+   :toctree: ../generated/
+
+   pl.tagm_map_contours
+   pl.tagm_map_pca_ellipses

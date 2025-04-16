@@ -23,6 +23,8 @@ This module provides various tools for analyzing proteomics data.
    tl.get_n_nearest_neighbors
    tl.silhouette_score
    tl.calinski_habarasz_score
+   tl.tagm_map_train
+   tl.tagm_map_predict
 ```
 
 ### Enrichment
