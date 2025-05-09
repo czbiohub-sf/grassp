@@ -205,13 +205,16 @@ def qsep_score(
     }
 
     for i, cluster1 in enumerate(valid_clusters):
-        for j, cluster2 in enumerate(valid_clusters):
+        for j in range(i, len(valid_clusters)):
+            # for j, cluster2 in enumerate(valid_clusters[i + 1 :]):
+            cluster2 = valid_clusters[j]
             idx1 = cluster_indices[cluster1]
             idx2 = cluster_indices[cluster2]
 
             # Get submatrix of distances between clusters
             submatrix = full_distances[np.ix_(idx1, idx2)]
             cluster_distances[i, j] = np.mean(submatrix)
+            cluster_distances[j, i] = np.mean(submatrix)
 
     if inplace:
         # Store full distances

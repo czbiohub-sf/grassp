@@ -11,6 +11,19 @@ import numpy as np
 import warnings
 
 
+def _check_covariates(data: AnnData, covariates: Optional[list[str]] = None):
+    if covariates is None:
+        covariates = data.var.columns[data.var.columns.str.startswith("covariate_")]
+    # Check that all covariates are in the data
+    for c in covariates:
+        if c not in data.var.columns:
+            raise ValueError(f"Covariate {c} not found in data.var.columns")
+
+    if not isinstance(covariates, list):
+        covariates = [covariates]
+    return covariates
+
+
 def calculate_enrichment_vs_untagged(
     data: AnnData,
     covariates: Optional[list[str]] = [],
@@ -120,6 +133,17 @@ def calculate_enrichment_vs_untagged(
     return data_aggr
 
 
+def calculate_noc_proportions(
+    adata: AnnData,
+    covariates: Optional[list[str]] = None,
+    subcellular_enrichment_column: str = "subcellular_enrichment",
+    use_layer: Optional[str] = None,
+    original_intensities_key: str | None = None,
+    keep_raw: bool = True,
+) -> AnnData:
+    pass
+
+
 def calculate_enrichment_vs_all(
     adata: AnnData,
     covariates: Optional[list[str]] = None,
@@ -153,9 +177,10 @@ def calculate_enrichment_vs_all(
 
     data = adata.copy()
 
-    # if covariates is None:
-    #     covariates = data.var.columns[data.var.columns.str.startswith("covariate_")]
-    # else:
+    if covariates is None:
+        covariates = data.var.columns[
+            data.var.columns.str.startswith("covariate_")
+        ].tolist()
     # Check that all covariates are in the data
     for c in covariates:
         if c not in data.var.columns:
@@ -198,7 +223,7 @@ def calculate_enrichment_vs_all(
         lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
         aggr_mask = data_aggr.var["_experimental_condition"] == experimental_condition
         data_aggr.layers["pvals"][:, aggr_mask] = pv[:, None]
-        data_aggr[:, aggr_mask].X = lfc[:, None]
+        data_aggr.X[:, aggr_mask] = lfc[:, None]
         data_aggr.var.loc[aggr_mask, "enriched_vs"] = ",".join(
             data_aggr.var_names[control_mask]
         )

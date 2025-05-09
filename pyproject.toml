@@ -9,7 +9,7 @@ requires = [
 name =  "grassp"
 description = "A python package to facilitate Organellar profiling"
 readme = "README.md"
-license = {file = "LICENSE"}
+license = {text = "BSD 3-Clause License"}
 requires-python = ">=3.7, <4.0"
 
 # the dynamically determined project metadata attributes
@@ -38,6 +38,7 @@ dependencies = [
     "umap-learn",
     "pysankeybeta",
     "gseapy",
+    "markov_clustering",
 ]
 
 
@@ -83,6 +84,9 @@ packages = ["grassp"]
 
 # allow use of __file__ to load data files included in the package
 zip-safe = false
+
+# Don't include LICENSE as a license-file in the metadata
+license-files = []
 
 
 [tool.black]
