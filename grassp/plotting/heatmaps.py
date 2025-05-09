@@ -210,6 +210,8 @@ def qsep_heatmap(
     normalize: bool = True,
     ax: plt.Axes = None,
     cmap: str = "RdBu_r",
+    vmin: float = None,
+    vmax: float = None,
     **kwargs,
 ) -> plt.Axes:
     """Plot QSep cluster distance heatmap.
@@ -248,12 +250,17 @@ def qsep_heatmap(
         # Normalize by diagonal values
         norm_distances = distances / np.diag(distances)[:, np.newaxis]
         plot_data = norm_distances[::-1]
-        vmin = 1.0
-        vmax = np.max(norm_distances)
+        tvmin = 1.0
+        tvmax = np.max(norm_distances)
     else:
         plot_data = distances[::-1]
-        vmin = None
-        vmax = None
+        tvmin = None
+        tvmax = None
+
+    if vmin is None:
+        vmin = tvmin
+    if vmax is None:
+        vmax = tvmax
 
     # Create heatmap
     sns.heatmap(
