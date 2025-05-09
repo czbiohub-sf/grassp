@@ -9,7 +9,7 @@ from .clustering import (
     tagm_map_predict,
 )
 from .enrichment import calculate_cluster_enrichment, rank_proteins_groups
-from .integration import align_adatas, aligned_umap, remodeling_score
+from .integration import align_adatas, aligned_umap, remodeling_score, mr_score
 from .scoring import (
     calinski_habarasz_score,
     class_balance,
