@@ -38,6 +38,7 @@ dependencies = [
     "umap-learn",
     "pysankeybeta",
     "gseapy",
+    "markov_clustering",
 ]
 
 
