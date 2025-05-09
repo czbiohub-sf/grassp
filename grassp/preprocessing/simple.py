@@ -532,7 +532,7 @@ def normalize_total(
 
 def drop_excess_MQ_metadata(
     data: AnnData,
-    colname_regex: str = "Peptide|peptide|MS/MS|Evidence IDs|Taxonomy|Oxidation|Intensity|Identification type|Sequence coverage|MS/MS count",
+    colname_regex: str = "Peptide|peptide|MS/MS|Evidence IDs|Taxonomy|Oxidation|Intensity|Total Spectral Count|Unique Spectral Count|Spectral Count|Identification type|Sequence coverage|MS/MS count",
     inplace: bool = True,
 ) -> AnnData | None:
     """Drop excess metadata columns from MaxQuant output.
