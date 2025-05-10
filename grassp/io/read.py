@@ -11,9 +11,10 @@ import anndata
 import numpy as np
 import pandas as pd
 import urllib
+import protdata
 
 
-def read(
+def read_alphastats(
     loader: alphastats.BaseLoader,
     x_dtype: Union[np.dtype, type, int, float, None] = None,
     proteins_as_obs: bool = False,
@@ -41,7 +42,12 @@ def read(
     - gene_names: Gene name mapping information
     """
 
-    import alphastats
+    try:
+        import alphastats
+    except ImportError:
+        raise Exception(
+            "To read alphastats, please install the `alphastats` python package (pip install alphastats)."
+        )
 
     alphastats.DataSet._check_loader(
         1, loader
@@ -143,3 +149,27 @@ def read_prolocdata(file_name: str) -> anndata.AnnData:
     adata.uns["MIAPE_metadata"] = metadata
 
     return adata
+
+
+def read_maxquant(*args, **kwargs) -> anndata.AnnData:
+    """
+    Wrapper for protdata.read_maxquant that transposes the AnnData object.
+    """
+    adata = protdata.read_maxquant(*args, **kwargs)
+    return adata.T
+
+
+def read_fragpipe(*args, **kwargs) -> anndata.AnnData:
+    """
+    Wrapper for protdata.read_fragpipe that transposes the AnnData object.
+    """
+    adata = protdata.read_fragpipe(*args, **kwargs)
+    return adata.T
+
+
+def read_diann(*args, **kwargs) -> anndata.AnnData:
+    """
+    Wrapper for protdata.read_diann that transposes the AnnData object.
+    """
+    adata = protdata.read_diann(*args, **kwargs)
+    return adata.T

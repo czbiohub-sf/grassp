@@ -4,6 +4,13 @@ requires = [
   "wheel",
   "setuptools_scm[toml]>=3.4"
 ]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+write_to = "grassp/_version.py"
+fallback_version = "0.0.1"
 
 [project]
 name =  "grassp"
@@ -29,7 +36,8 @@ dependencies = [
     "numpy",
     "pandas",
     "scanpy[leiden]",
-    "alphastats",
+    "protdata",
+#    "alphastats",
     "anndata",
     "scipy",
     "networkx",
@@ -78,8 +86,7 @@ repository = "https://github.com/czbiohub/some-package"
 
 
 [tool.setuptools]
-# explicitly specify the package name
-# TODO: is there a better way to do this?
+# Use find_namespace_packages to discover all packages
 packages = ["grassp"]
 
 # allow use of __file__ to load data files included in the package
