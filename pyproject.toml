@@ -41,11 +41,11 @@ dependencies = [
     "anndata",
     "scipy",
     "networkx",
-#    "scikit-learn",
+    "scikit-learn",
     "matplotlib",
     "umap-learn",
     "pysankeybeta",
-    "gseapy",
+#    "gseapy",
     "markov_clustering",
 ]
 

@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Literal, Optional, Union
 if TYPE_CHECKING:
     from anndata import AnnData
 
-import gseapy
 import numpy as np
 import pandas as pd
 import scanpy
@@ -56,6 +55,12 @@ def calculate_cluster_enrichment(
         If inplace=False and return_enrichment_res=True, returns tuple of (data, enrichment_results)
         If inplace=False and return_enrichment_res=False, returns data
     """
+    try:
+        import gseapy
+    except ImportError:
+        raise Exception(
+            "To calculate cluster enrichment, please install the `gseapy` python package (pip install gseapy)."
+        )
 
     obs_df = data.obs
     groups = obs_df.groupby(cluster_key)

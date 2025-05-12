@@ -5,6 +5,7 @@ cache/
 grassp/datasets/external/mmc*
 grassp/datasets/external/elife*
 grassp/datasets/external/uniprot_sp_accessions.tsv
+grassp/_version.py
 
 tests/output/
 client/.npm/
