@@ -63,17 +63,13 @@ def protein_clustermap(
 
     distance_matrix = sp.distance.pdist(data.X, metric=distance_metric)
     linkage = sch.linkage(distance_matrix, method=linkage_method, metric=linkage_metric)
-    row_order = np.array(
-        sch.dendrogram(linkage, no_plot=True, orientation="bottom")["leaves"]
-    )
+    row_order = np.array(sch.dendrogram(linkage, no_plot=True, orientation="bottom")["leaves"])
     distance_matrix = sp.distance.squareform(distance_matrix)
     distance_matrix = distance_matrix[row_order, :][:, row_order]
 
     gt = data.obs[annotation_key].values[row_order]
     unique_categories = np.unique(gt)
-    lut = dict(
-        zip(unique_categories, sns.color_palette("tab20", len(unique_categories)))
-    )
+    lut = dict(zip(unique_categories, sns.color_palette("tab20", len(unique_categories))))
     row_colors = pd.Series(gt).astype(str).map(lut).to_numpy()
 
     g = sns.clustermap(
@@ -113,8 +109,7 @@ def protein_clustermap(
     g.ax_heatmap.set_ylabel("")
 
     handles = [
-        mpatches.Patch(color=lut[category], label=category)
-        for category in unique_categories
+        mpatches.Patch(color=lut[category], label=category) for category in unique_categories
     ]
 
     # Add the legend

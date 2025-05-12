@@ -5,14 +5,13 @@ if TYPE_CHECKING:
     from typing import Optional, List
     from anndata import AnnData
 
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
 from scanpy.plotting._tools.scatterplots import (
+    _add_categorical_legend,
     _color_vector,
     _get_color_source_vector,
-    _add_categorical_legend,
     _get_palette,
 )
 
@@ -32,7 +31,7 @@ def ternary(
     **kwargs,
 ):
     try:
-        import mpltern
+        import mpltern  # noqa: F401
     except ImportError:
         raise ImportError(
             "mpltern is not installed. Please install it with `pip install mpltern`"
@@ -90,9 +89,7 @@ def ternary(
             multi_panel=False,
         )
     elif colorbar_loc is not None:
-        plt.colorbar(
-            cax, ax=ax, pad=0.01, fraction=0.08, aspect=30, location=colorbar_loc
-        )
+        plt.colorbar(cax, ax=ax, pad=0.01, fraction=0.08, aspect=30, location=colorbar_loc)
     if show:
         plt.show()
     return ax

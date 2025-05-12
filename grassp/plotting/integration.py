@@ -80,9 +80,7 @@ remodeling_legend = [
 ]
 
 
-def _get_cluster_colors(
-    data: AnnData, color_key: str = "leiden"
-) -> np.ndarray[str, Any]:
+def _get_cluster_colors(data: AnnData, color_key: str = "leiden") -> np.ndarray[str, Any]:
     """Get cluster colors for a given color key.
 
     Parameters

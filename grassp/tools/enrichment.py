@@ -19,9 +19,7 @@ def calculate_cluster_enrichment(
     gene_name_key: str = "Gene_name_canonical",
     gene_sets: str = "custom_goterms_genes_reviewed.gmt",
     obs_key_added: str = "Cell_compartment",
-    enrichment_ranking_metric: Literal[
-        "P-value", "Odds Ratio", "Combined Score"
-    ] = "P-value",
+    enrichment_ranking_metric: Literal["P-value", "Odds Ratio", "Combined Score"] = "P-value",
     return_enrichment_res: bool = True,
     inplace: bool = True,
 ) -> Optional[Union[AnnData, pd.DataFrame]]:
@@ -78,9 +76,7 @@ def calculate_cluster_enrichment(
         ).results
 
         er = pd.DataFrame(er)
-        top_term = er.sort_values(enrichment_ranking_metric, ascending=True).iloc[0][
-            "Term"
-        ]
+        top_term = er.sort_values(enrichment_ranking_metric, ascending=True).iloc[0]["Term"]
         enrichr_top_terms[n] = top_term
         er[cluster_key] = n
         enrichr_results.append(er)
@@ -129,17 +125,13 @@ def calculate_distance_matrix(
     distance_matrix
         Pairwise distance matrix between samples
     """
-    import numpy as np
-    from scipy import spatial, cluster
 
     distance_matrix = spatial.distance.pdist(data.X, metric=distance_metric)
     linkage = cluster.hierarchy.linkage(
         distance_matrix, method=linkage_method, metric=linkage_metric
     )  # Hierarchical clustering
     row_order = np.array(
-        cluster.hierarchy.dendrogram(linkage, no_plot=True, orientation="bottom")[
-            "leaves"
-        ]
+        cluster.hierarchy.dendrogram(linkage, no_plot=True, orientation="bottom")["leaves"]
     )
 
     distance_matrix = spatial.distance.squareform(distance_matrix)

@@ -6,11 +6,11 @@ if TYPE_CHECKING:
     from typing import Union
 
 import re
+import urllib
 
 import anndata
 import numpy as np
 import pandas as pd
-import urllib
 import protdata
 
 
@@ -66,9 +66,7 @@ def read_alphastats(
     # get the intensity columns
     if isinstance(intensity_column, str):
         intensity_regex = re.compile(intensity_column.replace("[sample]", ".*"))
-        intensity_col_mask = df.columns.map(
-            lambda x: intensity_regex.search(x) is not None
-        )
+        intensity_col_mask = df.columns.map(lambda x: intensity_regex.search(x) is not None)
     else:
         intensity_col_mask = df.columns.isin(intensity_column)
 

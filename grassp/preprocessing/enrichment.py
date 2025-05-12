@@ -4,11 +4,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from typing import Optional
 
-from anndata import AnnData
-from .simple import aggregate_samples
-import scipy.stats as stats
-import numpy as np
 import warnings
+
+import numpy as np
+import scipy.stats as stats
+
+from anndata import AnnData
+
+from .simple import aggregate_samples
 
 
 def _check_covariates(data: AnnData, covariates: Optional[list[str]] = None):
@@ -90,28 +93,21 @@ def calculate_enrichment_vs_untagged(
     data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
 
     for experimental_condition in data_aggr.var["_experimental_condition"].unique():
-        data_sub = data[
-            :, data.var["_experimental_condition"] == experimental_condition
-        ]
+        data_sub = data[:, data.var["_experimental_condition"] == experimental_condition]
         intensities_control = data_sub[
             :,
             data_sub.var[subcellular_enrichment_column].str.match(untagged_name),
         ].X
         if intensities_control.shape[1] == 0:
             raise ValueError(
-                f"No {untagged_name} samples found for condition: "
-                + experimental_condition
+                f"No {untagged_name} samples found for condition: " + experimental_condition
             )
-        for subcellular_enrichment in data_sub.var[
-            subcellular_enrichment_column
-        ].unique():
+        for subcellular_enrichment in data_sub.var[subcellular_enrichment_column].unique():
             intensities_ip = data_sub[
                 :, data_sub.var[subcellular_enrichment_column] == subcellular_enrichment
             ].X
             scores, pv = stats.ttest_ind(intensities_ip.T, intensities_control.T)
-            lfc = np.median(intensities_ip, axis=1) - np.median(
-                intensities_control, axis=1
-            )
+            lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
             aggr_mask = (
                 data_aggr.var["_experimental_condition"] == experimental_condition
             ) & (data_aggr.var[subcellular_enrichment_column] == subcellular_enrichment)
@@ -178,9 +174,7 @@ def calculate_enrichment_vs_all(
     data = adata.copy()
 
     if covariates is None:
-        covariates = data.var.columns[
-            data.var.columns.str.startswith("covariate_")
-        ].tolist()
+        covariates = data.var.columns[data.var.columns.str.startswith("covariate_")].tolist()
     # Check that all covariates are in the data
     for c in covariates:
         if c not in data.var.columns:
@@ -196,9 +190,7 @@ def calculate_enrichment_vs_all(
         axis=1,
     )
 
-    data_aggr = aggregate_samples(
-        data, grouping_columns=grouping_columns, keep_raw=False
-    )
+    data_aggr = aggregate_samples(data, grouping_columns=grouping_columns, keep_raw=False)
     data_aggr.var_names = data_aggr.var_names.str.replace(r"_\d+", "", regex=True)
 
     if original_intensities_key is not None:

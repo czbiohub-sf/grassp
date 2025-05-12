@@ -5,14 +5,15 @@ if TYPE_CHECKING:
     from anndata import AnnData
     from typing import List
 
+import markov_clustering as mc
 import networkx as nx
 import numpy as np
 import pandas as pd
 import scanpy as sc
-from scipy.stats import multivariate_normal
+
+from numpy.linalg import det, eigvals, inv
 from scipy.special import gammaln
-from numpy.linalg import inv, det, eigvals
-import markov_clustering as mc
+from scipy.stats import multivariate_normal
 
 
 def _get_clusters(matrix):
@@ -28,9 +29,7 @@ def _get_clusters(matrix):
     return col
 
 
-def markov_clustering(
-    adata: AnnData, resolution: float = 1.2, key_added: str = "mc_cluster"
-):
+def markov_clustering(adata: AnnData, resolution: float = 1.2, key_added: str = "mc_cluster"):
     """
     Perform Markov Clustering on the connectivity matrix.
 
@@ -239,9 +238,9 @@ def _get_n_nearest_neighbors(G, node, n=10):
 
     neighbors = G[node]
     # Sort neighbors by edge weight in descending order and get the top n
-    closest_neighbors = sorted(
-        neighbors.items(), key=lambda x: x[1]["weight"], reverse=True
-    )[:n]
+    closest_neighbors = sorted(neighbors.items(), key=lambda x: x[1]["weight"], reverse=True)[
+        :n
+    ]
     closest_neighbor_nodes = [neighbor for neighbor, _ in closest_neighbors]
 
     return closest_neighbor_nodes
@@ -353,15 +352,9 @@ def calculate_interfacialness_score(
     )
     # Mask non-neighbors with np.nan
     adjacency = sc._utils._choose_graph(data, obsp, neighbors_key=neighbors_key)
-    mask = ~(
-        adjacency != 0
-    ).todense()  # This avoids expensive conn == 0 for sparse matrices
+    mask = ~(adjacency != 0).todense()  # This avoids expensive conn == 0 for sparse matrices
     df[mask] = np.nan
-    vc = (
-        df.apply(lambda x: x.value_counts(dropna=True), axis=1)
-        .fillna(0)
-        .astype("Int64")
-    )
+    vc = df.apply(lambda x: x.value_counts(dropna=True), axis=1).fillna(0).astype("Int64")
 
     # For each protein, calculate the modified jaccard coefficient
     organelle_counts = data.obs[compartment_annotation_column].value_counts()
@@ -438,11 +431,7 @@ def dinvwishart_logpdf(Sigma, nu, S):
     d = Sigma.shape[0]
     sign_S, logdet_S = np.linalg.slogdet(S)
     sign_Sigma, logdet_Sigma = np.linalg.slogdet(Sigma)
-    const = (
-        -0.5 * nu * logdet_S
-        - (nu * d / 2) * np.log(2)
-        - log_multivariate_gamma(nu / 2, d)
-    )
+    const = -0.5 * nu * logdet_S - (nu * d / 2) * np.log(2) - log_multivariate_gamma(nu / 2, d)
     log_pdf = const - ((nu + d + 1) / 2) * logdet_Sigma - 0.5 * np.trace(inv(Sigma) @ S)
     return log_pdf
 
@@ -465,11 +454,7 @@ def ddirichlet_log(x, alpha):
         alpha : vector of concentration parameters.
     """
     alpha = np.asarray(alpha)
-    return (
-        gammaln(np.sum(alpha))
-        - np.sum(gammaln(alpha))
-        + np.sum((alpha - 1) * np.log(x))
-    )
+    return gammaln(np.sum(alpha)) - np.sum(gammaln(alpha)) + np.sum((alpha - 1) * np.log(x))
 
 
 # ----------------------------
@@ -566,9 +551,7 @@ def tagm_map_train(
 
     # Precompute marker statistics
     nk = np.array([np.sum(adata_markers.obs[gt_col] == m) for m in markers])
-    xk = np.array(
-        [np.mean(mydata[adata_markers.obs[gt_col] == m], axis=0) for m in markers]
-    )
+    xk = np.array([np.mean(mydata[adata_markers.obs[gt_col] == m], axis=0) for m in markers])
 
     lambdak = lambda0 + nk  # vector (K,)
     nuk = nu0 + nk  # vector (K,)
@@ -605,10 +588,7 @@ def tagm_map_train(
     for t in range(numIter):
         # E-step: vectorized log density calculations
         log_pdf_normal = np.array(
-            [
-                multivariate_normal.logpdf(X, mean=muk[k], cov=sigmak[k])
-                for k in range(K)
-            ]
+            [multivariate_normal.logpdf(X, mean=muk[k], cov=sigmak[k]) for k in range(K)]
         ).T
         log_pdf_t = multivariate_t_logpdf(X, M, V, df=4)
 
@@ -656,10 +636,7 @@ def tagm_map_train(
             + np.sum(w * np.log(pik + 1e-10))
             + np.sum([dinvwishart_logpdf(sigmak[j], nu0, S0) for j in range(K)])
             + np.sum(
-                [
-                    multivariate_normal.logpdf(muk[j], mean=mu0, cov=sigmak[j])
-                    for j in range(K)
-                ]
+                [multivariate_normal.logpdf(muk[j], mean=mu0, cov=sigmak[j]) for j in range(K)]
             )
             + np.sum(a) * np.log(1 - eps)
             + np.sum(b) * np.log(eps)
@@ -815,9 +792,7 @@ def tagm_map_predict(
     if inplace:
         adata.obs["tagm.map.allocation"] = pred_all
         if f"{params['gt_col']}_colors" in adata.uns:
-            adata.uns["tagm.map.allocation_colors"] = adata.uns[
-                f"{params['gt_col']}_colors"
-            ]
+            adata.uns["tagm.map.allocation_colors"] = adata.uns[f"{params['gt_col']}_colors"]
         adata.obs["tagm.map.probability"] = prob_all
 
         adata.obsm["tagm.map.probabilities"] = a

@@ -257,9 +257,7 @@ def aggregate_proteins(
         obs_list.append(obs_sub)
     obs = pd.concat(obs_list, axis=0)
     X = np.vstack(X_list)
-    retdata = AnnData(
-        X=X, obs=obs, var=data.var, uns=data.uns, varp=data.varp, varm=data.varm
-    )
+    retdata = AnnData(X=X, obs=obs, var=data.var, uns=data.uns, varp=data.varp, varm=data.varm)
     return retdata
 
 

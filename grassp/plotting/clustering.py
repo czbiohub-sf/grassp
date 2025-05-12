@@ -1,20 +1,20 @@
-import numpy as np
-from scipy.stats import multivariate_normal
-import seaborn as sns
-from scanpy.tl import Ingest
+from typing import List, Literal, Sequence
+
 import matplotlib.pyplot as plt
-from typing import Literal, Sequence, List
+import numpy as np
+import seaborn as sns
+
 from anndata import AnnData
 from scanpy.plotting._tools.scatterplots import _components_to_dimensions
+from scanpy.tl import Ingest
+from scipy.stats import multivariate_normal
 
 
 def sample_tagm_map(adata, size=100):
     params = adata.uns["tagm.map.params"]
     mu = params["posteriors"]["mu"]
     sigma = params["posteriors"]["sigma"]
-    mv = [
-        multivariate_normal.rvs(mu[i], sigma[i], size=size) for i in range(mu.shape[0])
-    ]
+    mv = [multivariate_normal.rvs(mu[i], sigma[i], size=size) for i in range(mu.shape[0])]
     return mv
 
 
@@ -93,8 +93,8 @@ def _plot_covariance_ellipse(cov, pos, nstd=2, ax=None, **kwargs):
     -------
     matplotlib.patches.Ellipse
     """
-    import numpy as np
     import matplotlib.pyplot as plt
+    import numpy as np
 
     if ax is None:
         ax = plt.gca()
@@ -142,9 +142,7 @@ def tagm_map_pca_ellipses(
         dimensions = dimensions[0]
 
     if "PCs" not in adata.varm:
-        raise ValueError(
-            "PCA must be computed before plotting the TAGM map PCA ellipses."
-        )
+        raise ValueError("PCA must be computed before plotting the TAGM map PCA ellipses.")
     if "tagm.map.params" not in adata.uns:
         raise ValueError(
             "TAGM map must be computed before plotting the TAGM map PCA ellipses."
@@ -153,9 +151,7 @@ def tagm_map_pca_ellipses(
         ax = plt.gca()
 
     pcs = adata.varm["PCs"][:, dimensions]
-    mu_pca = (
-        adata.uns["tagm.map.params"]["posteriors"]["mu"] - adata.X.mean(axis=0)
-    ) @ pcs
+    mu_pca = (adata.uns["tagm.map.params"]["posteriors"]["mu"] - adata.X.mean(axis=0)) @ pcs
 
     temp = np.matmul(adata.uns["tagm.map.params"]["posteriors"]["sigma"], pcs)
     Sigma_pca = np.matmul(pcs.T[None, :, :], temp)

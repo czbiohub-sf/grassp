@@ -2,13 +2,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import numpy as np
     from anndata import AnnData
 
-import sklearn.metrics
 import warnings
+
 import numpy as np
 import pandas as pd
+import sklearn.metrics
 
 
 def class_balance(
@@ -132,10 +132,9 @@ def calinski_habarasz_score(
         min_class_size = data_sub.obs[gt_col].value_counts().min()
         if min_class_size < 10:
             warnings.warn(
-                f"Smallest class has less than 10 samples, this might not yield a stable score."
+                "Smallest class has less than 10 samples, this might not yield a stable score."
             )
         obs_names = []
-        print(data_sub.obs[gt_col].unique())
         for label in data_sub.obs[gt_col].unique():
             obs_names.extend(
                 data_sub.obs[data_sub.obs[gt_col] == label]
@@ -143,10 +142,7 @@ def calinski_habarasz_score(
                 .index.values
             )
         data_sub = data_sub[obs_names, :]
-    print(data_sub.shape)
-    ch = sklearn.metrics.calinski_harabasz_score(
-        data_sub.obsm[use_rep], data_sub.obs[gt_col]
-    )
+    ch = sklearn.metrics.calinski_harabasz_score(data_sub.obsm[use_rep], data_sub.obs[gt_col])
     if inplace:
         data.uns[key_added] = ch
     else:
@@ -200,8 +196,7 @@ def qsep_score(
     # Calculate cluster distances
     cluster_distances = np.zeros((len(valid_clusters), len(valid_clusters)))
     cluster_indices = {
-        cluster: np.where(data.obs[label_key] == cluster)[0]
-        for cluster in valid_clusters
+        cluster: np.where(data.obs[label_key] == cluster)[0] for cluster in valid_clusters
     }
 
     for i, cluster1 in enumerate(valid_clusters):

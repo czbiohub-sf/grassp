@@ -4,12 +4,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from anndata import AnnData
 
-import scanpy
-import requests
 import os
-from .. import io
+
+import requests
+import scanpy
 
 from scanpy._settings import settings
+
+from .. import io
 
 
 def hein_2024() -> AnnData:
@@ -45,7 +47,7 @@ def download_prolocdata(name: str) -> AnnData:
 
 def list_prolocdata_files():
     # GitHub API endpoint for repository contents in the data directory
-    api_url = f"https://api.github.com/repos/lgatto/pRolocdata/contents/data"
+    api_url = "https://api.github.com/repos/lgatto/pRolocdata/contents/data"
 
     response = requests.get(api_url)
     response.raise_for_status()

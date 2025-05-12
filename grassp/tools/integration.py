@@ -213,8 +213,8 @@ def mr_score(
     None
         Stores results in data.uns[key_added]
     """
-    from sklearn.covariance import MinCovDet
     from scipy.stats import chi2
+    from sklearn.covariance import MinCovDet
     from statsmodels.stats.multitest import multipletests
 
     # Check inputs
@@ -251,11 +251,6 @@ def mr_score(
 
         # @TODO This assumes that the samples have the same order
         diff = data[:, control_mask].X - data[:, treat_mask].X
-        # gt_proteins = ["EGFR", "GRB2", "PKN2", "SHC1"]
-        gt_proteins = ["PKN2", "PCM1", "KIF13A", "CLN5"]
-        # print(diff[data.obs.gene_name.isin(gt_proteins), :])
-        # _ = plt.hist(diff.flatten(), bins=100)
-        # plt.show()
         diff_profiles.append(diff)
 
     # Calculate M scores
@@ -269,60 +264,27 @@ def mr_score(
                 assume_centered=assume_centered,
             )
             mcd.fit(diff)
-            # print("mcd.location_", mcd.location_)
-            # print("mcd.cov", mcd.covariance_)
             if assume_centered:
                 distances = mcd.mahalanobis(diff)
             else:
                 distances = mcd.mahalanobis(diff - mcd.location_)
 
-            # print(distances.shape)
-            # print(distances[data.obs.gene_name.isin(gt_proteins)])
-            # print(distances.shape)
-            # print(distances[data.obs.gene_name.isin(gt_proteins)])
-
             # Convert to p-values using chi-square distribution (degrees of freedom = number of fractions)
             df = control_mask.sum()
-            # print("df", df)
             p_values[:, j, i] = chi2.sf(distances, df=df)
 
-    # Average M scores across iterations
-    # gt_proteins = ["EGFR", "GRB2", "PKN2", "SHC1"]
-    gt_proteins = ["PKN2", "PCM1", "KIF13A", "CLN5"]
-
-    # _ = plt.hist(p_values, bins=100)
-    # plt.show()
-    # print(p_values.shape)
     p_values = p_values.astype(np.longdouble)
     p_values = np.median(p_values, axis=2)
 
-    # print(p_values[data.obs.gene_name.isin(gt_proteins), :])
-    # print(p_values.dtype)
-    # _ = plt.hist(p_values, bins=100)
-    # plt.show()
-    # m_scores = -np.log10(m_scores)
-
     # Take highest p-value (lowest M score) for each protein
     max_p_values = np.max(p_values, axis=1)
-    # _ = plt.hist(max_p_values, bins=100)
-    # plt.show()
 
     # Cube p-values and apply Benjamini-Hochberg correction
-    # p_values = 10 ** (-min_m_scores)
-    # print(max_p_values[data.obs.gene_name.isin(gt_proteins)])
-    # max_p_values = max_p_values.astype(
-    #     np.longdouble
-    # )  # Increase precision for very small p-values
     p_values = np.power(max_p_values, 3)  # Cube p-values
-
-    # print(p_values[data.obs.gene_name.isin(gt_proteins)])
     _, p_values_adj, _, _ = multipletests(p_values, method="fdr_bh")
-    # _ = plt.hist(p_values_adj, bins=100)
-    # plt.show()
+
     # We add a small epsilon to avoid log(0)
-    final_m_scores = -np.log10(p_values_adj + np.finfo(np.float64).tiny).astype(
-        np.float64
-    )
+    final_m_scores = -np.log10(p_values_adj + np.finfo(np.float64).tiny).astype(np.float64)
 
     # Calculate R scores (reproducibility)
     r_scores = np.zeros(data.n_obs)
