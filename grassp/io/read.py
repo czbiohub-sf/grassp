@@ -153,7 +153,7 @@ def read_maxquant(*args, **kwargs) -> anndata.AnnData:
     """
     Wrapper for protdata.read_maxquant that transposes the AnnData object.
     """
-    adata = protdata.read_maxquant(*args, **kwargs)
+    adata = protdata.io.read_maxquant(*args, **kwargs)
     return adata.T
 
 
@@ -161,7 +161,7 @@ def read_fragpipe(*args, **kwargs) -> anndata.AnnData:
     """
     Wrapper for protdata.read_fragpipe that transposes the AnnData object.
     """
-    adata = protdata.read_fragpipe(*args, **kwargs)
+    adata = protdata.io.read_fragpipe(*args, **kwargs)
     return adata.T
 
 
@@ -169,5 +169,5 @@ def read_diann(*args, **kwargs) -> anndata.AnnData:
     """
     Wrapper for protdata.read_diann that transposes the AnnData object.
     """
-    adata = protdata.read_diann(*args, **kwargs)
+    adata = protdata.io.read_diann(*args, **kwargs)
     return adata.T

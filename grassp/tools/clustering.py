@@ -12,7 +12,7 @@ import pandas as pd
 import scanpy as sc
 
 from numpy.linalg import det, eigvals, inv
-from scipy.special import gammaln
+from scipy.special import gammaln  # pylint: disable=no-name-in-module
 from scipy.stats import multivariate_normal
 
 

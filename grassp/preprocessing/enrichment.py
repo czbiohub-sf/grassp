@@ -116,7 +116,7 @@ def calculate_enrichment_vs_untagged(
                     "Multiple samples found for condition: " + experimental_condition
                 )
             data_aggr.layers["pvals"][:, aggr_mask] = pv[:, None]
-            data_aggr.X[:, aggr_mask] = lfc[:, None]
+            data_aggr[:, aggr_mask].X = lfc[:, None]
 
     # Now remove the untagged samples
     if drop_untagged:
@@ -215,7 +215,7 @@ def calculate_enrichment_vs_all(
         lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
         aggr_mask = data_aggr.var["_experimental_condition"] == experimental_condition
         data_aggr.layers["pvals"][:, aggr_mask] = pv[:, None]
-        data_aggr.X[:, aggr_mask] = lfc[:, None]
+        data_aggr[:, aggr_mask].X = lfc[:, None]
         data_aggr.var.loc[aggr_mask, "enriched_vs"] = ",".join(
             data_aggr.var_names[control_mask]
         )
