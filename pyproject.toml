@@ -33,20 +33,22 @@ classifiers = [
 
 # list package dependencies here
 dependencies = [
+    "anndata",
+    "markov_clustering",
+    "matplotlib",
+    "networkx",
     "numpy",
     "pandas",
-    "scanpy[leiden]",
     "protdata",
-#    "alphastats",
-    "anndata",
-    "scipy",
-    "networkx",
-    "scikit-learn",
-    "matplotlib",
-    "umap-learn",
     "pysankeybeta",
+    "requests",
+    "scanpy[leiden]",
+    "scikit-learn",
+    "scipy",
+    "seaborn",
+    "umap-learn",
+#    "alphastats",
 #    "gseapy",
-    "markov_clustering",
 ]
 
 
