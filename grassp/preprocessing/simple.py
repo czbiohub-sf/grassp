@@ -486,7 +486,6 @@ def highly_variable_proteins(
 # @TODO: This needs fixing. Does not return the scaled  with inplace=True
 def normalize_total(
     data: AnnData,
-    copy: bool = False,
     inplace: bool = True,
     **kwargs,
 ) -> AnnData | dict[str, np.ndarray] | None:
@@ -496,8 +495,6 @@ def normalize_total(
     ----------
     data
         The annotated data matrix with proteins as observations (rows).
-    copy
-        Whether to modify data in place or return a copy.
     inplace
         Whether to modify data in place or return normalization factors.
     **kwargs
@@ -512,20 +509,23 @@ def normalize_total(
 
     Notes
     -----
-    This function normalizes each sample (column) to have the same total counts.
-    By default, after normalization each sample will sum to 1e6.
+    This function normalizes each sample (column) to have the same total intensity.
+    This function serves as a convenient wrapper around scanpy.pp.normalize_total,
+    automatically handling the transposition required to work with protein data
+    (where proteins are rows rather than columns as in typical single-cell data).
     """
-
-    data = data.T.copy()
-    dat = scanpy.pp.normalize_total(
+    normd = scanpy.pp.normalize_total(
         data.T,
         inplace=False,
+        copy=False,
         **kwargs,
     )
-    if copy:
-        return data
-    elif not inplace:
-        return dat
+    if inplace:
+        data.X = normd["X"].T
+    else:
+        retdata = data.copy()
+        retdata.X = normd["X"].T
+        return retdata
 
 
 def drop_excess_MQ_metadata(
