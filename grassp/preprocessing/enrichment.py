@@ -142,6 +142,14 @@ def calculate_noc_proportions(
 
 
 def _lfc_ttest(intensities_control, intensities_ip) -> dict:
+    """Calculate log2 fold change and p-value for each protein between intensities_ip and intensities_control.
+
+    Parameters
+    ----------
+    intensities_control
+        Array of intensities for the control condition
+    intensities_ip
+    """
     _, pv = stats.ttest_ind(intensities_ip.T, intensities_control.T)
     lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
     return {"lfc": lfc, "pv": pv}
