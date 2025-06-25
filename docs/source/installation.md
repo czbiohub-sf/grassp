@@ -6,7 +6,7 @@ We recommend using a conda environment to install the package.
 ```{code-block} bash
 git clone https://github.com/czbiohub-sf/grassp.git
 cd grassp
-conda create -n grassp python=3.10
+conda create -n grassp python=3.12
 conda activate grassp
 pip install -e .
 ```
