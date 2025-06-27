@@ -80,7 +80,7 @@ def filter_proteins(
     max_counts: int | None = None,
     max_samples: int | None = None,
     inplace: bool = True,
-    copy: bool = False,
+    min_consecutive: int | None = None,
 ) -> AnnData | tuple[np.ndarray, np.ndarray] | None:
     """Filter proteins based on number of counts or samples.
 
@@ -99,8 +99,8 @@ def filter_proteins(
         Maximum number of samples expressed required for a protein to pass filtering.
     inplace
         Perform computation inplace or return result.
-    copy
-        If an AnnData is passed, determines whether a copy is returned.
+    min_consecutive
+        (If using fractionation instead of organellar IP) Minimum number of consecutive fractions that a protein is present in. 
 
     Returns
     -------
@@ -111,16 +111,161 @@ def filter_proteins(
     """
     # if isinstance(data, AnnData):
     #     confirm_proteins_as_obs(data)
-
+    
     return scanpy.pp.filter_cells(
         data,
         min_counts=min_counts,
         min_genes=min_samples,
         max_counts=max_counts,
         max_genes=max_samples,
-        inplace=inplace,
-        copy=copy,
+        inplace=inplace
     )
+
+
+def filter_min_consecutive_fractions(
+    data: AnnData,
+    replicate_column: str | None = None,
+    min_replicates: int | None = None,
+    inplace: bool = True,
+    min_consecutive: int = 2 
+) -> AnnData: 
+    """
+    Filters for proteins present in number of specified consecutive fractions.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix of shape `n_obs` x `n_vars`. Rows correspond to proteins
+        and columns to samples.
+    replicate_column : str, optional
+        Column name in data.obs that contains replicate identifiers.
+        If provided, consecutive fraction filtering is applied per replicate,
+        and proteins must meet the min_consecutive threshold in at least min_replicates number of replicates. 
+        If None, filtering is applied across all samples as a single dataset.
+    min_replicates : int, optional 
+        Minimum number of replicates that must satisfy the consecutive fraction requirement for a protein to be retained.
+    inplace : bool, default True
+        If True, modifies the input AnnData object in place and returns None.
+        If False, returns a new filtered AnnData object.
+    min_consecutive : int
+        Minimum number of consecutive fractions in which a protein must be detected to pass filtering.
+
+    Returns
+    -------
+    Depending on `inplace` and input type, returns either:
+        - None if `inplace=True`
+        - AnnData if input is AnnData and `inplace=False`
+        - A tuple of arrays (retained_proteins, retained_samples) if input is not AnnData
+    """
+
+
+    if replicate_column is None: 
+        consecutive_fractions = longest_consecutive_run_per_row(data.X)
+        filtered_subset = consecutive_fractions >= min_consecutive   
+        if inplace:
+            data.obs["consecutive_fractions"] = consecutive_fractions
+         
+        # if "consecutive_fractions" not in data.obs.columns: 
+        #     data.obs["consecutive_fractions"] = longest_consecutive_run_per_row(data.X)
+            # calculate_consecutive_fractions(data, inplace=True)
+                
+            # mask_min_consecutive = data.obs["consecutive_fractions"] >= min_consecutive 
+            # data._inplace_subset_obs(mask_min_consecutive)
+        # else:
+            # filtered_subset = longest_consecutive_run_per_row(data) >= min_consecutive
+    else: 
+        groups = data.var.groupby(replicate_column)
+        protein_subset = np.repeat(0, repeats=data.n_obs)
+        for _, g in groups:
+            ad_sub = data[:, g.index].copy()
+
+            gs = filter_min_consecutive_fractions(ad_sub, min_consecutive=min_consecutive, inplace=False) 
+                #isn't this returning anndata object and not a tuple ---> need to fix this portion, take a look at how he did it before
+     
+            protein_subset = protein_subset + gs
+        filtered_subset = protein_subset >= min_replicates
+        if inplace:
+            data.obs[f"n_replicates_with_{min_consecutive}_fractions"] = protein_subset
+        else: 
+            return protein_subset
+
+    if not inplace:
+        return filtered_subset
+    data._inplace_subset_obs(data.obs.index[filtered_subset])
+
+
+
+def filter_proteins_per_replicate(
+    data: AnnData,
+    grouping_columns: str | List[str],
+    min_replicates: int = 1,
+    min_samples: int = 1,
+    inplace: bool = True
+) -> np.ndarray | None:
+    """Filter proteins based on detection in replicates.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    grouping_columns
+        Column name(s) in data.var to group samples into replicates.
+    min_replicates
+        Minimum number of replicates a protein must be detected in to pass filtering.
+    min_samples
+        Minimum number of sample groups a protein must be detected in to pass filtering.
+    inplace
+        Whether to modify data in place or return a copy.
+
+    Returns
+    -------
+    numpy.ndarray or None
+        If inplace=False, returns boolean mask indicating which proteins passed filtering.
+        If inplace=True, returns None and modifies input data.
+
+    Notes
+    -----
+    This function filters proteins based on their detection pattern across replicates.
+    For each group of samples (defined by grouping_columns), it requires proteins to be
+    detected in at least min_replicates samples. The protein must pass this threshold
+    in at least min_samples groups to be kept.
+    """
+    confirm_proteins_as_obs(data)
+    groups = data.var.groupby(grouping_columns)
+    protein_subset = np.repeat(0, repeats=data.n_obs)
+    for _, g in groups:
+        ad_sub = data[:, g.index]
+        gs, _ = filter_proteins(ad_sub, min_samples=min_replicates, min_consecutive = min_consecutive, inplace=False)
+        protein_subset = protein_subset + gs
+    gene_subset = protein_subset >= min_samples
+    if not inplace:
+        return gene_subset
+    data._inplace_subset_obs(data.obs.index[gene_subset])
+
+
+def longest_consecutive_run_per_row(a1):
+    # Ensure input is binary (0 or 1)
+    a1 = (a1 != 0).astype(int)
+    
+    # Add zero padding to the start and end of each row to catch runs at the edges
+    padded = np.pad(a1, ((0, 0), (1, 1)), constant_values=0)
+    
+    # Find the positions where values change (start or end of a run)
+    diff = np.diff(padded, axis=1)
+    
+    # Start and end indices of runs
+    starts = np.where(diff == 1)
+    ends = np.where(diff == -1)
+    
+    # Calculate lengths of runs
+    run_lengths = ends[1] - starts[1]
+    
+    # Aggregate max run per row
+    max_lengths = np.zeros(a1.shape[0], dtype=int)
+    np.maximum.at(max_lengths, starts[0], run_lengths)
+    
+    return max_lengths
+
 
 
 def remove_contaminants(
@@ -163,53 +308,6 @@ def remove_contaminants(
         return data.copy()[~is_contaminant, :]
     data._inplace_subset_obs(data.obs.index[~is_contaminant])
 
-
-def filter_proteins_per_replicate(
-    data: AnnData,
-    grouping_columns: str | List[str],
-    min_replicates: int = 1,
-    min_samples: int = 1,
-    inplace: bool = True,
-) -> np.ndarray | None:
-    """Filter proteins based on detection in replicates.
-
-    Parameters
-    ----------
-    data
-        The annotated data matrix with proteins as observations (rows).
-    grouping_columns
-        Column name(s) in data.var to group samples into replicates.
-    min_replicates
-        Minimum number of replicates a protein must be detected in to pass filtering.
-    min_samples
-        Minimum number of sample groups a protein must be detected in to pass filtering.
-    inplace
-        Whether to modify data in place or return a copy.
-
-    Returns
-    -------
-    numpy.ndarray or None
-        If inplace=False, returns boolean mask indicating which proteins passed filtering.
-        If inplace=True, returns None and modifies input data.
-
-    Notes
-    -----
-    This function filters proteins based on their detection pattern across replicates.
-    For each group of samples (defined by grouping_columns), it requires proteins to be
-    detected in at least min_replicates samples. The protein must pass this threshold
-    in at least min_samples groups to be kept.
-    """
-    confirm_proteins_as_obs(data)
-    groups = data.var.groupby(grouping_columns)
-    protein_subset = np.repeat(0, repeats=data.n_obs)
-    for _, g in groups:
-        ad_sub = data[:, g.index]
-        gs, _ = filter_proteins(ad_sub, min_samples=min_replicates, inplace=False)
-        protein_subset = protein_subset + gs
-    gene_subset = protein_subset >= min_samples
-    if not inplace:
-        return gene_subset
-    data._inplace_subset_obs(data.obs.index[gene_subset])
 
 
 def aggregate_proteins(
@@ -388,6 +486,25 @@ def calculate_qc_metrics(
         - Total intensity per sample
         - Number of proteins detected per sample
         - Percentage of intensity from top proteins
+
+        Added to .obs:
+         n_samples_by_intensity: the number of samples where each protein has non-zero intensity values 
+         'mean_intensity': 
+         'log1p_mean_intensity', 
+         'pct_dropout_by_intensity', 
+         'total_intensity', 
+         'log1p_total_intensity'
+
+        Added to .var
+        'n_proteins_by_intensity', 
+        'log1p_n_proteins_by_intensity', 
+        'total_intensity', 
+        'log1p_total_intensity', 
+        'pct_intensity_in_top_50_proteins', 
+        'pct_intensity_in_top_100_proteins', 
+        'pct_intensity_in_top_200_proteins', 
+        'pct_intensity_in_top_500_proteins'
+
     """
 
     confirm_proteins_as_obs(data)

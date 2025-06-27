@@ -10,6 +10,7 @@ from .simple import (
     highly_variable_proteins,
     normalize_total,
     remove_contaminants,
+    filter_min_consecutive_fractions,
 )
 
 from .enrichment import calculate_enrichment_vs_untagged, calculate_enrichment_vs_all
