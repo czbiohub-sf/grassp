@@ -153,9 +153,11 @@ def filter_min_consecutive_fractions(
     Returns
     -------
     Depending on `inplace` and input type, returns either:
-        - None if `inplace=True`
-        - AnnData if input is AnnData and `inplace=False`
-        - A tuple of arrays (retained_proteins, retained_samples) if input is not AnnData
+        
+    None 
+        if `inplace=True`
+    AnnData 
+        if input is AnnData and `inplace=False`
     """
 
 
