@@ -389,10 +389,13 @@ def aggregate_samples(
     g = groups.get_group(list(groups.groups)[0])
     unique_col_indices = g.nunique() == 1
 
-    for _, ind in groups.indices.items():
+    for names, ind in groups.indices.items():
         g = data.var.iloc[ind]
+        if isinstance(names, str):
+            names = [names]
         var_sub = g.loc[:, unique_col_indices].iloc[[0]]
         var_sub["n_merged_samples"] = ind.size
+        var_sub.index = ["_".join(names)]
         X_sub = data.X[:, ind]
         X_sub = agg_func(X_sub, axis=1)
         X_list.append(X_sub)
