@@ -151,7 +151,7 @@ def calinski_habarasz_score(
 
 def qsep_score(
     data: AnnData,
-    label_key: str,
+    gt_col: str,
     use_rep: str = "X",
     distance_key: str = "full_distances",
     inplace: bool = True,
@@ -190,13 +190,13 @@ def qsep_score(
     full_distances = sklearn.metrics.pairwise_distances(X)
 
     # Get valid clusters (non-NA)
-    mask = data.obs[label_key].notna()
-    valid_clusters = data.obs[label_key][mask].unique()
+    mask = data.obs[gt_col].notna()
+    valid_clusters = data.obs[gt_col][mask].unique()
 
     # Calculate cluster distances
     cluster_distances = np.zeros((len(valid_clusters), len(valid_clusters)))
     cluster_indices = {
-        cluster: np.where(data.obs[label_key] == cluster)[0] for cluster in valid_clusters
+        cluster: np.where(data.obs[gt_col] == cluster)[0] for cluster in valid_clusters
     }
 
     for i, cluster1 in enumerate(valid_clusters):

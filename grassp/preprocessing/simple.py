@@ -1,10 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import scanpy as sc
+
 if TYPE_CHECKING:
     from typing import Callable, Collection, List, Literal, Optional
-
-    import numpy as np
 
     from scanpy._compat import DaskArray
     from scipy.sparse import spmatrix
@@ -12,9 +15,6 @@ if TYPE_CHECKING:
     # Define a type hint for functions that take an ndarray and an optional axis argument
     NDArrayAxisFunction = Callable[[np.ndarray, Optional[int]], np.ndarray]
 
-import numpy as np
-import pandas as pd
-import scanpy
 
 from anndata import AnnData
 
@@ -61,7 +61,7 @@ def filter_samples(
     if isinstance(data, AnnData):
         confirm_proteins_as_obs(data)
 
-    return scanpy.pp.filter_genes(
+    return sc.pp.filter_genes(
         data,
         min_counts=min_counts,
         min_cells=min_proteins,
@@ -112,7 +112,7 @@ def filter_proteins(
     # if isinstance(data, AnnData):
     #     confirm_proteins_as_obs(data)
 
-    return scanpy.pp.filter_cells(
+    return sc.pp.filter_cells(
         data,
         min_counts=min_counts,
         min_genes=min_samples,
@@ -258,6 +258,141 @@ def longest_consecutive_run_per_row(a1):
     np.maximum.at(max_lengths, starts[0], run_lengths)
 
     return max_lengths
+
+
+def visual_qc_condition_subsets(
+    adata,
+    condition_1=None,
+    condition_2=None,
+    condition_3=None,
+    condition_column=None,
+    color_column_name="subcellular_enrichment",
+):
+    """
+    Quality control visualization function for condition-based data analysis.
+
+    This function creates PCA plots and dendrograms for 1-3 specified conditions to enable
+    visual quality control of proteomics/mass spec data. It generates side-by-side
+    comparisons to assess data quality and sample clustering patterns across conditions.
+
+    Parameters
+    ----------
+    adata : anndata.AnnData
+        Annotated data matrix with observations (samples) in rows and variables (features) in columns.
+        The data will be transposed internally for proper processing.
+    condition_1 : str, optional
+        First condition name to subset and visualize. If None, only one condition will be processed. Default is None.
+    condition_2 : str, optional
+        Second condition name to subset and visualize. If None, only one condition will be processed. Default is None.
+    condition_3 : str, optional
+        Third condition name to subset and visualize. If None, only one or two conditions will be processed.
+        Default is None.
+    condition_column : str, optional
+        Column name in adata.var containing condition labels (Ex: "covariate_condition"). Default is None.
+    color_column_name : str, optional
+        Column name in adata.var used for coloring PCA plots. Default is "subcellular_enrichment".
+
+    Returns
+    -------
+    None
+        Function generates matplotlib plots but does not return values.
+        Creates two figure objects:
+        - Figure 1: PCA plots for each condition colored by specified column
+        - Figure 2: Dendrograms showing sample clustering for each condition
+
+    Notes
+    -----
+    - For steady-state data, automatically creates "Control" condition if none specified
+    - Function automatically handles NaN values by setting them to 0
+    - Data is transposed internally (adata.T) for proper sample-based analysis
+    - PCA is computed using scanpy's default parameters
+    - Dendrograms are based on sample names and use hierarchical clustering
+    - Plots are displayed with constrained layout for better spacing
+
+    Examples
+    --------
+    >>> # Steady-state data (no conditions specified)
+    >>> visual_qc_condition_subsets(adata)
+
+    >>> # Basic usage with one condition
+    >>> visual_qc_condition_subsets(adata, "Control")
+
+    >>> # Usage with multiple conditions
+    >>> visual_qc_condition_subsets(adata, "Control", "DTT", "Tunicamycin")
+
+    Raises
+    ------
+    KeyError
+        If specified condition_column or color_column_name don't exist in adata.var
+    ValueError
+        If specified conditions are not found in the condition_column
+    """
+
+    if condition_1 is None:
+        print(
+            "No conditions specified. Creating 'Control' condition for steady-state data analysis."
+        )
+        adata.var[condition_column] = "Control"
+        condition_1 = "Control"
+
+    if condition_column is not None:
+        if condition_column not in adata.var.columns:
+            raise KeyError(f"Condition column {condition_column} not found in adata.var")
+
+    if color_column_name not in adata.var.columns:
+        raise KeyError(f"Color column {color_column_name} not found in adata.var")
+
+    available_conditions = adata.var[condition_column].unique()
+    for cond in [condition_1, condition_2, condition_3]:
+        if cond is not None and cond not in available_conditions:
+            raise ValueError(
+                f"Condition {cond} not found in {condition_column}"
+                f"Available conditions: {list(available_conditions)}"
+            )
+
+    adata_T = adata.T.copy()
+    adata_T.X[np.isnan(adata_T.X)] = 0
+
+    conditions = [cond for cond in [condition_1, condition_2, condition_3] if cond is not None]
+    n = len(conditions)
+
+    fig, axes = plt.subplots(1, n, figsize=(6 * n, 5), constrained_layout=True)
+
+    if n == 1:
+        axes_list = [axes]
+    else:
+        axes_list = axes.flatten()[:n]
+
+    fig2, axes2 = plt.subplots(1, n, figsize=(6 * n, 5), constrained_layout=True)
+
+    if n == 1:
+        axes2_list = [axes2]
+    else:
+        axes2_list = axes2.flatten()[:n]
+
+    for i, condition in enumerate(conditions):
+        # Filtering for that condition
+        mask = adata_T.obs[condition_column] == condition
+        adata_cond = adata_T[mask, :].copy()
+
+        # Creating PCA plots
+        sc.pp.pca(adata_cond)
+        sc.pl.pca(
+            adata_cond,
+            color=color_column_name,
+            title=f"QC PCA plot for {condition}",
+            ax=axes_list[i],
+            show=False,
+        )
+
+        # Creating Dendrograms
+        adata_cond.obs["sample_name"] = adata_cond.obs_names
+        adata_cond.obs.sample_name = adata_cond.obs.sample_name.astype("category")
+        sc.tl.dendrogram(adata_cond, groupby="sample_name")
+        sc.pl.dendrogram(adata_cond, groupby="sample_name", ax=axes2_list[i], show=False)
+        axes2_list[i].set_title(
+            f"QC Dendrogram plot for {adata_cond.obs[condition_column][i]}"
+        )
 
 
 def remove_contaminants(
@@ -502,7 +637,7 @@ def calculate_qc_metrics(
     """
 
     confirm_proteins_as_obs(data)
-    dfs = scanpy.pp.calculate_qc_metrics(
+    dfs = sc.pp.calculate_qc_metrics(
         data.copy().T,
         expr_type=expr_type,
         var_type=var_type,
@@ -573,7 +708,7 @@ def highly_variable_proteins(
         - dispersions_norm: normalized dispersion
     """
     confirm_proteins_as_obs(data)
-    df = scanpy.pp.highly_variable_genes(
+    df = sc.pp.highly_variable_genes(
         data.T, inplace=False, n_top_genes=n_top_proteins, **kwargs
     )
     if not inplace:
@@ -625,7 +760,7 @@ def normalize_total(
     automatically handling the transposition required to work with protein data
     (where proteins are rows rather than columns as in typical single-cell data).
     """
-    normd = scanpy.pp.normalize_total(
+    normd = sc.pp.normalize_total(
         data.T,
         inplace=False,
         copy=False,
