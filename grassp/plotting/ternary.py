@@ -5,15 +5,107 @@ if TYPE_CHECKING:
     from typing import Optional, List
     from anndata import AnnData
 
+import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
 
 from scanpy.plotting._tools.scatterplots import (
-    _add_categorical_legend,
     _color_vector,
     _get_color_source_vector,
     _get_palette,
 )
+
+
+def _add_ternary_categorical_legend(
+    ax,
+    color_source_vector,
+    palette,
+    legend_loc=None,
+    legend_fontweight=None,
+    legend_fontsize=None,
+    legend_fontoutline=None,
+    na_color="grey",
+    na_in_legend=None,
+):
+    """Add categorical legend for ternary plots.
+
+    This is a ternary-compatible version of scanpy's _add_categorical_legend.
+    """
+    import pandas as pd
+
+    # Get unique categories - handle mixed types properly
+    if isinstance(color_source_vector, pd.Series):
+        cats = color_source_vector.cat.categories
+    else:
+        # Convert to pandas Series to handle mixed types properly
+        series = pd.Series(color_source_vector)
+        cats = series.dropna().unique()
+
+    # Create legend handles
+    handles = []
+    for cat in cats:
+        if pd.isna(cat):
+            if na_in_legend:
+                handles.append(
+                    mlines.Line2D(
+                        [],
+                        [],
+                        color=na_color,
+                        marker="o",
+                        linestyle="None",
+                        markersize=6,
+                        label=str(cat),
+                    )
+                )
+        else:
+            handles.append(
+                mlines.Line2D(
+                    [],
+                    [],
+                    color=palette[cat],
+                    marker="o",
+                    linestyle="None",
+                    markersize=6,
+                    label=str(cat),
+                )
+            )
+
+    # Add legend with positioning to avoid overlap
+    if legend_loc is not None and legend_loc != "none":
+        # Define bbox_to_anchor positions for common legend locations
+        bbox_positions = {
+            "upper right": (1.15, 1.0),
+            "upper left": (-0.15, 1.0),
+            "lower right": (1.15, 0.0),
+            "right": (1.15, 0.5),
+            "left": (-0.15, 0.5),
+            "lower left": (-0.15, 0.0),
+            "center right": (1.15, 0.5),
+            "center left": (-0.15, 0.5),
+            "upper center": (0.5, 1.15),
+            "lower center": (0.5, -0.15),
+        }
+
+        # Use bbox_to_anchor for better positioning
+        if legend_loc in bbox_positions:
+            bbox_to_anchor = bbox_positions[legend_loc]
+            loc = (
+                "center left"
+                if "right" in legend_loc
+                else "center right" if "left" in legend_loc else "lower center"
+            )
+        else:
+            # Fallback for other locations
+            bbox_to_anchor = None
+            loc = legend_loc
+
+        ax.legend(
+            handles=handles,
+            loc=loc,
+            bbox_to_anchor=bbox_to_anchor,
+            fontsize=legend_fontsize,
+            frameon=False,
+        )
 
 
 def ternary(
@@ -75,18 +167,16 @@ def ternary(
     ax.set_rlabel(labels[2])
 
     if color_type == "cat":
-        _add_categorical_legend(
+        _add_ternary_categorical_legend(
             ax,
             csv,
             palette=_get_palette(adata, color),
-            scatter_array=None,
             legend_loc=legend_loc,
-            legend_fontweight=legend_fontweight,
+            # legend_fontweight=legend_fontweight,
             legend_fontsize=legend_fontsize,
             legend_fontoutline=legend_fontoutline,
             na_color="grey",
             na_in_legend=na_in_legend,
-            multi_panel=False,
         )
     elif colorbar_loc is not None:
         plt.colorbar(cax, ax=ax, pad=0.01, fraction=0.08, aspect=30, location=colorbar_loc)
