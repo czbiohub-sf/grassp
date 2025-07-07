@@ -1,3 +1,4 @@
+from .enrichment import calculate_enrichment_vs_all, calculate_enrichment_vs_untagged
 from .imputation import impute_gaussian
 from .simple import (
     aggregate_proteins,
@@ -11,5 +12,3 @@ from .simple import (
     normalize_total,
     remove_contaminants,
 )
-
-from .enrichment import calculate_enrichment_vs_untagged, calculate_enrichment_vs_all
