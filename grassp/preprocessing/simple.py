@@ -179,7 +179,7 @@ def filter_min_consecutive_fractions(
             protein_subset = protein_subset + gs
         filtered_subset = protein_subset >= min_replicates
         if inplace:
-            data.obs[f"n_replicates_with_{min_consecutive}_fractions"] = protein_subset
+            data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = protein_subset
         else:
             return protein_subset
 
@@ -632,7 +632,8 @@ def calculate_qc_metrics(
         'pct_intensity_in_top_50_proteins',
         'pct_intensity_in_top_100_proteins',
         'pct_intensity_in_top_200_proteins',
-        'pct_intensity_in_top_500_proteins'
+        'pct_intensity_in_top_500_proteins',
+        'pct_dropout_by_intensity'
 
     """
 
@@ -649,9 +650,12 @@ def calculate_qc_metrics(
         percent_top=percent_top,
         qc_vars=qc_vars,
     )
+    var_df, obs_df = dfs
+    var_df["pct_dropout_by_intensity"] = 100 - (
+        100 * (var_df[f"n_{var_type}_by_{expr_type}"] / obs_df.shape[0])
+    )
     if not inplace:
         return dfs
-    var_df, obs_df = dfs
     obs_df.columns = obs_df.columns.str.replace(
         "cells", "samples"
     )  # This fixes a bug in scanpy
