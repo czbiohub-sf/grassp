@@ -516,7 +516,7 @@ def aggregate_samples(
     columns. For each group, the samples are combined using the provided aggregation
     function. The resulting AnnData object has one variable per unique group.
     """
-    groups = data.var.groupby(grouping_columns)
+    groups = data.var.groupby(grouping_columns, observed=True)
     X_list = []
     var_list = []
     layers_dict = {layer: [] for layer in data.layers.keys()}
