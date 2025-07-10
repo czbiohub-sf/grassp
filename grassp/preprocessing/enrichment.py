@@ -237,7 +237,7 @@ def calculate_enrichment_vs_all(
             enrichment_values = np.median(intensities_ip, axis=1) - np.median(
                 intensities_control, axis=1
             )
-        elif enrichment_method == "proportion":
+        else:
             enrichment_values = np.nansum(intensities_ip, axis=1) / (
                 np.nansum(intensities_ip, axis=1) + np.nansum(intensities_control, axis=1)
             )
