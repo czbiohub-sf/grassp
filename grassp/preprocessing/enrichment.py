@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Optional
+    from typing import Optional, Literal
 
 import warnings
 
@@ -144,7 +144,7 @@ def calculate_enrichment_vs_all(
     adata: AnnData,
     covariates: Optional[list[str]] = None,
     subcellular_enrichment_column: str = "subcellular_enrichment",
-    enrichment_method: str = "lfc",
+    enrichment_method: Literal["lfc", "proportion"] = "lfc",
     correlation_threshold: float = 1.0,
     original_intensities_key: str | None = "original_intensities",
     keep_raw: bool = True,
