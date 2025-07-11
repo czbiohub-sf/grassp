@@ -37,11 +37,9 @@ python_use_unqualified_type_names = True  # Remove module names from type hints
 api_dir = HERE / "api"  # function_images
 add_module_names = False
 
-
 # Add any paths that contain templates here
 templates_path = ["_templates"]
 exclude_patterns = []
-
 
 # -- Options for HTML output ----------------------------------------------
 

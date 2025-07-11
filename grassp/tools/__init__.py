@@ -1,15 +1,15 @@
 from .clustering import (
-    markov_clustering,
     calculate_interfacialness_score,
     get_n_nearest_neighbors,
     knn_annotation,
     leiden_mito_sweep,
-    to_knn_graph,
-    tagm_map_train,
+    markov_clustering,
     tagm_map_predict,
+    tagm_map_train,
+    to_knn_graph,
 )
 from .enrichment import calculate_cluster_enrichment, rank_proteins_groups
-from .integration import align_adatas, aligned_umap, remodeling_score, mr_score
+from .integration import align_adatas, aligned_umap, mr_score, remodeling_score
 from .scoring import (
     calinski_habarasz_score,
     class_balance,
