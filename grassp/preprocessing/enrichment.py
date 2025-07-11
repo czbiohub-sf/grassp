@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import Optional
-    from typing import Callable
 
 import warnings
 
@@ -141,17 +140,10 @@ def calculate_noc_proportions(
     pass
 
 
-def _lfc_ttest(intensities_control, intensities_ip) -> dict:
-    _, pv = stats.ttest_ind(intensities_ip.T, intensities_control.T)
-    lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
-    return {"lfc": lfc, "pv": pv}
-
-
 def calculate_enrichment_vs_all(
     adata: AnnData,
     covariates: Optional[list[str]] = None,
     subcellular_enrichment_column: str = "subcellular_enrichment",
-    enrichment_function: Callable = _lfc_ttest,
     correlation_threshold: float = 1.0,
     original_intensities_key: str | None = "original_intensities",
     keep_raw: bool = True,
@@ -219,17 +211,11 @@ def calculate_enrichment_vs_all(
             )
         intensities_control = intensities[:, control_mask]
         intensities_ip = intensities[:, mask]
-        enr = enrichment_function(intensities_ip, intensities_control)
-
-        for key in list(enr.keys())[1:]:
-            if key not in data_aggr.layers:
-                data_aggr.layers[key] = np.zeros_like(data_aggr.X)
-
+        scores, pv = stats.ttest_ind(intensities_ip.T, intensities_control.T)
+        lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
         aggr_mask = data_aggr.var["_experimental_condition"] == experimental_condition
-        data_aggr[:, aggr_mask].X = enr[next(iter(enr))]
-        for key, value in enr.items():
-            data_aggr.layers[key][:, aggr_mask] = value
-
+        data_aggr.layers["pvals"][:, aggr_mask] = pv[:, None]
+        data_aggr[:, aggr_mask].X = lfc[:, None]
         data_aggr.var.loc[aggr_mask, "enriched_vs"] = ",".join(
             data_aggr.var_names[control_mask]
         )
