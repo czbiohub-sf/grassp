@@ -11,4 +11,5 @@ from .simple import (
     highly_variable_proteins,
     normalize_total,
     remove_contaminants,
+    filter_min_consecutive_fractions,
 )

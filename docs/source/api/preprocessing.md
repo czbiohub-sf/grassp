@@ -28,6 +28,7 @@ Any transformation of the data matrix that is not a *tool*. Other than *tools*, 
    pp.normalize_total
    pp.drop_excess_MQ_metadata
    pp.remove_contaminants
+   pp.filter_min_consecutive_fractions
 ```
 
 ### Imputation
