@@ -58,12 +58,12 @@ dev = [
     "black~=25.1",
     "flake8~=7.0",
     "isort~=5.0",
-    "pre-commit~=3.0",
+    "pre-commit~=4.0",
     "pylint~=3.0",
     "pytest~=8.0",
 ]
 notebook = [
-    "jupyterlab",
+    "jupyter",
     "matplotlib",
 ]
 build = [
@@ -74,6 +74,7 @@ docs = [
     "sphinx",
     "sphinx-autodoc-typehints",
     "scanpydoc[theme,typehints] >=0.15.1",
+    "sphinx-book-theme",
     "myst_parser",
 ]
 
