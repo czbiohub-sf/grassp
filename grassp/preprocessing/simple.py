@@ -350,6 +350,7 @@ def aggregate_proteins(
     groups = data.obs.groupby(grouping_columns)
     X_list = []
     obs_list = []
+    layers_dict = {layer: [] for layer in data.layers.keys()}
     # Determine obs columns to keep
     g = groups.get_group(list(groups.groups)[0])
     unique_col_indices = g.nunique() == 1
@@ -361,10 +362,27 @@ def aggregate_proteins(
         X_sub = data.X[ind, :]
         X_sub = agg_func(X_sub, axis=0)
         X_list.append(X_sub)
+        # Aggregate layers
+        for layer_name, layer_data in data.layers.items():
+            layer_sub = layer_data[ind, :]
+            layer_sub = agg_func(layer_sub, axis=0)
+            layers_dict[layer_name].append(layer_sub)
+
         obs_list.append(obs_sub)
     obs = pd.concat(obs_list, axis=0)
     X = np.vstack(X_list)
-    retdata = AnnData(X=X, obs=obs, var=data.var, uns=data.uns, varp=data.varp, varm=data.varm)
+    aggregated_layers = {
+        layer: np.vstack(layer_list) for layer, layer_list in layers_dict.items()
+    }
+    retdata = AnnData(
+        X=X,
+        obs=obs,
+        var=data.var,
+        uns=data.uns,
+        varp=data.varp,
+        varm=data.varm,
+        layers=aggregated_layers,
+    )
     return retdata
 
 
