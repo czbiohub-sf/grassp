@@ -1,4 +1,4 @@
-## Preprocessing: `pp`
+# Preprocessing: `pp`
 
 ```{eval-rst}
 .. module:: grassp.pp
@@ -10,7 +10,7 @@
 
 Any transformation of the data matrix that is not a *tool*. Other than *tools*, preprocessing steps usually don't return an easily interpretable annotation, but perform a basic transformation on the data matrix.
 
-### Basic Preprocessing
+## Basic Preprocessing
 
 
 ```{eval-rst}
@@ -31,7 +31,18 @@ Any transformation of the data matrix that is not a *tool*. Other than *tools*, 
    pp.filter_min_consecutive_fractions
 ```
 
-### Imputation
+## Enrichment
+
+```{eval-rst}
+.. autosummary::
+   :nosignatures:
+   :toctree: ../generated/
+
+   pp.calculate_enrichment_vs_untagged
+   pp.calculate_enrichment_vs_all
+```
+
+## Imputation
 
 ```{eval-rst}
 .. autosummary::

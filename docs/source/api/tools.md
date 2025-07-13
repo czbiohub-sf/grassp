@@ -1,4 +1,4 @@
-## Tools: `tl`
+# Tools: `tl`
 
 ```{eval-rst}
 .. module:: grassp.tl
@@ -10,7 +10,7 @@
 
 This module provides various tools for analyzing proteomics data. 
 
-### Clustering
+## Clustering
 
 ```{eval-rst}
 .. autosummary::
@@ -27,7 +27,7 @@ This module provides various tools for analyzing proteomics data.
    tl.tagm_map_predict
 ```
 
-### Enrichment
+## Enrichment
 
 ```{eval-rst}
 .. autosummary::
@@ -38,7 +38,7 @@ This module provides various tools for analyzing proteomics data.
 ```
 
 
-### Integration
+## Integration
 
 ```{eval-rst}
 .. autosummary::

@@ -1,4 +1,4 @@
-## Plotting: `pl`
+# Plotting: `pl`
 
 ```{eval-rst}
 .. module:: grassp.pl
@@ -14,7 +14,7 @@ This module provides visualization functions for proteomics data.
 Many of scanpy's plotting functions can be directly used with grassp AnnData objects. So if you are looking for a specific plot, it is worth checking if it is already implemented in scanpy.
 ```
 
-### Preprocessing
+## Preprocessing
 
 ```{eval-rst}
 .. autosummary::
@@ -26,7 +26,7 @@ Many of scanpy's plotting functions can be directly used with grassp AnnData obj
    pl.protein_clustermap
 ```
 
-### Integration
+## Integration
 ```{eval-rst}
 .. autosummary::
    :nosignatures:
@@ -37,7 +37,7 @@ Many of scanpy's plotting functions can be directly used with grassp AnnData obj
    pl.remodeling_sankey
 ``` 
 
-### Clustering
+## Clustering
 ```{eval-rst}
 .. autosummary::
    :nosignatures:
