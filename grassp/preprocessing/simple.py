@@ -52,10 +52,14 @@ def filter_samples(
 
     Returns
     -------
-    Depending on `inplace` and input type, returns either:
-        - None if `inplace=True`
-        - AnnData if input is AnnData and `inplace=False`
-        - A tuple of arrays (retained_samples, retained_proteins) if input is not AnnData
+    AnnData | tuple[np.ndarray, np.ndarray] | None
+        * If `inplace` is **True**, the function updates `data` in place and
+          returns **None**.
+        * If `inplace` is **False** and *data* is an :class:`~anndata.AnnData`
+          object, the filtered AnnData is returned.
+        * If *data* is an array-like matrix (``np.ndarray``, ``scipy.sparse`` or
+          ``dask`` array) the function returns a tuple *(mask_obs,
+          mask_vars)* indicating which observations and variables were kept.
     """
     if isinstance(data, AnnData):
         confirm_proteins_as_obs(data)
@@ -103,10 +107,12 @@ def filter_proteins(
 
     Returns
     -------
-    Depending on `inplace` and input type, returns either:
-        - None if `inplace=True`
-        - AnnData if input is AnnData and `inplace=False`
-        - A tuple of arrays (retained_proteins, retained_samples) if input is not AnnData
+    AnnData | tuple[np.ndarray, np.ndarray] | None
+        * If `inplace` is **True**, `data` is modified in place and **None** is returned.
+        * If `inplace` is **False** and *data* is an :class:`~anndata.AnnData`
+          object, the filtered AnnData is returned.
+        * If *data* is an array-like matrix, the function returns a tuple
+          *(mask_obs, mask_vars)* with the retained observations and variables.
     """
     # if isinstance(data, AnnData):
     #     confirm_proteins_as_obs(data)
@@ -127,7 +133,7 @@ def filter_min_consecutive_fractions(
     replicate_column: str | None = None,
     min_replicates: int | None = None,
     inplace: bool = True,
-) -> AnnData:
+) -> np.ndarray | None:
     """
     Filters for proteins present in at least `min_consecutive` of specified consecutive fractions.
 
@@ -155,8 +161,8 @@ def filter_min_consecutive_fractions(
 
     None
         if `inplace=True`
-    AnnData
-        if input is AnnData and `inplace=False`
+    np.ndarray
+        A boolean mask of proteins that passed the filter, if `inplace=False`.
     """
 
     if replicate_column is None:
@@ -211,9 +217,10 @@ def filter_proteins_per_replicate(
 
     Returns
     -------
-    numpy.ndarray or None
-        If inplace=False, returns boolean mask indicating which proteins passed filtering.
-        If inplace=True, returns None and modifies input data.
+    np.ndarray | None
+        * If `inplace` is **False**, returns a boolean mask indicating which
+          proteins passed the filter.
+        * If `inplace` is **True**, updates *data* in place and returns **None**.
 
     Notes
     -----
@@ -235,7 +242,19 @@ def filter_proteins_per_replicate(
     data._inplace_subset_obs(data.obs.index[gene_subset])
 
 
-def longest_consecutive_run_per_row(a1):
+def longest_consecutive_run_per_row(a1: np.ndarray) -> np.ndarray:
+    """
+    Calculates the length of the longest consecutive run of non-zero values in each row of a 2D array.
+
+    Parameters
+    ----------
+    a1
+        A 2D numpy array.
+
+    Returns
+    -------
+    A 1D numpy array containing the length of the longest consecutive run for each row.
+    """
     # Ensure input is binary (0 or 1)
     a1 = (a1 != 0).astype(int)
 
@@ -467,38 +486,38 @@ def calculate_qc_metrics(
 
     Returns
     -------
-    If not inplace, returns a tuple containing:
-        - A DataFrame with protein-based metrics (var)
-        - A DataFrame with sample-based metrics (obs)
-    If inplace, returns None and adds metrics to the input object.
+    tuple of (pd.DataFrame, pd.DataFrame) or None
+        If `inplace` is False, returns:
+
+        - A DataFrame with protein-based metrics (`.var`)
+        - A DataFrame with sample-based metrics (`.obs`)
+
+        If `inplace` is True, returns None and adds metrics to the input object.
 
     Notes
     -----
     Calculates quality control metrics for both proteins and samples, including:
-        - Number of samples expressing each protein
-        - Total intensity per sample
-        - Number of proteins detected per sample
-        - Percentage of intensity from top proteins
 
-        Added to .obs:
-         n_samples_by_intensity: the number of samples where each protein has non-zero intensity values
-         'mean_intensity':
-         'log1p_mean_intensity',
-         'pct_dropout_by_intensity',
-         'total_intensity',
-         'log1p_total_intensity'
+    - Number of samples expressing each protein
+    - Total intensity per sample
+    - Number of proteins detected per sample
+    - Percentage of intensity from top proteins
 
-        Added to .var
-        'n_proteins_by_intensity',
-        'log1p_n_proteins_by_intensity',
-        'total_intensity',
-        'log1p_total_intensity',
-        'pct_intensity_in_top_50_proteins',
-        'pct_intensity_in_top_100_proteins',
-        'pct_intensity_in_top_200_proteins',
-        'pct_intensity_in_top_500_proteins',
-        'pct_dropout_by_intensity'
+    **Added to `.obs`**:
+    - `n_samples_by_intensity`: number of samples where each protein has non-zero intensity
+    - `mean_intensity`: mean intensity of the protein
+    - `log1p_mean_intensity`: log1p of the mean intensity
+    - `pct_dropout_by_intensity`: percent of samples with zero intensity
+    - `total_intensity`: total intensity per sample
+    - `log1p_total_intensity`: log1p of the total intensity
 
+    **Added to `.var`**:
+    - `n_proteins_by_intensity`: number of proteins detected in a sample
+    - `log1p_n_proteins_by_intensity`: log1p of that number
+    - `total_intensity`: total intensity of the protein
+    - `log1p_total_intensity`: log1p of the total intensity
+    - `pct_intensity_in_top_n_proteins`: percent of intensity from top n proteins
+    - `pct_dropout_by_intensity`: percent of samples where the protein is not detected
     """
 
     confirm_proteins_as_obs(data)
@@ -568,12 +587,13 @@ def highly_variable_proteins(
     Notes
     -----
     This function identifies highly variable proteins using methods adapted from
-    single-cell RNA sequencing analysis. The results are stored in data.obs with
-    the following fields:
-        - highly_variable: boolean indicator
-        - means: mean expression
-        - dispersions: dispersion of expression
-        - dispersions_norm: normalized dispersion
+    single-cell RNA sequencing analysis. The results are stored in ``data.obs`` with the
+    following fields::
+
+        * highly_variable – boolean indicator
+        * means – mean expression
+        * dispersions – dispersion of expression
+        * dispersions_norm – normalized dispersion
     """
     confirm_proteins_as_obs(data)
     df = sc.pp.highly_variable_genes(

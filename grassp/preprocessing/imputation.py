@@ -36,18 +36,16 @@ def impute_gaussian(
     data
         Annotated data matrix with proteins as observations (rows).
     width
-        Width of the Gaussian distribution used for imputation, as a fraction of the
-        standard deviation of observed values. Default is 0.3.
+        Width of the Gaussian distribution as a fraction of the
+        standard deviation of observed values.
     distance
-        Number of standard deviations below the mean of observed values to center the
-        imputation distribution. Default is 1.8.
+        Downward shift of the mean in standard deviations.
     per_sample
-        If True, calculate parameters separately for each sample (column).
-        If False, use global parameters. Default is True.
+        If True, computes parameters for each sample separately.
     random_state
-        Seed for random number generation. Default is 0.
+        Seed for the random number generator.
     inplace
-        If True, modify data in place. If False, return a copy. Default is True.
+        If True, modifies data inplace.
 
     Returns
     -------
@@ -116,20 +114,6 @@ def impute_gaussian(
 #     location_prior_df=3,
 #     verbose=False,
 # ):
-#     """
-#     Fit a probabilistic dropout model with location and variance priors.
-
-#     Args:
-#         y: numpy array of observations (can contain NaN)
-#         dropout_curve_position: float, position parameter for dropout curve
-#         dropout_curve_scale: float, scale parameter for dropout curve
-#         location_prior_mean: float, prior mean
-#         location_prior_scale: float, prior scale
-#         variance_prior_scale: float, prior scale for variance
-#         variance_prior_df: float, prior degrees of freedom for variance
-#         location_prior_df: float, degrees of freedom for location prior (default: 3)
-#         verbose: bool, whether to print messages
-#     """
 #     # Setup
 #     y = np.asarray(y)
 #     is_missing = np.isnan(y)
@@ -247,7 +231,6 @@ def impute_gaussian(
 #                 * pdf_z**2
 #             )
 #         )
-
 #         # Complete second derivatives
 #         d2_beta2 = -n_obs / sigma2 + d2_beta_dropout - 1 / location_prior_scale**2
 
