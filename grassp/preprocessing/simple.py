@@ -362,6 +362,7 @@ def aggregate_proteins(
         X_sub = data.X[ind, :]
         X_sub = agg_func(X_sub, axis=0)
         X_list.append(X_sub)
+        obs_list.append(obs_sub)
         # Aggregate layers
         for layer_name, layer_data in data.layers.items():
             layer_sub = layer_data[ind, :]
