@@ -46,7 +46,14 @@ def ithzak_2016() -> AnnData:
 def hek_dc_2025(
     enrichment: Literal["raw", "enriched"] = "raw",
 ) -> AnnData:
+    """
+    Download the unpublished DC fractionation data from Elias lab at Stanford.
 
+    Returns
+    -------
+    AnnData
+        The HEK DC dataset
+    """
     if enrichment == "raw":
         filename = settings.datasetdir / "NonEnriched_DC_Processed.h5ad"
         url = "https://public.czbiohub.org/proteinxlocation/internal/NonEnriched_DC_Processed.h5ad"
@@ -64,6 +71,14 @@ def hek_dc_2025(
 def hek_atps_2025(
     enrichment: Literal["raw", "enriched"] = "raw",
 ) -> AnnData:
+    """
+    Download the unpublished ATPS fractionation data from Elias lab at Stanford.
+
+    Returns
+    -------
+    AnnData
+        The HEK ATPS dataset
+    """
 
     if enrichment == "raw":
         filename = settings.datasetdir / "NonEnriched_ATPS_Processed.h5ad"
