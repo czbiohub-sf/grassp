@@ -3,7 +3,7 @@ from .example_data import (
     hein_2024,
     hek_atps_2025,
     hek_dc_2025,
-    ithzak_2016,
+    itzhak_2016,
     list_prolocdata_files,
     schessner_2023,
 )

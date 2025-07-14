@@ -29,16 +29,16 @@ def hein_2024() -> AnnData:
     return scanpy.read(filename, backup_url=url)
 
 
-def ithzak_2016() -> AnnData:
-    """Download the ITHZAK 2016 dataset.
+def itzhak_2016() -> AnnData:
+    """Download the ITZHAK 2016 dataset.
     This dataset is described in https://elifesciences.org/articles/16950.
 
     Returns
     -------
     AnnData
-        The ITHZAK 2016 dataset.
+        The ITZHAK 2016 dataset.
     """
-    filename = settings.datasetdir / "ithzak_2016.h5ad"
+    filename = settings.datasetdir / "itzhak_2016.h5ad"
     url = "https://drive.google.com/uc?export=download&id=1zNSTVmJ-Xms86_WtDnjUROQpPXUEr2Ux"
     return scanpy.read(filename, backup_url=url)
 
