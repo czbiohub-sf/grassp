@@ -512,17 +512,6 @@ def calculate_qc_metrics(
         percent_top=percent_top,
         qc_vars=qc_vars,
     )
-    var_df, obs_df = dfs
-    var_df["pct_dropout_by_intensity"] = 100 - (
-        100 * (var_df[f"n_{var_type}_by_{expr_type}"] / obs_df.shape[0])
-    )
-    if not inplace:
-        return dfs
-    obs_df.columns = obs_df.columns.str.replace(
-        "cells", "samples"
-    )  # This fixes a bug in scanpy
-    data.obs[obs_df.columns] = obs_df
-    data.var[var_df.columns] = var_df
 
 
 def highly_variable_proteins(
