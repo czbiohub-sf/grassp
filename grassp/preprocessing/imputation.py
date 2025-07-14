@@ -14,7 +14,7 @@ import scipy.sparse
 
 from anndata import AnnData
 
-from ..util import confirm_proteins_as_obs
+# from ..util import confirm_proteins_as_obs
 
 
 def impute_gaussian(
@@ -50,8 +50,8 @@ def impute_gaussian(
     Returns
     -------
     numpy.ndarray or None
-        If inplace=False, returns the imputed data matrix.
-        If inplace=True, returns None and modifies the input data.
+        If ``inplace=False``, returns the imputed data matrix.
+        If ``inplace=True``, returns None and modifies the input data.
 
     Notes
     -----
@@ -60,7 +60,7 @@ def impute_gaussian(
     and are imputed from a Gaussian distribution with parameters derived from the
     observed values but shifted downward.
     """
-    confirm_proteins_as_obs(data)
+    # confirm_proteins_as_obs(data)
     np.random.seed(random_state)
 
     if not inplace:

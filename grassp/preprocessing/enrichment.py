@@ -77,7 +77,7 @@ def calculate_enrichment_vs_untagged(
     subcellular_enrichment_column
         The column in ``.var`` that contains subcellular enrichment labels.
     untagged_name
-        The label in `subcellular_enrichment_column` that identifies untagged
+        The label in ``subcellular_enrichment_column`` that identifies untagged
         control samples.
     original_intensities_key
         If specified, the original intensity values are stored in
@@ -94,7 +94,7 @@ def calculate_enrichment_vs_untagged(
 
         * ``.X``: log2 fold changes relative to untagged controls.
         * ``.layers["pvals"]``: p-values from the t-tests.
-        * ``.layers[original_intensities_key]``: raw intensity values if `original_intensities_key` is set.
+        * ``.layers[original_intensities_key]``: raw intensity values if ``original_intensities_key`` is set.
     """
 
     # if covariates is None:
@@ -188,8 +188,8 @@ def calculate_enrichment_vs_all(
     subcellular_enrichment_column
         The column in ``.var`` with subcellular enrichment labels.
     enrichment_method
-        The method for calculating enrichment. Either "lfc" (log-fold change)
-        or "proportion" (proportion of total intensity).
+        The method for calculating enrichment. Either ``"lfc"`` (log-fold change)
+        or ``"proportion"`` (proportion of total intensity).
     correlation_threshold
         The correlation value above which samples are excluded from the background
         to prevent comparing a sample against itself or highly similar ones.
