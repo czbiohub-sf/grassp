@@ -2,11 +2,11 @@
 
 
 ```{eval-rst}
-.. module:: grassp.datasets
+.. module:: grassp.ds
 ```
 
 ```{eval-rst}
-.. currentmodule:: grassp.datasets
+.. currentmodule:: grassp
 ```
 
 Download public datasets in a preprocessed format.
@@ -19,9 +19,9 @@ Download public datasets in a preprocessed format.
    :nosignatures:
    :toctree: ../generated/
 
-   hein_2024
-   itzhak_2016
-   schessner_2023
+   ds.hein_2024
+   ds.itzhak_2016
+   ds.schessner_2023
 ```
 
 ## Unpublished Datasets
@@ -32,6 +32,6 @@ Download public datasets in a preprocessed format.
    :nosignatures:
    :toctree: ../generated/
 
-   hek_dc_2025
-   hek_atps_2025
+   ds.hek_dc_2025
+   ds.hek_atps_2025
 ```
