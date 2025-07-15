@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from anndata import AnnData
@@ -29,18 +29,67 @@ def hein_2024() -> AnnData:
     return scanpy.read(filename, backup_url=url)
 
 
-def ithzak_2016() -> AnnData:
-    """Download the ITHZAK 2016 dataset.
+def itzhak_2016() -> AnnData:
+    """Download the ITZHAK 2016 dataset.
     This dataset is described in https://elifesciences.org/articles/16950.
 
     Returns
     -------
     AnnData
-        The ITHZAK 2016 dataset.
+        The ITZHAK 2016 dataset.
     """
-    filename = settings.datasetdir / "ithzak_2016.h5ad"
+    filename = settings.datasetdir / "itzhak_2016.h5ad"
     url = "https://drive.google.com/uc?export=download&id=1zNSTVmJ-Xms86_WtDnjUROQpPXUEr2Ux"
     return scanpy.read(filename, backup_url=url)
+
+
+def hek_dc_2025(
+    enrichment: Literal["raw", "enriched"] = "raw",
+) -> AnnData:
+    """
+    Download the unpublished DC fractionation data from Elias lab at Stanford.
+
+    Returns
+    -------
+    AnnData
+        The HEK DC dataset
+    """
+    if enrichment == "raw":
+        filename = settings.datasetdir / "NonEnriched_DC_Processed.h5ad"
+        url = "https://public.czbiohub.org/proteinxlocation/internal/NonEnriched_DC_Processed.h5ad"
+        return scanpy.read(filename, backup_url=url)
+    elif enrichment == "enriched":
+        filename = settings.datasetdir / "Enriched_DC_Processed.h5ad"
+        url = (
+            "https://public.czbiohub.org/proteinxlocation/internal/Enriched_DC_Processed.h5ad"
+        )
+        return scanpy.read(filename, backup_url=url)
+    else:
+        raise ValueError("Enrichment argument must be either 'raw' or 'enriched'")
+
+
+def hek_atps_2025(
+    enrichment: Literal["raw", "enriched"] = "raw",
+) -> AnnData:
+    """
+    Download the unpublished ATPS fractionation data from Elias lab at Stanford.
+
+    Returns
+    -------
+    AnnData
+        The HEK ATPS dataset
+    """
+
+    if enrichment == "raw":
+        filename = settings.datasetdir / "NonEnriched_ATPS_Processed.h5ad"
+        url = "https://public.czbiohub.org/proteinxlocation/internal/NonEnriched_ATPS_Processed.h5ad"
+        return scanpy.read(filename, backup_url=url)
+    elif enrichment == "enriched":
+        filename = settings.datasetdir / "Enriched_ATPS_Processed.h5ad"
+        url = "https://public.czbiohub.org/proteinxlocation/internal/Enriched_ATPS_Processed.h5ad"
+        return scanpy.read(filename, backup_url=url)
+    else:
+        raise ValueError("Enrichment argument must be either 'raw' or 'enriched'")
 
 
 def schessner_2023() -> AnnData:
