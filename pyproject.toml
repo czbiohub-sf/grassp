@@ -65,6 +65,7 @@ dev = [
 notebook = [
     "jupyterlab",
     "matplotlib",
+    "jupytext",
 ]
 build = [
     "twine",
@@ -75,6 +76,7 @@ docs = [
     "sphinx-autodoc-typehints",
     "scanpydoc[theme,typehints] >=0.15.1",
     "myst_parser",
+    "myst-nb",
 ]
 
 [project.scripts]

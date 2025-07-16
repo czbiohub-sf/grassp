@@ -26,7 +26,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
     "scanpydoc",
-    "myst_parser",
+    "myst_nb",  # enable notebook execution and rendering (includes myst_parser)
 ]
 
 modindex_common_prefix = ["grassp."]
@@ -57,3 +57,7 @@ html_theme_options = dict(
 html_logo = "_static/img/grassp_logo.png"
 issues_github_path = "czbiohub-sf/grassp"
 html_show_sphinx = False
+
+# Execute notebooks only when out-of-date and set timeout
+nb_execution_mode = "auto"  # or "force" to always run, "off" to skip
+nb_execution_timeout = 300  # seconds
