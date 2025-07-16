@@ -328,15 +328,14 @@ def aggregate_proteins(
     columns. For each group, the proteins are combined using the provided aggregation
     function. The resulting AnnData object has one observation per unique group.
     """
-    groups = data.obs.groupby(grouping_columns)
+    groups = data.obs.groupby(grouping_columns, observed=True)
     X_list = []
     obs_list = []
-    # Determine obs columns to keep
-    g = groups.get_group(list(groups.groups)[0])
-    unique_col_indices = g.nunique() == 1
 
     for _, ind in groups.indices.items():
         g = data.obs.iloc[ind]
+        # Determine obs columns to keep
+        unique_col_indices = g.nunique() == 1
         obs_sub = g.loc[g.index[[0]], unique_col_indices]
         obs_sub["n_merged_proteins"] = ind.size
         X_sub = data.X[ind, :]
