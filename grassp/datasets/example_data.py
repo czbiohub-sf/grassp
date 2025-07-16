@@ -15,7 +15,7 @@ from scanpy._settings import settings
 from .. import io
 
 
-def hein_2024(enrichment: Literal["raw", "enriched"] = "raw") -> AnnData:
+def hein_2024(enrichment: Literal["raw", "enriched"] = "raw", **kwargs) -> AnnData:
     """Download the Hein 2024 dataset.
     This dataset is described in https://www.cell.com/cell/fulltext/S0092-8674(24)01344-8.
 
@@ -32,16 +32,16 @@ def hein_2024(enrichment: Literal["raw", "enriched"] = "raw") -> AnnData:
     if enrichment == "raw":
         filename = settings.datasetdir / "hein_2024_raw.h5ad"
         url = "https://public.czbiohub.org/proteinxlocation/internal/hein2024_raw.h5ad"
-        return scanpy.read(filename, backup_url=url)
+        return scanpy.read(filename, backup_url=url, **kwargs)
     elif enrichment == "enriched":
         filename = settings.datasetdir / "hein_2024_enriched.h5ad"
         url = "https://public.czbiohub.org/proteinxlocation/internal/hein2024_enriched.h5ad"
-        return scanpy.read(filename, backup_url=url)
+        return scanpy.read(filename, backup_url=url, **kwargs)
     else:
         raise ValueError("Enrichment argument must be either 'raw' or 'enriched'")
 
 
-def itzhak_2016() -> AnnData:
+def itzhak_2016(**kwargs) -> AnnData:
     """Download the ITZHAK 2016 dataset.
     This dataset is described in https://elifesciences.org/articles/16950.
 
@@ -52,11 +52,12 @@ def itzhak_2016() -> AnnData:
     """
     filename = settings.datasetdir / "itzhak_2016.h5ad"
     url = "https://drive.google.com/uc?export=download&id=1zNSTVmJ-Xms86_WtDnjUROQpPXUEr2Ux"
-    return scanpy.read(filename, backup_url=url)
+    return scanpy.read(filename, backup_url=url, **kwargs)
 
 
 def hek_dc_2025(
     enrichment: Literal["raw", "enriched"] = "raw",
+    **kwargs,
 ) -> AnnData:
     """
     Download the unpublished DC fractionation data from Elias lab at Stanford.
@@ -69,19 +70,20 @@ def hek_dc_2025(
     if enrichment == "raw":
         filename = settings.datasetdir / "NonEnriched_DC_Processed.h5ad"
         url = "https://public.czbiohub.org/proteinxlocation/internal/NonEnriched_DC_Processed.h5ad"
-        return scanpy.read(filename, backup_url=url)
+        return scanpy.read(filename, backup_url=url, **kwargs)
     elif enrichment == "enriched":
         filename = settings.datasetdir / "Enriched_DC_Processed.h5ad"
         url = (
             "https://public.czbiohub.org/proteinxlocation/internal/Enriched_DC_Processed.h5ad"
         )
-        return scanpy.read(filename, backup_url=url)
+        return scanpy.read(filename, backup_url=url, **kwargs)
     else:
         raise ValueError("Enrichment argument must be either 'raw' or 'enriched'")
 
 
 def hek_atps_2025(
     enrichment: Literal["raw", "enriched"] = "raw",
+    **kwargs,
 ) -> AnnData:
     """
     Download the unpublished ATPS fractionation data from Elias lab at Stanford.
@@ -95,16 +97,16 @@ def hek_atps_2025(
     if enrichment == "raw":
         filename = settings.datasetdir / "NonEnriched_ATPS_Processed.h5ad"
         url = "https://public.czbiohub.org/proteinxlocation/internal/NonEnriched_ATPS_Processed.h5ad"
-        return scanpy.read(filename, backup_url=url)
+        return scanpy.read(filename, backup_url=url, **kwargs)
     elif enrichment == "enriched":
         filename = settings.datasetdir / "Enriched_ATPS_Processed.h5ad"
         url = "https://public.czbiohub.org/proteinxlocation/internal/Enriched_ATPS_Processed.h5ad"
-        return scanpy.read(filename, backup_url=url)
+        return scanpy.read(filename, backup_url=url, **kwargs)
     else:
         raise ValueError("Enrichment argument must be either 'raw' or 'enriched'")
 
 
-def schessner_2023() -> AnnData:
+def schessner_2023(**kwargs) -> AnnData:
     """Download the Schessner 2023 dataset.
     This dataset is described in https://www.nature.com/articles/s41467-023-41000-7.
 
@@ -115,7 +117,7 @@ def schessner_2023() -> AnnData:
     """
     filename = settings.datasetdir / "schlessner_2023.h5ad"
     url = "https://drive.google.com/uc?export=download&id=1JMHWDqLeX3bacvMRQZopg1VJzc0WRvNK"
-    return scanpy.read(filename, backup_url=url)
+    return scanpy.read(filename, backup_url=url, **kwargs)
 
 
 def download_prolocdata(name: str) -> AnnData:
