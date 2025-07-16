@@ -2,7 +2,7 @@ PACKAGE_NAME := grassp
 
 .PHONY: setup-develop
 setup-develop:
-	pip install -e .'[dev]'
+	pip install -e .'[dev,docs,notebook]'
 	pre-commit install
 
 .PHONY: uninstall
