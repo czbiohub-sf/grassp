@@ -15,18 +15,30 @@ from scanpy._settings import settings
 from .. import io
 
 
-def hein_2024() -> AnnData:
+def hein_2024(enrichment: Literal["raw", "enriched"] = "raw") -> AnnData:
     """Download the Hein 2024 dataset.
     This dataset is described in https://www.cell.com/cell/fulltext/S0092-8674(24)01344-8.
+
+    Parameters
+    ----------
+    enrichment
+        Whether to return the raw or enriched dataset. The enriched dataset is calculated exacly like in the paper and replicates are collapsed. The raw
 
     Returns
     -------
     AnnData
         The Hein 2024 dataset.
     """
-    filename = settings.datasetdir / "hein_2024.h5ad"
-    url = "https://drive.google.com/uc?export=download&id=1RMPQucHYbQgzIu-GcwoqApvwa8mODDOp"
-    return scanpy.read(filename, backup_url=url)
+    if enrichment == "raw":
+        filename = settings.datasetdir / "hein_2024_raw.h5ad"
+        url = "https://public.czbiohub.org/proteinxlocation/internal/hein2024_raw.h5ad"
+        return scanpy.read(filename, backup_url=url)
+    elif enrichment == "enriched":
+        filename = settings.datasetdir / "hein_2024_enriched.h5ad"
+        url = "https://public.czbiohub.org/proteinxlocation/internal/hein2024_enriched.h5ad"
+        return scanpy.read(filename, backup_url=url)
+    else:
+        raise ValueError("Enrichment argument must be either 'raw' or 'enriched'")
 
 
 def itzhak_2016() -> AnnData:
