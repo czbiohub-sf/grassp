@@ -40,3 +40,9 @@ repos:
     - id: flake8
       entry: flake8
       args: [--statistics]
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
+        files: ^docs/source/tutorials/notebooks/.*\.ipynb$

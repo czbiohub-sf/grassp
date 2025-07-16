@@ -27,7 +27,7 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx.ext.intersphinx",
     "scanpydoc",
-    "myst_parser",
+    "myst_nb",  # enable notebook execution and rendering (includes myst_parser)
 ]
 
 modindex_common_prefix = ["grassp."]
@@ -67,3 +67,7 @@ intersphinx_mapping = dict(
     scanpy=("https://scanpy.readthedocs.io/en/stable/", None),
     scipy=("https://docs.scipy.org/doc/scipy", None),
 )
+
+# Execute notebooks only when out-of-date and set timeout
+nb_execution_mode = "auto"  # or "force" to always run, "off" to skip
+nb_execution_timeout = 300  # seconds
