@@ -8,6 +8,7 @@ Grassp is a python package for to perform scalable analysis of subcellular prote
 :maxdepth: 4
 
 installation
+tutorials/index
 api/index
 contributors
 references
