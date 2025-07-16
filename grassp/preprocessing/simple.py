@@ -180,7 +180,9 @@ def filter_min_consecutive_fractions(
             protein_subset = protein_subset + gs
         filtered_subset = protein_subset >= min_replicates
         if inplace:
-            data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = protein_subset
+            data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = (
+                protein_subset
+            )
         else:
             return protein_subset
 
@@ -346,16 +348,15 @@ def aggregate_proteins(
     the samples based on the provided ``grouping_columns`` and then aggregates
     the intensity values using the specified ``agg_func``.
     """
-    groups = data.obs.groupby(grouping_columns)
+    groups = data.obs.groupby(grouping_columns, observed=True)
     X_list = []
     obs_list = []
     layers_dict = {layer: [] for layer in data.layers.keys()}
-    # Determine obs columns to keep
-    g = groups.get_group(list(groups.groups)[0])
-    unique_col_indices = g.nunique() == 1
 
     for _, ind in groups.indices.items():
         g = data.obs.iloc[ind]
+        # Determine obs columns to keep
+        unique_col_indices = g.nunique() == 1
         obs_sub = g.loc[g.index[[0]], unique_col_indices]
         obs_sub["n_merged_proteins"] = ind.size
         X_sub = data.X[ind, :]
