@@ -180,7 +180,9 @@ def filter_min_consecutive_fractions(
             protein_subset = protein_subset + gs
         filtered_subset = protein_subset >= min_replicates
         if inplace:
-            data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = protein_subset
+            data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = (
+                protein_subset
+            )
         else:
             return protein_subset
 
