@@ -22,34 +22,40 @@ def highly_variable_proteins(
     show: bool | None = None,
     save: bool | str | None = None,
     log: bool = False,
-) -> None | plt.Axes:
-    """Plot dispersions versus means for highly variable proteins.
+) -> plt.Axes | None:
+    """Mean–variance relationship for protein expression.
+
+    A lightweight wrapper around :func:`scanpy.pl.highly_variable_genes` which
+    substitutes *genes* with *proteins*.  It visualises the mean intensity
+    versus dispersion (or variance for the *Seurat v3* flavour) and
+    highlights the subset flagged as *highly variable* during
+    :func:`~grassp.pp.highly_variable_proteins`.
 
     Parameters
     ----------
     adata_or_result
-        Annotated data matrix or DataFrame/recarray containing results from
-        highly_variable_proteins computation.
+        Either an :class:`~anndata.AnnData` object that already contains the
+        *highly-variable-proteins* results (``adata.uns['hvg']`` & friends) or
+        the corresponding result DataFrame/recarray returned by
+        :func:`~grassp.pp.highly_variable_proteins`.
     highly_variable_proteins
-        Whether to plot highly variable proteins or all proteins. Default: True.
+        If ``True`` (default) only the highly variable subset is highlighted in
+        black; otherwise the entire set is displayed uniformly.
     show
-        Show the plot. If None, use scanpy's plotting settings.
+        If ``True`` (default) the plot is shown and the function returns ``None``.
     save
-        If True or a str, save the figure. A string is appended to the default
-        filename. Infer the filetype if ending on {'.pdf', '.png', '.svg'}.
+        If ``True`` or a ``str``, save the figure. A string is appended to the default filename.
+        Infer the filetype if ending on ``{'.pdf', '.png', '.svg'}``.
     log
-        Plot on log scale. Default: False.
+        Plot axes on log-scale (disabled by default).
 
     Returns
     -------
-    matplotlib.pyplot.Axes or None
-        If `show=False`, returns matplotlib axes object. Otherwise returns None and shows or saves the plot.
+    Returns the current axes if ``show`` is ``False``.
 
     Notes
     -----
-    This is a modified version of scanpy's highly_variable_genes plot adapted for
-    proteomics data. It shows the relationship between mean protein intensity and
-    dispersion/variance, highlighting highly variable proteins.
+    Adapted from Scanpy’s implementation to use *proteins* terminology.
     """
 
     if isinstance(adata_or_result, AnnData):
@@ -123,39 +129,38 @@ def bait_volcano_plots(
     highlight: List[str] | None = None,
     title: str | None = None,
     show: bool = False,
-) -> None | plt.Axes:
-    """Create volcano plots for bait enrichment analysis.
+) -> plt.Axes | None:
+    """Volcano plots for enrichment of pull-down *baits*.
 
     Parameters
     ----------
     data
-        Annotated data matrix with proteins as observations (rows) and baits as variables (columns).
-        Must contain a 'pvals' layer with p-values.
+        AnnData object where variables correspond to bait experiments and
+        observations to proteins.  A layer named ``"pvals"`` must contain the
+        per-protein p-values.
     baits
-        List of bait names to plot. If None, plot all baits in data.var_names.
-    sig_cutoff
-        P-value significance cutoff for highlighting enriched proteins.
-    lfc_cutoff
-        Log fold change cutoff for highlighting enriched proteins.
-    n_cols
-        Number of columns in the plot grid.
-    base_figsize
-        Base figure size for each subplot.
+        Names of the bait columns to visualise.  By default all variables are
+        plotted.
+    sig_cutoff, lfc_cutoff
+        Thresholds for statistical significance and magnitude (*log2 fold
+        change*).
+    n_cols, base_figsize
+        Layout parameters for the multi-panel figure.
     annotate_top_n
-        Number of top proteins to annotate with text labels.
+        Annotate the *n* proteins with the smallest p-values.
     color_by
-        Column in data.obs to color points by.
+        Optional observation annotation used for point color.
     highlight
-        List of protein names to highlight in blue.
+        Protein IDs to emphasise across all panels.
     title
-        Title for the overall figure.
+        Suptitle for the figure.
     show
-        Whether to display the plot.
+        If ``True`` (default) the figure is displayed; otherwise the array of
+        Axes is returned.
 
     Returns
     -------
-    None or matplotlib.axes.Axes
-        If show=True, returns None. Otherwise returns the matplotlib axes.
+    Returns the array of Axes (when ``show`` is ``False``) or ``None``.
     """
     if baits is None:
         baits = list(data.var_names)

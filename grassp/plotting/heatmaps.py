@@ -32,33 +32,42 @@ def protein_clustermap(
     ] = "cosine",
     palette="Blues_r",
     show: bool = True,
-) -> None:
-    """Create a clustered heatmap of protein distances with annotations.
+) -> sns.matrix.ClusterGrid | None:
+    """Clustered heat-map of pair-wise protein distances.
+
+    The function computes pairwise distances between proteins (rows of
+    ``data.X``) using :func:`scipy.spatial.distance.pdist` and performs
+    hierarchical clustering on the resulting distance matrix.  The heat-map
+    is rendered with :func:`seaborn.clustermap`; protein annotations provided
+    via ``annotation_key`` are visualised as coloured side bars.
 
     Parameters
     ----------
     data
-        Annotated data matrix with proteins as observations (rows)
+        Annotated matrix with proteins as **observations** (rows) and samples
+        or features as variables (columns).
     annotation_key
-        Key in data.obs for annotating proteins
+        Column in ``data.obs`` containing categorical annotations (e.g.
+        curated sub-cellular compartments) to colour the rows/columns.
     distance_metric
-        Distance metric to use for calculating pairwise distances between proteins.
-        One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
+        Distance metric used for the pairwise distances passed to
+        :func:`scipy.spatial.distance.pdist`.
     linkage_method
-        Method for hierarchical clustering.
-        One of 'single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward'
+        Linkage strategy for :func:`scipy.cluster.hierarchy.linkage`.
     linkage_metric
-        Distance metric to use for hierarchical clustering.
-        One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
+        Metric used within the linkage algorithm.  Usually identical to
+        ``distance_metric`` but can differ.
     palette
-        Color palette for the heatmap. Default is 'Blues_r'
+        Matplotlib/Seaborn palette used for the heat-map color scale.
     show
-        If True, display the heatmap. If False, return the Axes object.
+        If ``True`` (default) the plot is shown and the function returns
+        ``None``.  If ``False`` the underlying
+        :class:`seaborn.matrix.ClusterGrid` object is returned for further
+        customisation.
 
     Returns
     -------
-    None
-        Displays the clustered heatmap
+    ClusterGrid object if ``show`` is ``False``, otherwise ``None``.
     """
 
     distance_matrix = sp.distance.pdist(data.X, metric=distance_metric)
@@ -135,23 +144,25 @@ def sample_heatmap(
     ] = "correlation",
     show: bool = True,
 ) -> sns.matrix.ClusterGrid | None:
-    """
-    Plot a clustermap showing the correlation between samples.
+    """Correlation heat-map between samples (columns of ``data``).
 
     Parameters
     ----------
     data
-        2D numpy array where rows are samples and columns are features.
+        AnnData object where the **variables** represent individual samples
+        (e.g. pull-downs or fractions).  Correlations are computed
+        across the observation axis.
     distance_metric
-        Distance metric to use for calculating pairwise distances between proteins.
-        One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
+        Distance metric for :func:`scipy.spatial.distance.pdist`.  Not used
+        directly at the moment (the function plots correlations), but kept
+        for API symmetry with :func:`protein_clustermap`.
     show
-        Whether to display the plot.
+        If ``True`` show the figure and return ``None``.  Otherwise return the
+        :class:`seaborn.matrix.ClusterGrid` instance.
 
     Returns
     -------
-    sns.matrix.ClusterGrid or None
-        If show=True, returns None. Otherwise returns the seaborn ClusterGrid object.
+    ClusterGrid object if ``show`` is ``False``.
     """
     # Compute the correlation matrix
     corr = np.corrcoef(data.X, rowvar=False)
@@ -207,28 +218,32 @@ def qsep_heatmap(
     cmap: str = "RdBu_r",
     vmin: float = None,
     vmax: float = None,
+    show: bool = True,
     **kwargs,
 ) -> plt.Axes:
-    """Plot QSep cluster distance heatmap.
-
+    """Plot QSep cluster distance heatmap."""
+    """
     Parameters
     ----------
-    data : AnnData
-        Annotated data matrix containing QSep results.
-    normalize : bool, optional
-        If True, normalize distances by diagonal values.
-        Defaults to True.
-    ax : matplotlib.axes.Axes, optional
-        Axes to plot on. If None, current axes will be used.
-    cmap : str, optional
-        Colormap to use. Defaults to "RdBu_r".
+    data
+        AnnData object with cluster-wise QSep distances stored under
+        ``data.uns['cluster_distances']`` (see
+        :func:`~grassp.tl.qsep_score`).
+    normalize
+        If ``True`` (default) each distance is divided by the intra-cluster
+        distance (diagonal of the matrix).
+    ax
+        Existing matplotlib :class:`~matplotlib.axes.Axes` to plot on.  If
+        ``None`` (default) the current axes are used.
+    cmap, vmin, vmax
+        Passed to :func:`seaborn.heatmap`.
     **kwargs
-        Additional arguments passed to sns.heatmap.
+        Additional keyword arguments forwarded to
+        :func:`seaborn.heatmap`.
 
     Returns
     -------
-    matplotlib.axes.Axes
-        The axes object with the plot.
+    Axes object containing the heat-map if ``show`` is ``False``.
     """
     if ax is None:
         ax = plt.gca()
@@ -270,7 +285,9 @@ def qsep_heatmap(
     )
 
     ax.set_title("QSep Cluster Distances" + (" (Normalized)" if normalize else ""))
-
+    if show:
+        plt.show()
+        return None
     return ax
 
 
@@ -278,29 +295,33 @@ def qsep_boxplot(
     data: AnnData,
     normalize: bool = True,
     ax: plt.Axes = None,
-    palette: str = "Set2",
+    show: bool = True,
     **kwargs,
 ) -> plt.Axes:
-    """Plot QSep cluster distances as boxplots.
-
+    """Plot QSep cluster distances as boxplots."""
+    """
     Parameters
     ----------
-    data : AnnData
-        Annotated data matrix containing QSep results.
-    normalize : bool, optional
-        If True, normalize distances by diagonal values.
-        Defaults to True.
-    ax : matplotlib.axes.Axes, optional
-        Axes to plot on. If None, current axes will be used.
-    palette : str, optional
-        Color palette for the boxplots. Defaults to "Set2".
+    data
+        AnnData object with QSep distances (see
+        :func:`grassp.tl.qsep_score`).
+    normalize
+        Whether to divide all distances by the respective intra-cluster
+        distance (i.e. make the diagonal equal to 1).
+    ax
+        Matplotlib axes to plot on.  If ``None``, the current axes are used.
+    show
+        If ``True`` (default) the plot is shown and the function returns
+        ``None``.  If ``False`` the underlying
+        :class:`seaborn.matrix.ClusterGrid` object is returned for further
+        customisation.
     **kwargs
-        Additional arguments passed to sns.boxplot.
+        Additional keyword arguments passed to :func:`seaborn.boxplot` and
+        :func:`seaborn.stripplot`.
 
     Returns
     -------
-    matplotlib.axes.Axes
-        The axes object with the plot.
+    Axes object containing the box plots if ``show`` is ``False``.
     """
     if ax is None:
         ax = plt.gca()
@@ -367,4 +388,7 @@ def qsep_boxplot(
     # Move legend outside
     # ax.legend(bbox_to_anchor=(1.05, 1), loc="upper left", borderaxespad=0.0)
 
+    if show:
+        plt.show()
+        return None
     return ax

@@ -11,7 +11,7 @@
 This module provides visualization functions for proteomics data.
 
 ```{note}
-Many of scanpy's plotting functions can be directly used with grassp AnnData objects. So if you are looking for a specific plot, it is worth checking if it is already implemented in scanpy.
+Many of [Scanpy's plotting](https://scanpy.readthedocs.io/en/stable/api/plotting.html) functions can be used directly with grassp AnnData objects. If you are looking for a specific plot, check whether it is already implemented in Scanpy.
 ```
 
 ## Preprocessing
@@ -24,6 +24,7 @@ Many of scanpy's plotting functions can be directly used with grassp AnnData obj
    pl.highly_variable_proteins
    pl.bait_volcano_plots
    pl.protein_clustermap
+   pl.sample_heatmap
 ```
 
 ## Integration
@@ -35,7 +36,8 @@ Many of scanpy's plotting functions can be directly used with grassp AnnData obj
    pl.aligned_umap
    pl.remodeling_score
    pl.remodeling_sankey
-``` 
+   pl.mr_plot
+```
 
 ## Clustering
 ```{eval-rst}
@@ -43,5 +45,17 @@ Many of scanpy's plotting functions can be directly used with grassp AnnData obj
    :nosignatures:
    :toctree: ../generated/
 
+   pl.qsep_heatmap
+   pl.qsep_boxplot
    pl.tagm_map_contours
    pl.tagm_map_pca_ellipses
+```
+
+## Ternary
+```{eval-rst}
+.. autosummary::
+   :nosignatures:
+   :toctree: ../generated/
+
+   pl.ternary
+```
