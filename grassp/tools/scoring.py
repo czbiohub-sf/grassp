@@ -14,16 +14,26 @@ import sklearn.metrics
 def class_balance(
     data: AnnData, label_key: str, min_class_size: int = 10, seed: int = 42
 ) -> AnnData:
-    """Balance classes in the data.
+    """Return a balanced subset with equally sized clusters.
+
+    Samples the same number of observations from each category in
+    ``data.obs[label_key]`` (the size is determined by the smallest class).
 
     Parameters
     ----------
-    adata : AnnData
-        Annotated data matrix.
-    label_key : str
-        Key in adata.obs containing cluster labels.
-    min_class_size : int, optional
-        Minimum number of samples per class. Defaults to 10.
+    data
+        Input :class:`~anndata.AnnData`.
+    label_key
+        Observation column with cluster or class labels.
+    min_class_size
+        Raise an error if the smallest class contains fewer than this
+        number of observations (default ``10``).
+    seed
+        Random seed for reproducible sampling.
+
+    Returns
+    -------
+    An AnnData *view* containing the balanced subset.
     """
     # Check if label_key is in adata.obs
     if label_key not in data.obs.columns:
@@ -56,27 +66,35 @@ def class_balance(
 def silhouette_score(
     data, gt_col, use_rep="X_umap", key_added="silhouette", inplace=True
 ) -> None | np.ndarray:
-    """Calculate silhouette scores for clustered data.
+    """Per-group silhouette scores.
+
+    Computes the silhouette score for each group in ``data.obs[gt_col]``.
 
     Parameters
     ----------
-    data : AnnData
-        Annotated data matrix.
-    gt_col : str
-        Column name in data.obs containing cluster labels.
-    use_rep : str, optional
-        Key for representation in data.obsm to use for score calculation.
-        Defaults to 'X_umap'.
-    key_added : str, optional
-        Key under which to add the silhouette scores. Defaults to 'silhouette'.
-    inplace : bool, optional
-        If True, store results in data, else return scores. Defaults to True.
+    data
+        AnnData object containing an embedding in ``.obsm``.
+    gt_col
+        Column in ``data.obs`` with cluster labels.
+    use_rep
+        Key of the embedding to evaluate (default ``"X_umap"``).
+    key_added
+        Base key under which results are stored (default ``"silhouette"``).
+    inplace
+        If ``True`` (default) store return ``None``, if ``False`` return the silhouette scores.
+
 
     Returns
     -------
-    None or ndarray
-        If inplace=True, returns None and stores results in data.
-        If inplace=False, returns array of silhouette scores.
+    If ``inplace`` is ``True``:
+        ``data.obs[key_added]``
+            Vector of silhouette scores.
+        ``data.uns[key_added]['mean_silhouette_score']``
+            Global mean.
+        ``data.uns[key_added]['cluster_mean_silhouette']``
+            Mapping of cluster → mean score.
+    If ``inplace`` is ``False``:
+        Vector of silhouette scores.
     """
     mask = data.obs[gt_col].notna()
     data_sub = data[mask]
@@ -104,27 +122,31 @@ def calinski_habarasz_score(
     inplace=True,
     seed=42,
 ) -> None | float:
-    """Calculate Calinski-Harabasz score for clustered data.
+    """Calinski–Harabasz score of cluster compactness vs separation.
 
     Parameters
     ----------
-    data : AnnData
-        Annotated data matrix.
-    gt_col : str
-        Column name in data.obs containing cluster labels.
-    use_rep : str, optional
-        Key for representation in data.obsm to use for score calculation.
-        Defaults to 'X_umap'.
-    key_added : str, optional
-        Key under which to add the score. Defaults to 'ch_score'.
-    inplace : bool, optional
-        If True, store results in data, else return score. Defaults to True.
+    data
+        AnnData with an embedding under ``.obsm[use_rep]``.
+    gt_col
+        Observation column containing cluster assignments.
+    use_rep
+        Name of embedding to use (default ``"X_umap"``).
+    key_added
+        Key under which to store the score when ``inplace`` is ``True``.
+    class_balance
+        If ``True`` subsample each cluster to equal size before computing the
+        score (calls ``class_balance`` internally).
+    inplace, seed
+        Standard behaviour flags.
 
     Returns
     -------
-    None or float
-        If inplace=True, returns None and stores result in data.
-        If inplace=False, returns the Calinski-Harabasz score.
+    If ``inplace`` is ``True``:
+        ``data.uns[key_added]``
+            Score.
+    If ``inplace`` is ``False``:
+        Score.
     """
     mask = data.obs[gt_col].notna()
     data_sub = data[mask]
@@ -156,29 +178,32 @@ def qsep_score(
     distance_key: str = "full_distances",
     inplace: bool = True,
 ) -> None | np.ndarray:
-    """Calculate QSep scores for spatial proteomics data.
+    """QSep cluster-separation metric for spatial proteomics.
+
+    Implements the *QSep* statistic from Gatto *et al.* (2014) which
+    measures within- vs between-cluster distances.
 
     Parameters
     ----------
-    data : AnnData
-        Annotated data matrix.
-    label_key : str
-        Key in data.obs containing cluster labels.
-    use_rep : str, optional
-        Key for representation to use for distance calculation.
-        Either 'X' or a key in data.obsm. Defaults to 'X'.
-    distance_key : str, optional
-        Key under which to store the full distances in data.obs.
-        Defaults to 'full_distances'.
-    inplace : bool, optional
-        If True, store results in data, else return matrices.
-        Defaults to True.
+    data
+        AnnData object.
+    gt_col
+        Observation column with ground-truth cluster labels.
+    use_rep
+        Representation used for distance computation – ``"X"`` or a key in
+        ``data.obsm``.
+    distance_key
+        Column name to store per-protein mean distances (only when
+        ``inplace`` is ``True``).
+    inplace
+        Control write-back vs return behaviour.
 
     Returns
     -------
-    None or np.ndarray
-        If inplace=True, returns None and stores results in data.
-        If inplace=False, returns cluster_distances.
+    If ``inplace`` is ``True``:
+        ``None``
+    If ``inplace`` is ``False``:
+        ``cluster_distances``
     """
     # Get data matrix
     if use_rep == "X":

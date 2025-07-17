@@ -8,7 +8,7 @@
 .. currentmodule:: grassp
 ```
 
-This module provides various tools for analyzing proteomics data. 
+This module provides various tools for analyzing proteomics data.
 
 ## Clustering
 
@@ -27,7 +27,7 @@ This module provides various tools for analyzing proteomics data.
    tl.tagm_map_predict
 ```
 
-## Enrichment
+## Ontology Enrichment
 
 ```{eval-rst}
 .. autosummary::
@@ -48,5 +48,15 @@ This module provides various tools for analyzing proteomics data.
    tl.align_adatas
    tl.aligned_umap
    tl.remodeling_score
+```
 
+## Graph analysis
+
+```{eval-rst}
+.. autosummary::
+   :nosignatures:
+   :toctree: ../generated/
+
+   tl.to_knn_graph
+   tl.get_n_nearest_neighbors
 ```

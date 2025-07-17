@@ -14,21 +14,21 @@ import umap
 def align_adatas(
     data_list: List[AnnData], intersect_obs: bool = True, intersect_var: bool = True
 ) -> List[AnnData]:
-    """Align multiple AnnData objects by intersecting their observations and variables.
+    """Return copies of several ``AnnData`` objects with matching index/columns.
 
     Parameters
     ----------
     data_list
-        List of AnnData objects to align
+        Sequence of :class:`~anndata.AnnData` instances to be trimmed.
     intersect_obs
-        Whether to intersect observations (rows) across all objects
+        If *True* (default) keep only the intersection of *obs_names*.
     intersect_var
-        Whether to intersect variables (columns) across all objects
+        If *True* (default) keep only the intersection of *var_names*.
 
     Returns
     -------
-    list
-        List of aligned AnnData objects with matching observations and variables
+    list[AnnData]
+        Aligned **copies** preserving the order of *data_list*.
     """
 
     obs = [data.obs_names for data in data_list]
@@ -66,38 +66,42 @@ def aligned_umap(
     verbose: bool = False,
     n_components: int = 2,
 ) -> umap.AlignedUMAP:
-    """Calculate aligned UMAP embeddings for multiple datasets.
+    """Aligned UMAP embedding for *matched* datasets.
+
+    Wraps :class:`umap.AlignedUMAP` and writes the resulting coordinates to
+    ``.obsm['X_aligned_umap']`` of each input object.
 
     Parameters
     ----------
     data_list
-        List of AnnData objects to align
+        List of :class:`~anndata.AnnData` objects assumed to contain the *same*
+        observations and variables (will be intersected if *align_data* is
+        ``True``).
     align_data
-        Whether to align data by intersecting observations and variables
+        Whether to call :func:`align_adatas` before fitting.
     return_data_objects
-        Whether to return aligned AnnData objects with UMAP embeddings
+        If ``True`` (default) return the modified list; otherwise return the
+        fitted :class:`umap.AlignedUMAP` estimator.
+
     n_neighbors
-        Number of neighbors to use for UMAP
+        Number of nearest neighbours to construct the UMAP graph.
     metric
-        Distance metric for UMAP
+        Distance metric used by UMAP (*e.g.* ``"euclidean"``).
     min_dist
-        Minimum distance between points in UMAP embedding
+        Minimum separation of points in the low-dimensional space.
     alignment_regularisation
-        Strength of alignment regularization between datasets
+        Weight of the between-dataset alignment objective.
     n_epochs
-        Number of epochs to optimize embeddings
-    random_state
-        Random seed for reproducibility
-    verbose
-        Whether to display progress updates
+        Training epochs.
     n_components
-        Number of dimensions for UMAP embedding
+        Dimensionality of the embedding (usually ``2``).
+    random_state, verbose
+        Passed directly to :class:`umap.AlignedUMAP`.
 
     Returns
     -------
-    data_sub_list or umap.AlignedUMAP
-        If return_data_objects is True, returns list of aligned AnnData objects with UMAP embeddings.
-        Otherwise returns fitted AlignedUMAP object.
+    list[AnnData] | umap.AlignedUMAP
+        Depending on *return_data_objects*.
     """
 
     # Make sure all anndata objects have the same var_names and obs_names
@@ -160,19 +164,25 @@ def remodeling_score(
     aligned_umap_key: str = "X_aligned_umap",
     key_added: str = "remodeling_score",
 ) -> List[AnnData]:
-    """Get aligned UMAP embeddings from each AnnData object.
+    """Compute per-protein *remodeling score* from two aligned datasets.
+
+    The remodeling score is the Euclidean distance between a protein’s
+    coordinates in two aligned UMAP embeddings.
 
     Parameters
     ----------
     data_list
-        List of AnnData objects containing aligned UMAP embeddings
+        Exactly two :class:`~anndata.AnnData` objects with aligned coordinates
+        in ``.obsm[aligned_umap_key]``.
     aligned_umap_key
-        Key in .obsm where aligned UMAP embeddings are stored
+        Key where the embedding is stored.
+    key_added
+        Observation key used to record the scores.
 
     Returns
     -------
-    embeddings
-        List of numpy arrays containing aligned UMAP embeddings
+    list[AnnData]
+        The same list with an added ``.obs[key_added]`` column.
     """
     embeddings = [data.obsm[aligned_umap_key] for data in data_list]
     remodeling_score = _remodeling_score(embeddings)
@@ -191,27 +201,27 @@ def mr_score(
     n_iterations: int = 11,
     key_added: str = "mr_scores",
 ) -> None:
-    """Calculate MR scores for protein translocation analysis.
+    """*M*/*R* score for detecting protein translocation.
+
+    Implements the approach from Itzhak *et&nbsp;al.* 2016 where *M* is a
+    moderated t-statistic (via Minimum Covariance Determinant) and *R* the
+    measure of reproducibility between replicates.
 
     Parameters
     ----------
-    data : AnnData
-        Annotated data matrix with proteins as observations and fractions as variables
-    condition_key : str
-        Key in data.var specifying experimental conditions
-    replicate_key : str
-        Key in data.var specifying biological replicates
-    mcd_proportion : float, optional
-        Proportion of data to use for MCD calculation. Defaults to 0.75
-    n_iterations : int, optional
-        Number of iterations for robust MCD calculation. Defaults to 101
-    key_added : str, optional
-        Key under which to store results in data.uns. Defaults to "mr_scores"
-
-    Returns
-    -------
-    None
-        Stores results in data.uns[key_added]
+    data
+        AnnData object containing all conditions/replicates stacked in
+        variables.
+    condition_key
+        Observation column indicating the experimental condition (e.g.
+        *control*, *treatment*).
+    replicate_key
+        Column indicating biological replicates.
+    mcd_proportion, assume_centered, n_iterations
+        Parameters forwarded to :func:`sklearn.covariance.MinCovDet`.
+    key_added
+        Base name for the two new columns ``{key_added}_M`` and
+        ``{key_added}_R`` written to ``data.obs``.
     """
     from scipy.stats import chi2
     from sklearn.covariance import MinCovDet

@@ -23,35 +23,46 @@ def calculate_cluster_enrichment(
     return_enrichment_res: bool = True,
     inplace: bool = True,
 ) -> Optional[Union[AnnData, pd.DataFrame]]:
-    """Calculate cluster enrichment using gseapy.
+    """Gene-set enrichment for each *cluster*.
+
+    For every category in ``data.obs[cluster_key]`` the function performs an
+    *Enrichr* analysis via ``gseapy`` using the list of proteins (genes)
+    present in that cluster.  The most significant term (according to
+    ``enrichment_ranking_metric``) is written back to ``data.obs`` under
+    ``obs_key_added``.
 
     Parameters
     ----------
     data
-        Annotated data matrix with proteins as observations (rows)
+        Input :class:`~anndata.AnnData` with proteins as observations.
     cluster_key
-        Key in data.obs containing cluster assignments
+        Categorical column in ``data.obs`` containing cluster labels.
     gene_name_key
-        Key in data.obs containing gene names
+        Column in ``data.obs`` that holds gene symbols – required by
+        *gseapy*.
     gene_sets
         Gene set database to use for enrichment analysis
     obs_key_added
-        Key under which to add enrichment annotations in data.obs
+        Name of the column that will store the top enriched term per
+        cluster.
     enrichment_ranking_metric
-        Metric to use for ranking enrichment results. One of:
-        'P-value', 'Odds Ratio', 'Combined Score'
+        Column used to rank results within each cluster.  Valid options are
+        ``"P-value"``, ``"Odds Ratio"`` and ``"Combined Score"``.
     return_enrichment_res
-        Whether to return the full enrichment results DataFrame
+        If ``True`` return the full :class:`pandas.DataFrame` of Enrichr
+        results.
     inplace
-        Whether to modify data in place
+        If ``True`` (default) annotate *data* in place.  Otherwise a modified
+        copy is returned.
 
     Returns
     -------
-    Optional[Union[AnnData, pd.DataFrame]]
-        If inplace=True and return_enrichment_res=True, returns enrichment results DataFrame
-        If inplace=True and return_enrichment_res=False, returns None
-        If inplace=False and return_enrichment_res=True, returns tuple of (data, enrichment_results)
-        If inplace=False and return_enrichment_res=False, returns data
+    Behaviour depends on ``inplace`` and ``return_enrichment_res``:
+
+    - ``inplace=True``  → annotate *data*; return the results
+        DataFrame if ``return_enrichment_res`` else ``None``.
+    - ``inplace=False`` → return either a new :class:`~anndata.AnnData`
+        *or* a ``(adata, results)`` tuple.
     """
     try:
         import gseapy
@@ -104,26 +115,22 @@ def calculate_distance_matrix(
     linkage_method: str = "average",
     linkage_metric: str = "cosine",
 ) -> pd.DataFrame:
-    """Calculate pairwise distance matrix between samples.
+    """Pairwise sample-to-sample distance matrix.
 
     Parameters
     ----------
     data
-        Annotated data matrix with proteins as observations (rows)
+        AnnData object (proteins × samples).
     distance_metric
-        Distance metric to use for calculating pairwise distances between samples.
-        One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
-    linkage_method
-        Method for hierarchical clustering.
-        One of 'single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward'
-    linkage_metric
-        Distance metric to use for hierarchical clustering.
-        One of 'euclidean', 'cosine', 'correlation', 'cityblock', 'jaccard', 'hamming'
+        Metric passed to :func:`scipy.spatial.distance.pdist`.
+    linkage_method, linkage_metric
+        Parameters forwarded to :func:`scipy.cluster.hierarchy.linkage` – used
+        here solely to obtain an ordering of samples for the returned matrix.
 
     Returns
     -------
-    distance_matrix
-        Pairwise distance matrix between samples
+    pandas.DataFrame
+        Square distance matrix with samples in dendrogram order.
     """
 
     distance_matrix = spatial.distance.pdist(data.X, metric=distance_metric)
