@@ -8,7 +8,16 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import itertools
+import seaborn as sns
+import anndata as ad
 import sklearn.metrics
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import LinearSVC, SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import cross_val_predict
 
 
 def class_balance(
@@ -224,3 +233,188 @@ def qsep_score(
         }
     else:
         return cluster_distances
+
+
+def separability_auc(data,
+                label_col="consensus_graph_annnotation",
+                coord_cols=["umap_1", "umap_2"],
+                C_margin=1.0,
+                auc_model="svm",
+                svm_kernel="rbf",
+                C_auc=1.0,
+                cv_auc=5,
+                heatmap_size=(12,11),
+                inplace=True):
+
+    """
+    Compute pair-wise SVM AUC between all label pairs.
+
+    Parameters
+    ----------
+    data : DataFrame or AnnData 
+    label_col : str 
+        class labels (y in the classifier) 
+        if AnnData, then use .obs[label_col]
+        if DataFrame, then use column name as label
+    coord_cols : list of str
+        coordinates (X in the classifier)
+        if AnnData, use .obsm[coord_cols] if coord_cols is a *str*, and .var[coord_cols] if *list*
+        if DataFrame, then interpret as list of column names
+    auc_model : {"lr", "svm"}
+        Which estimator to use for AUC calculation.
+    svm_kernel : str
+        Kernel for SVC when auc_model == "svm" ("linear", "rbf", …).
+    C_margin : float
+        Soft-margin parameter for the *margin* LinearSVC.
+    C_auc : float
+        Regularisation strength for the AUC classifier (LR or SVM).
+    cluster_heatmap : bool
+        Whether to cluster rows/columns in the AUC heatmap.
+    display_heatmaps : bool
+        Whether to display the heatmaps.
+    heatmap_size : tuple
+        Size of the heatmaps.
+
+    Returns
+    -------
+    margin_mat : DataFrame
+        Pair-wise margin matrix
+    auc_mat : DataFrame
+        Pair-wise AUC matrix
+    figures: matplotlib.pyplot.Figure
+    """
+    #------------------------------------------------------------------
+    # construct dataframe if input is anndata
+    #------------------------------------------------------------------
+    if isinstance(data, ad.AnnData):
+        assert(label_col in data.obs.columns), f"label_col {label_col} not in data.obs.columns"
+        if isinstance(coord_cols, str):
+            X_all = data.obsm[coord_cols]
+            df = pd.DataFrame(X_all)
+            coord_cols = df.columns.tolist() # update coord_cols to the actual column names
+            df[label_col] = data.obs[label_col].tolist()
+        elif isinstance(coord_cols, list):
+            col_idx = data.var_names.get_indexer(coord_cols)
+            X_all = data.X[:, col_idx]
+            df = pd.DataFrame(X_all)
+            coord_cols = df.columns.tolist() # update coord_cols to the actual column names
+            df[label_col] = data.obs[label_col].tolist()
+        else:
+            raise ValueError(f"coord_cols must be a string or list, got {type(coord_cols)}")
+    elif isinstance(data, pd.DataFrame):
+        df = data
+        if not isinstance(coord_cols, list):
+            raise ValueError(f"coord_cols must be a list if data is a DataFrame, got {type(coord_cols)}")
+        if label_col not in df.columns:
+            raise ValueError(f"label_col {label_col} not in data.columns")
+    else:
+        raise ValueError(f"data must be an AnnData or DataFrame, got {type(data)}")
+
+    # ------------------------------------------------------------------
+    #  Basic prep
+    # ------------------------------------------------------------------
+    # Drop rows with missing coords or labels
+    df = df.dropna(subset=[label_col, *coord_cols])
+
+    X_all = df[list(coord_cols)].values
+    y_all = df[label_col].values
+    labels = pd.unique(y_all)         # handles mixed types safely
+    k = len(labels)
+
+    margin_mat = pd.DataFrame(
+        np.zeros((k, k)), index=labels, columns=labels)
+    auc_mat = pd.DataFrame(
+        np.ones((k, k)), index=labels, columns=labels)
+
+    # ------------------------------------------------------------------
+    #  Pipelines
+    # ------------------------------------------------------------------
+    margin_svm = Pipeline([
+        ("scale", StandardScaler()),
+        ("svm",   LinearSVC(C=C_margin,
+                            class_weight="balanced",
+                            dual=False,
+                            max_iter=20000,
+                            random_state=0))
+    ])
+
+    if auc_model == "lr":
+        auc_clf = Pipeline([
+            ("scale", StandardScaler()),
+            ("logit", LogisticRegression(
+                C=C_auc,
+                class_weight="balanced",
+                max_iter=5000,
+                solver="lbfgs",
+                random_state=0))
+        ])
+    elif auc_model == "svm":
+        auc_clf = Pipeline([
+            ("scale", StandardScaler()),
+            ("svc", SVC(
+                kernel=svm_kernel,
+                C=C_auc,
+                probability=True,          # enables predict_proba
+                class_weight="balanced",
+                random_state=0))
+        ])
+    else:
+        raise ValueError('auc_model must be "lr" or "svm"')
+
+    # ------------------------------------------------------------------
+    #  Pair-wise loop
+    # ------------------------------------------------------------------
+    for lab_i, lab_j in itertools.combinations(labels, 2):
+        mask = (y_all == lab_i) | (y_all == lab_j)
+        X_pair = X_all[mask]
+        y_pair = (y_all[mask] == lab_j).astype(int)
+
+        # ----- margin -----
+        margin_svm.fit(X_pair, y_pair)
+        w = margin_svm[-1].coef_.ravel()
+        margin = 2.0 / np.linalg.norm(w)
+        margin_mat.loc[lab_i, lab_j] = margin_mat.loc[lab_j, lab_i] = margin
+
+        # ----- AUC -----
+        prob_oof = cross_val_predict(
+            auc_clf, X_pair, y_pair,
+            cv=cv_auc, method="predict_proba")[:, 1]
+        auc = roc_auc_score(y_pair, prob_oof)
+        auc_mat.loc[lab_i, lab_j] = auc_mat.loc[lab_j, lab_i] = auc
+
+    # ------------------------------------------------------------------
+    #  Set diagonal to 1 for AUC matrix (self-comparison isn't meaningful)
+    # ------------------------------------------------------------------
+    np.fill_diagonal(auc_mat.values, 0.5)
+    
+    # ------------------------------------------------------------------
+    #  visual summary
+    # ------------------------------------------------------------------
+    figures = {}
+    # Create clustered AUC heatmap
+    auc_clustermap = sns.clustermap(auc_mat, 
+                                    square=True, 
+                                    annot=True, 
+                                    fmt=".2f",
+                                    cmap="rocket", 
+                                    vmin=0.5, 
+                                    vmax=1,
+                                    cbar_kws=dict(label=f"ROC-AUC ({auc_model.upper()})"),
+                                    figsize=(heatmap_size[0], heatmap_size[1]))
+    auc_clustermap.fig.suptitle("Label separability\nPair-wise classifier-AUC")
+    auc_clustermap.ax_heatmap.set_xticklabels(
+        auc_clustermap.ax_heatmap.get_xticklabels(), rotation=45, ha='right')
+    figures['auc_fig'] = auc_clustermap
+    
+    # Get the clustered order for returning
+    auc_mat = auc_mat.iloc[auc_clustermap.dendrogram_row.reordered_ind, 
+                            auc_clustermap.dendrogram_col.reordered_ind]
+
+    if inplace:
+        data.uns[f"separability ({label_col})"] = {
+            "auc_mat": auc_mat,
+            "margin_mat": margin_mat,
+            "figures": figures
+        }
+    else:
+            return auc_mat, margin_mat, figures
