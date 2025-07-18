@@ -14,9 +14,7 @@ from anndata import AnnData
 from .simple import aggregate_samples
 
 
-def _check_covariates(
-    data: AnnData, covariates: Optional[Sequence[str]] = None
-) -> list[str]:
+def _check_covariates(data: AnnData, covariates: Optional[Sequence[str]] = None) -> list[str]:
     """
     Checks for covariates in ``data.var`` and returns a list of validated covariate names.
 
@@ -42,9 +40,7 @@ def _check_covariates(
         If a specified covariate is not found in ``data.var.columns``.
     """
     if covariates is None:
-        covariates = list(
-            data.var.columns[data.var.columns.str.startswith("covariate_")]
-        )
+        covariates = list(data.var.columns[data.var.columns.str.startswith("covariate_")])
     elif isinstance(covariates, str):
         covariates = [covariates]
     else:
@@ -115,30 +111,23 @@ def calculate_enrichment_vs_untagged(
         data_aggr.layers[original_intensities_key] = data_aggr.X
     data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
     for experimental_condition in data_aggr.var["_experimental_condition"].unique():
-        data_sub = data[
-            :, data.var["_experimental_condition"] == experimental_condition
-        ]
+        data_sub = data[:, data.var["_experimental_condition"] == experimental_condition]
         intensities_control = data_sub[
             :,
             data_sub.var[subcellular_enrichment_column].str.match(untagged_name),
         ].X
         if intensities_control.shape[1] == 0:
             raise ValueError(
-                f"No {untagged_name} samples found for condition: "
-                f"{experimental_condition}"
+                f"No {untagged_name} samples found for condition: " f"{experimental_condition}"
             )
-        for subcellular_enrichment in data_sub.var[
-            subcellular_enrichment_column
-        ].unique():
+        for subcellular_enrichment in data_sub.var[subcellular_enrichment_column].unique():
             intensities_ip = data_sub[
                 :, data_sub.var[subcellular_enrichment_column] == subcellular_enrichment
             ].X
             scores, pv = stats.ttest_ind(
                 intensities_ip.T, intensities_control.T, nan_policy="omit"
             )
-            lfc = np.median(intensities_ip, axis=1) - np.median(
-                intensities_control, axis=1
-            )
+            lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
             aggr_mask = (
                 data_aggr.var["_experimental_condition"] == experimental_condition
             ) & (data_aggr.var[subcellular_enrichment_column] == subcellular_enrichment)
@@ -218,9 +207,7 @@ def calculate_enrichment_vs_all(
         lambda x: "_".join(x.dropna().astype(str)), axis=1
     )
 
-    data_aggr = aggregate_samples(
-        data, grouping_columns=grouping_columns, keep_raw=False
-    )
+    data_aggr = aggregate_samples(data, grouping_columns=grouping_columns, keep_raw=False)
 
     if original_intensities_key is not None:
         data_aggr.layers[original_intensities_key] = data_aggr.X
@@ -237,9 +224,7 @@ def calculate_enrichment_vs_all(
         covariate_mask = data_aggr.var["_covariates"] == covariate
         control_mask = ~mask & covariate_mask
         if not np.any(control_mask):
-            warnings.warn(
-                f"No control samples found for condition: {experimental_condition}"
-            )
+            warnings.warn(f"No control samples found for condition: {experimental_condition}")
             continue
         corr_mat_sub = corr_matrix[np.ix_(np.where(mask)[0], np.where(control_mask)[0])]
         if corr_mat_sub.size == 0:
@@ -248,9 +233,7 @@ def calculate_enrichment_vs_all(
             )
             continue
         corr_mean = corr_mat_sub.mean(axis=0)
-        control_mask_indices = np.where(control_mask)[0][
-            corr_mean < correlation_threshold
-        ]
+        control_mask_indices = np.where(control_mask)[0][corr_mean < correlation_threshold]
         if len(control_mask_indices) == 0:
             warnings.warn(
                 f"No sufficiently uncorrelated controls for condition: {experimental_condition}"
@@ -272,9 +255,7 @@ def calculate_enrichment_vs_all(
                 intensities_control, axis=1
             )
         else:
-            denom = np.nansum(intensities_ip, axis=1) + np.nansum(
-                intensities_control, axis=1
-            )
+            denom = np.nansum(intensities_ip, axis=1) + np.nansum(intensities_control, axis=1)
             denom = np.where(denom == 0, np.nan, denom)
             enrichment_values = np.nansum(intensities_ip, axis=1) / denom
         scores, pv = stats.ttest_ind(
