@@ -38,8 +38,7 @@ def markov_clustering(adata: AnnData, resolution: float = 1.2, key_added: str = 
     adata
         Annotated data matrix which already contains ``adata.obsp['connectivities']``.
     resolution
-        Inflation parameter of the MCL algorithm (named *resolution* here to
-        mirror Scanpy’s Leiden/Louvain API).  Larger values yield more, smaller
+        Inflation parameter of the MCL algorithm. Larger values yield more, smaller
         clusters.  Typical range: ``1.2`` – ``5``.
     key_added
         Observation key used to store the resulting cluster labels
