@@ -17,8 +17,6 @@ if TYPE_CHECKING:
 
 from anndata import AnnData
 
-# from ..util import confirm_proteins_as_obs
-
 
 def filter_samples(
     data: AnnData | spmatrix | np.ndarray | DaskArray,
@@ -58,8 +56,6 @@ def filter_samples(
     * AnnData if input is AnnData and ``inplace=False``
     * A tuple of arrays (``retained_samples``, ``retained_proteins``) if input is not AnnData
     """
-    # if isinstance(data, AnnData):
-    #     confirm_proteins_as_obs(data)
 
     return sc.pp.filter_genes(
         data,
@@ -110,8 +106,6 @@ def filter_proteins(
     * AnnData if input is AnnData and ``inplace=False``
     * A tuple of arrays ``(retained_proteins, retained_samples)`` if input is not AnnData
     """
-    # if isinstance(data, AnnData):
-    #     confirm_proteins_as_obs(data)
 
     return sc.pp.filter_cells(
         data,
@@ -226,7 +220,6 @@ def filter_proteins_per_replicate(
     detected in at least ``min_replicates`` samples. The protein must pass this threshold
     in at least ``min_samples`` groups to be kept.
     """
-    # confirm_proteins_as_obs(data)
     groups = data.var.groupby(grouping_columns)
     protein_subset = np.repeat(0, repeats=data.n_obs)
     for _, g in groups:
@@ -303,7 +296,6 @@ def remove_contaminants(
     * If `inplace=True`, returns None.
     """
 
-    # confirm_proteins_as_obs(data)
     if filter_columns is None:
         filter_columns = data.uns["RawInfo"]["filter_columns"]
     elif isinstance(filter_columns, str):
@@ -529,7 +521,6 @@ def calculate_qc_metrics(
         * `sample_qc_metrics`: ``pd.DataFrame`` with sample-wise QC metrics
     """
 
-    # confirm_proteins_as_obs(data)
     dfs = sc.pp.calculate_qc_metrics(
         data.copy().T,
         expr_type=expr_type,
@@ -602,7 +593,6 @@ def highly_variable_proteins(
     * ``dispersions``: dispersion of expression
     * ``dispersions_norm``: normalized dispersion
     """
-    # confirm_proteins_as_obs(data)
     df = sc.pp.highly_variable_genes(
         data.T, inplace=False, n_top_genes=n_top_proteins, **kwargs
     )
