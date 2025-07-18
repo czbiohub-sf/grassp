@@ -14,8 +14,6 @@ import scipy.sparse
 
 from anndata import AnnData
 
-# from ..util import confirm_proteins_as_obs
-
 
 def impute_gaussian(
     data: AnnData,
@@ -60,7 +58,6 @@ def impute_gaussian(
     and are imputed from a Gaussian distribution with parameters derived from the
     observed values but shifted downward.
     """
-    # confirm_proteins_as_obs(data)
     np.random.seed(random_state)
 
     if not inplace:
