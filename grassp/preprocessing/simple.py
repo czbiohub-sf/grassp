@@ -180,9 +180,7 @@ def filter_min_consecutive_fractions(
             protein_subset = protein_subset + gs
         filtered_subset = protein_subset >= min_replicates
         if inplace:
-            data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = (
-                protein_subset
-            )
+            data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = protein_subset
         else:
             return protein_subset
 
@@ -349,23 +347,55 @@ def aggregate_proteins(
     the intensity values using the specified ``agg_func``.
     """
     groups = data.obs.groupby(grouping_columns, observed=True)
-    X_list = []
-    obs_list = []
+    X = np.empty((len(groups), data.n_vars))
+    # obs_list = []
+    obs = pd.DataFrame(index=groups.groups.keys(), columns=data.obs.columns)
+    obs["n_merged_proteins"] = 1
+    layers_dict = {layer: X.copy() for layer in data.layers.keys()}
 
-    for _, ind in groups.indices.items():
-        g = data.obs.iloc[ind]
-        # Determine obs columns to keep
-        unique_col_indices = g.nunique() == 1
-        obs_sub = g.loc[g.index[[0]], unique_col_indices]
-        obs_sub["n_merged_proteins"] = ind.size
-        X_sub = data.X[ind, :]
-        X_sub = agg_func(X_sub, axis=0)
-        X_list.append(X_sub)
-        obs_list.append(obs_sub)
-    obs = pd.concat(obs_list, axis=0)
-    X = np.vstack(X_list)
+    individual_indices, obs_indices = [], []
+    for i, (_, ind) in enumerate(groups.indices.items()):
+        if len(ind) == 1:
+            # obs_list.append(data.obs.iloc[ind])
+            individual_indices.append(i)
+            obs_indices.append(ind[0])
+        else:
+            # Aggregate obs
+            g = data.obs.iloc[ind]
+            nunique = g.nunique()
+            obs_sub = g.iloc[0].copy()
+            obs_sub[nunique > 1] = np.nan
+            obs_sub["n_merged_proteins"] = len(ind)
+            obs.iloc[i, :] = obs_sub.values
+            # Aggregate X
+            X_sub = data.X[ind, :]
+            X_sub = agg_func(X_sub, axis=0)
+            X[i, :] = X_sub
+            # obs_list.append(obs_sub)
+            # Aggregate layers
+            for layer_name, layer_data in data.layers.items():
+                layer_sub = layer_data[ind, :]
+                layer_sub = agg_func(layer_sub, axis=0)
+                layers_dict[layer_name][i, :] = layer_sub
+
+    obs.iloc[individual_indices, :-1] = data.obs.iloc[obs_indices].copy()
+    X[individual_indices] = data.X[obs_indices]
+    for layer_name, layer_data in data.layers.items():
+        layers_dict[layer_name][individual_indices] = layer_data[obs_indices]
+
+    # obs = pd.concat(obs_list, axis=0)
+    # X = np.vstack(X_list)
+    # aggregated_layers = {
+    #     layer: np.vstack(layer_list) for layer, layer_list in layers_dict.items()
+    # }
     retdata = AnnData(
-        X=X, obs=obs, var=data.var, uns=data.uns, varp=data.varp, varm=data.varm
+        X=X,
+        obs=obs,
+        var=data.var,
+        uns=data.uns,
+        varp=data.varp,
+        varm=data.varm,
+        layers=layers_dict,
     )
     return retdata
 
@@ -512,6 +542,17 @@ def calculate_qc_metrics(
         percent_top=percent_top,
         qc_vars=qc_vars,
     )
+    var_df, obs_df = dfs
+    var_df["pct_dropout_by_intensity"] = 100 - (
+        100 * (var_df[f"n_{var_type}_by_{expr_type}"] / obs_df.shape[0])
+    )
+    if not inplace:
+        return dfs
+    obs_df.columns = obs_df.columns.str.replace(
+        "cells", "samples"
+    )  # This fixes a bug in scanpy
+    data.obs[obs_df.columns] = obs_df
+    data.var[var_df.columns] = var_df
 
 
 def highly_variable_proteins(
