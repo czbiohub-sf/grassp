@@ -20,7 +20,6 @@ This module provides various tools for analyzing proteomics data.
    tl.leiden_mito_sweep
    tl.knn_annotation
    tl.calculate_interfacialness_score
-   tl.get_n_nearest_neighbors
    tl.silhouette_score
    tl.calinski_habarasz_score
    tl.tagm_map_train
