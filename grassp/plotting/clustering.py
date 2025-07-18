@@ -10,7 +10,31 @@ from scanpy.tl import Ingest
 from scipy.stats import multivariate_normal
 
 
-def sample_tagm_map(adata, size=100):
+def sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
+    """Return synthetic samples from the TAGM posterior distribution.
+
+    This helper draws *size* samples for each TAGM component using the
+    multivariate normal parameters stored in
+    ``adata.uns["tagm.map.params"]["posteriors"]``.
+
+    Parameters
+    ----------
+    adata
+        Annotated data matrix produced by :func`grassp.tl.tagm_map_train`.
+        The function expects that posterior means (``mu``) and covariances
+        (``sigma``) are stored under
+        ``adata.uns["tagm.map.params"]["posteriors"]``.
+    size
+        Number of samples to draw *per component* (cluster).
+
+    Returns
+    -------
+    A list containing one array per component. Each array has shape
+    ``(size, n_features)`` where ``n_features`` equals the dimensionality of
+    the data on which TAGM was fitted (typically the number of fractions
+    or enriched samples).
+    """
+
     params = adata.uns["tagm.map.params"]
     mu = params["posteriors"]["mu"]
     sigma = params["posteriors"]["sigma"]
@@ -27,13 +51,40 @@ def tagm_map_contours(
     levels: int = 4,
     ax: plt.Axes | None = None,
     **kwargs,
-):
-    """Plot the TAGM map of the adata object.
+) -> plt.Axes:
+    """Plot posterior density contours of TAGM components in embedding space.
 
-    Args:
-        adata: The adata object.
-        size: The number of samples to draw from the TAGM map.
-        ax: The axis to plot the TAGM map on.
+    The function draws synthetic observations from the TAGM posterior via
+    :func:`sample_tagm_map` and projects them into either UMAP or PCA space
+    (depending on ``embedding``).  A kernel–density estimate is then computed
+    for each component and visualized as contour lines.
+
+    Parameters
+    ----------
+    adata
+        Annotated data matrix that already contains TAGM posterior parameters
+        in ``adata.uns["tagm.map.params"]`` **and** an embedding (UMAP or PCA)
+        fitted by :func:`~scanpy.tl.umap` or :func:`scanpy.pp.pca`.
+    embedding
+        Target space for the contours, either ``"umap"`` or ``"pca"``.
+    size
+        Number of posterior samples to draw *per component*.
+    components, dimensions
+        Specify which dimensions of the embedding to use.  Only one pair of
+        dimensions is allowed.  Use ``components`` (Scanpy style string) or a
+        ``dimensions`` tuple, not both.
+    levels
+        Number of contour levels passed to :func:`seaborn.kdeplot`.
+    ax
+        Matplotlib axes to plot on.  If ``None``, the current axes returned by
+        :func:`matplotlib.pyplot.gca` are used.
+    **kwargs
+        Additional keyword arguments forwarded to :func:`seaborn.kdeplot`.
+
+    Returns
+    -------
+    The axes object containing the contour plot (returned for
+    convenience).
     """
     if ax is None:
         ax = plt.gca()
@@ -70,6 +121,7 @@ def tagm_map_contours(
         y = emb[idx : idx + v.shape[0], dimensions[1]]
         sns.kdeplot(x=x, y=y, levels=levels, ax=ax, color=c, **kwargs)
         idx += v.shape[0]
+    return ax
 
 
 def _plot_covariance_ellipse(cov, pos, nstd=2, ax=None, **kwargs):
@@ -123,13 +175,42 @@ def tagm_map_pca_ellipses(
     dimensions: tuple[int, int] | None = None,
     components: str | Sequence[str] | None = None,
     ax: plt.Axes | None = None,
+    scatter_kwargs: dict | None = {},
     **kwargs,
-):
-    """Plot the PCA ellipses of the TAGM map of the adata object.
+) -> plt.Axes:
+    """Visualize TAGM component covariance as ellipses in PCA space.
 
-    Args:
-        adata: The adata object.
-        ax: The axis to plot the TAGM map on.
+    For each TAGM component the posterior covariance matrix is projected into
+    PCA space and visualised as an ellipse representing *n* standard-
+    deviation contours (defined by the *stds* list).
+
+    Parameters
+    ----------
+    adata
+        Annotated data matrix that contains
+        ``adata.varm["PCs"]`` (loadings) and TAGM posterior parameters under
+        ``adata.uns["tagm.map.params"]``.
+    stds
+        Radii of the ellipses in standard deviations.  Typical choices are
+        ``[1, 2, 3]`` which correspond to the 68 %, 95 % and 99.7 %
+        confidence regions of a multivariate normal distribution.
+    dimensions, components
+        Specify which principal components to plot—either via an explicit
+        *dimensions* tuple (0-based indices) or the Scanpy-style *components*
+        string (e.g. ``"1,2"``).
+    ax
+        Matplotlib axes to plot on.  If *None*, :func:`matplotlib.pyplot.gca`
+        is used.
+    scatter_kwargs
+        Additional keyword arguments forwarded to
+        :func:`~matplotlib.pyplot.scatter`.
+    **kwargs
+        Additional keyword arguments forwarded to
+        :class:`~matplotlib.patches.Ellipse` (e.g. ``linewidth``, ``alpha``).
+
+    Returns
+    -------
+    The axes with the ellipse overlay (returned if *show* is False).
     """
     dimensions = _components_to_dimensions(
         components=components, dimensions=dimensions, total_dims=2
@@ -159,7 +240,14 @@ def tagm_map_pca_ellipses(
     for i in range(Sigma_pca.shape[0]):
         color = adata.uns["tagm.map.allocation_colors"][i]
 
-        ax.scatter(mu_pca[i][0], mu_pca[i][1], marker="X", s=40, color=color)
+        ax.scatter(
+            mu_pca[i][0],
+            mu_pca[i][1],
+            marker="X",
+            s=40,
+            color=color,
+            **scatter_kwargs,
+        )
         for nstd in stds:
             _plot_covariance_ellipse(
                 Sigma_pca[i][:2, :2],
@@ -169,4 +257,6 @@ def tagm_map_pca_ellipses(
                 color=color,
                 fill=False,
                 nstd=nstd,
+                **kwargs,
             )
+    return ax

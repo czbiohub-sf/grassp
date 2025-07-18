@@ -1,7 +1,18 @@
 /* Adjust sidebar width */
-.bd-sidebar {
-    min-width: 300px;  /* Increase from default */
-    max-width: 450px; /* Set maximum width */
+/* Wider left sidebar so long function names are not truncated */
+
+/* For PyData Sphinx Theme >= 0.13 */
+:root {
+    /* Primary sidebar width */
+    --pst-sidebar-primary: 400px;
+}
+
+/* For older/alternate class names */
+.bd-sidebar,
+.bd-sidebar-primary {
+    flex: 0 0 400px;   /* fixed width */
+    max-width: 400px;
+    min-width: 400px;
 }
 
 /* Ensure content adjusts properly */

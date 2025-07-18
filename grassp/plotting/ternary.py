@@ -27,9 +27,34 @@ def _add_ternary_categorical_legend(
     na_color="grey",
     na_in_legend=None,
 ):
-    """Add categorical legend for ternary plots.
+    """Add a categorical legend to a ternary scatter plot.
 
-    This is a ternary-compatible version of scanpy's _add_categorical_legend.
+    This helper mimics :func:`scanpy.plotting._utils._add_categorical_legend`
+    but is adapted for ``mpltern`` axes.  It inspects ``color_source_vector``
+    for unique categories, maps them to colors provided in ``palette`` and
+    attaches a legend to ``ax``.
+
+    Parameters
+    ----------
+    ax
+        mpltern axes instance returned by :func:`matplotlib.pyplot.subplot`
+        with ``projection="ternary"``.
+    color_source_vector
+        Iterable of categorical labels (pandas Series or numpy array).
+    palette
+        Mapping from category name to colour.
+    legend_loc
+        Position of the legend (*e.g.* ``"upper right"``).
+    legend_fontsize
+        Font size used for category labels.
+    legend_fontweight
+        Font weight used for labels (e.g. ``"bold"``).
+    legend_fontoutline
+        Outline colour for legend text (if supported).
+    na_color
+        Colour used for missing category values.
+    na_in_legend
+        If ``True`` include a legend entry for missing values.
     """
     import pandas as pd
 
@@ -122,6 +147,48 @@ def ternary(
     na_in_legend: Optional[bool] = None,
     **kwargs,
 ):
+    """Scatter plot of 3-part compositions in a ternary diagram.
+
+    The function expects that ``adata.X`` has exactly three columns which
+    represent the proportions of each component and therefore should sum to
+    1 (or all share the same unit).
+
+    Parameters
+    ----------
+    adata
+        AnnData with **three** variables (columns).  Observations are plotted
+        as points in barycentric (ternary) coordinates.
+    color
+        Key passed to Scanpy’s color utilities (e.g. column in ``adata.obs``
+        or layer key).  If ``None`` the default color cycle is used.
+    ax
+        Existing mpltern axes.  If ``None`` a new ternary subplot is created.
+    labels
+        Axis labels for the three corners.  Defaults to ``adata.var_names``.
+    show
+        Whether to immediately display the plot.
+    colorbar_loc
+        Location argument forwarded to :func:`matplotlib.pyplot.colorbar` when
+        ``color`` is continuous.
+    legend_loc
+        Location string for the categorical legend.
+    legend_fontweight
+        Weight of legend text.
+    legend_fontsize
+        Size of legend text.
+    legend_fontoutline
+        Outline colour for legend text.
+    na_in_legend
+        Whether to show a legend entry for ``NaN`` values.
+    **kwargs
+        Additional keyword arguments passed to
+        :func:`matplotlib.axes.Axes.scatter`.
+
+    Returns
+    -------
+    If ``show`` is ``False``, returns the Ternary axes containing the scatter plot.
+    """
+
     try:
         import mpltern  # noqa: F401
     except ImportError:
@@ -182,4 +249,5 @@ def ternary(
         plt.colorbar(cax, ax=ax, pad=0.01, fraction=0.08, aspect=30, location=colorbar_loc)
     if show:
         plt.show()
-    return ax
+    else:
+        return ax

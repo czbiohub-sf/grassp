@@ -4,8 +4,6 @@ from .clustering import (
     knn_annotation,
     leiden_mito_sweep,
     markov_clustering,
-    tagm_map_predict,
-    tagm_map_train,
     to_knn_graph,
 )
 from .enrichment import calculate_cluster_enrichment, rank_proteins_groups
@@ -16,3 +14,4 @@ from .scoring import (
     qsep_score,
     silhouette_score,
 )
+from .tagm import tagm_map_predict, tagm_map_train

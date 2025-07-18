@@ -25,6 +25,7 @@ extensions = [
     "sphinx.ext.githubpages",
     "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
+    "sphinx.ext.intersphinx",
     "scanpydoc",
     "myst_nb",  # enable notebook execution and rendering (includes myst_parser)
 ]
@@ -57,6 +58,15 @@ html_theme_options = dict(
 html_logo = "_static/img/grassp_logo.png"
 issues_github_path = "czbiohub-sf/grassp"
 html_show_sphinx = False
+intersphinx_mapping = dict(
+    python=("https://docs.python.org/3", None),
+    numpy=("https://numpy.org/doc/stable", None),
+    pandas=("https://pandas.pydata.org/pandas-docs/stable", None),
+    anndata=("https://anndata.readthedocs.io/en/stable/", None),
+    scanpy=("https://scanpy.readthedocs.io/en/stable/", None),
+    scipy=("https://docs.scipy.org/doc/scipy", None),
+)
+
 
 # Execute notebooks only when out-of-date and set timeout
 nb_execution_mode = "auto"  # or "force" to always run, "off" to skip

@@ -1,4 +1,4 @@
-## Tools: `tl`
+# Tools: `tl`
 
 ```{eval-rst}
 .. module:: grassp.tl
@@ -8,9 +8,9 @@
 .. currentmodule:: grassp
 ```
 
-This module provides various tools for analyzing proteomics data. 
+This module provides various tools for analyzing proteomics data.
 
-### Clustering
+## Clustering
 
 ```{eval-rst}
 .. autosummary::
@@ -20,14 +20,13 @@ This module provides various tools for analyzing proteomics data.
    tl.leiden_mito_sweep
    tl.knn_annotation
    tl.calculate_interfacialness_score
-   tl.get_n_nearest_neighbors
    tl.silhouette_score
    tl.calinski_habarasz_score
    tl.tagm_map_train
    tl.tagm_map_predict
 ```
 
-### Enrichment
+## Ontology Enrichment
 
 ```{eval-rst}
 .. autosummary::
@@ -38,7 +37,7 @@ This module provides various tools for analyzing proteomics data.
 ```
 
 
-### Integration
+## Integration
 
 ```{eval-rst}
 .. autosummary::
@@ -48,5 +47,15 @@ This module provides various tools for analyzing proteomics data.
    tl.align_adatas
    tl.aligned_umap
    tl.remodeling_score
+```
 
+## Graph analysis
+
+```{eval-rst}
+.. autosummary::
+   :nosignatures:
+   :toctree: ../generated/
+
+   tl.to_knn_graph
+   tl.get_n_nearest_neighbors
 ```
