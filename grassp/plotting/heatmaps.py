@@ -368,3 +368,79 @@ def qsep_boxplot(
     # ax.legend(bbox_to_anchor=(1.05, 1), loc="upper left", borderaxespad=0.0)
 
     return ax
+
+
+def sep_auc_heatmap(
+    data: np.ndarray | pd.DataFrame,
+    label_col: str = "consensus_graph_annnotation",
+    title: str = "Label separability AUC heatmap (Pair-wise classifier)",
+    fmt: str = ".2f",
+    cmap: str = "rocket",
+    vmin: float = 0.5,
+    vmax: float = 1.0,
+    inplace: bool = True,
+    figsize: tuple = (12, 11),
+    save_path: str = None,
+):
+    """
+    Create a clustered heatmap visualization of pairwise AUC separability matrix.
+
+    Parameters
+    ----------
+    data : np.ndarray | pd.DataFrame
+        Pairwise AUC matrix to visualize. If DataFrame, index/columns are used as labels.
+        If ndarray, must provide labels parameter.
+    label_col
+            class labels (y in the classifier)
+            if AnnData, then use .obs[label_col]
+            if DataFrame, then use column name as label
+    title : str, default "Label separability AUC heatmap (Pair-wise classifier)"
+        Title for the heatmap plot.
+    cmap : str, default "rocket"
+        Colormap for the heatmap visualization.
+    vmin : float, default 0.5
+        Minimum value for colormap scaling.
+    vmax : float, default 1.0
+        Maximum value for colormap scaling.
+    fmt : str, default ".2f"
+        Format string for cell annotations.
+    figsize : tuple, default (12, 11)
+        Figure size as (width, height) in inches.
+    save_path : str, optional
+        Path to save the figure. If None, figure is not saved.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The heatmap figure object.
+    """
+    figures = {}
+    # Create clustered AUC heatmap
+    auc_clustermap = sns.clustermap(
+        data,
+        square=True,
+        annot=True,
+        fmt=fmt,
+        cmap=cmap,
+        vmin=vmin,
+        vmax=vmax,
+        cbar_kws=dict(label=f"ROC-AUC ({data.upper()})"),
+        figsize=(figsize[0], figsize[1]),
+    )
+    auc_clustermap.fig.suptitle(title)
+    auc_clustermap.ax_heatmap.set_xticklabels(
+        auc_clustermap.ax_heatmap.get_xticklabels(), rotation=45, ha='right'
+    )
+    figures['auc_fig'] = auc_clustermap
+
+    # Get the clustered order for returning
+    auc_mat = data.iloc[
+        auc_clustermap.dendrogram_row.reordered_ind,
+        auc_clustermap.dendrogram_col.reordered_ind,
+    ]
+    if save_path:
+        auc_clustermap.savefig(save_path)
+    if inplace:
+        data.uns[f"separability ({label_col})"] = {"auc_mat": auc_mat, "figures": figures}
+    else:
+        return auc_clustermap.fig

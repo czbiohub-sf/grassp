@@ -3,21 +3,23 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anndata import AnnData
+    from typing import Literal
 
+import itertools
 import warnings
 
+import anndata as ad
 import numpy as np
 import pandas as pd
-import itertools
-import seaborn as sns
-import anndata as ad
+import scanpy as sc
 import sklearn.metrics
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import LinearSVC, SVC
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import cross_val_predict
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC, LinearSVC
 
 
 def class_balance(
@@ -235,45 +237,50 @@ def qsep_score(
         return cluster_distances
 
 
-def separability_auc(data,
-                label_col="consensus_graph_annnotation",
-                coord_cols=["umap_1", "umap_2"],
-                C_margin=1.0,
-                auc_model="svm",
-                svm_kernel="rbf",
-                C_auc=1.0,
-                cv_auc=5,
-                heatmap_size=(12,11),
-                inplace=True):
-
+def separability_auc(
+    data,
+    label_col: str = "consensus_graph_annnotation",
+    use_rep: str = "X",
+    n_pcs: int | None = None,
+    C_margin: float = 1.0,
+    auc_model: Literal["lr", "svm"] = "svm",
+    svm_kernel: str = "rbf",
+    C_auc: float = 1.0,
+    cv_auc: int = 5,
+    inplace: bool = True,
+):
     """
     Compute pair-wise SVM AUC between all label pairs.
 
     Parameters
     ----------
-    data : DataFrame or AnnData 
-    label_col : str 
-        class labels (y in the classifier) 
+    data
+        AnnData object containing protein intensities
+    label_col  : str, optional
+        class labels (y in the classifier)
         if AnnData, then use .obs[label_col]
         if DataFrame, then use column name as label
-    coord_cols : list of str
+        Defaults to "consensus_graph_annnotation"
+    use_rep : str, optional
         coordinates (X in the classifier)
-        if AnnData, use .obsm[coord_cols] if coord_cols is a *str*, and .var[coord_cols] if *list*
+        if AnnData, use .obsm[use_rep] if use_rep is a *str*, and .var[use_rep] if *list*
         if DataFrame, then interpret as list of column names
-    auc_model : {"lr", "svm"}
+        Defaults to "X"
+    n_pcs : int, optional
+        Number of components to use from the representation (e.g., PCA).
+        Defaults to None.
+    auc_model : Literal, optional
         Which estimator to use for AUC calculation.
-    svm_kernel : str
+        Defaults to "svm"
+    svm_kernel : str, optional
         Kernel for SVC when auc_model == "svm" ("linear", "rbf", …).
-    C_margin : float
+        Defaults to "rbf"
+    C_margin : float, optional
         Soft-margin parameter for the *margin* LinearSVC.
-    C_auc : float
+        Defaults to 1.0
+    C_auc : float, optional
         Regularisation strength for the AUC classifier (LR or SVM).
-    cluster_heatmap : bool
-        Whether to cluster rows/columns in the AUC heatmap.
-    display_heatmaps : bool
-        Whether to display the heatmaps.
-    heatmap_size : tuple
-        Size of the heatmaps.
+        Defaults to 1.0
 
     Returns
     -------
@@ -283,28 +290,18 @@ def separability_auc(data,
         Pair-wise AUC matrix
     figures: matplotlib.pyplot.Figure
     """
-    #------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # construct dataframe if input is anndata
-    #------------------------------------------------------------------
+    # ------------------------------------------------------------------
     if isinstance(data, ad.AnnData):
-        assert(label_col in data.obs.columns), f"label_col {label_col} not in data.obs.columns"
-        if isinstance(coord_cols, str):
-            X_all = data.obsm[coord_cols]
-            df = pd.DataFrame(X_all)
-            coord_cols = df.columns.tolist() # update coord_cols to the actual column names
-            df[label_col] = data.obs[label_col].tolist()
-        elif isinstance(coord_cols, list):
-            col_idx = data.var_names.get_indexer(coord_cols)
-            X_all = data.X[:, col_idx]
-            df = pd.DataFrame(X_all)
-            coord_cols = df.columns.tolist() # update coord_cols to the actual column names
-            df[label_col] = data.obs[label_col].tolist()
-        else:
-            raise ValueError(f"coord_cols must be a string or list, got {type(coord_cols)}")
+        assert label_col in data.obs.columns, f"label_col {label_col} not in data.obs.columns"
+        X_all = sc.tools._utils._choose_representation(data, use_rep=use_rep, n_pcs=n_pcs)
+        df = pd.DataFrame(X_all)
+        use_rep = df.columns.tolist()
+        df[label_col] = data.obs[label_col].tolist()
+
     elif isinstance(data, pd.DataFrame):
         df = data
-        if not isinstance(coord_cols, list):
-            raise ValueError(f"coord_cols must be a list if data is a DataFrame, got {type(coord_cols)}")
         if label_col not in df.columns:
             raise ValueError(f"label_col {label_col} not in data.columns")
     else:
@@ -314,50 +311,67 @@ def separability_auc(data,
     #  Basic prep
     # ------------------------------------------------------------------
     # Drop rows with missing coords or labels
-    df = df.dropna(subset=[label_col, *coord_cols])
+    df = df.dropna(subset=[label_col, *use_rep])
 
-    X_all = df[list(coord_cols)].values
+    X_all = df[list(use_rep)].values
     y_all = df[label_col].values
-    labels = pd.unique(y_all)         # handles mixed types safely
+    labels = pd.unique(y_all)  # handles mixed types safely
     k = len(labels)
 
-    margin_mat = pd.DataFrame(
-        np.zeros((k, k)), index=labels, columns=labels)
-    auc_mat = pd.DataFrame(
-        np.ones((k, k)), index=labels, columns=labels)
+    margin_mat = pd.DataFrame(np.zeros((k, k)), index=labels, columns=labels)
+    auc_mat = pd.DataFrame(np.ones((k, k)), index=labels, columns=labels)
 
     # ------------------------------------------------------------------
     #  Pipelines
     # ------------------------------------------------------------------
-    margin_svm = Pipeline([
-        ("scale", StandardScaler()),
-        ("svm",   LinearSVC(C=C_margin,
-                            class_weight="balanced",
-                            dual=False,
-                            max_iter=20000,
-                            random_state=0))
-    ])
+    margin_svm = Pipeline(
+        [
+            ("scale", StandardScaler()),
+            (
+                "svm",
+                LinearSVC(
+                    C=C_margin,
+                    class_weight="balanced",
+                    dual=False,
+                    max_iter=20000,
+                    random_state=0,
+                ),
+            ),
+        ]
+    )
 
     if auc_model == "lr":
-        auc_clf = Pipeline([
-            ("scale", StandardScaler()),
-            ("logit", LogisticRegression(
-                C=C_auc,
-                class_weight="balanced",
-                max_iter=5000,
-                solver="lbfgs",
-                random_state=0))
-        ])
+        auc_clf = Pipeline(
+            [
+                ("scale", StandardScaler()),
+                (
+                    "logit",
+                    LogisticRegression(
+                        C=C_auc,
+                        class_weight="balanced",
+                        max_iter=5000,
+                        solver="lbfgs",
+                        random_state=0,
+                    ),
+                ),
+            ]
+        )
     elif auc_model == "svm":
-        auc_clf = Pipeline([
-            ("scale", StandardScaler()),
-            ("svc", SVC(
-                kernel=svm_kernel,
-                C=C_auc,
-                probability=True,          # enables predict_proba
-                class_weight="balanced",
-                random_state=0))
-        ])
+        auc_clf = Pipeline(
+            [
+                ("scale", StandardScaler()),
+                (
+                    "svc",
+                    SVC(
+                        kernel=svm_kernel,
+                        C=C_auc,
+                        probability=True,  # enables predict_proba
+                        class_weight="balanced",
+                        random_state=0,
+                    ),
+                ),
+            ]
+        )
     else:
         raise ValueError('auc_model must be "lr" or "svm"')
 
@@ -377,8 +391,8 @@ def separability_auc(data,
 
         # ----- AUC -----
         prob_oof = cross_val_predict(
-            auc_clf, X_pair, y_pair,
-            cv=cv_auc, method="predict_proba")[:, 1]
+            auc_clf, X_pair, y_pair, cv=cv_auc, method="predict_proba"
+        )[:, 1]
         auc = roc_auc_score(y_pair, prob_oof)
         auc_mat.loc[lab_i, lab_j] = auc_mat.loc[lab_j, lab_i] = auc
 
@@ -386,35 +400,11 @@ def separability_auc(data,
     #  Set diagonal to 1 for AUC matrix (self-comparison isn't meaningful)
     # ------------------------------------------------------------------
     np.fill_diagonal(auc_mat.values, 0.5)
-    
-    # ------------------------------------------------------------------
-    #  visual summary
-    # ------------------------------------------------------------------
-    figures = {}
-    # Create clustered AUC heatmap
-    auc_clustermap = sns.clustermap(auc_mat, 
-                                    square=True, 
-                                    annot=True, 
-                                    fmt=".2f",
-                                    cmap="rocket", 
-                                    vmin=0.5, 
-                                    vmax=1,
-                                    cbar_kws=dict(label=f"ROC-AUC ({auc_model.upper()})"),
-                                    figsize=(heatmap_size[0], heatmap_size[1]))
-    auc_clustermap.fig.suptitle("Label separability\nPair-wise classifier-AUC")
-    auc_clustermap.ax_heatmap.set_xticklabels(
-        auc_clustermap.ax_heatmap.get_xticklabels(), rotation=45, ha='right')
-    figures['auc_fig'] = auc_clustermap
-    
-    # Get the clustered order for returning
-    auc_mat = auc_mat.iloc[auc_clustermap.dendrogram_row.reordered_ind, 
-                            auc_clustermap.dendrogram_col.reordered_ind]
 
     if inplace:
         data.uns[f"separability ({label_col})"] = {
             "auc_mat": auc_mat,
             "margin_mat": margin_mat,
-            "figures": figures
         }
     else:
-            return auc_mat, margin_mat, figures
+        return auc_mat, margin_mat
