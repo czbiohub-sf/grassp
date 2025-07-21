@@ -371,7 +371,7 @@ def qsep_boxplot(
 
 
 def sep_auc_heatmap(
-    data: np.ndarray | pd.DataFrame,
+    data: np.ndarray | pd.DataFrame | AnnData,
     label_col: str = "consensus_graph_annnotation",
     title: str = "Label separability AUC heatmap (Pair-wise classifier)",
     fmt: str = ".2f",
@@ -387,25 +387,31 @@ def sep_auc_heatmap(
 
     Parameters
     ----------
-    data : np.ndarray | pd.DataFrame
-        Pairwise AUC matrix to visualize. If DataFrame, index/columns are used as labels.
-        If ndarray, must provide labels parameter.
-    label_col
-            class labels (y in the classifier)
-            if AnnData, then use .obs[label_col]
-            if DataFrame, then use column name as label
-    title : str, default "Label separability AUC heatmap (Pair-wise classifier)"
+    data : np.ndarray | pd.DataFrame | AnnData
+        Input data containing separability results. Can be:
+            - AnnData: Should contain pre-computed results from separability_auc()
+            stored in .uns['separability_{label_col}']['auc_mat']
+            - DataFrame/ndarray: Pre-computed AUC matrix to plot directly
+    label_col : str
+        Column in .obs used for labeling; used to find `separability_<label_col>` in `.uns`.
+    title : str, optional
         Title for the heatmap plot.
-    cmap : str, default "rocket"
+        Defaults to "Label separability AUC heatmap (Pair-wise classifier)"
+    cmap : str, optional
         Colormap for the heatmap visualization.
-    vmin : float, default 0.5
+        Defaults to "rocket"
+    vmin : float, optional
         Minimum value for colormap scaling.
-    vmax : float, default 1.0
+        Defaults to 0.5
+    vmax : float, optional
         Maximum value for colormap scaling.
-    fmt : str, default ".2f"
+        Defaults to 1.0
+    fmt : str, optional
         Format string for cell annotations.
-    figsize : tuple, default (12, 11)
+        Defaults to ".2f"
+    figsize : tuple, optional
         Figure size as (width, height) in inches.
+        Defaults to (12, 11)
     save_path : str, optional
         Path to save the figure. If None, figure is not saved.
 
@@ -416,15 +422,27 @@ def sep_auc_heatmap(
     """
     figures = {}
     # Create clustered AUC heatmap
+    if isinstance(data, AnnData):
+        key = f"separability_{label_col}"
+        if key not in data.uns:
+            matching_keys = [k for k in data.uns if k.startswith("separability")]
+            if matching_keys:
+                key = matching_keys[0]  # or prompt user?
+            else:
+                raise KeyError(f"No 'separability_{label_col}' key found in data.uns")
+        auc_mat = data.uns[key]["auc_mat"]
+
+    else:
+        auc_mat = data
     auc_clustermap = sns.clustermap(
-        data,
+        auc_mat,
         square=True,
         annot=True,
         fmt=fmt,
         cmap=cmap,
         vmin=vmin,
         vmax=vmax,
-        cbar_kws=dict(label=f"ROC-AUC ({data.upper()})"),
+        cbar_kws=dict(label="ROC-AUC"),
         figsize=(figsize[0], figsize[1]),
     )
     auc_clustermap.fig.suptitle(title)
@@ -434,13 +452,13 @@ def sep_auc_heatmap(
     figures['auc_fig'] = auc_clustermap
 
     # Get the clustered order for returning
-    auc_mat = data.iloc[
+    auc_mat = auc_mat.iloc[
         auc_clustermap.dendrogram_row.reordered_ind,
         auc_clustermap.dendrogram_col.reordered_ind,
     ]
     if save_path:
         auc_clustermap.savefig(save_path)
     if inplace:
-        data.uns[f"separability ({label_col})"] = {"auc_mat": auc_mat, "figures": figures}
+        data.uns[key]["figures"] = figures
     else:
         return auc_clustermap.fig

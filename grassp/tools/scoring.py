@@ -257,14 +257,15 @@ def separability_auc(
     data
         AnnData object containing protein intensities
     label_col  : str, optional
-        class labels (y in the classifier)
-        if AnnData, then use .obs[label_col]
-        if DataFrame, then use column name as label
+        Column name in data.obs containing the ground truth compartment labels.
+        These labels define the classes that will be tested for separability.
         Defaults to "consensus_graph_annnotation"
     use_rep : str, optional
-        coordinates (X in the classifier)
-        if AnnData, use .obsm[use_rep] if use_rep is a *str*, and .var[use_rep] if *list*
-        if DataFrame, then interpret as list of column names
+        Which data representation to use for the classifier.
+        Common options:
+        - "X" : Raw expression data
+        - "X_pca" : PCA coordinates
+        - "X_umap" : UMAP coordinates
         Defaults to "X"
     n_pcs : int, optional
         Number of components to use from the representation (e.g., PCA).
@@ -296,25 +297,27 @@ def separability_auc(
     if isinstance(data, ad.AnnData):
         assert label_col in data.obs.columns, f"label_col {label_col} not in data.obs.columns"
         X_all = sc.tools._utils._choose_representation(data, use_rep=use_rep, n_pcs=n_pcs)
-        df = pd.DataFrame(X_all)
-        use_rep = df.columns.tolist()
-        df[label_col] = data.obs[label_col].tolist()
+        y_all = data.obs[label_col].values
+
+        valid_mask = ~(np.isnan(X_all).any(axis=1) | pd.isna(y_all))
+        X_all = X_all[valid_mask]
+        y_all = y_all[valid_mask]
 
     elif isinstance(data, pd.DataFrame):
         df = data
         if label_col not in df.columns:
             raise ValueError(f"label_col {label_col} not in data.columns")
+        df = df.dropna()
+        X_all = df.drop(columns=[label_col]).values
+        y_all = df[label_col].values
+
     else:
         raise ValueError(f"data must be an AnnData or DataFrame, got {type(data)}")
 
     # ------------------------------------------------------------------
     #  Basic prep
     # ------------------------------------------------------------------
-    # Drop rows with missing coords or labels
-    df = df.dropna(subset=[label_col, *use_rep])
 
-    X_all = df[list(use_rep)].values
-    y_all = df[label_col].values
     labels = pd.unique(y_all)  # handles mixed types safely
     k = len(labels)
 
@@ -402,7 +405,7 @@ def separability_auc(
     np.fill_diagonal(auc_mat.values, 0.5)
 
     if inplace:
-        data.uns[f"separability ({label_col})"] = {
+        data.uns[f"separability_{label_col}"] = {
             "auc_mat": auc_mat,
             "margin_mat": margin_mat,
         }
