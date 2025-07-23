@@ -1,4 +1,5 @@
 import sys
+
 from pathlib import Path
 
 project = "grassp"
@@ -55,7 +56,7 @@ html_theme_options = dict(
     repository_branch="main",
     navigation_with_keys=False,  # https://github.com/pydata/pydata-sphinx-theme/issues/1492
 )
-html_logo = "_static/img/grassp_logo.png"
+html_logo = "_static/img/logo.svg"
 issues_github_path = "czbiohub-sf/grassp"
 html_show_sphinx = False
 intersphinx_mapping = dict(
@@ -69,5 +70,5 @@ intersphinx_mapping = dict(
 
 
 # Execute notebooks only when out-of-date and set timeout
-nb_execution_mode = "auto"  # or "force" to always run, "off" to skip
+nb_execution_mode = "cache"  # or "force" to always run, "off" to skip
 nb_execution_timeout = 300  # seconds
