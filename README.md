@@ -1,12 +1,12 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/grassp)](https://img.shields.io/pypi/v/grassp)
 [![CI](https://github.com/czbiohub-sf/grassp/actions/workflows/test.yml/badge.svg)](https://github.com/czbiohub-sf/grassp/actions/workflows/test.yml)
-[![docs online](https://img.shields.io/badge/docs-online-blue)](https://public.czbiohub.org/comp.bio/grassp/)
+[![docs online](https://img.shields.io/badge/docs-online-blue)](https://onsite.czbiohub.org/compbio/grassp/)
 
 
 [anndata]: https://anndata.readthedocs.io
 [scanpy]: https://scanpy.readthedocs.io
 [protdata]: https://protdata.sf.czbiohub.org
-[documentation]: https://public.czbiohub.org/comp.bio/grassp
+[documentation]: https://onsite.czbiohub.org/compbio/grassp/
 
 
 <p align="center">
@@ -30,7 +30,7 @@ It uses the [anndata][] format to store mass-spec data and analysis results and 
 - Finding the optimal experimental design for future experiments based on simulations
 - Integration of multiple modalities (e.g. Lipidomics) (work in progress)
 
-Please refer to the [documentation] for reference to individual functions and [tutorials](https://public.czbiohub.org/comp.bio/grassp/tutorials.html).
+Please refer to the [documentation] for reference to individual functions and [tutorials](https://onsite.czbiohub.org/compbio/grassp/tutorials/index.html).
 
 ## Installation
 
@@ -38,10 +38,14 @@ grassp can be installed via [pip](https://pypi.org/project/pip/) from [PyPI](htt
 ```
 pip install grassp
 ```
-For details on installation, please see the [install section of the documentation](https://public.czbiohub.org/comp.bio/grassp/installation.html)
+For details on installation, please see the [install section of the documentation](https://onsite.czbiohub.org/compbio/grassp/installation.html)
+
+## Contributing
+
+If you'd like to contribute to **grassp** please feel free to look at our [contribution guide](https://onsite.czbiohub.org/compbio/grassp/contributing.html) and open a [Pull request](https://github.com/czbiohub-sf/grassp/pulls).
 
 ## Authors
 
-**grassp** is created and maintained by the [Computational Biology Platform](https://www.czbiohub.org/comp-biology/) at the [Chan Zuckerberg Biohub San Francisco](https://www.czbiohub.org/sf/). For details, see the [Contributors page][documentation/contributors.html].
+**grassp** is created and maintained by the [Computational Biology Platform](https://www.czbiohub.org/comp-biology/) at the [Chan Zuckerberg Biohub San Francisco](https://www.czbiohub.org/sf/). For details, see the [Contributors page](https://onsite.czbiohub.org/compbio/grassp/contributors.html).
 
 To get in touch please use the [GihHub issues](https://github.com/czbiohub-sf/grassp/issues) page.
