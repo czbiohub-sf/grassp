@@ -34,11 +34,11 @@ Please refer to the [documentation] for reference to individual functions and [t
 
 ## Installation
 
-grassp can be installed with pip. For details on installation, please see the [install section of the documentation](https://public.czbiohub.org/comp.bio/grassp/installation.html)
-.
+grassp can be installed via [pip](https://pypi.org/project/pip/) from [PyPI](https://pypi.org/project/grassp/) with:
 ```
 pip install grassp
 ```
+For details on installation, please see the [install section of the documentation](https://public.czbiohub.org/comp.bio/grassp/installation.html)
 
 ## Authors
 
