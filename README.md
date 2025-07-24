@@ -10,7 +10,7 @@
 
 
 <p align="center">
-  <img src="docs/source/_static/img/logo.svg" alt="grassp logo" width="300"/>
+  <img src="https://raw.githubusercontent.com/czbiohub-sf/grassp/refs/heads/main/docs/source/_static/img/logo.svg" alt="grassp logo" width="300"/>
 </p>
 
 The **grassp** (**GR**aph-based **A**nalysis of **S**ubcellular/**S**patial **P**roteomics) python module enables fast, flexible and scalable analysis of subcellular proteomics datasets.
