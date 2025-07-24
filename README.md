@@ -30,7 +30,7 @@ It uses the [anndata][] format to store mass-spec data and analysis results and 
 - Finding the optimal experimental design for future experiments based on simulations
 - Integration of multiple modalities (e.g. Lipidomics) (work in progress)
 
-Please refer to the [documentation] for reference to individual functions and [tutorials][documentation/tutorials.html].
+Please refer to the [documentation] for reference to individual functions and [tutorials](https://public.czbiohub.org/comp.bio/grassp/tutorials.html).
 
 ## Installation
 
