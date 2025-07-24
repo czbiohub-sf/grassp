@@ -12,6 +12,7 @@ from .scoring import (
     calinski_habarasz_score,
     class_balance,
     qsep_score,
+    separability_auc,
     silhouette_score,
 )
 from .tagm import tagm_map_predict, tagm_map_train
