@@ -1,5 +1,5 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/grassp)](https://img.shields.io/pypi/v/grassp)
-[![CI](https://github.com/czbiohub-sf/grassp/actions/workflows/test.yml/badge.svg)](https://github.com/czbiohub-sf/grassp/actions/workflows/test.yml)
+[![CI](https://github.com/czbiohub-sf/grassp/actions/workflows/CI.yaml/badge.svg)](https://github.com/czbiohub-sf/grassp/actions/workflows/CI.yaml)
 [![docs online](https://img.shields.io/badge/docs-online-blue)](https://onsite.czbiohub.org/compbio/grassp/)
 
 
