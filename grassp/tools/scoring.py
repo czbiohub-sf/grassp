@@ -3,12 +3,23 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anndata import AnnData
+    from typing import Literal
 
+import itertools
 import warnings
 
+import anndata as ad
 import numpy as np
 import pandas as pd
+import scanpy as sc
 import sklearn.metrics
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import cross_val_predict
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC, LinearSVC
 
 
 def class_balance(
@@ -249,3 +260,179 @@ def qsep_score(
         }
     else:
         return cluster_distances
+
+
+def separability_auc(
+    data,
+    label_col: str = "consensus_graph_annnotation",
+    use_rep: str = "X",
+    n_pcs: int | None = None,
+    C_margin: float = 1.0,
+    auc_model: Literal["lr", "svm"] = "svm",
+    svm_kernel: str = "rbf",
+    C_auc: float = 1.0,
+    cv_auc: int = 5,
+    inplace: bool = True,
+):
+    """
+    Compute pair-wise SVM AUC between all label pairs.
+
+    Parameters
+    ----------
+    data
+        AnnData object containing protein intensities
+    label_col  : str, optional
+        Column name in data.obs containing the ground truth compartment labels.
+        These labels define the classes that will be tested for separability.
+        Defaults to "consensus_graph_annnotation"
+    use_rep : str, optional
+        Which data representation to use for the classifier.
+        Common options:
+        - "X" : Raw expression data
+        - "X_pca" : PCA coordinates
+        - "X_umap" : UMAP coordinates
+        Defaults to "X"
+    n_pcs : int, optional
+        Number of components to use from the representation (e.g., PCA).
+        Defaults to None.
+    auc_model : Literal, optional
+        Which estimator to use for AUC calculation.
+        Defaults to "svm"
+    svm_kernel : str, optional
+        Kernel for SVC when auc_model == "svm" ("linear", "rbf", …).
+        Defaults to "rbf"
+    C_margin : float, optional
+        Soft-margin parameter for the *margin* LinearSVC.
+        Defaults to 1.0
+    C_auc : float, optional
+        Regularisation strength for the AUC classifier (LR or SVM).
+        Defaults to 1.0
+
+    Returns
+    -------
+    margin_mat : DataFrame
+        Pair-wise margin matrix
+    auc_mat : DataFrame
+        Pair-wise AUC matrix
+    figures: matplotlib.pyplot.Figure
+    """
+    # ------------------------------------------------------------------
+    # construct dataframe if input is anndata
+    # ------------------------------------------------------------------
+    if isinstance(data, ad.AnnData):
+        assert label_col in data.obs.columns, f"label_col {label_col} not in data.obs.columns"
+        X_all = sc.tools._utils._choose_representation(data, use_rep=use_rep, n_pcs=n_pcs)
+        y_all = data.obs[label_col].values
+
+        valid_mask = ~(np.isnan(X_all).any(axis=1) | pd.isna(y_all))
+        X_all = X_all[valid_mask]
+        y_all = y_all[valid_mask]
+
+    elif isinstance(data, pd.DataFrame):
+        df = data
+        if label_col not in df.columns:
+            raise ValueError(f"label_col {label_col} not in data.columns")
+        df = df.dropna()
+        X_all = df.drop(columns=[label_col]).values
+        y_all = df[label_col].values
+
+    else:
+        raise ValueError(f"data must be an AnnData or DataFrame, got {type(data)}")
+
+    # ------------------------------------------------------------------
+    #  Basic prep
+    # ------------------------------------------------------------------
+
+    labels = pd.unique(y_all)  # handles mixed types safely
+    k = len(labels)
+
+    margin_mat = pd.DataFrame(np.zeros((k, k)), index=labels, columns=labels)
+    auc_mat = pd.DataFrame(np.ones((k, k)), index=labels, columns=labels)
+
+    # ------------------------------------------------------------------
+    #  Pipelines
+    # ------------------------------------------------------------------
+    margin_svm = Pipeline(
+        [
+            ("scale", StandardScaler()),
+            (
+                "svm",
+                LinearSVC(
+                    C=C_margin,
+                    class_weight="balanced",
+                    dual=False,
+                    max_iter=20000,
+                    random_state=0,
+                ),
+            ),
+        ]
+    )
+
+    if auc_model == "lr":
+        auc_clf = Pipeline(
+            [
+                ("scale", StandardScaler()),
+                (
+                    "logit",
+                    LogisticRegression(
+                        C=C_auc,
+                        class_weight="balanced",
+                        max_iter=5000,
+                        solver="lbfgs",
+                        random_state=0,
+                    ),
+                ),
+            ]
+        )
+    elif auc_model == "svm":
+        auc_clf = Pipeline(
+            [
+                ("scale", StandardScaler()),
+                (
+                    "svc",
+                    SVC(
+                        kernel=svm_kernel,
+                        C=C_auc,
+                        probability=True,  # enables predict_proba
+                        class_weight="balanced",
+                        random_state=0,
+                    ),
+                ),
+            ]
+        )
+    else:
+        raise ValueError('auc_model must be "lr" or "svm"')
+
+    # ------------------------------------------------------------------
+    #  Pair-wise loop
+    # ------------------------------------------------------------------
+    for lab_i, lab_j in itertools.combinations(labels, 2):
+        mask = (y_all == lab_i) | (y_all == lab_j)
+        X_pair = X_all[mask]
+        y_pair = (y_all[mask] == lab_j).astype(int)
+
+        # ----- margin -----
+        margin_svm.fit(X_pair, y_pair)
+        w = margin_svm[-1].coef_.ravel()
+        margin = 2.0 / np.linalg.norm(w)
+        margin_mat.loc[lab_i, lab_j] = margin_mat.loc[lab_j, lab_i] = margin
+
+        # ----- AUC -----
+        prob_oof = cross_val_predict(
+            auc_clf, X_pair, y_pair, cv=cv_auc, method="predict_proba"
+        )[:, 1]
+        auc = roc_auc_score(y_pair, prob_oof)
+        auc_mat.loc[lab_i, lab_j] = auc_mat.loc[lab_j, lab_i] = auc
+
+    # ------------------------------------------------------------------
+    #  Set diagonal to 1 for AUC matrix (self-comparison isn't meaningful)
+    # ------------------------------------------------------------------
+    np.fill_diagonal(auc_mat.values, 0.5)
+
+    if inplace:
+        data.uns[f"separability_{label_col}"] = {
+            "auc_mat": auc_mat,
+            "margin_mat": margin_mat,
+        }
+    else:
+        return auc_mat, margin_mat
