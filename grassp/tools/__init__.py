@@ -11,6 +11,7 @@ from .integration import align_adatas, aligned_umap, mr_score, remodeling_score
 from .scoring import (
     calinski_habarasz_score,
     class_balance,
+    knn_f1_score,
     qsep_score,
     silhouette_score,
 )

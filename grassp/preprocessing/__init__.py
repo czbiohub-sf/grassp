@@ -5,11 +5,12 @@ from .simple import (
     aggregate_samples,
     calculate_qc_metrics,
     drop_excess_MQ_metadata,
+    filter_min_consecutive_fractions,
     filter_proteins,
     filter_proteins_per_replicate,
     filter_samples,
     highly_variable_proteins,
+    neighbors,
     normalize_total,
     remove_contaminants,
-    filter_min_consecutive_fractions,
 )
