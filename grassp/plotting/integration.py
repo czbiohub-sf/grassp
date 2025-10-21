@@ -420,7 +420,7 @@ def mr_plot(
         hits = data.obs_names.isin(highlight_proteins)
     if highlight_hits:
         hits = (m_scores >= m_cutoffs[0]) & (r_scores >= r_cutoffs[0])
-    ax.scatter(m_scores[hits], r_scores[hits], color="red", s=20, marker=".")
+        ax.scatter(m_scores[hits], r_scores[hits], color="red", s=20, marker=".")
 
     # Add cutoff lines
     colors = ["gray", "darkgray", "lightgray"]
