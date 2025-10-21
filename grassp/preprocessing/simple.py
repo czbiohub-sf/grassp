@@ -696,3 +696,31 @@ def drop_excess_MQ_metadata(
 
 # def pca(data: AnnData, **kwargs) -> None:
 #     scanpy.pp.pca(data.T, **kwargs)
+
+
+def neighbors(data, layer=None, **kwargs) -> None:
+    """Compute the nearest neighbors distance matrix using scanpy.pp.neighbors.
+
+    This function is a wrapper around :func:`scanpy:scanpy.pp.neighbors` ``scanpy.pp.neighbors`` adding support for using different layers.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    layer
+        Layer to use for nearest neighbors calculation.
+    **kwargs
+        Additional arguments to pass to scanpy.pp.neighbors.
+    """
+    copy = kwargs.setdefault("copy", False)
+
+    if layer is not None:
+        data = data.copy() if copy else data
+        X = data.X.copy()
+        data.X = data.layers[layer]
+        kwargs["use_rep"] = "X"  # when specifying a layer, we should always use X
+    sc.pp.neighbors(data, **kwargs)
+    if layer is not None:
+        data.X = X
+    if copy:
+        return data
