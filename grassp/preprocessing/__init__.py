@@ -4,6 +4,7 @@ from .simple import (
     aggregate_proteins,
     aggregate_samples,
     calculate_qc_metrics,
+    calculate_replicate_cv,
     drop_excess_MQ_metadata,
     filter_min_consecutive_fractions,
     filter_proteins,

@@ -724,3 +724,58 @@ def neighbors(data, layer=None, **kwargs) -> None:
         data.X = X
     if copy:
         return data
+
+
+def _calculate_cv(
+    x: np.ndarray, is_log: bool = False, axis: int = 1, ignore_zeros: bool = True
+) -> float:
+    """Calculate the coefficient of variation for a given data matrix.
+
+    Parameters
+    ----------
+    data
+        The data matrix.
+    is_log
+        Whether the data is log-transformed.
+    """
+    x = np.asarray(x)
+    if ignore_zeros:
+        x[x == 0] = np.nan
+    if is_log:
+        cv = np.sqrt(np.exp(np.nanvar(x, axis=axis)) - 1)
+    else:
+        cv = np.std(x, axis=axis) / np.mean(x, axis=axis)
+    if ignore_zeros:
+        cv[np.sum(np.isnan(x), axis=1) > 0] = np.nan
+    return cv
+
+
+def calculate_replicate_cv(
+    data: AnnData,
+    grouping_columns: str | List[str],
+    is_log: bool,
+    layer: str | None = None,
+    ignore_zeros: bool = True,
+) -> pd.DataFrame:
+    """Calculate the coefficient of variation for each protein across replicates.
+
+    Parameters
+    ----------
+    data
+        The annotated data matrix with proteins as observations (rows).
+    grouping_columns
+        Column name(s) in ``data.obs`` to group samples into replicates.
+    """
+
+    if layer is not None:
+        X = data.layers[layer]
+    else:
+        X = data.X
+
+    groups = data.var.groupby(grouping_columns, sort=False)
+    # cvs = {name: calculate_cv(X_sub, is_log=is_log, axis=1, ignore_zeros=ignore_zeros) for name, g in groups}
+    cvs = {
+        name: _calculate_cv(X[:, g], is_log=is_log, axis=1, ignore_zeros=ignore_zeros)
+        for name, g in groups.indices.items()
+    }
+    return pd.DataFrame(cvs)
