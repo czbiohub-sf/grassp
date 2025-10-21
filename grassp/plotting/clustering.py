@@ -2,6 +2,7 @@ from typing import List, Literal, Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import seaborn as sns
 
 from anndata import AnnData
@@ -259,4 +260,57 @@ def tagm_map_pca_ellipses(
                 nstd=nstd,
                 **kwargs,
             )
+    return ax
+
+
+def knn_marker_df(data: AnnData, gt_col: str, pred_col: str) -> pd.DataFrame:
+    labels = data.obs[gt_col].astype("category")
+    labels_one_hot = pd.get_dummies(labels).values
+    probabilities = data.obsm[f"{pred_col}_probabilities"]
+    true_prob = np.sum(probabilities * labels_one_hot, axis=1)
+    marker_df = pd.DataFrame({"gt_col": labels, "pred_prob": true_prob}).dropna()
+    return marker_df
+
+
+def knn_violin(
+    data: AnnData, gt_col: str, pred_col: str, ax: plt.Axes | None = None, **kwargs
+) -> plt.Axes:
+    """Violin plot of KNN annotation.
+
+    Parameters
+    ----------
+    data
+        AnnData object.
+    gt_col
+        Observation column with ground-truth labels.
+    pred_col
+        Observation column with predicted labels.
+    """
+    if ax is None:
+        ax = plt.gca()
+    plot_df = knn_marker_df(data, gt_col, pred_col)
+    sns.violinplot(
+        data=plot_df,
+        x="gt_col",
+        y="pred_prob",
+        ax=ax,
+        **kwargs,
+        cut=0,
+        inner=None,  # no box, no points inside
+        alpha=0.5,
+    )
+    sns.stripplot(
+        data=plot_df,
+        x="gt_col",
+        y="pred_prob",
+        ax=ax,
+        color="k",
+        size=2,
+        alpha=0.5,
+        jitter=True,
+        dodge=False,
+    )
+    ax.set_ylabel("Predicted Probability")
+    ax.set_xlabel("Ground Truth")
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90, ha="right")
     return ax

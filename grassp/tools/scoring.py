@@ -6,9 +6,14 @@ if TYPE_CHECKING:
 
 import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.cluster.hierarchy
+import seaborn as sns
 import sklearn.metrics
+
+from .clustering import knn_annotation
 
 
 def class_balance(
@@ -249,3 +254,146 @@ def qsep_score(
         }
     else:
         return cluster_distances
+
+
+def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
+    """F1 score.
+
+    Parameters
+    ----------
+    data
+        AnnData object.
+    gt_col
+        Observation column with ground-truth labels.
+    pred_col
+        Observation column with predicted labels.
+    weights
+        Weights for the F1 score.
+    average
+        Average method for the F1 score. If ``None`` the score for each label is returned.
+
+    Returns
+    -------
+    F1 score.
+    """
+    if pred_col is None:
+        knnres = knn_annotation(data, gt_col, inplace=False, min_probability=0)
+        pred = knnres["labels"][knnres["probabilities"].argmax(axis=1)]
+    else:
+        pred = data.obs[pred_col]
+
+    gt = data.obs[gt_col]
+    mask = gt.notna() & pred.notna()
+    y_true_raw = gt[mask]
+    y_pred_raw = pred[mask]
+
+    if weights is not None:
+        labels = list(weights.keys())
+        cats = (
+            pd.Index(labels)
+            .union(pd.Index(y_true_raw.unique()))
+            .union(pd.Index(y_pred_raw.unique()))
+        )
+        y_true = pd.Categorical(y_true_raw, categories=cats).codes
+        y_pred = pd.Categorical(y_pred_raw, categories=cats).codes
+        label_idx = [cats.get_loc(label) for label in labels]
+        f1_arr = sklearn.metrics.f1_score(y_true, y_pred, average=None, labels=label_idx)
+        w = np.asarray([weights[label] for label in labels], float)
+        w /= w.sum() if w.sum() > 0 else 1.0
+        if average is None:
+            return f1_arr * w
+        return float((f1_arr * w).sum())
+    else:
+        cats = pd.Index(y_true_raw.unique()).union(pd.Index(y_pred_raw.unique()))
+        y_true = pd.Categorical(y_true_raw, categories=cats).codes
+        y_pred = pd.Categorical(y_pred_raw, categories=cats).codes
+        return sklearn.metrics.f1_score(y_true, y_pred, average=average)
+
+
+def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False, plot=True):
+    """Plot the confusion matrix of KNN-predicted versus ground-truth labels.
+
+    Parameters
+    ----------
+    data
+        AnnData object.
+    gt_col
+        Observation column with ground-truth labels.
+    pred_col
+        Observation column with predicted labels. If None, KNN annotation is computed.
+    soft
+        If True, use probabilistic (soft) confusion matrix instead of hard assignments.
+    plot=True
+        If True, plot the heatmap of the confusion matrix, otherwise return the confusion matrix.
+    cluster
+        If True, reorder matrix rows and columns via hierarchical clustering for visualization.
+
+    Returns
+    -------
+    None. Displays a heatmap of the confusion matrix if plot is True, otherwise returns the confusion matrix.
+    """
+
+    # Notation: n observations, g ground truth label classes
+    if pred_col is None:
+        knnres = knn_annotation(data, gt_col, inplace=False, min_probability=0)
+    else:
+        knnres = {
+            "probabilities": data.obsm[f"{pred_col}_probabilities"],
+            "labels": data.obs[pred_col],
+            "one_hot_labels": data.obsm[f"{pred_col}_one_hot_labels"],
+        }
+
+    if soft:
+        M = knnres["one_hot_labels"].T @ knnres["probabilities"]  # shape (g, g)
+        # Row-normalize to get fractions (each row sums to 1)
+        cm = M / M.sum(axis=1, keepdims=True)
+        cm = np.nan_to_num(cm, nan=0.0)
+        labels = list(knnres["labels"])  # consistent label order with matrix axes
+    else:
+        gt = data.obs[gt_col]
+        pred = knnres["labels"][knnres["probabilities"].argmax(axis=1)]
+        mask = gt.notna() & pred.notna()
+        y_true_raw = gt[mask]
+        y_pred_raw = pred[mask]
+        # Ensure we know the label order used in the confusion matrix
+        labels = list(pd.Index(y_true_raw.unique()).union(pd.Index(y_pred_raw.unique())))
+        cm = sklearn.metrics.confusion_matrix(y_true_raw, y_pred_raw, labels=labels)
+        cm = cm / cm.sum(axis=1, keepdims=True)
+
+    if not plot:
+        return cm
+
+    plt.figure(figsize=(10, 10))
+    # Derive a single ordering for both axes so labels align and high values
+    # lie near the diagonal. Use hierarchical clustering on a symmetrized matrix.
+
+    if cluster:
+        sym = (cm + cm.T) / 2.0
+        order = scipy.cluster.hierarchy.leaves_list(
+            scipy.cluster.hierarchy.linkage(1 - sym, method="ward")
+        )
+
+        cm_ordered = cm[np.ix_(order, order)]
+        ordered_labels = [labels[i] for i in order]
+    else:
+        ordered_labels = labels
+        cm_ordered = cm
+
+    sns.heatmap(
+        cm_ordered,
+        annot=True,
+        fmt=".2f",
+        cmap="rocket_r",
+        cbar=True,
+        vmax=1,
+        vmin=0,
+        linewidths=0.5,
+        square=True,
+        xticklabels=ordered_labels,
+        yticklabels=ordered_labels,
+    )
+    plt.xlabel("Predicted label")
+    plt.ylabel("True label")
+    plt.title(f"{'Soft' if soft else 'Hard'} confusion matrix from knn annotation")
+    plt.tight_layout()
+    plt.show()
