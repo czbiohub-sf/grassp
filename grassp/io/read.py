@@ -98,13 +98,17 @@ def read_alphastats(
     return adata
 
 
-def read_prolocdata(file_name: str) -> anndata.AnnData:
+def read_prolocdata(file_name: str, allow_nullable_strings: bool = False) -> anndata.AnnData:
     """
     Read a prolocdata file and return an AnnData object.
     Parameters
     ----------
     file_name : str
         The path to the prolocdata file or a URL.
+    allow_nullable_strings : bool, default False
+        If False, convert pandas nullable StringDtype columns in obs/var to
+        regular Python object-dtype strings for compatibility with older
+        anndata writers (anndata<0.11). If True, keep nullable string dtype.
     Returns
     -------
     adata : AnnData
@@ -132,18 +136,54 @@ def read_prolocdata(file_name: str) -> anndata.AnnData:
     pdata = rdata.conversion.convert(
         pdata, constructor_dict={**proloc_classes, **rdata.conversion.DEFAULT_CLASS_MAP}
     )
-    dataset_name = next(iter(pdata.keys()))
-    pdata = pdata[dataset_name]
-    # Create AnnData object
-    obs = pdata.featureData.data
-    var = pdata.phenoData.data
-    X = np.array(pdata.assayData.maps[0]["exprs"])
+    # Handle both cases: pdata is a dict (container) or already the dataset
+    if isinstance(pdata, dict):
+        dataset_name = next(iter(pdata.keys()))  # Reads the first dataset in the dictionary
+        pdata = pdata[dataset_name]
+    else:
+        dataset_name = file_name
+    # Create AnnData object with robust dtype handling
+    obs_raw = pdata.featureData.data
+    var_raw = pdata.phenoData.data
+    # Ensure pandas DataFrames
+    obs = (obs_raw if isinstance(obs_raw, pd.DataFrame) else pd.DataFrame(obs_raw)).copy()
+    var = (var_raw if isinstance(var_raw, pd.DataFrame) else pd.DataFrame(var_raw)).copy()
+
+    # Normalize column/index names to plain Python strings (avoid numpy.str_)
+    obs.columns = obs.columns.map(str)
+    obs.index = obs.index.map(str)
+    var.columns = var.columns.map(str)
+    var.index = var.index.map(str)
+
+    # Infer better dtypes; control whether strings become pandas StringDtype
+    # obs = obs.convert_dtypes(convert_string=allow_nullable_strings)
+    # var = var.convert_dtypes(convert_string=allow_nullable_strings)
+
+    if not allow_nullable_strings:
+        for df in (obs, var):
+            for c in df.columns:
+                dt = df[c].dtype
+                if pd.api.types.is_extension_array_dtype(dt) and pd.api.types.is_string_dtype(
+                    dt
+                ):
+                    df[c] = df[c].astype(object)
+
+    # Expression matrix
+    X = np.asarray(pdata.assayData.maps[0]["exprs"], dtype=float)
+
+    # Construct AnnData (expects shape: (n_obs, n_vars) == X.shape)
     adata = anndata.AnnData(obs=obs, var=var, X=X)
 
     # Add metadata
     adata.uns["dataset_name"] = dataset_name
-    metadata = {k: v for k, v in vars(pdata.experimentData).items() if len(v) > 0}
-    del metadata[".__classVersion__"]
+    adata.uns["file_name"] = file_name
+    metadata = {
+        k: v
+        for k, v in vars(pdata.experimentData).items()
+        if hasattr(v, "__len__") and len(v) > 0
+    }
+    # Remove class version key if present
+    metadata.pop(".__classVersion__", None)
     adata.uns["MIAPE_metadata"] = metadata
 
     return adata
