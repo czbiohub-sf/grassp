@@ -368,6 +368,7 @@ def mr_plot(
     m_cutoffs: list[float] = [2, 3, 4],
     r_cutoffs: list[float] = [0.68, 0.81, 0.93],
     highlight_hits: bool = True,
+    highlight_proteins: list[str] = [],
     show: bool | None = None,
     save: bool | str | None = None,
     **kwargs,
@@ -389,6 +390,8 @@ def mr_plot(
         Horizontal/vertical guideline positions (lenient → stringent).
     highlight_hits
         If ``True`` mark proteins passing the *lenient* thresholds in red.
+    highlight_proteins
+        List of proteins to highlight. Not compatible with ``highlight_hits``.
     ax, show, save, **kwargs
         Standard matplotlib/scanpy plotting options.
 
@@ -410,9 +413,14 @@ def mr_plot(
     # Plot data
     ax.scatter(m_scores, r_scores, alpha=0.5, s=10, color="black", marker=".", **kwargs)
 
+    if highlight_proteins is not []:
+        # assert not highlight_hits, (
+        #     "highlight_proteins and highlight_hits cannot be used together"
+        # )
+        hits = data.obs_names.isin(highlight_proteins)
     if highlight_hits:
         hits = (m_scores >= m_cutoffs[0]) & (r_scores >= r_cutoffs[0])
-        ax.scatter(m_scores[hits], r_scores[hits], color="red", s=20, marker=".")
+    ax.scatter(m_scores[hits], r_scores[hits], color="red", s=20, marker=".")
 
     # Add cutoff lines
     colors = ["gray", "darkgray", "lightgray"]

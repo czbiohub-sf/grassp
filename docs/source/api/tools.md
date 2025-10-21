@@ -24,6 +24,7 @@ This module provides various tools for analyzing proteomics data.
    tl.calinski_habarasz_score
    tl.tagm_map_train
    tl.tagm_map_predict
+   tl.knn_f1_score
 ```
 
 ## Ontology Enrichment
