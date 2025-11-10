@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 import scipy.sparse
+import sklearn.impute
 
 from anndata import AnnData
 
@@ -91,6 +92,45 @@ def impute_gaussian(
         X[np.invert(zero_mask)] = imputed_values
     if not inplace:
         return X
+    else:
+        data.obs["n_imputed"] = X.shape[1] - zero_mask.sum(axis=1)
+
+
+def impute_knn(
+    data: AnnData,
+    k: int = 20,
+    weights: str | callable = "uniform",
+    missing_values: int | float | str | np.nan = 0,
+    inplace: bool = True,
+) -> np.ndarray | None:
+    """Impute missing values using KNN imputation.
+
+    This function imputes missing values (zeros) in the data matrix using KNN imputation.
+    The parameters of the KNN are derived from the observed (non-zero) values.
+    Parameters
+    ----------
+    data
+        Annotated data matrix with proteins as observations (rows).
+    k
+        Number of neighbors to use for imputation.
+    weights
+        Weight function to use for imputation.
+    missing_values
+        Value to use for missing values.
+    """
+    if not inplace:
+        data = data.copy()
+    X = data.X
+
+    imp = sklearn.impute.KNNImputer(
+        n_neighbors=k, weights=weights, missing_values=missing_values
+    )
+    imputed = imp.fit_transform(X)
+    if not inplace:
+        return imputed
+    else:
+        data.X = imputed
+        return None
 
 
 # ProDA
