@@ -6,6 +6,7 @@ grassp/datasets/external/mmc*
 grassp/datasets/external/elife*
 grassp/datasets/external/uniprot_sp_accessions.tsv
 grassp/_version.py
+CLAUDE.md
 
 tests/output/
 client/.npm/
