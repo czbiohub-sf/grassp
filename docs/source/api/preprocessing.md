@@ -51,3 +51,13 @@ Any transformation of the data matrix that is not a *tool*. Other than *tools*, 
 
    pp.impute_gaussian
 ```
+
+## Annotation
+
+```{eval-rst}
+.. autosummary::
+   :nosignatures:
+   :toctree: ../generated/
+
+   pp.annotate_uniprot_cc
+```
