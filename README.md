@@ -38,7 +38,7 @@ grassp can be installed via [pip](https://pypi.org/project/pip/) from [PyPI](htt
 ```
 pip install grassp
 ```
-For details on installation, please see the [install section of the documentation](public.czbiohub.org/comp.bio/grassp/installation.html).
+For details on installation, please see the [install section of the documentation](https://public.czbiohub.org/comp.bio/grassp/installation.html).
 
 ## Contributing
 
