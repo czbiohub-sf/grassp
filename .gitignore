@@ -1,4 +1,8 @@
+# notebooks in root folder for testing
+test_*.ipynb
+
 # repo-specific directories
+data/
 ignore/
 output/
 cache/
