@@ -1,0 +1,719 @@
+uniprot_id	barylyuk
+TGME49_200250	Micronemes
+TGME49_201780	Micronemes
+TGME49_201840	Endomembrane Vesicles
+TGME49_202350	Mitochondrion - Soluble
+TGME49_202370	Cytosol
+TGME49_202440	Apicoplast
+TGME49_202530	Cytosol
+TGME49_202572	ER 1
+TGME49_202770	Nucleus - Non-Chromatin
+TGME49_202780	Dense Granules
+TGME49_202810	Mitochondrion - Membranes
+TGME49_202960	Mitochondrion - Soluble
+TGME49_203310	Dense Granules
+TGME49_203630	60S Ribosome
+TGME49_203870	Nucleus - Non-Chromatin
+TGME49_203970	ER 1
+TGME49_203990	Rhoptries 1
+TGME49_204020	60S Ribosome
+TGME49_204050	Micronemes
+TGME49_204060	Golgi
+TGME49_204080	Endomembrane Vesicles
+TGME49_204130	Micronemes
+TGME49_204370	Mitochondrion - Membranes
+TGME49_204400	Mitochondrion - Membranes
+TGME49_204530	Micronemes
+TGME49_205010	Nucleus - Non-Chromatin
+TGME49_205030	Golgi
+TGME49_205180	Nucleus - Non-Chromatin
+TGME49_205250	Rhoptries 1
+TGME49_205340	40S Ribosome
+TGME49_205440	Cytosol
+TGME49_205500	Nucleolus
+TGME49_205570	Mitochondrion - Membranes
+TGME49_205580	Nucleus - Chromatin
+TGME49_205710	Cytosol
+TGME49_206470	Mitochondrion - Soluble
+TGME49_206510	Micronemes
+TGME49_206610	Apicoplast
+TGME49_206690	IMC
+TGME49_207140	PM - Peripheral 1
+TGME49_207160	PM - Peripheral 1
+TGME49_207640	Cytosol
+TGME49_207830	PM - Peripheral 2
+TGME49_207840	40S Ribosome
+TGME49_208030	Micronemes
+TGME49_208070	Dense Granules
+TGME49_208340	Apical 2
+TGME49_208450	Dense Granules
+TGME49_208740	Dense Granules
+TGME49_208820	Apicoplast
+TGME49_208830	Dense Granules
+TGME49_208850	PM - Peripheral 1
+TGME49_209150	Mitochondrion - Membranes
+TGME49_209260	Mitochondrion - Membranes
+TGME49_209430	Nucleolus
+TGME49_209720	Mitochondrion - Membranes
+TGME49_209910	Nucleus - Chromatin
+TGME49_210370	Rhoptries 1
+TGME49_210690	40S Ribosome
+TGME49_210790	Mitochondrion - Membranes
+TGME49_210820	Rhoptries 2
+TGME49_210840	Cytosol
+TGME49_210960	Nucleus - Chromatin
+TGME49_211040	ER 1
+TGME49_211260	Rhoptries 1
+TGME49_211290	Rhoptries 1
+TGME49_211440	Apicoplast
+TGME49_211680	ER 2
+TGME49_211890	Apicoplast
+TGME49_212090	PM - Peripheral 2
+TGME49_212300	Dense Granules
+TGME49_212410	Dense Granules
+TGME49_213000	Nucleus - Chromatin
+TGME49_213067	Dense Granules
+TGME49_213280	PM - Peripheral 1
+TGME49_213350	40S Ribosome
+TGME49_213410	Nucleus - Non-Chromatin
+TGME49_214080	Rhoptries 1
+TGME49_214150	Mitochondrion - Membranes
+TGME49_214190	PM - Peripheral 1
+TGME49_214290	Cytosol
+TGME49_214320	PM - Integral
+TGME49_214750	Mitochondrion - Soluble
+TGME49_214820	Nucleus - Non-Chromatin
+TGME49_214840	Nucleus - Chromatin
+TGME49_214850	Apicoplast
+TGME49_214870	Mitochondrion - Soluble
+TGME49_214880	Apical 1
+TGME49_214920	ER 1
+TGME49_214940	Micronemes
+TGME49_215070	Apicoplast
+TGME49_215150	Nucleus - Chromatin
+TGME49_215280	Mitochondrion - Membranes
+TGME49_215470	60S Ribosome
+TGME49_215590	Mitochondrion - Soluble
+TGME49_215680	PM - Peripheral 1
+TGME49_215775	Rhoptries 1
+TGME49_216000	IMC
+TGME49_216220	Nucleus - Chromatin
+TGME49_216450	20S Proteasome
+TGME49_216540	ER 1
+TGME49_216650	PM - Peripheral 2
+TGME49_217050	Nucleus - Chromatin
+TGME49_217460	Cytosol
+TGME49_217540	Nucleus - Non-Chromatin
+TGME49_217740	Apicoplast
+TGME49_218200	Cytosol
+TGME49_218240	IMC
+TGME49_218270	Rhoptries 2
+TGME49_218280	Mitochondrion - Membranes
+TGME49_218410	60S Ribosome
+TGME49_218420	Nucleus - Non-Chromatin
+TGME49_218520	Micronemes
+TGME49_218610	Nucleolus
+TGME49_218810	Cytosol
+TGME49_218920	20S Proteasome
+TGME49_218960	Nucleus - Chromatin
+TGME49_219170	IMC
+TGME49_219320	IMC
+TGME49_219550	Mitochondrion - Soluble
+TGME49_219790	Nucleus - Non-Chromatin
+TGME49_219810	Dense Granules
+TGME49_219850	Cytosol
+TGME49_220240	Dense Granules
+TGME49_220270	IMC
+TGME49_220400	Cytosol
+TGME49_220600	PM - Integral
+TGME49_220950	Dense Granules
+TGME49_221180	Micronemes
+TGME49_221210	ER 2
+TGME49_221320	Apicoplast
+TGME49_221330	Apicoplast
+TGME49_221480	Micronemes
+TGME49_221620	Tubulin Cytoskeleton
+TGME49_221950	Nucleus - Non-Chromatin
+TGME49_222020	Apicoplast
+TGME49_222220	IMC
+TGME49_222350	Apical 1
+TGME49_222370	PM - Peripheral 1
+TGME49_222400	IMC
+TGME49_222990	Mitochondrion - Soluble
+TGME49_223390	Nucleus - Non-Chromatin
+TGME49_223590	20S Proteasome
+TGME49_223620	Golgi
+TGME49_223920	Rhoptries 1
+TGME49_223940	IMC
+TGME49_224050	Nucleus - Chromatin
+TGME49_224110	19S Proteasome
+TGME49_224580	Nucleus - Non-Chromatin
+TGME49_224620	Micronemes
+TGME49_225020	Apical 1
+TGME49_225080	40S Ribosome
+TGME49_225200	Rhoptries 1
+TGME49_225555	Mitochondrion - Membranes
+TGME49_225690	Apical 1
+TGME49_225790	Tubulin Cytoskeleton
+TGME49_225880	Cytosol
+TGME49_225930	Cytosol
+TGME49_225990	Apicoplast
+TGME49_226000	Mitochondrion - Membranes
+TGME49_226030	IMC
+TGME49_226040	Apical 2
+TGME49_226380	Dense Granules
+TGME49_226400	Apicoplast
+TGME49_226440	Nucleus - Chromatin
+TGME49_226590	Mitochondrion - Membranes
+TGME49_226600	Golgi
+TGME49_226730	Mitochondrion - Soluble
+TGME49_226830	ER 2
+TGME49_226860	PM - Peripheral 1
+TGME49_226910	Cytosol
+TGME49_226970	40S Ribosome
+TGME49_226990	Apical 1
+TGME49_227000	Apical 1
+TGME49_227280	Dense Granules
+TGME49_227360	60S Ribosome
+TGME49_227420	Apicoplast
+TGME49_227600	60S Ribosome
+TGME49_227620	Dense Granules
+TGME49_227790	ER 1
+TGME49_227810	Rhoptries 1
+TGME49_227830	Mitochondrion - Soluble
+TGME49_227900	Nucleus - Chromatin
+TGME49_227960	19S Proteasome
+TGME49_227970	Apicoplast
+TGME49_228000	Nucleus - Non-Chromatin
+TGME49_228180	Mitochondrion - Membranes
+TGME49_228210	19S Proteasome
+TGME49_228470	60S Ribosome
+TGME49_228760	Dense Granules
+TGME49_229010	Rhoptries 1
+TGME49_229030	ER 1
+TGME49_229210	Nucleus - Non-Chromatin
+TGME49_229250	60S Ribosome
+TGME49_229480	ER 2
+TGME49_229640	Apical 1
+TGME49_229670	40S Ribosome
+TGME49_229950	19S Proteasome
+TGME49_229990	Cytosol
+TGME49_230180	Dense Granules
+TGME49_230210	IMC
+TGME49_230340	Apical 1
+TGME49_230350	Rhoptries 2
+TGME49_230420	ER 1
+TGME49_230590	ER 1
+TGME49_230850	IMC
+TGME49_230960	Nucleus - Non-Chromatin
+TGME49_231080	60S Ribosome
+TGME49_231140	40S Ribosome
+TGME49_231430	ER 1
+TGME49_231630	IMC
+TGME49_231640	IMC
+TGME49_231750	Mitochondrion - Soluble
+TGME49_231890	Apicoplast
+TGME49_231910	Mitochondrion - Membranes
+TGME49_231960	Dense Granules
+TGME49_231970	Nucleus - Non-Chromatin
+TGME49_232000	Dense Granules
+TGME49_232030	IMC
+TGME49_232130	Tubulin Cytoskeleton
+TGME49_232230	60S Ribosome
+TGME49_232260	IMC
+TGME49_232300	40S Ribosome
+TGME49_232340	Cytosol
+TGME49_232350	Cytosol
+TGME49_232380	Nucleolus
+TGME49_232390	Nucleolus
+TGME49_232410	Tubulin Cytoskeleton
+TGME49_232710	40S Ribosome
+TGME49_232830	PM - Integral
+TGME49_233030	Apical 1
+TGME49_233190	Nucleus - Non-Chromatin
+TGME49_233230	Nucleus - Non-Chromatin
+TGME49_233450	PM - Peripheral 1
+TGME49_233460	PM - Peripheral 1
+TGME49_233500	Apicoplast
+TGME49_234270	Apical 2
+TGME49_234450	40S Ribosome
+TGME49_234505	Cytosol
+TGME49_234610	Nucleolus
+TGME49_234930	PM - Peripheral 1
+TGME49_235170	Nucleus - Chromatin
+TGME49_235340	IMC
+TGME49_235380	Apical 1
+TGME49_235470	IMC
+TGME49_235880	Mitochondrion - Membranes
+TGME49_236040	Cytosol
+TGME49_236250	Mitochondrion - Soluble
+TGME49_236650	Nucleus - Non-Chromatin
+TGME49_236890	Dense Granules
+TGME49_236970	Nucleus - Chromatin
+TGME49_237110	Nucleus - Chromatin
+TGME49_237560	Mitochondrion - Soluble
+TGME49_237820	IMC
+TGME49_237870	Endomembrane Vesicles
+TGME49_238010	60S Ribosome
+TGME49_238180	19S Proteasome
+TGME49_238250	60S Ribosome
+TGME49_238440	PM - Peripheral 1
+TGME49_238940	Cytosol
+TGME49_239100	40S Ribosome
+TGME49_239260	Nucleus - Chromatin
+TGME49_239300	Apical 2
+TGME49_239310	Cytosol
+TGME49_239330	60S Ribosome
+TGME49_239500	20S Proteasome
+TGME49_239710	Cytosol
+TGME49_239740	Dense Granules
+TGME49_239760	60S Ribosome
+TGME49_239770	Apical 1
+TGME49_239800	IMC
+TGME49_240060	Dense Granules
+TGME49_240280	Golgi
+TGME49_240600	Apicoplast
+TGME49_240810	PM - Integral
+TGME49_242020	ER 1
+TGME49_242070	IMC
+TGME49_242080	Golgi
+TGME49_242290	20S Proteasome
+TGME49_242330	40S Ribosome
+TGME49_242380	ER 1
+TGME49_242720	Golgi
+TGME49_242820	Rhoptries 1
+TGME49_243250	Apical 2
+TGME49_243350	Endomembrane Vesicles
+TGME49_243440	Nucleus - Chromatin
+TGME49_243540	Nucleus - Non-Chromatin
+TGME49_243570	40S Ribosome
+TGME49_243620	Nucleus - Non-Chromatin
+TGME49_243710	Cytosol
+TGME49_243730	Rhoptries 1
+TGME49_244100	Nucleus - Non-Chromatin
+TGME49_244200	Mitochondrion - Soluble
+TGME49_244320	60S Ribosome
+TGME49_244470	Apical 1
+TGME49_244560	ER 2
+TGME49_244650	Cytosol
+TGME49_245460	40S Ribosome
+TGME49_245485	Micronemes
+TGME49_245490	Micronemes
+TGME49_245620	40S Ribosome
+TGME49_245680	60S Ribosome
+TGME49_246540	Mitochondrion - Membranes
+TGME49_246720	Apical 2
+TGME49_246930	Apical 2
+TGME49_246950	Apical 1
+TGME49_247440	Dense Granules
+TGME49_247610	Nucleus - Non-Chromatin
+TGME49_247700	Nucleus - Chromatin
+TGME49_247730	Nucleus - Chromatin
+TGME49_247930	Golgi
+TGME49_248100	Golgi
+TGME49_248300	Apicoplast
+TGME49_248390	60S Ribosome
+TGME49_248420	PM - Integral
+TGME49_248480	40S Ribosome
+TGME49_248670	Endomembrane Vesicles
+TGME49_248700	IMC
+TGME49_248840	Golgi
+TGME49_248950	Mitochondrion - Membranes
+TGME49_249250	60S Ribosome
+TGME49_249580	PM - Integral
+TGME49_249590	20S Proteasome
+TGME49_249610	Nucleus - Non-Chromatin
+TGME49_249670	Endomembrane Vesicles
+TGME49_249820	Apicoplast
+TGME49_249850	IMC
+TGME49_249910	Mitochondrion - Membranes
+TGME49_250710	Micronemes
+TGME49_250770	Cytosol
+TGME49_250800	Nucleus - Chromatin
+TGME49_250820	Apical 1
+TGME49_251540	Dense Granules
+TGME49_251690	Cytosol
+TGME49_251780	Mitochondrion - Soluble
+TGME49_251930	Apicoplast
+TGME49_252360	Rhoptries 1
+TGME49_252440	ER 1
+TGME49_253170	Golgi
+TGME49_253290	Cytosol
+TGME49_253370	Rhoptries 1
+TGME49_253600	Apical 1
+TGME49_253800	Mitochondrion - Soluble
+TGME49_253900	Apicoplast
+TGME49_254010	Endomembrane Vesicles
+TGME49_254060	PM - Peripheral 1
+TGME49_254440	60S Ribosome
+TGME49_254470	Dense Granules
+TGME49_254650	Nucleus - Non-Chromatin
+TGME49_254720	Dense Granules
+TGME49_254900	20S Proteasome
+TGME49_255220	Nucleus - Chromatin
+TGME49_255260	Micronemes
+TGME49_255690	Apicoplast
+TGME49_256000	ER 1
+TGME49_256030	Apical 1
+TGME49_256760	Cytosol
+TGME49_256990	Cytosol
+TGME49_257530	PM - Integral
+TGME49_257960	Cytosol
+TGME49_258090	Apical 1
+TGME49_258110	ER 1
+TGME49_258150	20S Proteasome
+TGME49_258230	Rhoptries 1
+TGME49_258410	IMC
+TGME49_258470	IMC
+TGME49_258580	Rhoptries 1
+TGME49_258650	Mitochondrion - Membranes
+TGME49_258660	Rhoptries 2
+TGME49_258800	Rhoptries 1
+TGME49_259200	PM - Integral
+TGME49_259260	Apicoplast
+TGME49_260190	Micronemes
+TGME49_260540	IMC
+TGME49_260630	ER 1
+TGME49_260820	Apical 1
+TGME49_261010	19S Proteasome
+TGME49_261070	Apicoplast
+TGME49_261210	19S Proteasome
+TGME49_261520	Nucleolus
+TGME49_261570	60S Ribosome
+TGME49_261690	ER 2
+TGME49_261750	Rhoptries 2
+TGME49_261780	Micronemes
+TGME49_261850	Apicoplast
+TGME49_261950	Mitochondrion - Membranes
+TGME49_262010	Apical 2
+TGME49_262050	Rhoptries 2
+TGME49_262430	Apicoplast
+TGME49_262460	Endomembrane Vesicles
+TGME49_262670	60S Ribosome
+TGME49_262690	60S Ribosome
+TGME49_262710	Golgi
+TGME49_262730	Rhoptries 1
+TGME49_262920	Rhoptries 1
+TGME49_262930	ER 1
+TGME49_263040	40S Ribosome
+TGME49_263050	60S Ribosome
+TGME49_263060	19S Proteasome
+TGME49_263090	Cytosol
+TGME49_263180	PM - Peripheral 1
+TGME49_263260	PM - Integral
+TGME49_263270	Endomembrane Vesicles
+TGME49_263290	Golgi
+TGME49_263520	Tubulin Cytoskeleton
+TGME49_263700	40S Ribosome
+TGME49_263730	Mitochondrion - Membranes
+TGME49_264080	Apicoplast
+TGME49_264200	Apicoplast
+TGME49_264440	ER 1
+TGME49_264610	Nucleus - Non-Chromatin
+TGME49_265220	Mitochondrion - Soluble
+TGME49_265410	Nucleus - Non-Chromatin
+TGME49_265450	Cytosol
+TGME49_266070	60S Ribosome
+TGME49_266310	Golgi
+TGME49_266630	Apical 1
+TGME49_266960	Tubulin Cytoskeleton
+TGME49_267050	Cytosol
+TGME49_267060	60S Ribosome
+TGME49_267080	19S Proteasome
+TGME49_267130	PM - Peripheral 1
+TGME49_267140	PM - Peripheral 1
+TGME49_267330	Mitochondrion - Soluble
+TGME49_267400	60S Ribosome
+TGME49_267420	Nucleus - Non-Chromatin
+TGME49_267680	Micronemes
+TGME49_267700	Mitochondrion - Membranes
+TGME49_268590	PM - Integral
+TGME49_268850	Cytosol
+TGME49_268890	Mitochondrion - Soluble
+TGME49_269010	Nucleus - Chromatin
+TGME49_269200	Nucleus - Non-Chromatin
+TGME49_269442	IMC
+TGME49_269690	Dense Granules
+TGME49_269770	Nucleolus
+TGME49_269840	19S Proteasome
+TGME49_269885	Rhoptries 2
+TGME49_269980	ER 1
+TGME49_270250	Dense Granules
+TGME49_270380	40S Ribosome
+TGME49_270510	Cytosol
+TGME49_270560	Nucleus - Non-Chromatin
+TGME49_270740	Nucleus - Non-Chromatin
+TGME49_270830	Nucleus - Non-Chromatin
+TGME49_270840	Nucleus - Chromatin
+TGME49_270910	Apicoplast
+TGME49_271050	PM - Peripheral 1
+TGME49_271060	Golgi
+TGME49_271420	Apicoplast
+TGME49_271820	Mitochondrion - Soluble
+TGME49_271930	IMC
+TGME49_271970	IMC
+TGME49_272290	Apicoplast
+TGME49_272390	Apicoplast
+TGME49_272490	Mitochondrion - Membranes
+TGME49_272520	IMC
+TGME49_272660	ER 2
+TGME49_272670	Mitochondrion - Soluble
+TGME49_272910	Cytosol
+TGME49_273120	PM - Peripheral 1
+TGME49_273130	PM - Peripheral 1
+TGME49_273550	ER 2
+TGME49_273870	Nucleus - Chromatin
+TGME49_273950	Nucleus - Chromatin
+TGME49_274060	Mitochondrion - Membranes
+TGME49_275310	Nucleus - Non-Chromatin
+TGME49_275370	PM - Peripheral 1
+TGME49_275440	Dense Granules
+TGME49_275480	Nucleus - Non-Chromatin
+TGME49_275568	ER 1
+TGME49_275670	Apical 1
+TGME49_275690	Apicoplast
+TGME49_275750	Nucleus - Non-Chromatin
+TGME49_277080	Micronemes
+TGME49_277240	Dense Granules
+TGME49_277270	Dense Granules
+TGME49_277500	19S Proteasome
+TGME49_277720	Rhoptries 1
+TGME49_277970	ER 1
+TGME49_278050	20S Proteasome
+TGME49_278100	PM - Peripheral 1
+TGME49_278365	PM - Peripheral 1
+TGME49_278780	Apical 1
+TGME49_279100	Dense Granules
+TGME49_279420	Rhoptries 1
+TGME49_280600	Cytosol
+TGME49_280610	ER 1
+TGME49_280710	20S Proteasome
+TGME49_280740	ER 1
+TGME49_281580	PM - Peripheral 2
+TGME49_281930	PM - Peripheral 1
+TGME49_282055	Rhoptries 1
+TGME49_282220	Nucleus - Chromatin
+TGME49_283540	Micronemes
+TGME49_283590	Mitochondrion - Membranes
+TGME49_283780	Cytosol
+TGME49_284190	Mitochondrion - Soluble
+TGME49_284540	Mitochondrion - Membranes
+TGME49_284560	60S Ribosome
+TGME49_285700	Apicoplast
+TGME49_285760	Nucleus - Non-Chromatin
+TGME49_285860	PM - Peripheral 1
+TGME49_285870	PM - Peripheral 1
+TGME49_285970	Mitochondrion - Soluble
+TGME49_286050	Apicoplast
+TGME49_286080	Nucleus - Non-Chromatin
+TGME49_286450	Dense Granules
+TGME49_286560	Nucleus - Non-Chromatin
+TGME49_286580	IMC
+TGME49_286590	Tubulin Cytoskeleton
+TGME49_286600	Tubulin Cytoskeleton
+TGME49_286920	Nucleus - Chromatin
+TGME49_287040	Micronemes
+TGME49_287210	20S Proteasome
+TGME49_287270	Apicoplast
+TGME49_287500	Cytosol
+TGME49_288360	Cytosol
+TGME49_288380	Cytosol
+TGME49_288500	Mitochondrion - Soluble
+TGME49_288650	Dense Granules
+TGME49_288680	Nucleus - Chromatin
+TGME49_288720	60S Ribosome
+TGME49_288750	Mitochondrion - Membranes
+TGME49_288830	Mitochondrion - Membranes
+TGME49_289300	Cytosol
+TGME49_289380	Dense Granules
+TGME49_289530	60S Ribosome
+TGME49_289560	Nucleus - Non-Chromatin
+TGME49_289630	Micronemes
+TGME49_289650	Cytosol
+TGME49_289690	Cytosol
+TGME49_290005	20S Proteasome
+TGME49_290160	Golgi
+TGME49_290600	Mitochondrion - Soluble
+TGME49_290630	Nucleus - Chromatin
+TGME49_290700	Dense Granules
+TGME49_291330	Nucleus - Non-Chromatin
+TGME49_291600	Endomembrane Vesicles
+TGME49_291670	Apicoplast
+TGME49_291880	Apical 1
+TGME49_291890	Micronemes
+TGME49_291960	Rhoptries 1
+TGME49_292080	Cytosol
+TGME49_292120	PM - Peripheral 2
+TGME49_292130	60S Ribosome
+TGME49_292220	19S Proteasome
+TGME49_292260	PM - Peripheral 1
+TGME49_292280	PM - Peripheral 1
+TGME49_292950	Apical 1
+TGME49_292975	Mitochondrion - Soluble
+TGME49_293190	Apical 1
+TGME49_293300	Golgi
+TGME49_293470	PM - Peripheral 2
+TGME49_293570	ER 1
+TGME49_293590	Apicoplast
+TGME49_293690	Cytosol
+TGME49_293770	Micronemes
+TGME49_293900	Micronemes
+TGME49_294040	Golgi
+TGME49_294360	Nucleus - Non-Chromatin
+TGME49_294560	Rhoptries 1
+TGME49_294690	PM - Integral
+TGME49_295110	Rhoptries 1
+TGME49_295125	Rhoptries 1
+TGME49_295360	IMC
+TGME49_295370	Mitochondrion - Soluble
+TGME49_295420	Apical 2
+TGME49_295680	Nucleolus
+TGME49_295850	Apical 2
+TGME49_295990	Apicoplast
+TGME49_297060	Cytosol
+TGME49_297070	Rhoptries 2
+TGME49_297180	Apical 1
+TGME49_297470	PM - Peripheral 1
+TGME49_297500	Cytosol
+TGME49_297720	Cytosol
+TGME49_297780	Apicoplast
+TGME49_298970	Nucleus - Non-Chromatin
+TGME49_298990	Apicoplast
+TGME49_299050	60S Ribosome
+TGME49_299060	Rhoptries 2
+TGME49_299810	Cytosol
+TGME49_300000	60S Ribosome
+TGME49_300060	ER 1
+TGME49_300100	Rhoptries 1
+TGME49_300190	60S Ribosome
+TGME49_300200	Nucleus - Chromatin
+TGME49_300240	Golgi
+TGME49_300260	Cytosol
+TGME49_300290	Golgi
+TGME49_300310	19S Proteasome
+TGME49_301150	PM - Peripheral 1
+TGME49_301160	PM - Peripheral 1
+TGME49_301170	PM - Peripheral 1
+TGME49_301180	PM - Peripheral 1
+TGME49_301420	Apical 1
+TGME49_302000	Apicoplast
+TGME49_302050	Apicoplast
+TGME49_304490	Micronemes
+TGME49_304670	IMC
+TGME49_304720	Dense Granules
+TGME49_304955	Dense Granules
+TGME49_305010	Nucleus - Non-Chromatin
+TGME49_305050	IMC
+TGME49_305240	Nucleus - Non-Chromatin
+TGME49_305340	Nucleus - Chromatin
+TGME49_305480	Mitochondrion - Membranes
+TGME49_305520	40S Ribosome
+TGME49_305590	Rhoptries 2
+TGME49_305860	PM - Peripheral 2
+TGME49_305870	ER 1
+TGME49_305920	Nucleus - Chromatin
+TGME49_305930	IMC
+TGME49_305980	Apicoplast
+TGME49_306000	Nucleus - Chromatin
+TGME49_306060	Rhoptries 1
+TGME49_306380	Nucleus - Non-Chromatin
+TGME49_306930	20S Proteasome
+TGME49_307850	Cytosol
+TGME49_308000	ER 1
+TGME49_308090	Rhoptries 1
+TGME49_308580	Mitochondrion - Soluble
+TGME49_308810	Rhoptries 2
+TGME49_308840	PM - Peripheral 1
+TGME49_308860	Apical 1
+TGME49_309120	60S Ribosome
+TGME49_309560	Rhoptries 2
+TGME49_309740	Nucleus - Non-Chromatin
+TGME49_309752	Mitochondrion - Soluble
+TGME49_309930	Endomembrane Vesicles
+TGME49_309990	Micronemes
+TGME49_310100	ER 1
+TGME49_310290	Mitochondrion - Soluble
+TGME49_310380	Nucleolus
+TGME49_310490	60S Ribosome
+TGME49_310670	Cytosol
+TGME49_310770	Apicoplast
+TGME49_310780	Dense Granules
+TGME49_310820	Nucleus - Non-Chromatin
+TGME49_310860	Nucleus - Non-Chromatin
+TGME49_310900	Nucleus - Chromatin
+TGME49_310950	Nucleus - Chromatin
+TGME49_311260	Apical 2
+TGME49_311310	Cytosol
+TGME49_311360	PM - Peripheral 2
+TGME49_311410	Nucleolus
+TGME49_311430	Nucleolus
+TGME49_311470	Rhoptries 1
+TGME49_311720	ER 2
+TGME49_312090	60S Ribosome
+TGME49_312110	Apicoplast
+TGME49_312220	Mitochondrion - Membranes
+TGME49_312270	Rhoptries 1
+TGME49_312280	Nucleus - Non-Chromatin
+TGME49_312420	Dense Granules
+TGME49_313140	Mitochondrion - Soluble
+TGME49_313290	PM - Peripheral 2
+TGME49_313380	IMC
+TGME49_313390	60S Ribosome
+TGME49_313410	19S Proteasome
+TGME49_313830	Nucleolus
+TGME49_313930	Endomembrane Vesicles
+TGME49_313980	Nucleolus
+TGME49_314090	20S Proteasome
+TGME49_314295	Mitochondrion - Soluble
+TGME49_314410	Nucleus - Non-Chromatin
+TGME49_314740	Nucleus - Non-Chromatin
+TGME49_314780	PM - Peripheral 2
+TGME49_314790	Nucleus - Non-Chromatin
+TGME49_314810	60S Ribosome
+TGME49_314820	Mitochondrion - Membranes
+TGME49_314830	Nucleus - Non-Chromatin
+TGME49_315160	Rhoptries 2
+TGME49_315220	Rhoptries 2
+TGME49_315320	PM - Peripheral 1
+TGME49_315410	PM - Peripheral 1
+TGME49_315510	Apical 1
+TGME49_315740	PM - Peripheral 1
+TGME49_315750	IMC
+TGME49_315760	Nucleus - Chromatin
+TGME49_315780	Apical 2
+TGME49_316140	Mitochondrion - Membranes
+TGME49_316340	IMC
+TGME49_316400	Tubulin Cytoskeleton
+TGME49_316520	Cytosol
+TGME49_318140	Nucleus - Non-Chromatin
+TGME49_318150	PM - Integral
+TGME49_318230	Cytosol
+TGME49_318260	Nucleus - Chromatin
+TGME49_318310	Cytosol
+TGME49_318410	Cytosol
+TGME49_318580	Cytosol
+TGME49_318750	Cytosol
+TGME49_319300	ER 1
+TGME49_319350	PM - Peripheral 1
+TGME49_319560	Micronemes
+TGME49_319950	Nucleolus
+TGME49_320020	PM - Integral
+TGME49_320030	Apical 1
+TGME49_320140	Mitochondrion - Membranes
+TGME49_320170	PM - Peripheral 1
+TGME49_320180	PM - Peripheral 1
+TGME49_320190	PM - Peripheral 1
+TGME49_320200	PM - Peripheral 1
+TGME49_320210	Nucleus - Non-Chromatin
+TGME49_320220	Mitochondrion - Membranes
+TGME49_320230	PM - Peripheral 1
+TGME49_320300	Nucleus - Chromatin
+TGME49_320490	Dense Granules
+TGME49_320740	Cytosol
+TGME49_321400	ER 1
+TGME49_321440	Nucleus - Chromatin
+TGME49_321480	PM - Peripheral 1
+TGME49_321530	Endomembrane Vesicles
+TGME49_321570	Apicoplast
+TGME49_321640	Apicoplast
+TGME49_321650	Rhoptries 1

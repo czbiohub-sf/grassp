@@ -1,0 +1,892 @@
+uniprot_id	moloney
+Tb11.v5.0162	Proteasome
+Tb11.v5.0196	Proteasome
+Tb11.v5.0200	Proteasome
+Tb11.v5.0281	Secretory/Endocytic 3
+Tb11.v5.0330	Secretory/Endocytic 2
+Tb11.v5.0331	Secretory/Endocytic 2
+Tb11.v5.0421	Secretory/Endocytic 1
+Tb11.v5.0540	Secretory/Endocytic 2
+Tb11.v5.0731	Secretory/Endocytic 3
+Tb11.v5.0742	Proteasome
+Tb11.v5.1026	Secretory/Endocytic 1
+Tb427.BES40.18	Secretory/Endocytic 1
+Tb427.BES40.3	Secretory/Endocytic 1
+Tb427.BES40.4	Secretory/Endocytic 1
+Tb927.1.1200	Mitochondrion - Matrix 1
+Tb927.1.1220	Cytosol
+Tb927.1.1240	Cytosol
+Tb927.1.1420	Cytosol
+Tb927.1.1690	Mitochondrion - Matrix 2
+Tb927.1.1730	Mitochondrion - Matrix 2
+Tb927.1.2450	Nucleus - Chromatin
+Tb927.1.2670	Flagellum 1
+Tb927.1.2770	Microtubule Structures 1
+Tb927.1.3010	Mitochondrion - Matrix 2
+Tb927.1.3030	Mitochondrion - Matrix 2
+Tb927.1.3200	Cytosol
+Tb927.1.3250	Flagellum 1
+Tb927.1.3410	Nucleus
+Tb927.1.3560	Microtubule Structures 1
+Tb927.1.4180	Flagellum 1
+Tb927.1.4720	Cytosol
+Tb927.1.4890	Secretory/Endocytic 1
+Tb927.1.560	Nucleus
+Tb927.1.990	Flagellum 1
+Tb927.10.10120	Mitochondrion - Matrix 2
+Tb927.10.10130	Mitochondrion - Matrix 2
+Tb927.10.10160	Mitochondrion - Matrix 2
+Tb927.10.10170	Nucleus
+Tb927.10.10230	Secretory/Endocytic 3
+Tb927.10.10380	Nucleus
+Tb927.10.10400	Mitochondrion - Matrix 1
+Tb927.10.10445	Nucleus - Chromatin
+Tb927.10.1060	Cytosol
+Tb927.10.10830	Mitochondrion - Matrix 2
+Tb927.10.10840	Secretory/Endocytic 1
+Tb927.10.10940	Cytosol
+Tb927.10.11030	Mitochondrion - OM
+Tb927.10.11160	Mitochondrion - Matrix 2
+Tb927.10.11220	Secretory/Endocytic 2
+Tb927.10.11250	Flagellum 1
+Tb927.10.1130	Flagellum 1
+Tb927.10.11310	Intraflagellar Transport
+Tb927.10.11390	Ribonucleoproteins 1
+Tb927.10.11580	Flagellum 1
+Tb927.10.11700	Cytosol
+Tb927.10.11770	Mitochondrion - IM
+Tb927.10.11800	Flagellum 1
+Tb927.10.11850	Microtubule Structures 1
+Tb927.10.11870	Mitochondrion - Matrix 2
+Tb927.10.11970	Cytosol
+Tb927.10.11990	Nucleus
+Tb927.10.12040	Cytosol
+Tb927.10.12090	Cytosol
+Tb927.10.1210	Microtubule Structures 2
+Tb927.10.12210	Cytosol
+Tb927.10.12240	ER
+Tb927.10.12260	Cytosol
+Tb927.10.12320	Microtubule Structures 1
+Tb927.10.12410	Flagellum 1
+Tb927.10.12430	Nucleus
+Tb927.10.12490	Microtubule Structures 2
+Tb927.10.12500	Secretory/Endocytic 2
+Tb927.10.12710	Cytosol
+Tb927.10.12720	Microtubule Structures 1
+Tb927.10.12840	Mitochondrion - IM
+Tb927.10.12870	Flagellum 1
+Tb927.10.13040	Secretory/Endocytic 3
+Tb927.10.13180	Nucleus
+Tb927.10.13210	ER
+Tb927.10.13240	Glycosomes
+Tb927.10.13290	ER
+Tb927.10.13300	Mitochondrion - Matrix 1
+Tb927.10.13360	Mitochondrion - Matrix 2
+Tb927.10.13560	Cytosol
+Tb927.10.13620	Mitochondrion - IM
+Tb927.10.13670	Cytosol
+Tb927.10.13710	Cytosol
+Tb927.10.13860	ER
+Tb927.10.13960	Flagellum 1
+Tb927.10.14010	Microtubule Structures 1
+Tb927.10.14020	Glycosomes
+Tb927.10.14030	ER
+Tb927.10.14150	ER
+Tb927.10.14160	Secretory/Endocytic 2
+Tb927.10.14170	Secretory/Endocytic 2
+Tb927.10.14200	Secretory/Endocytic 1
+Tb927.10.14220	Flagellum 1
+Tb927.10.14330	Nucleus
+Tb927.10.14460	Flagellum 1
+Tb927.10.14530	Proteasome Regulatory Particle
+Tb927.10.14560	Flagellum 1
+Tb927.10.14570	Flagellum 1
+Tb927.10.14680	Nucleus
+Tb927.10.14720	Glycosomes
+Tb927.10.14780	Cytosol
+Tb927.10.14820	Mitochondrion - IM
+Tb927.10.14980	Intraflagellar Transport
+Tb927.10.14990	Intraflagellar Transport
+Tb927.10.15000	Flagellum 1
+Tb927.10.15080	Microtubule Structures 2
+Tb927.10.15120	Ribonucleoproteins 1
+Tb927.10.15170	Nucleus
+Tb927.10.15350	Nucleus - Chromatin
+Tb927.10.15400	Microtubule Structures 2
+Tb927.10.1550	Proteasome Regulatory Particle
+Tb927.10.15520	Cytosol
+Tb927.10.15580	Flagellum 1
+Tb927.10.1560	Nucleus
+Tb927.10.15720	Proteasome Regulatory Particle
+Tb927.10.15730	Flagellum 1
+Tb927.10.15770	Microtubule Structures 1
+Tb927.10.16120	Glycosomes
+Tb927.10.1720	Nucleus
+Tb927.10.1730	Mitochondrion - Matrix 2
+Tb927.10.180	Mitochondrion - IM
+Tb927.10.1860	Glycosomes
+Tb927.10.1890	Flagellum 1
+Tb927.10.1960	Nucleus
+Tb927.10.210	ER
+Tb927.10.2190	Flagellum 1
+Tb927.10.230	Proteasome
+Tb927.10.2310	Nucleus
+Tb927.10.2340	Secretory/Endocytic 1
+Tb927.10.2370	Cytosol
+Tb927.10.2380	Flagellum 1
+Tb927.10.240	Glycosomes
+Tb927.10.2440	Secretory/Endocytic 3
+Tb927.10.250	Microtubule Structures 1
+Tb927.10.2640	Intraflagellar Transport
+Tb927.10.270	Ribonucleoproteins 1
+Tb927.10.2800	Mitochondrion - Matrix 1
+Tb927.10.2860	Microtubule Structures 1
+Tb927.10.290	Proteasome
+Tb927.10.3030	Proteasome Regulatory Particle
+Tb927.10.3040	Mitochondrion - IM
+Tb927.10.3080	Glycosomes
+Tb927.10.3250	Mitochondrion - Matrix 1
+Tb927.10.3310	Flagellum 1
+Tb927.10.3520	Proteasome Regulatory Particle
+Tb927.10.3560	Cytosol
+Tb927.10.3570	Mitochondrion - Matrix 2
+Tb927.10.3580	Mitochondrion - Matrix 1
+Tb927.10.3780	Microtubule Structures 2
+Tb927.10.3790	Nucleus
+Tb927.10.4040	ER
+Tb927.10.4610	ER
+Tb927.10.4710	Proteasome
+Tb927.10.4760	ER
+Tb927.10.5010	Mitochondrion - Matrix 2
+Tb927.10.5080	ER
+Tb927.10.5110	Mitochondrion - Matrix 2
+Tb927.10.5120	Mitochondrion - Matrix 2
+Tb927.10.520	Mitochondrion - IM
+Tb927.10.5260	Microtubule Structures 1
+Tb927.10.5290	Mitochondrion - Matrix 2
+Tb927.10.5350	Flagellum 1
+Tb927.10.5430	Flagellum 1
+Tb927.10.5440	Mitochondrion - Matrix 2
+Tb927.10.5450	Nucleus - Chromatin
+Tb927.10.560	Ribonucleoproteins 1
+Tb927.10.5810	Cytosol
+Tb927.10.5840	Cytosol
+Tb927.10.5870	Microtubule Structures 2
+Tb927.10.5890	Flagellum 1
+Tb927.10.600	Mitochondrion - Matrix 1
+Tb927.10.6180	Acidocalcisomes
+Tb927.10.6230	Flagellum 1
+Tb927.10.6260	Nucleus
+Tb927.10.630	Microtubule Structures 1
+Tb927.10.6300	Mitochondrion - Matrix 1
+Tb927.10.6400	Mitochondrion - Matrix 2
+Tb927.10.6440	Cytosol
+Tb927.10.650	Flagellum 1
+Tb927.10.6610	ER
+Tb927.10.6630	Nucleus
+Tb927.10.6680	Cytosol
+Tb927.10.6850	Mitochondrion - Matrix 1
+Tb927.10.7090	Mitochondrion - IM
+Tb927.10.720	Microtubule Structures 2
+Tb927.10.7230	Flagellum 1
+Tb927.10.7510	Flagellum 1
+Tb927.10.7690	Flagellum 1
+Tb927.10.7880	Flagellum 1
+Tb927.10.7910	Mitochondrion - Matrix 2
+Tb927.10.7930	Cytosol
+Tb927.10.8020	Cytosol
+Tb927.10.8030	Mitochondrion - IM
+Tb927.10.8060	Cytosol
+Tb927.10.8190	Cytosol
+Tb927.10.8200	Nucleus
+Tb927.10.8210	Mitochondrion - Matrix 2
+Tb927.10.830	Flagellum 1
+Tb927.10.8590	Microtubule Structures 1
+Tb927.10.870	Microtubule Structures 2
+Tb927.10.8780	Flagellum 1
+Tb927.10.8790	Cytosol
+Tb927.10.8930	Flagellum 1
+Tb927.10.8940	Microtubule Structures 2
+Tb927.10.9130	Nucleus
+Tb927.10.9250	Cytosol
+Tb927.10.9440	Mitochondrion - IM
+Tb927.10.9570	Flagellum 1
+Tb927.10.970	Flagellum 1
+Tb927.10.9700	Microtubule Structures 2
+Tb927.10.9740	Proteasome Regulatory Particle
+Tb927.10.9780	Nucleus
+Tb927.10.9870	Cytosol
+Tb927.10.9890	Glycosomes
+Tb927.10.9920	Nucleus
+Tb927.11.10060	Cytosol
+Tb927.11.10170	Mitochondrion - Matrix 1
+Tb927.11.10270	Secretory/Endocytic 1
+Tb927.11.1050	Nucleus
+Tb927.11.1070	Glycosomes
+Tb927.11.10790	Ribonucleoproteins 1
+Tb927.11.10900	Flagellum 1
+Tb927.11.11160	Acidocalcisomes
+Tb927.11.11210	Flagellum 1
+Tb927.11.11220	Flagellum 1
+Tb927.11.11250	Cytosol
+Tb927.11.11460	Mitochondrion - OM
+Tb927.11.11470	Mitochondrion - Matrix 1
+Tb927.11.1150	Flagellum 1
+Tb927.11.11520	Glycosomes
+Tb927.11.11880	Flagellum 1
+Tb927.11.12030	Nucleus
+Tb927.11.12060	Glycosomes
+Tb927.11.12220	Acidocalcisomes
+Tb927.11.12430	Flagellum 1
+Tb927.11.12490	Acidocalcisomes
+Tb927.11.12680	Cytosol
+Tb927.11.1270	Mitochondrion - IM
+Tb927.11.12840	Flagellum 1
+Tb927.11.12860	Flagellum 1
+Tb927.11.13180	Mitochondrion - OM
+Tb927.11.13280	Mitochondrion - Matrix 2
+Tb927.11.13290	Mitochondrion - IM
+Tb927.11.1330	Cytosol
+Tb927.11.13360	Nucleus
+Tb927.11.13500	Flagellum 1
+Tb927.11.13690	Flagellum 1
+Tb927.11.1370	Cytosol
+Tb927.11.13700	Microtubule Structures 1
+Tb927.11.13740	Secretory/Endocytic 3
+Tb927.11.13780	Cytosol
+Tb927.11.13870	Cytosol
+Tb927.11.13890	Mitochondrion - Matrix 1
+Tb927.11.13900	Flagellum 1
+Tb927.11.13930	Nucleus
+Tb927.11.1410	Nucleus - Chromatin
+Tb927.11.14130	Ribonucleoproteins 1
+Tb927.11.14140	Cytosol
+Tb927.11.14200	Cytosol
+Tb927.11.14210	Flagellum 1
+Tb927.11.14250	Cytosol
+Tb927.11.14280	Cytosol
+Tb927.11.1430	Flagellum 1
+Tb927.11.14380	Mitochondrion - Matrix 2
+Tb927.11.14430	Proteasome Regulatory Particle
+Tb927.11.14440	Flagellum 1
+Tb927.11.14560	Nucleus
+Tb927.11.14620	Secretory/Endocytic 1
+Tb927.11.1470	Secretory/Endocytic 3
+Tb927.11.14870	Cytosol
+Tb927.11.14960	Nucleus
+Tb927.11.14980	Mitochondrion - Matrix 1
+Tb927.11.15100	Flagellum 1
+Tb927.11.15140	Microtubule Structures 2
+Tb927.11.15190	Flagellum 1
+Tb927.11.15370	Cytosol
+Tb927.11.15480	Cytosol
+Tb927.11.1560	Cytosol
+Tb927.11.15640	Mitochondrion - Matrix 2
+Tb927.11.15760	ER
+Tb927.11.15840	Secretory/Endocytic 2
+Tb927.11.16030	Proteasome Regulatory Particle
+Tb927.11.16090	Flagellum 1
+Tb927.11.16150	Cytosol
+Tb927.11.16160	Cytosol
+Tb927.11.16210	Flagellum 1
+Tb927.11.16280	Ribonucleoproteins 1
+Tb927.11.16340	Cytosol
+Tb927.11.16560	Secretory/Endocytic 3
+Tb927.11.16640	Microtubule Structures 1
+Tb927.11.16690	Secretory/Endocytic 1
+Tb927.11.16730	Mitochondrion - Matrix 2
+Tb927.11.16760	Cytosol
+Tb927.11.16860	Mitochondrion - Matrix 2
+Tb927.11.16880	Flagellum 1
+Tb927.11.16890	Flagellum 1
+Tb927.11.16970	Cytosol
+Tb927.11.1710	Mitochondrion - Matrix 2
+Tb927.11.1740	Intraflagellar Transport
+Tb927.11.1900	Cytosol
+Tb927.11.1910	Secretory/Endocytic 1
+Tb927.11.2130	Proteasome Regulatory Particle
+Tb927.11.2140	Flagellum 1
+Tb927.11.2270	Flagellum 1
+Tb927.11.230	Nucleus
+Tb927.11.2510	Nucleus
+Tb927.11.2790	Flagellum 1
+Tb927.11.2990	Mitochondrion - Matrix 2
+Tb927.11.3130	Glycosomes
+Tb927.11.3220	Secretory/Endocytic 3
+Tb927.11.3280	Microtubule Structures 2
+Tb927.11.3310	Cytosol
+Tb927.11.3360	Flagellum 1
+Tb927.11.3470	Secretory/Endocytic 1
+Tb927.11.3500	Flagellum 1
+Tb927.11.3640	Mitochondrion - Matrix 1
+Tb927.11.3650	Cytosol
+Tb927.11.3710	Flagellum 1
+Tb927.11.3740	Proteasome Regulatory Particle
+Tb927.11.3840	Nucleus
+Tb927.11.3880	Flagellum 1
+Tb927.11.4190	Nucleus
+Tb927.11.4210	Cytosol
+Tb927.11.4350	Flagellum 1
+Tb927.11.4480	Flagellum 1
+Tb927.11.4550	Flagellum 1
+Tb927.11.460	Nucleus
+Tb927.11.4650	Mitochondrion - Matrix 1
+Tb927.11.4740	Flagellum 1
+Tb927.11.4820	Ribonucleoproteins 1
+Tb927.11.4860	Cytosol
+Tb927.11.4880	Flagellum 1
+Tb927.11.4980	Nucleus
+Tb927.11.5050	Mitochondrion - Matrix 2
+Tb927.11.5220	ER
+Tb927.11.540	Mitochondrion - OM
+Tb927.11.5440	Cytosol
+Tb927.11.5500	Mitochondrion - Matrix 1
+Tb927.11.5510	Flagellum 1
+Tb927.11.5600	Mitochondrion - OM
+Tb927.11.5750	Microtubule Structures 1
+Tb927.11.600	Mitochondrion - IM
+Tb927.11.6000	Mitochondrion - Matrix 1
+Tb927.11.6050	Flagellum 1
+Tb927.11.6230	ER
+Tb927.11.6250	Mitochondrion - IM
+Tb927.11.6300	Ribonucleoproteins 1
+Tb927.11.6370	Flagellum 1
+Tb927.11.6400	Microtubule Structures 2
+Tb927.11.6510	Ribonucleoproteins 1
+Tb927.11.6560	Microtubule Structures 1
+Tb927.11.6590	Cytosol
+Tb927.11.6710	Flagellum 1
+Tb927.11.6790	Nucleus
+Tb927.11.6810	Microtubule Structures 2
+Tb927.11.6870	Cytosol
+Tb927.11.7020	Proteasome
+Tb927.11.7180	Flagellum 1
+Tb927.11.7213	Secretory/Endocytic 1
+Tb927.11.7240	Flagellum 1
+Tb927.11.7270	Proteasome
+Tb927.11.7350	Nucleus - Chromatin
+Tb927.11.740	Cytosol
+Tb927.11.7460	ER
+Tb927.11.750	Nucleus - Chromatin
+Tb927.11.7520	Cytosol
+Tb927.11.7560	Flagellum 1
+Tb927.11.7570	Cytosol
+Tb927.11.760	Cytosol
+Tb927.11.7780	Mitochondrion - OM
+Tb927.11.7790	Mitochondrion - Matrix 1
+Tb927.11.7890	Cytosol
+Tb927.11.7900	Mitochondrion - Matrix 2
+Tb927.11.7940	Flagellum 1
+Tb927.11.7960	Mitochondrion - Matrix 2
+Tb927.11.8050	Nucleus
+Tb927.11.8160	Flagellum 1
+Tb927.11.8230	Cytosol
+Tb927.11.8270	Nucleus
+Tb927.11.8350	Microtubule Structures 2
+Tb927.11.840	Secretory/Endocytic 2
+Tb927.11.870	Mitochondrion - Matrix 1
+Tb927.11.880	Cytosol
+Tb927.11.8970	Cytosol
+Tb927.11.8980	Mitochondrion - Matrix 2
+Tb927.11.9040	Cytosol
+Tb927.11.9070	Secretory/Endocytic 1
+Tb927.11.9080	Nucleus
+Tb927.11.9130	Cytosol
+Tb927.11.9140	Mitochondrion - Matrix 2
+Tb927.11.9220	Proteasome Regulatory Particle
+Tb927.11.9290	Microtubule Structures 2
+Tb927.11.940	Mitochondrion - Matrix 2
+Tb927.11.9440	Flagellum 1
+Tb927.11.9530	Cytosol
+Tb927.11.9590	Cytosol
+Tb927.11.9910	Cytosol
+Tb927.2.1700	Secretory/Endocytic 3
+Tb927.2.1780	ER
+Tb927.2.1810	Nucleus - Chromatin
+Tb927.2.1850	Flagellum 1
+Tb927.2.1860	Mitochondrion - Matrix 2
+Tb927.2.1890	Cytosol
+Tb927.2.1920	Secretory/Endocytic 1
+Tb927.2.2090	Flagellum 1
+Tb927.2.2160	Flagellum 1
+Tb927.2.2440	Proteasome Regulatory Particle
+Tb927.2.2470	Mitochondrion - Matrix 2
+Tb927.2.2510	Mitochondrion - OM
+Tb927.2.2670	Nucleus - Chromatin
+Tb927.2.2950	Nucleus
+Tb927.2.3020	Flagellum 1
+Tb927.2.3080	ER
+Tb927.2.3180	Mitochondrion - Matrix 2
+Tb927.2.3320	Secretory/Endocytic 3
+Tb927.2.3400	Nucleus
+Tb927.2.3610	Mitochondrion - IM
+Tb927.2.3800	Mitochondrion - Matrix 2
+Tb927.2.4060	Flagellum 1
+Tb927.2.4090	ER
+Tb927.2.4130	Glycosomes
+Tb927.2.4330	Flagellum 1
+Tb927.2.4370	Cytosol
+Tb927.2.4400	Mitochondrion - Matrix 1
+Tb927.2.4580	Cytosol
+Tb927.2.4810	Flagellum 1
+Tb927.2.4850	Cytosol
+Tb927.2.4890	Mitochondrion - Matrix 1
+Tb927.2.4980	Nucleus
+Tb927.2.5120	Secretory/Endocytic 1
+Tb927.2.5130	Nucleus
+Tb927.2.5150	Cytosol
+Tb927.2.5160	Cytosol
+Tb927.2.5270	Flagellum 1
+Tb927.2.5660	Flagellum 1
+Tb927.2.5800	Glycosomes
+Tb927.2.6000	Secretory/Endocytic 3
+Tb927.2.6070	Mitochondrion - Matrix 2
+Tb927.2.6090	Ribonucleoproteins 1
+Tb927.2.6280	Secretory/Endocytic 2
+Tb927.3.1060	Flagellum 1
+Tb927.3.1150	Cytosol
+Tb927.3.1170	Cytosol
+Tb927.3.1180	Mitochondrion - Matrix 2
+Tb927.3.1350	Nucleus
+Tb927.3.1380	Mitochondrion - IM
+Tb927.3.1420	Microtubule Structures 1
+Tb927.3.1690	Mitochondrion - IM
+Tb927.3.1710	Mitochondrion - Matrix 1
+Tb927.3.1770	Flagellum 1
+Tb927.3.1800	Nucleus
+Tb927.3.1820	Mitochondrion - Matrix 2
+Tb927.3.1900	Flagellum 1
+Tb927.3.2180	Mitochondrion - IM
+Tb927.3.2220	Cytosol
+Tb927.3.2310	Flagellum 1
+Tb927.3.2410	Glycosomes
+Tb927.3.2670	Mitochondrion - Matrix 2
+Tb927.3.2680	Cytosol
+Tb927.3.2750	Nucleus
+Tb927.3.2880	Mitochondrion - IM
+Tb927.3.2890	Flagellum 1
+Tb927.3.2950	Flagellum 1
+Tb927.3.2960	Cytosol
+Tb927.3.3000	Intraflagellar Transport
+Tb927.3.3200	Flagellum 1
+Tb927.3.3270	Glycosomes
+Tb927.3.3450	Cytosol
+Tb927.3.3460	Mitochondrion - IM
+Tb927.3.3490	Nucleus - Chromatin
+Tb927.3.3560	Cytosol
+Tb927.3.3590	Nucleus
+Tb927.3.3670	Nucleus
+Tb927.3.3690	Flagellum 1
+Tb927.3.3750	Flagellum 1
+Tb927.3.3990	Mitochondrion - Matrix 2
+Tb927.3.4040	Cytosol
+Tb927.3.4070	Secretory/Endocytic 2
+Tb927.3.4080	Secretory/Endocytic 2
+Tb927.3.4190	Secretory/Endocytic 1
+Tb927.3.4380	Mitochondrion - OM
+Tb927.3.4420	Glycosomes
+Tb927.3.4500	Cytosol
+Tb927.3.4570	ER
+Tb927.3.4630	ER
+Tb927.3.4640	Mitochondrion - OM
+Tb927.3.4680	Cytosol
+Tb927.3.4970	Flagellum 1
+Tb927.3.5020	Flagellum 1
+Tb927.3.5130	ER
+Tb927.3.5160	Microtubule Structures 1
+Tb927.3.5180	Cytosol
+Tb927.3.5240	Mitochondrion - Matrix 1
+Tb927.3.5340	Cytosol
+Tb927.3.5430	ER
+Tb927.3.5490	Intraflagellar Transport
+Tb927.3.5520	Proteasome Regulatory Particle
+Tb927.3.5610	Mitochondrion - Matrix 1
+Tb927.3.620	Nucleus
+Tb927.3.780	Proteasome
+Tb927.3.800	Acidocalcisomes
+Tb927.4.1020	ER
+Tb927.4.1070	Mitochondrion - Matrix 1
+Tb927.4.1090	Secretory/Endocytic 1
+Tb927.4.1100	Ribonucleoproteins 1
+Tb927.4.1220	Cytosol
+Tb927.4.1270	Cytosol
+Tb927.4.1330	Nucleus - Chromatin
+Tb927.4.1500	Mitochondrion - Matrix 2
+Tb927.4.1600	Glycosomes
+Tb927.4.1740	Flagellum 1
+Tb927.4.1810	Mitochondrion - Matrix 1
+Tb927.4.1920	ER
+Tb927.4.2000	Cytosol
+Tb927.4.2040	Cytosol
+Tb927.4.2140	Flagellum 1
+Tb927.4.2240	Cytosol
+Tb927.4.2350	Cytosol
+Tb927.4.2400	Microtubule Structures 1
+Tb927.4.2600	Flagellum 1
+Tb927.4.2630	Nucleus
+Tb927.4.3040	Secretory/Endocytic 2
+Tb927.4.3160	Glycosomes
+Tb927.4.3450	Mitochondrion - IM
+Tb927.4.3590	Cytosol
+Tb927.4.3670	Nucleus
+Tb927.4.3840	Nucleus
+Tb927.4.3850	Nucleus
+Tb927.4.4050	Glycosomes
+Tb927.4.4160	Mitochondrion - Matrix 2
+Tb927.4.430	Proteasome
+Tb927.4.4300	Mitochondrion - IM
+Tb927.4.4340	Cytosol
+Tb927.4.4350	ER
+Tb927.4.4380	Acidocalcisomes
+Tb927.4.4430	Secretory/Endocytic 3
+Tb927.4.4440	Secretory/Endocytic 3
+Tb927.4.4490	Secretory/Endocytic 1
+Tb927.4.4600	Mitochondrion - Matrix 1
+Tb927.4.4700	Flagellum 1
+Tb927.4.4730	Secretory/Endocytic 2
+Tb927.4.4870	Secretory/Endocytic 2
+Tb927.4.4950	Nucleus
+Tb927.4.4960	Acidocalcisomes
+Tb927.4.5010	ER
+Tb927.4.5100	Secretory/Endocytic 1
+Tb927.4.590	ER
+Tb927.4.670	Flagellum 1
+Tb927.4.720	Mitochondrion - IM
+Tb927.4.870	Flagellum 1
+Tb927.4.930	Mitochondrion - Matrix 1
+Tb927.5.1140	Cytosol
+Tb927.5.1210	ER
+Tb927.5.1390	Secretory/Endocytic 3
+Tb927.5.1410	Secretory/Endocytic 3
+Tb927.5.1430	Secretory/Endocytic 3
+Tb927.5.1460	Cytosol
+Tb927.5.1510	Mitochondrion - Matrix 1
+Tb927.5.1680	Flagellum 1
+Tb927.5.1690	Flagellum 1
+Tb927.5.1710	Mitochondrion - IM
+Tb927.5.1790	Mitochondrion - Matrix 1
+Tb927.5.1810	Secretory/Endocytic 1
+Tb927.5.1900	Flagellum 1
+Tb927.5.1930	ER
+Tb927.5.1940	Flagellum 1
+Tb927.5.2080	Glycosomes
+Tb927.5.2100	Mitochondrion - Matrix 2
+Tb927.5.2260	Cytosol
+Tb927.5.2270	Flagellum 1
+Tb927.5.2500	Microtubule Structures 2
+Tb927.5.2520	Cytosol
+Tb927.5.2530	Nucleus
+Tb927.5.2570	Ribonucleoproteins 1
+Tb927.5.2720	Cytosol
+Tb927.5.2850	Flagellum 1
+Tb927.5.2930	Mitochondrion - IM
+Tb927.5.2940	Cytosol
+Tb927.5.2950	Flagellum 1
+Tb927.5.3010	Mitochondrion - Matrix 2
+Tb927.5.3090	Mitochondrion - IM
+Tb927.5.3110	Mitochondrion - Matrix 1
+Tb927.5.3170	Cytosol
+Tb927.5.3410	Mitochondrion - Matrix 1
+Tb927.5.3680	ER
+Tb927.5.3710	ER
+Tb927.5.3820	Cytosol
+Tb927.5.3830	Cytosol
+Tb927.5.3860	Microtubule Structures 2
+Tb927.5.3960	Cytosol
+Tb927.5.3980	Mitochondrion - Matrix 1
+Tb927.5.4020	Secretory/Endocytic 3
+Tb927.5.4040	Mitochondrion - Matrix 1
+Tb927.5.4150	Flagellum 1
+Tb927.5.4250	Nucleus - Chromatin
+Tb927.5.4270	Nucleus
+Tb927.5.430	Secretory/Endocytic 1
+Tb927.5.4340	Microtubule Structures 1
+Tb927.5.610	Secretory/Endocytic 1
+Tb927.5.950	Cytosol
+Tb927.6.1020	Secretory/Endocytic 1
+Tb927.6.1040	Secretory/Endocytic 1
+Tb927.6.1090	Proteasome Regulatory Particle
+Tb927.6.1200	Mitochondrion - Matrix 2
+Tb927.6.1220	Microtubule Structures 1
+Tb927.6.1250	Mitochondrion - Matrix 1
+Tb927.6.1500	Glycosomes
+Tb927.6.1520	Secretory/Endocytic 2
+Tb927.6.1660	Flagellum 1
+Tb927.6.1680	Mitochondrion - Matrix 2
+Tb927.6.1800	Cytosol
+Tb927.6.1830	Nucleus
+Tb927.6.1990	Cytosol
+Tb927.6.200	Secretory/Endocytic 3
+Tb927.6.2000	Nucleus
+Tb927.6.2050	Nucleus
+Tb927.6.2080	Mitochondrion - Matrix 1
+Tb927.6.2140	Mitochondrion - Matrix 2
+Tb927.6.2230	Mitochondrion - Matrix 2
+Tb927.6.2270	Cytosol
+Tb927.6.2490	Mitochondrion - IM
+Tb927.6.2650	Nucleus
+Tb927.6.2720	Flagellum 1
+Tb927.6.2740	Cytosol
+Tb927.6.2780	Nucleus
+Tb927.6.2860	Cytosol
+Tb927.6.3100	Intraflagellar Transport
+Tb927.6.3150	Flagellum 1
+Tb927.6.3630	Mitochondrion - OM
+Tb927.6.3670	Flagellum 1
+Tb927.6.3970	Microtubule Structures 1
+Tb927.6.400	Cytosol
+Tb927.6.4000	Cytosol
+Tb927.6.4040	Mitochondrion - Matrix 1
+Tb927.6.4130	Mitochondrion - IM
+Tb927.6.4210	ER
+Tb927.6.4300	Glycosomes
+Tb927.6.440	Secretory/Endocytic 1
+Tb927.6.4500	ER
+Tb927.6.4520	Flagellum 1
+Tb927.6.4610	Flagellum 1
+Tb927.6.4630	Acidocalcisomes
+Tb927.6.4650	Cytosol
+Tb927.6.4760	Cytosol
+Tb927.6.4840	Cytosol
+Tb927.6.4930	Mitochondrion - Matrix 1
+Tb927.6.4990	Mitochondrion - IM
+Tb927.6.5030	Flagellum 1
+Tb927.6.560	Secretory/Endocytic 1
+Tb927.6.590	Mitochondrion - IM
+Tb927.6.630	Nucleus
+Tb927.6.720	Ribonucleoproteins 1
+Tb927.6.800	Secretory/Endocytic 3
+Tb927.6.930	Secretory/Endocytic 3
+Tb927.6.940	Secretory/Endocytic 3
+Tb927.7.1060	Nucleus - Chromatin
+Tb927.7.1110	Cytosol
+Tb927.7.1120	Cytosol
+Tb927.7.1300	ER
+Tb927.7.1430	Flagellum 1
+Tb927.7.1500	Cytosol
+Tb927.7.1550	Mitochondrion - Matrix 2
+Tb927.7.1560	Flagellum 1
+Tb927.7.1720	Mitochondrion - Matrix 2
+Tb927.7.1780	Cytosol
+Tb927.7.1920	Flagellum 1
+Tb927.7.2100	Cytosol
+Tb927.7.2190	ER
+Tb927.7.2320	Flagellum 1
+Tb927.7.2550	Proteasome Regulatory Particle
+Tb927.7.270	Nucleus
+Tb927.7.2730	Flagellum 1
+Tb927.7.2760	Mitochondrion - Matrix 1
+Tb927.7.2790	Flagellum 1
+Tb927.7.2910	Nucleus - Chromatin
+Tb927.7.2980	Cytosol
+Tb927.7.3050	Mitochondrion - Matrix 1
+Tb927.7.3130	Microtubule Structures 1
+Tb927.7.3240	Mitochondrion - Matrix 1
+Tb927.7.3370	Intraflagellar Transport
+Tb927.7.3560	Flagellum 1
+Tb927.7.3580	Flagellum 1
+Tb927.7.3590	Mitochondrion - IM
+Tb927.7.3640	Nucleus
+Tb927.7.3740	Flagellum 1
+Tb927.7.3780	Nucleus
+Tb927.7.3900	Acidocalcisomes
+Tb927.7.4000	Cytosol
+Tb927.7.4020	Flagellum 1
+Tb927.7.4100	Flagellum 1
+Tb927.7.4140	Mitochondrion - Matrix 1
+Tb927.7.4220	Nucleus
+Tb927.7.4230	Secretory/Endocytic 3
+Tb927.7.4260	Secretory/Endocytic 3
+Tb927.7.4290	Cytosol
+Tb927.7.4340	Nucleus
+Tb927.7.4390	Cytosol
+Tb927.7.4420	Proteasome
+Tb927.7.4450	Nucleus
+Tb927.7.4460	Flagellum 1
+Tb927.7.4510	Flagellum 1
+Tb927.7.4710	Mitochondrion - Matrix 1
+Tb927.7.5580	Cytosol
+Tb927.7.5660	Flagellum 1
+Tb927.7.5840	ER
+Tb927.7.5910	Cytosol
+Tb927.7.5940	Secretory/Endocytic 2
+Tb927.7.6260	ER
+Tb927.7.6280	Flagellum 1
+Tb927.7.6290	Flagellum 1
+Tb927.7.6360	Nucleus - Chromatin
+Tb927.7.650	Nucleus
+Tb927.7.6640	Flagellum 1
+Tb927.7.6770	Cytosol
+Tb927.7.6830	Secretory/Endocytic 2
+Tb927.7.6850	Secretory/Endocytic 2
+Tb927.7.6980	Nucleus
+Tb927.7.700	Nucleus
+Tb927.7.7040	Cytosol
+Tb927.7.710	Cytosol
+Tb927.7.7240	Flagellum 1
+Tb927.7.7250	Flagellum 1
+Tb927.7.7270	Microtubule Structures 1
+Tb927.7.7280	Nucleus
+Tb927.7.7420	Mitochondrion - IM
+Tb927.7.7450	Nucleus
+Tb927.7.7470	Secretory/Endocytic 3
+Tb927.7.800	Mitochondrion - Matrix 2
+Tb927.7.840	Mitochondrion - IM
+Tb927.7.920	Flagellum 1
+Tb927.7.950	Secretory/Endocytic 1
+Tb927.8.1050	Flagellum 1
+Tb927.8.1110	Ribonucleoproteins 1
+Tb927.8.1160	Acidocalcisomes
+Tb927.8.1270	Nucleus
+Tb927.8.1340	Ribonucleoproteins 1
+Tb927.8.1420	Mitochondrion - IM
+Tb927.8.1510	Nucleus
+Tb927.8.1550	Flagellum 1
+Tb927.8.1560	Flagellum 1
+Tb927.8.1570	ER
+Tb927.8.1740	Mitochondrion - IM
+Tb927.8.1940	Secretory/Endocytic 1
+Tb927.8.1950	Cytosol
+Tb927.8.1980	Nucleus
+Tb927.8.2030	Microtubule Structures 2
+Tb927.8.2130	Flagellum 1
+Tb927.8.2160	Secretory/Endocytic 2
+Tb927.8.2210	Cytosol
+Tb927.8.2520	Cytosol
+Tb927.8.2590	Microtubule Structures 1
+Tb927.8.2600	Nucleus
+Tb927.8.2620	Flagellum 1
+Tb927.8.2770	Acidocalcisomes
+Tb927.8.3110	Mitochondrion - Matrix 1
+Tb927.8.3150	Cytosol
+Tb927.8.3250	Flagellum 1
+Tb927.8.3380	Mitochondrion - IM
+Tb927.8.3500	Cytosol
+Tb927.8.3530	Glycosomes
+Tb927.8.3790	Flagellum 1
+Tb927.8.4060	Secretory/Endocytic 3
+Tb927.8.4210	Cytosol
+Tb927.8.4290	Nucleus
+Tb927.8.4370	Glycosomes
+Tb927.8.4380	Mitochondrion - OM
+Tb927.8.4400	Flagellum 1
+Tb927.8.4430	Cytosol
+Tb927.8.4450	Nucleus
+Tb927.8.4460	Flagellum 1
+Tb927.8.4580	Flagellum 1
+Tb927.8.4640	Flagellum 1
+Tb927.8.4720	Secretory/Endocytic 2
+Tb927.8.4870	Flagellum 1
+Tb927.8.5010	Flagellum 1
+Tb927.8.5200	Mitochondrion - Matrix 1
+Tb927.8.5280	Mitochondrion - Matrix 1
+Tb927.8.5450	Secretory/Endocytic 2
+Tb927.8.5490	Nucleus
+Tb927.8.5560	Mitochondrion - IM
+Tb927.8.5600	Cytosol
+Tb927.8.5640	Mitochondrion - IM
+Tb927.8.5690	Mitochondrion - Matrix 2
+Tb927.8.570	Proteasome Regulatory Particle
+Tb927.8.5740	Cytosol
+Tb927.8.590	Glycosomes
+Tb927.8.6010	Secretory/Endocytic 2
+Tb927.8.6070	Microtubule Structures 1
+Tb927.8.6180	Ribonucleoproteins 1
+Tb927.8.620	Mitochondrion - Matrix 2
+Tb927.8.6200	Cytosol
+Tb927.8.6240	Flagellum 1
+Tb927.8.640	Flagellum 1
+Tb927.8.6430	Cytosol
+Tb927.8.650	ER
+Tb927.8.6640	Glycosomes
+Tb927.8.6660	Flagellum 1
+Tb927.8.6730	Secretory/Endocytic 2
+Tb927.8.680	Mitochondrion - Matrix 2
+Tb927.8.6830	Microtubule Structures 2
+Tb927.8.6850	Cytosol
+Tb927.8.6890	Mitochondrion - IM
+Tb927.8.690	Cytosol
+Tb927.8.7270	Secretory/Endocytic 1
+Tb927.8.7600	Secretory/Endocytic 2
+Tb927.8.7650	Secretory/Endocytic 2
+Tb927.8.810	Flagellum 1
+Tb927.8.8170	Mitochondrion - Matrix 2
+Tb927.8.8180	Mitochondrion - Matrix 2
+Tb927.8.8200	Flagellum 1
+Tb927.8.8230	Secretory/Endocytic 2
+Tb927.8.8290	Secretory/Endocytic 2
+Tb927.8.8300	Secretory/Endocytic 2
+Tb927.9.10370	Flagellum 1
+Tb927.9.10490	Cytosol
+Tb927.9.10560	Mitochondrion - OM
+Tb927.9.10890	Flagellum 1
+Tb927.9.10950	Flagellum 1
+Tb927.9.11120	Mitochondrion - Matrix 1
+Tb927.9.11220	Mitochondrion - IM
+Tb927.9.11250	Nucleus
+Tb927.9.11260	Flagellum 1
+Tb927.9.11270	Cytosol
+Tb927.9.11300	Mitochondrion - Matrix 1
+Tb927.9.11330	Proteasome
+Tb927.9.11470	Ribonucleoproteins 1
+Tb927.9.11540	Microtubule Structures 2
+Tb927.9.11580	Glycosomes
+Tb927.9.11600	Glycosomes
+Tb927.9.11640	Glycosomes
+Tb927.9.12320	Cytosol
+Tb927.9.12480	Flagellum 1
+Tb927.9.12650	Cytosol
+Tb927.9.12700	ER
+Tb927.9.12770	Mitochondrion - Matrix 2
+Tb927.9.13280	Nucleus
+Tb927.9.13350	Nucleus
+Tb927.9.13490	Cytosol
+Tb927.9.1420	Mitochondrion - Matrix 2
+Tb927.9.15010	Mitochondrion - IM
+Tb927.9.15050	Flagellum 1
+Tb927.9.15090	ER
+Tb927.9.1520	Cytosol
+Tb927.9.15330	Nucleus
+Tb927.9.15470	Microtubule Structures 2
+Tb927.9.1720	Glycosomes
+Tb927.9.1880	Flagellum 1
+Tb927.9.1960	Cytosol
+Tb927.9.2010	Cytosol
+Tb927.9.2650	Mitochondrion - OM
+Tb927.9.2900	Nucleus
+Tb927.9.3440	Flagellum 1
+Tb927.9.3820	Secretory/Endocytic 1
+Tb927.9.4360	Mitochondrion - Matrix 2
+Tb927.9.4680	Cytosol
+Tb927.9.5260	ER
+Tb927.9.5380	Microtubule Structures 2
+Tb927.9.5410	Flagellum 1
+Tb927.9.5630	Mitochondrion - Matrix 2
+Tb927.9.5650	Cytosol
+Tb927.9.5960	Mitochondrion - IM
+Tb927.9.6040	Cytosol
+Tb927.9.6290	Cytosol
+Tb927.9.6310	Secretory/Endocytic 2
+Tb927.9.6510	Mitochondrion - Matrix 1
+Tb927.9.6580	Nucleus
+Tb927.9.6940	Nucleus - Chromatin
+Tb927.9.7170	Mitochondrion - Matrix 1
+Tb927.9.7260	Mitochondrion - Matrix 2
+Tb927.9.7470	Secretory/Endocytic 2
+Tb927.9.7520	Cytosol
+Tb927.9.7670	Nucleus
+Tb927.9.7770	Cytosol
+Tb927.9.8000	Cytosol
+Tb927.9.8200	Nucleus
+Tb927.9.8290	Mitochondrion - Matrix 1
+Tb927.9.8450	Cytosol
+Tb927.9.8490	Microtubule Structures 1
+Tb927.9.8720	Glycosomes
+Tb927.9.9010	Nucleus
+Tb927.9.9020	Cytosol
+Tb927.9.9550	ER
+Tb927.9.9630	ER
+Tb927.9.9660	Mitochondrion - OM
+Tb927.9.9670	Proteasome
+Tb927.9.9940	Flagellum 1
+Tb927.9.9960	Microtubule Structures 2
