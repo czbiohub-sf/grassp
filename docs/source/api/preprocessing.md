@@ -59,5 +59,6 @@ Any transformation of the data matrix that is not a *tool*. Other than *tools*, 
    :nosignatures:
    :toctree: ../generated/
 
+   pp.add_markers
    pp.annotate_uniprot_cc
 ```

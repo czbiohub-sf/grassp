@@ -2,6 +2,8 @@ from __future__ import annotations
 import time
 import warnings
 
+from pathlib import Path
+
 import pandas as pd
 import requests
 
@@ -389,4 +391,154 @@ def annotate_uniprot_cc(
     warnings.warn(
         f"Annotation complete: {n_proteins} proteins queried, "
         f"{n_failed} not found ({n_failed / n_proteins * 100:.1f}%)"
+    )
+
+
+def add_markers(
+    data: AnnData,
+    species: str,
+    authors: list[str] | str | None = None,
+    protein_id_column: str | None = None,
+) -> None:
+    """
+    Annotate proteins with marker annotations from literature.
+
+    Reads marker protein files from the datasets/external directory and merges
+    the annotations with the AnnData object's .obs. Marker files are named
+    SPECIES_markers.tsv and contain subcellular location annotations from
+    various published studies.
+
+    This function modifies the AnnData object in-place by adding marker
+    annotation columns to ``.obs``.
+
+    Parameters
+    ----------
+    data
+        AnnData object with proteins in ``.obs`` (``proteins_as_obs=True``).
+    species
+        Species code to determine which marker file to read. Examples: 'hsap'
+        (human), 'mmus' (mouse), 'scer' (yeast), 'atha' (Arabidopsis), 'dmel'
+        (fly), 'toxo' (Toxoplasma), 'tryp' (Trypanosoma), 'ggal' (chicken).
+    authors
+        Specific author column(s) to include from the marker file. If None,
+        includes all available author columns. Can be a single author name
+        (string) or a list of author names.
+    protein_id_column
+        Column in ``.obs`` containing UniProt IDs. If None, uses ``obs_names``.
+
+    Returns
+    -------
+    None
+        Modifies ``data.obs`` in-place by adding marker annotation columns.
+        Column names will be prefixed with the author name
+        (e.g., 'lilley', 'christopher', 'geladaki').
+
+    Raises
+    ------
+    FileNotFoundError
+        If the marker file for the specified species does not exist.
+    ValueError
+        If none of the specified authors are found in the marker file.
+
+    Warnings
+    --------
+    UserWarning
+        If some (but not all) of the specified authors are not found in the
+        marker file.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024()
+    >>> # Add all available marker annotations for human
+    >>> gr.pp.add_markers(adata, species='hsap')
+    >>> # Add only specific author annotations
+    >>> gr.pp.add_markers(adata, species='hsap', authors=['hein2024_component', 'christopher'])
+    >>> adata.obs[['lilley', 'christopher']].head()
+    """
+    # Construct file path
+    module_path = Path(__file__).parent.parent
+    marker_file = module_path / "datasets" / "external" / f"{species}_markers.tsv"
+
+    if not marker_file.exists():
+        raise FileNotFoundError(
+            f"Marker file not found: {marker_file}. "
+            f"Available species codes can be found in grassp/datasets/external/"
+        )
+
+    # Read marker file
+    markers_df = pd.read_csv(marker_file, sep="\t", dtype=str)
+
+    # Get all author columns (everything except uniprot_id)
+    all_author_columns = [col for col in markers_df.columns if col != "uniprot_id"]
+
+    # Determine which columns to include
+    if authors is None:
+        # Include all author columns
+        columns_to_include = all_author_columns
+    else:
+        # Convert single string to list
+        if isinstance(authors, str):
+            authors = [authors]
+
+        # Check which authors are available
+        available_authors = set(all_author_columns)
+        requested_authors = set(authors)
+
+        found_authors = requested_authors & available_authors
+        missing_authors = requested_authors - available_authors
+
+        if not found_authors:
+            raise ValueError(
+                f"None of the specified authors {list(requested_authors)} "
+                f"were found in the marker file. "
+                f"Available authors: {list(available_authors)}"
+            )
+
+        if missing_authors:
+            warnings.warn(
+                f"Some authors not found in marker file: {list(missing_authors)}. "
+                f"Available authors: {list(available_authors)}. "
+                f"Proceeding with: {list(found_authors)}"
+            )
+
+        columns_to_include = list(found_authors)
+
+    # Extract protein IDs from AnnData
+    if protein_id_column is None:
+        protein_ids = data.obs_names
+    else:
+        if protein_id_column not in data.obs.columns:
+            raise ValueError(f"Column '{protein_id_column}' not found in data.obs.columns")
+        protein_ids = data.obs[protein_id_column]
+
+    # Create a temporary index for merging
+    data.obs["_temp_protein_id"] = protein_ids
+
+    # Select columns for merging
+    merge_columns = ["uniprot_id"] + columns_to_include
+    markers_subset = markers_df[merge_columns].copy()
+
+    # Merge with .obs
+    merged = data.obs.merge(
+        markers_subset,
+        left_on="_temp_protein_id",
+        right_on="uniprot_id",
+        how="left",
+        suffixes=("", "_marker"),
+    )
+
+    # Add marker columns to .obs
+    for col in columns_to_include:
+        data.obs[col] = merged[col].values
+
+    # Remove temporary column
+    data.obs.drop(columns=["_temp_protein_id"], inplace=True)
+
+    # Report statistics
+    n_proteins = len(data.obs)
+    n_annotated = sum(~merged[columns_to_include[0]].isna())
+    print(
+        f"Added marker annotations: {n_annotated}/{n_proteins} proteins "
+        f"({n_annotated / n_proteins * 100:.1f}%) matched in marker file"
     )

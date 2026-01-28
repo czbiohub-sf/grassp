@@ -1,4 +1,4 @@
-from .annotation import annotate_uniprot_cc
+from .annotation import add_markers, annotate_uniprot_cc
 from .enrichment import calculate_enrichment_vs_all, calculate_enrichment_vs_untagged
 from .imputation import impute_gaussian, impute_knn
 from .simple import (
