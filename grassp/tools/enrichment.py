@@ -17,7 +17,7 @@ def calculate_cluster_enrichment(
     data: AnnData,
     cluster_key: str = "leiden",
     gene_name_key: str = "Gene_name_canonical",
-    gene_sets: str = "custom_goterms_genes_reviewed.gmt",
+    gene_sets: str | None = None,
     obs_key_added: str = "Cell_compartment",
     enrichment_ranking_metric: Literal["P-value", "Odds Ratio", "Combined Score"] = "P-value",
     return_enrichment_res: bool = True,
@@ -41,7 +41,9 @@ def calculate_cluster_enrichment(
         Column in ``data.obs`` that holds gene symbols – required by
         *gseapy*.
     gene_sets
-        Gene set database to use for enrichment analysis
+        Path to a Gene set database to use for enrichment analysis in .gmt format
+        If None, enrichment is performed against the uniprot subcellular compartment annotations.
+        We have found that this is a good default and tends to be less noisy than GO CC.
     obs_key_added
         Name of the column that will store the top enriched term per
         cluster.
@@ -72,10 +74,22 @@ def calculate_cluster_enrichment(
         )
 
     obs_df = data.obs
-    groups = obs_df.groupby(cluster_key)
+    groups = obs_df.groupby(cluster_key, observed=True)
 
     enrichr_results = []
     enrichr_top_terms = dict()
+    sort_ascending = enrichment_ranking_metric == "P-value"
+
+    if gene_sets is None:
+        # Use the reviewed UniProt subcellular compartment gene sets by default.
+        from pathlib import Path
+
+        gene_sets = str(
+            Path(__file__).parent.parent
+            / "datasets"
+            / "external"
+            / "custom_goterms_genes_reviewed.gmt"
+        )
 
     for n, group in groups:
         gene_list = group[gene_name_key].tolist()
@@ -87,7 +101,9 @@ def calculate_cluster_enrichment(
         ).results
 
         er = pd.DataFrame(er)
-        top_term = er.sort_values(enrichment_ranking_metric, ascending=True).iloc[0]["Term"]
+        top_term = er.sort_values(enrichment_ranking_metric, ascending=sort_ascending).iloc[0][
+            "Term"
+        ]
         enrichr_top_terms[n] = top_term
         er[cluster_key] = n
         enrichr_results.append(er)
