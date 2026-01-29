@@ -109,7 +109,7 @@ def test_add_markers_invalid_species():
     """Test that error is raised for invalid species."""
     adata = make_test_anndata_with_uniprot_ids()
 
-    with pytest.raises(FileNotFoundError, match="Marker file not found"):
+    with pytest.raises(FileNotFoundError, match="Species not found"):
         annotation.add_markers(adata, species="invalid_species")
 
 
@@ -127,7 +127,7 @@ def test_add_markers_with_protein_id_column():
     adata = AnnData(X=X, obs=obs, var=var)
 
     # Use the uniprot_id column
-    annotation.add_markers(adata, species="hsap", protein_id_column="uniprot_id")
+    annotation.add_markers(adata, species="hsap", uniprot_id_column="uniprot_id")
 
     # Check that marker columns were added
     assert "lilley" in adata.obs.columns
@@ -142,7 +142,7 @@ def test_add_markers_invalid_protein_id_column():
     adata = make_test_anndata_with_uniprot_ids()
 
     with pytest.raises(ValueError, match="Column .* not found"):
-        annotation.add_markers(adata, species="hsap", protein_id_column="nonexistent_column")
+        annotation.add_markers(adata, species="hsap", uniprot_id_column="nonexistent_column")
 
 
 def test_add_markers_annotations_content():
@@ -208,3 +208,81 @@ def test_add_markers_preserves_existing_obs():
     # Check that existing column is still there
     assert "existing_column" in adata.obs.columns
     assert list(adata.obs["existing_column"]) == ["A", "B", "C", "D", "E"]
+
+
+def test_add_markers_creates_categorical():
+    """Test that marker columns are categorical."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+
+    assert pd.api.types.is_categorical_dtype(adata.obs["lilley"])
+
+
+def test_add_markers_adds_colors_to_uns():
+    """Test that colors are added to .uns."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+
+    assert "lilley_colors" in adata.uns
+    assert isinstance(adata.uns["lilley_colors"], list)
+
+
+def test_add_markers_colors_match_categories():
+    """Test that color list length matches number of categories."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+
+    n_categories = len(adata.obs["lilley"].cat.categories)
+    n_colors = len(adata.uns["lilley_colors"])
+    assert n_categories == n_colors
+
+
+def test_add_markers_no_colors_option():
+    """Test add_colors=False option."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_markers(adata, species="hsap", authors=["lilley"], add_colors=False)
+
+    assert "lilley_colors" not in adata.uns
+    # Should still be categorical
+    assert pd.api.types.is_categorical_dtype(adata.obs["lilley"])
+
+
+def test_add_markers_colors_are_valid_hex():
+    """Test that all colors are valid hex codes."""
+    import re
+
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+
+    hex_pattern = re.compile(r'^#[0-9A-Fa-f]{6}$')
+    for color in adata.uns["lilley_colors"]:
+        assert hex_pattern.match(color), f"Invalid hex color: {color}"
+
+
+def test_add_markers_multiple_authors_with_colors():
+    """Test that colors are added for multiple authors."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_markers(adata, species="hsap", authors=["lilley", "christopher"])
+
+    # Check both are categorical
+    assert pd.api.types.is_categorical_dtype(adata.obs["lilley"])
+    assert pd.api.types.is_categorical_dtype(adata.obs["christopher"])
+
+    # Check both have colors
+    assert "lilley_colors" in adata.uns
+    assert "christopher_colors" in adata.uns
+
+
+def test_add_markers_colors_use_predefined():
+    """Test that predefined colors from MARKER_COLORS are used."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+
+    # Check that at least one color matches the predefined dictionary
+    # We know "Cytosol" exists in markers and has color "#1B9E9E"
+    categories = adata.obs["lilley"].cat.categories
+    colors = adata.uns["lilley_colors"]
+
+    if "Cytosol" in categories:
+        cytosol_idx = list(categories).index("Cytosol")
+        assert colors[cytosol_idx] == "#1B9E9E", "Predefined color for Cytosol not used"

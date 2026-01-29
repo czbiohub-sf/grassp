@@ -4,6 +4,7 @@ import warnings
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import requests
 
@@ -16,6 +17,105 @@ BASE_URL = "https://rest.uniprot.org"
 
 # Load vocabulary once at module level for efficiency
 _VOCAB_CACHE = None
+
+# Comprehensive color dictionary for all known marker annotations
+# Colors are organized by biological system/compartment for consistency
+MARKER_COLORS = {
+    # Core compartments - user provided
+    "Cytosol": "#1B9E9E",
+    "Nucleus": "#C9A27C",
+    "Nucleolus": "#6A3D9A",
+    "ER": "#7A4A2E",
+    "Golgi": "#2AA1D8",
+    "TGN": "#2F2F2F",
+    "ERGIC": "#E0B400",
+    "Mitochondrion": "#F28E1C",
+    "Peroxisome": "#E61E73",
+    "Lysosome": "#E41A1C",
+    "Early endosome": "#6DBE45",
+    "Endosome": "#6DBE45",
+    "Recycling endosome": "#B81C8D",
+    "PM": "#7A8DA6",
+    "Centrosome": "#1F78B4",
+    "Proteasome": "#D81B60",
+    "P-body": "#333333",
+    "Stress granule": "#6DBF3A",
+    "14-3-3 scaffold": "#4D4D4D",
+    # Mitochondrial subcompartments (red-orange-brown gradient)
+    "Mitochondrion - IM": "#F28E1C",
+    "Mitochondrion - OM": "#E67E1A",
+    "Mitochondrion - Matrix": "#DA6E18",
+    "Mitochondrion - Matrix 1": "#CE5E16",
+    "Mitochondrion - Matrix 2": "#C24E14",
+    "Mitochondrion - Membranes": "#B63E12",
+    "Mitochondrion - Soluble": "#AA2E10",
+    # ER system (yellow-gold-brown shades)
+    "ER Lumen": "#E0B400",
+    "ER Membrane": "#D4A800",
+    "ER 1": "#C89C00",
+    "ER 2": "#BC9000",
+    "ER High Curvature": "#B08400",
+    # Nuclear subcompartments (purple-tan shades)
+    "Nucleus - Chromatin": "#C9A27C",
+    "Nucleus - Non-Chromatin": "#B5947C",
+    "Nuclear Pore Complex": "#A1867C",
+    "Nuclear pore complex": "#8D787C",
+    "Nucleoplasm-1": "#6A3D9A",
+    "Nucleoplasm-2": "#5E3588",
+    # Ribosomal compartments (blue shades)
+    "Ribosome": "#E7298A",
+    "Ribosome/Complexes": "#DB1D7E",
+    "37S Ribosome": "#CF1172",
+    "40S Ribosome": "#C30566",
+    "54S Ribosome": "#B7005A",
+    "60S Ribosome": "#AB004E",
+    "Ribonucleoproteins 1": "#9F0042",
+    # Proteasome variants (pink-magenta shades)
+    "19S Proteasome": "#D81B60",
+    "20S Proteasome": "#CC1554",
+    "Proteasome Regulatory Particle": "#C00F48",
+    # Cytoskeleton (green-teal shades)
+    "Cytoskeleton": "#1B9E9E",
+    "Actin Cytoskeleton": "#F4A6C1",
+    "Tubulin Cytoskeleton": "#0F8E8E",
+    # Endocytic/secretory system (mixed)
+    "Secretory/Endocytic 1": "#8DD3C7",
+    "Secretory/Endocytic 2": "#7DC3B7",
+    "Secretory/Endocytic 3": "#6DB3A7",
+    "Endomembrane Vesicles": "#FFFFB3",
+    "trans-Golgi network": "#2F2F2F",
+    # Plasma membrane variants (blue-gray shades)
+    "PM - Integral": "#7A8DA6",
+    "PM - Peripheral 1": "#6A7D96",
+    "PM - Peripheral 2": "#5A6D86",
+    # Protein complexes (gray shades)
+    "Protein Complex": "#BEBADA",
+    "Large Protein Complex": "#AEAACA",
+    # Toxoplasma-specific (distinct colors)
+    "Apicoplast": "#FB8072",
+    "Apical 1": "#FDB462",
+    "Apical 2": "#FCA452",
+    "Dense Granules": "#B3DE69",
+    "Micronemes": "#FCCDE5",
+    "Rhoptries 1": "#D9D9D9",
+    "Rhoptries 2": "#C9C9C9",
+    "IMC": "#BC80BD",
+    # Trypanosoma-specific (distinct colors)
+    "Flagellum 1": "#CCEBC5",
+    "Intraflagellar Transport": "#BCDB95",
+    "Microtubule Structures 1": "#80B1D3",
+    "Microtubule Structures 2": "#70A1C3",
+    "Acidocalcisomes": "#FFED6F",
+    "Glycosomes": "#FDB462",
+    "STR": "#8DA0CB",
+    # Plant-specific (green shades)
+    "Plastid": "#66C2A5",
+    "Vacuole": "#56B295",
+    "THY": "#46A285",
+    # Additional markers
+    "ECM": "#E5C494",
+    "Envelope": "#D5B484",
+}
 
 
 def _get_vocab():
@@ -399,6 +499,7 @@ def add_markers(
     species: str,
     authors: list[str] | str | None = None,
     uniprot_id_column: str | None = None,
+    add_colors: bool = True,
 ) -> None:
     """Annotate proteins with marker annotations from literature.
 
@@ -438,13 +539,17 @@ def add_markers(
         (string) or a list of author names.
     uniprot_id_column
         Column in ``.obs`` containing UniProt IDs. If None, uses ``.obs_names``.
+    add_colors
+        If True, automatically add color mappings to ``.uns`` for each marker
+        column, following scanpy plotting conventions. Colors are stored as
+        ``'{author}_colors'`` lists matching categorical order.
 
     Returns
     -------
     None
-        Modifies ``data.obs`` in-place by adding marker annotation columns.
-        Added column names will be  the author name
-        (e.g., 'lilley', 'christopher', 'geladaki').
+        Modifies ``data.obs`` in-place by adding marker annotation columns
+        (converted to categorical dtype). If ``add_colors=True``, also adds
+        color mappings to ``data.uns`` as ``'{author}_colors'`` lists.
 
     Examples
     --------
@@ -455,6 +560,14 @@ def add_markers(
     >>> # Add only specific author annotations
     >>> gr.pp.add_markers(adata, species='hsap', authors=['hein2024_component', 'christopher'])
     >>> adata.obs.head()
+    >>> # Check categorical dtype and colors
+    >>> import pandas as pd
+    >>> pd.api.types.is_categorical_dtype(adata.obs['christopher'])
+    True
+    >>> 'christopher_colors' in adata.uns
+    True
+    >>> # Disable automatic color mapping
+    >>> gr.pp.add_markers(adata, species='hsap', authors=['lilley'], add_colors=False)
     """
     # Construct file path
     module_path = Path(__file__).parent.parent
@@ -529,6 +642,30 @@ def add_markers(
             how="left",
             sort=False,
         )
+
+    # Convert to categorical and optionally add color mappings
+    for col in columns_to_include:
+        # Convert to categorical for scanpy compatibility
+        data.obs[col] = pd.Categorical(data.obs[col])
+
+        # Add color mappings to .uns for scanpy plotting
+        if add_colors:
+            # Get unique categories (excluding NaN)
+            categories = data.obs[col].cat.categories
+
+            # Create color list matching categorical order
+            colors = []
+            for category in categories:
+                if category in MARKER_COLORS:
+                    colors.append(MARKER_COLORS[category])
+                elif category in [None, np.nan]:
+                    continue
+                else:
+                    # Fallback: use gray for unmapped categories
+                    colors.append('#808080')
+
+            # Store in .uns following scanpy convention
+            data.uns[f'{col}_colors'] = colors
 
     # Report statistics
     for author in columns_to_include:
