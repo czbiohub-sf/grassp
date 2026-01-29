@@ -243,7 +243,7 @@ def _parse_subcellular_locations(uniprot_data: dict) -> dict[str, list[str]]:
 
 def annotate_uniprot_cc(
     data: AnnData,
-    protein_id_column: str | None = None,
+    uniprot_id_column: str | None = None,
     include_multiloc: bool = True,
 ) -> None:
     """
@@ -262,8 +262,8 @@ def annotate_uniprot_cc(
     Parameters
     ----------
     data
-        AnnData object with proteins in ``.obs`` (``proteins_as_obs=True``).
-    protein_id_column
+        AnnData object.
+    uniprot_id_column
         Column in ``.obs`` containing UniProt IDs. If None, uses ``obs_names``.
     include_multiloc
         If True, include columns with all locations (comma-separated) for
@@ -298,12 +298,12 @@ def annotate_uniprot_cc(
     """
 
     # Extract protein IDs
-    if protein_id_column is None:
+    if uniprot_id_column is None:
         protein_ids = list(data.obs_names)
     else:
-        if protein_id_column not in data.obs.columns:
-            raise ValueError(f"Column '{protein_id_column}' not found in data.obs.columns")
-        protein_ids = list(data.obs[protein_id_column])
+        if uniprot_id_column not in data.obs.columns:
+            raise ValueError(f"Column '{uniprot_id_column}' not found in data.obs.columns")
+        protein_ids = list(data.obs[uniprot_id_column])
 
     n_proteins = len(protein_ids)
 
@@ -398,15 +398,28 @@ def add_markers(
     data: AnnData,
     species: str,
     authors: list[str] | str | None = None,
-    protein_id_column: str | None = None,
+    uniprot_id_column: str | None = None,
 ) -> None:
-    """
-    Annotate proteins with marker annotations from literature.
+    """Annotate proteins with marker annotations from literature.
 
-    Reads marker protein files from the datasets/external directory and merges
-    the annotations with the AnnData object's .obs. Marker files are named
-    SPECIES_markers.tsv and contain subcellular location annotations from
-    various published studies.
+    Matches UniProt IDs in ``.obs`` against a collection of marker annotations
+    from different authors.
+
+    Marker annotations are sourced from:
+
+    .. list-table::
+        :header-rows: 1
+
+        * - authors
+          - source
+        * - hein2024_gt_component
+          - Marker list used in Hein et al. 2024, Cell, https://doi.org/10.1016/j.cell.2024.11.028
+        * - hein2024_component
+          - Full annotations from Hein et al. 2024, Cell, https://doi.org/10.1016/j.cell.2024.11.028
+        * - lilley, christopher, geladaki, itzhak, villaneuva, christoforou
+          - Obtained from pRoloc. See: https://bioconductor.org/packages/pRoloc/
+            and https://lgatto.github.io/pRoloc/reference/pRolocmarkers.html
+
 
     This function modifies the AnnData object in-place by adding marker
     annotation columns to ``.obs``.
@@ -414,7 +427,7 @@ def add_markers(
     Parameters
     ----------
     data
-        AnnData object with proteins in ``.obs`` (``proteins_as_obs=True``).
+        AnnData object.
     species
         Species code to determine which marker file to read. Examples: 'hsap'
         (human), 'mmus' (mouse), 'scer' (yeast), 'atha' (Arabidopsis), 'dmel'
@@ -423,28 +436,15 @@ def add_markers(
         Specific author column(s) to include from the marker file. If None,
         includes all available author columns. Can be a single author name
         (string) or a list of author names.
-    protein_id_column
-        Column in ``.obs`` containing UniProt IDs. If None, uses ``obs_names``.
+    uniprot_id_column
+        Column in ``.obs`` containing UniProt IDs. If None, uses ``.obs_names``.
 
     Returns
     -------
     None
         Modifies ``data.obs`` in-place by adding marker annotation columns.
-        Column names will be prefixed with the author name
+        Added column names will be  the author name
         (e.g., 'lilley', 'christopher', 'geladaki').
-
-    Raises
-    ------
-    FileNotFoundError
-        If the marker file for the specified species does not exist.
-    ValueError
-        If none of the specified authors are found in the marker file.
-
-    Warnings
-    --------
-    UserWarning
-        If some (but not all) of the specified authors are not found in the
-        marker file.
 
     Examples
     --------
@@ -454,23 +454,28 @@ def add_markers(
     >>> gr.pp.add_markers(adata, species='hsap')
     >>> # Add only specific author annotations
     >>> gr.pp.add_markers(adata, species='hsap', authors=['hein2024_component', 'christopher'])
-    >>> adata.obs[['lilley', 'christopher']].head()
+    >>> adata.obs.head()
     """
     # Construct file path
     module_path = Path(__file__).parent.parent
     marker_file = module_path / "datasets" / "external" / f"{species}_markers.tsv"
+    # Available species are determined by the marker files present in datasets/external
+    marker_dir = module_path / "datasets" / "external"
+    available_species = [
+        f.stem.replace("_markers", "") for f in marker_dir.glob("*_markers.tsv") if f.is_file()
+    ]
 
     if not marker_file.exists():
         raise FileNotFoundError(
-            f"Marker file not found: {marker_file}. "
-            f"Available species codes can be found in grassp/datasets/external/"
+            f"Species not found: {species}. "
+            f"Please use one of the available species: {available_species}"
         )
 
     # Read marker file
-    markers_df = pd.read_csv(marker_file, sep="\t", dtype=str)
+    markers_df = pd.read_csv(marker_file, sep="\t", dtype=str, index_col="uniprot_id")
 
     # Get all author columns (everything except uniprot_id)
-    all_author_columns = [col for col in markers_df.columns if col != "uniprot_id"]
+    all_author_columns = [col for col in markers_df.columns]
 
     # Determine which columns to include
     if authors is None:
@@ -504,41 +509,32 @@ def add_markers(
 
         columns_to_include = list(found_authors)
 
-    # Extract protein IDs from AnnData
-    if protein_id_column is None:
-        protein_ids = data.obs_names
-    else:
-        if protein_id_column not in data.obs.columns:
-            raise ValueError(f"Column '{protein_id_column}' not found in data.obs.columns")
-        protein_ids = data.obs[protein_id_column]
-
-    # Create a temporary index for merging
-    data.obs["_temp_protein_id"] = protein_ids
-
-    # Select columns for merging
-    merge_columns = ["uniprot_id"] + columns_to_include
-    markers_subset = markers_df[merge_columns].copy()
-
-    # Merge with .obs
-    merged = data.obs.merge(
-        markers_subset,
-        left_on="_temp_protein_id",
-        right_on="uniprot_id",
-        how="left",
-        suffixes=("", "_marker"),
-    )
-
-    # Add marker columns to .obs
+    # Raise if any of the new columns already exist
     for col in columns_to_include:
-        data.obs[col] = merged[col].values
+        if col in data.obs.columns:
+            raise ValueError(
+                f"Column '{col}' already exists in data.obs.columns. Please remove/rename the column before adding markers."
+            )
 
-    # Remove temporary column
-    data.obs.drop(columns=["_temp_protein_id"], inplace=True)
+    # Extract protein IDs from AnnData
+    if uniprot_id_column is None:
+        data.obs = data.obs.join(markers_df.loc[:, columns_to_include])
+    else:
+        if uniprot_id_column not in data.obs.columns:
+            raise ValueError(f"Column '{uniprot_id_column}' not found in data.obs.columns")
+        data.obs = data.obs.merge(
+            markers_df.loc[:, columns_to_include],
+            left_on=uniprot_id_column,
+            right_index=True,
+            how="left",
+            sort=False,
+        )
 
     # Report statistics
-    n_proteins = len(data.obs)
-    n_annotated = sum(~merged[columns_to_include[0]].isna())
-    print(
-        f"Added marker annotations: {n_annotated}/{n_proteins} proteins "
-        f"({n_annotated / n_proteins * 100:.1f}%) matched in marker file"
-    )
+    for author in columns_to_include:
+        n_proteins = len(data.obs)
+        n_annotated = sum(~data.obs[author].isna())
+        print(
+            f"Added {author} annotations for {n_annotated}/{n_proteins} proteins "
+            f"({n_annotated / n_proteins * 100:.1f}%)"
+        )
