@@ -66,6 +66,7 @@ intersphinx_mapping = dict(
     anndata=("https://anndata.readthedocs.io/en/stable/", None),
     scanpy=("https://scanpy.readthedocs.io/en/stable/", None),
     scipy=("https://docs.scipy.org/doc/scipy", None),
+    protdata=("https://protdata.sf.czbiohub.org/", None),
 )
 
 
