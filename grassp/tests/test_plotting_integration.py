@@ -507,7 +507,7 @@ class TestTernaryPlots:
         # Plot
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
-            ax = ternary.ternary(adata, color="category", show=False)
+            ax = ternary(adata, color="category", show=False)
 
         assert ax is not None
 
@@ -541,4 +541,4 @@ class TestPlottingErrorHandling:
         adata = make_enriched_data_with_structure(n_proteins=50, n_samples=5)
 
         with pytest.raises(ValueError, match="Ternary plots requires.*3 samples"):
-            ternary.ternary(adata)
+            ternary(adata)
