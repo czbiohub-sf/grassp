@@ -15,7 +15,13 @@ from scanpy._settings import settings
 from .. import io
 
 
-def hein_2024(enrichment: Literal["raw", "enriched"] = "raw", **kwargs) -> AnnData:
+def hein_2024(
+    enrichment: Literal["raw", "enriched"] = "raw",
+    include_untagged: bool = True,
+    include_noc: bool = True,
+    include_whole_proteome: bool = False,
+    **kwargs,
+) -> AnnData:
     """Download the Hein 2024 dataset.
     This dataset is described in https://www.cell.com/cell/fulltext/S0092-8674(24)01344-8.
 
@@ -32,13 +38,26 @@ def hein_2024(enrichment: Literal["raw", "enriched"] = "raw", **kwargs) -> AnnDa
     if enrichment == "raw":
         filename = settings.datasetdir / "hein_2024_raw.h5ad"
         url = "https://public.czbiohub.org/proteinxlocation/internal/hein2024_raw.h5ad"
-        return scanpy.read(filename, backup_url=url, **kwargs)
+        adata = scanpy.read(filename, backup_url=url, **kwargs)
     elif enrichment == "enriched":
         filename = settings.datasetdir / "hein_2024_enriched.h5ad"
         url = "https://public.czbiohub.org/proteinxlocation/internal/hein2024_enriched.h5ad"
-        return scanpy.read(filename, backup_url=url, **kwargs)
+        adata = scanpy.read(filename, backup_url=url, **kwargs)
     else:
         raise ValueError("Enrichment argument must be either 'raw' or 'enriched'")
+
+    if not include_untagged:
+        adata = adata[:, adata.var["subcellular_enrichment"] != "UNTAGGED"]
+
+    if not include_noc:
+        adata = adata[
+            :, ~adata.var["subcellular_enrichment"].isin(['CYTOSOL', 'NUCLEAR', 'ORGANELLE'])
+        ]
+
+    if not include_whole_proteome:
+        adata = adata[:, adata.var["subcellular_enrichment"] != "PROTEOME"]
+
+    return adata.copy()
 
 
 def itzhak_2016(**kwargs) -> AnnData:
