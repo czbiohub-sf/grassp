@@ -215,7 +215,7 @@ def test_add_markers_creates_categorical():
     adata = make_test_anndata_with_uniprot_ids()
     annotation.add_markers(adata, species="hsap", authors=["lilley"])
 
-    assert pd.api.types.is_categorical_dtype(adata.obs["lilley"])
+    assert isinstance(adata.obs["lilley"].dtype, pd.CategoricalDtype)
 
 
 def test_add_markers_adds_colors_to_uns():
@@ -244,7 +244,7 @@ def test_add_markers_no_colors_option():
 
     assert "lilley_colors" not in adata.uns
     # Should still be categorical
-    assert pd.api.types.is_categorical_dtype(adata.obs["lilley"])
+    assert isinstance(adata.obs["lilley"].dtype, pd.CategoricalDtype)
 
 
 def test_add_markers_colors_are_valid_hex():
@@ -265,8 +265,8 @@ def test_add_markers_multiple_authors_with_colors():
     annotation.add_markers(adata, species="hsap", authors=["lilley", "christopher"])
 
     # Check both are categorical
-    assert pd.api.types.is_categorical_dtype(adata.obs["lilley"])
-    assert pd.api.types.is_categorical_dtype(adata.obs["christopher"])
+    assert isinstance(adata.obs["lilley"].dtype, pd.CategoricalDtype)
+    assert isinstance(adata.obs["christopher"].dtype, pd.CategoricalDtype)
 
     # Check both have colors
     assert "lilley_colors" in adata.uns

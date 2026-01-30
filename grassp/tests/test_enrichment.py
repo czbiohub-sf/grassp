@@ -1,3 +1,5 @@
+import warnings
+
 import anndata
 import numpy as np
 import pandas as pd
@@ -11,8 +13,8 @@ from grassp.preprocessing import enrichment
 def make_basic_anndata():
     X = np.array(
         [
-            [1, 2, 0, 4, 3],
-            [0, 1, 2, 3, 0],
+            [1, 2, 5, 4, 3],
+            [0, 1, 2, 3, 6],
             [1, 0, 1, 0, 2],
         ],
         dtype=float,
@@ -23,10 +25,17 @@ def make_basic_anndata():
             "subcellular_enrichment": ["A", "A", "UNTAGGED", "B", "UNTAGGED"],
             "covariate_1": ["x", "x", "x", "y", "y"],
             "covariate_2": ["c1", "c1", "c1", "c2", "c2"],
+            "biological_replicate": ["1", "2", "1", "2", "1"],
         },
     )
     var.index = (
-        var["subcellular_enrichment"] + "_" + var["covariate_1"] + "_" + var["covariate_2"]
+        var["subcellular_enrichment"]
+        + "_"
+        + var["covariate_1"]
+        + "_"
+        + var["covariate_2"]
+        + "_"
+        + var["biological_replicate"]
     )
     ad1 = AnnData(X=X, obs=obs, var=var)
     ad2 = AnnData(X=X, obs=obs, var=var)
@@ -79,25 +88,29 @@ def test_calculate_enrichment_vs_untagged_basic():
 
 
 def test_calculate_enrichment_vs_all_basic():
-    adata = make_basic_anndata()
-    # Should not raise
-    result = enrichment.calculate_enrichment_vs_all(
-        adata,
-        covariates=["covariate_1"],
-        subcellular_enrichment_column="subcellular_enrichment",
-        enrichment_method="lfc",
-        correlation_threshold=1.0,
-        keep_raw=True,
-    )
-    assert isinstance(result, AnnData)
-    assert "pvals" in result.layers
-    assert "enriched_vs" in result.var.columns
-    # Test with missing covariate column
-    adata2 = make_basic_anndata()
-    adata2.var = adata2.var.drop(columns=["covariate_1"])
-    with pytest.raises(ValueError):
-        enrichment.calculate_enrichment_vs_all(
-            adata2,
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", message="invalid value encountered in divide", category=RuntimeWarning
+        )
+        adata = make_basic_anndata()
+        # Should not raise
+        result = enrichment.calculate_enrichment_vs_all(
+            adata,
             covariates=["covariate_1"],
             subcellular_enrichment_column="subcellular_enrichment",
+            enrichment_method="lfc",
+            correlation_threshold=1.0,
+            keep_raw=True,
         )
+        assert isinstance(result, AnnData)
+        assert "pvals" in result.layers
+        assert "enriched_vs" in result.var.columns
+        # Test with missing covariate column
+        adata2 = make_basic_anndata()
+        adata2.var = adata2.var.drop(columns=["covariate_1"])
+        with pytest.raises(ValueError):
+            enrichment.calculate_enrichment_vs_all(
+                adata2,
+                covariates=["covariate_1"],
+                subcellular_enrichment_column="subcellular_enrichment",
+            )
