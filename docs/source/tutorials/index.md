@@ -6,5 +6,6 @@ Below you will find hands-on notebooks demonstrating typical `grassp` workflows.
 :maxdepth: 1
 
 notebooks/DC_tutorial
+notebooks/OrgIP_tutorial
 notebooks/integration_tutorial
 ```
