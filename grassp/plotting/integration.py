@@ -103,9 +103,13 @@ def _get_cluster_colors(data: AnnData, color_key: str = "leiden") -> np.ndarray[
     if f"{color_key}_colors" not in data.uns.keys():
 
         if Version(scanpy.__version__) >= Version("1.12.0"):
-            scanpy.pl._utils.set_default_colors_for_categorical_obs(data, color_key)
+            scanpy.pl._utils.set_default_colors_for_categorical_obs(
+                data, color_key
+            )  # pylint: skip
         else:
-            scanpy.pl._utils._set_default_colors_for_categorical_obs(data, color_key)
+            scanpy.pl._utils._set_default_colors_for_categorical_obs(
+                data, color_key
+            )  # pylint: skip
     return np.array(
         [data.uns[f"{color_key}_colors"][x] for x in data.obs[color_key].cat.codes]
     )
