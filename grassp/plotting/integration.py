@@ -103,13 +103,13 @@ def _get_cluster_colors(data: AnnData, color_key: str = "leiden") -> np.ndarray[
     if f"{color_key}_colors" not in data.uns.keys():
 
         if Version(scanpy.__version__) >= Version("1.12.0"):
-            scanpy.pl._utils.set_default_colors_for_categorical_obs(
-                data, color_key
-            )  # pylint: skip
+            scanpy.pl._utils.set_default_colors_for_categorical_obs(  # pylint: disable=no-member
+                data, color_key  # pylint: disable=no-member
+            )  # pylint: disable=no-member
         else:
-            scanpy.pl._utils._set_default_colors_for_categorical_obs(
-                data, color_key
-            )  # pylint: skip
+            scanpy.pl._utils._set_default_colors_for_categorical_obs(  # pylint: disable=no-member
+                data, color_key  # pylint: disable=no-member
+            )  # pylint: disable=no-member
     return np.array(
         [data.uns[f"{color_key}_colors"][x] for x in data.obs[color_key].cat.codes]
     )
@@ -421,7 +421,7 @@ def mr_plot(
     # Plot data
     ax.scatter(m_scores, r_scores, alpha=0.5, s=10, color="black", marker=".", **kwargs)
 
-    if highlight_proteins is not []:
+    if highlight_proteins != []:
         # assert not highlight_hits, (
         #     "highlight_proteins and highlight_hits cannot be used together"
         # )
