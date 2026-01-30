@@ -503,8 +503,9 @@ def add_markers(
 ) -> None:
     """Annotate proteins with marker annotations from literature.
 
-    Matches UniProt IDs in ``.obs`` against a collection of marker annotations
-    from different authors.
+    Matches protein IDs in ``.obs`` against a collection of marker annotations
+    from different authors. Note that marker IDs are species-specific and may
+    not be UniProt accessions (see table below).
 
     Marker annotations are sourced from:
 
@@ -521,6 +522,47 @@ def add_markers(
           - Obtained from pRoloc. See: https://bioconductor.org/packages/pRoloc/
             and https://lgatto.github.io/pRoloc/reference/pRolocmarkers.html
 
+    **Protein ID types by species:**
+
+    .. list-table::
+        :header-rows: 1
+
+        * - Species Code
+          - Common Name
+          - ID Type
+          - Example ID
+        * - atha
+          - *Arabidopsis thaliana*
+          - TAIR/Araport
+          - AT1G01620
+        * - dmel
+          - *Drosophila melanogaster*
+          - UniProt
+          - A1Z6P3
+        * - ggal
+          - *Gallus gallus* (Chicken)
+          - IPI
+          - IPI00570752.1
+        * - hsap
+          - *Homo sapiens* (Human)
+          - UniProt
+          - A0AVT1
+        * - mmus
+          - *Mus musculus* (Mouse)
+          - UniProt
+          - A2AJ15
+        * - scer
+          - *Saccharomyces cerevisiae* (Yeast)
+          - UniProt
+          - D6VTK4
+        * - toxo
+          - *Toxoplasma gondii*
+          - ToxoDB Gene IDs
+          - TGME49_200250
+        * - tryp
+          - *Trypanosoma brucei*
+          - TriTrypDB Gene IDs
+          - Tb11.v5.0162
 
     This function modifies the AnnData object in-place by adding marker
     annotation columns to ``.obs``.
@@ -538,7 +580,7 @@ def add_markers(
         includes all available author columns. Can be a single author name
         (string) or a list of author names.
     uniprot_id_column
-        Column in ``.obs`` containing UniProt IDs. If None, uses ``.obs_names``.
+        Column in ``.obs`` containing protein IDs (see the specific ID needed in the description above). If None, uses ``.obs_names``.
     add_colors
         If True, automatically add color mappings to ``.uns`` for each marker
         column, following scanpy plotting conventions. Colors are stored as
@@ -584,9 +626,9 @@ def add_markers(
         )
 
     # Read marker file
-    markers_df = pd.read_csv(marker_file, sep="\t", dtype=str, index_col="uniprot_id")
+    markers_df = pd.read_csv(marker_file, sep="\t", dtype=str, index_col="id")
 
-    # Get all author columns (everything except uniprot_id)
+    # Get all author columns (everything except id, which is the index)
     all_author_columns = [col for col in markers_df.columns]
 
     # Determine which columns to include

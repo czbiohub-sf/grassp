@@ -107,8 +107,8 @@ read_markers <- function(info) {
   obj <- readRDS(info$path)
   df <- as.data.frame(obj, stringsAsFactors = FALSE)
 
-  # The Uniprot IDs are in the row names
-  uniprot_ids <- rownames(df)
+  # The protein IDs are in the row names
+  protein_ids <- rownames(df)
 
   # The compartments are in the 'markers' column
   compartments <- df$markers
@@ -118,17 +118,17 @@ read_markers <- function(info) {
 
   # Create a clean data frame
   data <- data.frame(
-    uniprot_id = uniprot_ids,
+    id = protein_ids,
     compartment = compartments,
     stringsAsFactors = FALSE
   )
 
-  # Remove rows with missing or empty Uniprot IDs
-  data <- data[!is.na(data$uniprot_id) & nzchar(data$uniprot_id), ]
+  # Remove rows with missing or empty protein IDs
+  data <- data[!is.na(data$id) & nzchar(data$id), ]
 
-  # Aggregate by Uniprot ID in case there are duplicates
-  data <- aggregate(data$compartment, by = list(uniprot_id = data$uniprot_id), FUN = collapse_values)
-  names(data) <- c("uniprot_id", info$author)
+  # Aggregate by protein ID in case there are duplicates
+  data <- aggregate(data$compartment, by = list(id = data$id), FUN = collapse_values)
+  names(data) <- c("id", info$author)
 
   data
 }
@@ -152,15 +152,15 @@ for (species in names(species_groups)) {
   data_list <- lapply(infos, read_markers)
 
   # Merge all data frames for this species
-  merged <- Reduce(function(x, y) merge(x, y, by = "uniprot_id", all = TRUE), data_list)
+  merged <- Reduce(function(x, y) merge(x, y, by = "id", all = TRUE), data_list)
 
-  # Order columns: uniprot_id first, then authors in order
-  ordered_cols <- c("uniprot_id", authors)
+  # Order columns: id first, then authors in order
+  ordered_cols <- c("id", authors)
   ordered_cols <- ordered_cols[ordered_cols %in% names(merged)]
   merged <- merged[, ordered_cols, drop = FALSE]
 
-  # Sort by uniprot_id
-  merged <- merged[order(merged$uniprot_id), ]
+  # Sort by id
+  merged <- merged[order(merged$id), ]
 
   out_file <- file.path(out_dir, paste0("marker2_", species, "_merged.csv"))
   write.csv(merged, out_file, row.names = FALSE, na = "")
