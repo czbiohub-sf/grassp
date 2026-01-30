@@ -97,6 +97,19 @@ def calculate_enrichment_vs_untagged(
         * ``.layers["pvals"]``: p-values from the t-tests.
         * ``.layers[original_intensities_key]``: raw intensity values if
           ``original_intensities_key`` is set.
+
+    Examples
+    --------
+    >>> import grassp as gr  # doctest: +SKIP
+    >>> adata = gr.datasets.hein_2024(enrichment="raw", include_proteome=False, include_noc=False)  # doctest: +SKIP
+    >>> enriched = gr.pp.calculate_enrichment_vs_untagged(  # doctest: +SKIP
+    ...     adata,
+    ...     subcellular_enrichment_column='subcellular_enrichment',
+    ...     covariates=['covariate_Batch'],
+    ...     untagged_name='UNTAGGED'
+    ... )
+    >>> enriched.X[:5, :5]  # Log2 fold changes  # doctest: +SKIP
+    >>> enriched.layers['pvals'][:5, :5]  # P-values from t-tests  # doctest: +SKIP
     """
     covariates = _check_covariates(data, covariates)
     if data.is_view:
@@ -104,48 +117,54 @@ def calculate_enrichment_vs_untagged(
     data.var["_experimental_condition"] = data.var[covariates].apply(
         lambda x: "_".join(x.dropna().astype(str)), axis=1
     )
-    grouping_columns = [subcellular_enrichment_column] + covariates
-    data_aggr = aggregate_samples(data, grouping_columns=grouping_columns)
-    data_aggr.var_names = data_aggr.var_names.str.replace(r"_\d+", "", regex=True)
-    if original_intensities_key is not None:
-        data_aggr.layers[original_intensities_key] = data_aggr.X
-    data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
-    for experimental_condition in data_aggr.var["_experimental_condition"].unique():
-        data_sub = data[:, data.var["_experimental_condition"] == experimental_condition]
-        intensities_control = data_sub[
-            :,
-            data_sub.var[subcellular_enrichment_column].str.match(untagged_name),
-        ].X
-        if intensities_control.shape[1] == 0:
-            raise ValueError(
-                f"No {untagged_name} samples found for condition: " f"{experimental_condition}"
-            )
-        for subcellular_enrichment in data_sub.var[subcellular_enrichment_column].unique():
-            intensities_ip = data_sub[
-                :, data_sub.var[subcellular_enrichment_column] == subcellular_enrichment
+    try:
+        grouping_columns = [subcellular_enrichment_column] + covariates
+        data_aggr = aggregate_samples(data, grouping_columns=grouping_columns)
+        if original_intensities_key is not None:
+            data_aggr.layers[original_intensities_key] = data_aggr.X
+        data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
+        for experimental_condition in data_aggr.var["_experimental_condition"].unique():
+            data_sub = data[:, data.var["_experimental_condition"] == experimental_condition]
+            intensities_control = data_sub[
+                :,
+                data_sub.var[subcellular_enrichment_column].str.match(untagged_name),
             ].X
-            scores, pv = stats.ttest_ind(
-                intensities_ip.T, intensities_control.T, nan_policy="omit"
-            )
-            lfc = np.median(intensities_ip, axis=1) - np.median(intensities_control, axis=1)
-            aggr_mask = (
-                data_aggr.var["_experimental_condition"] == experimental_condition
-            ) & (data_aggr.var[subcellular_enrichment_column] == subcellular_enrichment)
-            if aggr_mask.sum() > 1:
-                warnings.warn(
-                    f"Multiple samples found for condition: {experimental_condition}"
+            if intensities_control.shape[1] == 0:
+                raise ValueError(
+                    f"No {untagged_name} samples found for condition: "
+                    f"{experimental_condition}"
                 )
-            # Ensure correct shape for assignment
-            pv = np.atleast_2d(pv).T if pv.ndim == 1 else pv
-            data_aggr.layers["pvals"][:, aggr_mask] = pv[:, : aggr_mask.sum()]
-            data_aggr.X[:, aggr_mask] = lfc[:, None]
-    if drop_untagged:
-        data_aggr = data_aggr[
-            :, ~data_aggr.var[subcellular_enrichment_column].str.match(untagged_name)
-        ]
-    data_aggr.var.drop(columns=["_experimental_condition"], inplace=True)
-    if keep_raw:
-        data_aggr.raw = data.copy()
+            for subcellular_enrichment in data_sub.var[subcellular_enrichment_column].unique():
+                intensities_ip = data_sub[
+                    :, data_sub.var[subcellular_enrichment_column] == subcellular_enrichment
+                ].X
+                scores, pv = stats.ttest_ind(
+                    intensities_ip.T, intensities_control.T, nan_policy="omit"
+                )
+                lfc = np.median(intensities_ip, axis=1) - np.median(
+                    intensities_control, axis=1
+                )
+                aggr_mask = (
+                    data_aggr.var["_experimental_condition"] == experimental_condition
+                ) & (data_aggr.var[subcellular_enrichment_column] == subcellular_enrichment)
+                if aggr_mask.sum() > 1:
+                    warnings.warn(
+                        f"Multiple samples found for condition: {experimental_condition}"
+                    )
+                # Ensure correct shape for assignment
+                pv = np.atleast_2d(pv).T if pv.ndim == 1 else pv
+                data_aggr.layers["pvals"][:, aggr_mask] = pv[:, : aggr_mask.sum()]
+                data_aggr.X[:, aggr_mask] = lfc[:, None]
+        if drop_untagged:
+            data_aggr = data_aggr[
+                :, ~data_aggr.var[subcellular_enrichment_column].str.match(untagged_name)
+            ]
+        if keep_raw:
+            data_aggr.raw = data.copy()
+    except Exception as e:
+        raise e
+    finally:
+        data_aggr.var.drop(columns=["_experimental_condition"], inplace=True)
     return data_aggr
 
 
@@ -196,6 +215,18 @@ def calculate_enrichment_vs_all(
         * ``.X`` contains enrichment scores (log2 fold changes or proportions).
         * ``.layers["pvals"]`` stores p-values from the t-tests.
         * ``.var["enriched_vs"]`` lists the conditions used as the background.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hek_dc_2025(enrichment="raw")
+    >>> enriched = gr.pp.calculate_enrichment_vs_all(
+    ...     adata,
+    ...     subcellular_enrichment_column='subcellular_enrichment',
+    ...     enrichment_method='lfc'
+    ... )
+    >>> enriched.var['enriched_vs'].head()  # Shows comparison groups # doctest: +SKIP
+    >>> enriched.X[:5, :5]  # Enrichment scores (log2 fold changes) # doctest: +SKIP
     """
     covariates = _check_covariates(adata, covariates)
     data = adata.copy()

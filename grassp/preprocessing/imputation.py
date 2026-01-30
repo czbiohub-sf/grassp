@@ -58,6 +58,21 @@ def impute_gaussian(
     proteomics data analysis. Missing values are assumed to be below detection limit
     and are imputed from a Gaussian distribution with parameters derived from the
     observed values but shifted downward.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> import numpy as np
+    >>> import scanpy as sc
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> sc.pp.log1p(adata)
+    >>> int(np.sum(adata.X == 0))  # Count missing values (zeros)
+    747946
+    >>> gr.pp.impute_gaussian(adata, width=0.3, distance=1.8)
+    >>> int(np.sum(adata.X == 0))  # No more missing values
+    0
+    >>> int(adata.obs['n_imputed'].sum())  # Total imputed values
+    747946
     """
     np.random.seed(random_state)
 

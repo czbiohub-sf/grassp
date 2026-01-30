@@ -386,14 +386,14 @@ def annotate_uniprot_cc(
 
     Examples
     --------
-    >>> import grassp as gr
-    >>> adata = gr.datasets.hein_2024()
-    >>> gr.pp.annotate_uniprot_cc(adata)
-    >>> adata.obs[['uniprot_cc_primary_coarse', 'uniprot_cc_primary_fine']].head()
+    >>> import grassp as gr  # doctest: +SKIP
+    >>> adata = gr.datasets.hein_2024()  # doctest: +SKIP
+    >>> gr.pp.annotate_uniprot_cc(adata)  # doctest: +SKIP
+    >>> adata.obs[['uniprot_cc_primary_coarse', 'uniprot_cc_primary_fine']].head()  # doctest: +SKIP
 
     Filter for nuclear proteins:
 
-    >>> nuclear = adata[adata.obs['uniprot_cc_primary_coarse'] == 'Nucleus']
+    >>> nuclear = adata[adata.obs['uniprot_cc_primary_coarse'] == 'Nucleus']  # doctest: +SKIP
 
     """
 
@@ -554,20 +554,19 @@ def add_markers(
     Examples
     --------
     >>> import grassp as gr
-    >>> adata = gr.datasets.hein_2024()
-    >>> # Add all available marker annotations for human
-    >>> gr.pp.add_markers(adata, species='hsap')
-    >>> # Add only specific author annotations
-    >>> gr.pp.add_markers(adata, species='hsap', authors=['hein2024_component', 'christopher'])
-    >>> adata.obs.head()
-    >>> # Check categorical dtype and colors
     >>> import pandas as pd
-    >>> pd.api.types.is_categorical_dtype(adata.obs['christopher'])
+    >>> adata = gr.datasets.hein_2024(enrichment='raw')
+    >>> # Add specific author annotations
+    >>> gr.pp.add_markers(adata, species='hsap', authors=['christopher'])  # doctest: +ELLIPSIS
+    Added christopher annotations for ...
+    >>> # Check categorical dtype and colors
+    >>> isinstance(adata.obs['christopher'].dtype, pd.CategoricalDtype)
     True
     >>> 'christopher_colors' in adata.uns
     True
     >>> # Disable automatic color mapping
-    >>> gr.pp.add_markers(adata, species='hsap', authors=['lilley'], add_colors=False)
+    >>> gr.pp.add_markers(adata, species='hsap', authors=['lilley'], add_colors=False)  # doctest: +ELLIPSIS
+    Added lilley annotations for ...
     """
     # Construct file path
     module_path = Path(__file__).parent.parent

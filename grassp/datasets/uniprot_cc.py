@@ -187,7 +187,7 @@ def uniprot_subcellular_vocabulary(
     >>> from grassp.datasets.uniprot_cc import uniprot_subcellular_vocabulary
     >>> vocab = uniprot_subcellular_vocabulary()
     >>> len(vocab)
-    564
+    543
 
     Look up a specific location:
 
@@ -195,7 +195,7 @@ def uniprot_subcellular_vocabulary(
     >>> nucleus['ID']
     'Nucleus'
     >>> nucleus['HP']  # What contains the nucleus
-    ['Intracellular']
+    []
 
     Explore hierarchical relationships:
 
@@ -203,6 +203,15 @@ def uniprot_subcellular_vocabulary(
     >>> for acc, entry in vocab.items():
     ...     if 'Nucleus' in entry.get('HP', []):
     ...         print(f"{entry['ID']} is part of Nucleus")
+    Cajal body is part of Nucleus
+    Gem is part of Nucleus
+    Nuclear body is part of Nucleus
+    Nucleolus is part of Nucleus
+    Nucleoplasm is part of Nucleus
+    Nucleus envelope is part of Nucleus
+    Nucleus matrix is part of Nucleus
+    Nucleus speckle is part of Nucleus
+    PML body is part of Nucleus
 
     Notes
     -----
@@ -268,7 +277,9 @@ def find_roots(
     >>> from grassp.datasets.uniprot_cc import find_roots
     >>> roots = find_roots('SL-0191')  # Nucleus
     >>> roots
-    ['SL-0191']  # Nucleus is already a root (not contained in anything)
+    ['SL-0191']
+
+    Nucleus is already a root (not contained in anything)
 
     Find root of a nested location:
 

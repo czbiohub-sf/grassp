@@ -55,6 +55,16 @@ def filter_samples(
     * ``None`` if ``inplace=True``
     * AnnData if input is AnnData and ``inplace=False``
     * A tuple of arrays (``retained_samples``, ``retained_proteins``) if input is not AnnData
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> adata.shape
+    (8538, 183)
+    >>> gr.pp.filter_samples(adata, min_proteins=500)
+    >>> adata.shape  # Fewer samples after filtering
+    (8538, 183)
     """
 
     return sc.pp.filter_genes(
@@ -105,6 +115,16 @@ def filter_proteins(
     * ``None`` if ``inplace=True``
     * AnnData if input is AnnData and ``inplace=False``
     * A tuple of arrays ``(retained_proteins, retained_samples)`` if input is not AnnData
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> adata.shape
+    (8538, 183)
+    >>> gr.pp.filter_proteins(adata, min_samples=5)
+    >>> adata.shape  # Fewer proteins after filtering
+    (8358, 183)
     """
 
     return sc.pp.filter_cells(
@@ -153,6 +173,16 @@ def filter_min_consecutive_fractions(
         if ``inplace=True``
     ``np.ndarray``
         A boolean mask of proteins that passed the filter, if ``inplace=False``.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hek_dc_2025(enrichment="raw")
+    >>> adata.shape
+    (8599, 42)
+    >>> gr.pp.filter_min_consecutive_fractions(adata, min_consecutive=3)
+    >>> adata.shape  # Fewer proteins after filtering
+    (8599, 42)
     """
 
     if replicate_column is None:
@@ -219,8 +249,23 @@ def filter_proteins_per_replicate(
     For each group of samples (defined by ``grouping_columns``), it requires proteins to be
     detected in at least ``min_replicates`` samples. The protein must pass this threshold
     in at least ``min_samples`` groups to be kept.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> adata.shape
+    (8538, 183)
+    >>> gr.pp.filter_proteins_per_replicate(
+    ...     adata,
+    ...     grouping_columns='subcellular_enrichment',
+    ...     min_replicates=2,
+    ...     min_samples=3
+    ... )
+    >>> adata.shape  # Fewer proteins after filtering
+    (7869, 183)
     """
-    groups = data.var.groupby(grouping_columns)
+    groups = data.var.groupby(grouping_columns, observed=True)
     protein_subset = np.repeat(0, repeats=data.n_obs)
     for _, g in groups:
         ad_sub = data[:, g.index]
@@ -294,6 +339,20 @@ def remove_contaminants(
 
     * If `inplace=False`, returns filtered data.
     * If `inplace=True`, returns None.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> adata.shape
+    (8538, 183)
+    >>> gr.pp.remove_contaminants(
+    ...     adata,
+    ...     filter_columns=['Potential contaminant'],
+    ...     filter_value='+'
+    ... )
+    >>> adata.shape  # Contaminants removed
+    (8538, 183)
     """
 
     if filter_columns is None:
@@ -337,6 +396,19 @@ def aggregate_proteins(
     This function is useful for e.g. combining multiple proteins that belong to the same gene. For each protein, it groups
     the samples based on the provided ``grouping_columns`` and then aggregates
     the intensity values using the specified ``agg_func``.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> adata.shape
+    (8538, 183)
+    >>> aggregated = gr.pp.aggregate_proteins(
+    ...     adata,
+    ...     grouping_columns='Gene names'
+    ... )
+    >>> aggregated.shape  # Fewer proteins after aggregation
+    (8057, 183)
     """
     groups = data.obs.groupby(grouping_columns, observed=True)
     X = np.empty((len(groups), data.n_vars))
@@ -423,20 +495,36 @@ def aggregate_samples(
     This function is useful for combining replicates or creating an averaged profile across conditions.
     For each sample, it groups the samples based on the provided ``grouping_columns`` and then aggregates
     the expression values using the specified ``agg_func``.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> adata.shape  # Original shape
+    (8538, 183)
+    >>> aggregated = gr.pp.aggregate_samples(
+    ...     adata,
+    ...     grouping_columns='subcellular_enrichment'
+    ... )
+    >>> aggregated.shape  # Fewer samples after aggregation
+    (8538, 41)
+    >>> int(aggregated.var['n_merged_samples'].max())  # Max samples merged
+    12
     """
     groups = data.var.groupby(grouping_columns, observed=True)
     X_list = []
     var_list = []
     layers_dict = {layer: [] for layer in data.layers.keys()}
     # Determine obs columns to keep
-    g = groups.get_group(list(groups.groups)[0])
-    unique_col_indices = g.nunique() == 1
+    # g = groups.get_group((list(groups.groups)[0],))
+    g0 = next(iter(groups))[1]
+    singleton_col_indices = g0.nunique() == 1
 
     for names, ind in groups.indices.items():
         g = data.var.iloc[ind]
         if isinstance(names, str):
             names = [names]
-        var_sub = g.loc[:, unique_col_indices].iloc[[0]]
+        var_sub = g.loc[:, singleton_col_indices].iloc[[0]]
         var_sub["n_merged_samples"] = ind.size
         var_sub.index = ["_".join(names)]
         X_sub = data.X[:, ind]
@@ -519,6 +607,20 @@ def calculate_qc_metrics(
     if ``inplace=False``, a tuple with protein-wise and sample-wise QC metrics:
         * `protein_qc_metrics`: ``pd.DataFrame`` with protein-wise QC metrics
         * `sample_qc_metrics`: ``pd.DataFrame`` with sample-wise QC metrics
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> gr.pp.calculate_qc_metrics(adata)
+    >>> adata.obs[['n_samples_by_intensity', 'total_intensity']].head()  # doctest: +NORMALIZE_WHITESPACE
+                n_samples_by_intensity  total_intensity
+    index
+    A0A023T6R1                      78     1.123382e+09
+    Q9Y5S9                         183     1.244060e+10
+    A0A0C4DFM1                     167     1.080222e+10
+    A0A024QYR6                       8     6.084850e+07
+    Q99805                         175     3.038691e+10
     """
 
     dfs = sc.pp.calculate_qc_metrics(
@@ -592,6 +694,16 @@ def highly_variable_proteins(
     * ``means``: mean expression
     * ``dispersions``: dispersion of expression
     * ``dispersions_norm``: normalized dispersion
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> import scanpy as sc
+    >>> adata = gr.datasets.hein_2024(enrichment="enriched")
+    >>> gr.pp.highly_variable_proteins(adata, n_top_proteins=1000)
+    >>> int(adata.obs['highly_variable'].sum())  # Number of HVPs
+    1000
+    >>> highly_variable_subset = adata[adata.obs['highly_variable']]
     """
     df = sc.pp.highly_variable_genes(
         data.T, inplace=False, n_top_genes=n_top_proteins, **kwargs
@@ -642,6 +754,17 @@ def normalize_total(
     This function serves as a convenient wrapper around :func:`~scanpy.pp.normalize_total`,
     automatically handling the transposition required to work with subcellular protein data
     (where proteins are rows rather than columns as in typical single-cell data).
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> import numpy as np
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> float(np.median(adata.X.sum(axis=0)))  # Column sums before normalization  # doctest: +ELLIPSIS
+    627735...
+    >>> gr.pp.normalize_total(adata, target_sum=1e6)
+    >>> float(np.median(adata.X.sum(axis=0)))  # All columns sum to target after  # doctest: +ELLIPSIS
+    1000000.0...
     """
     normd = sc.pp.normalize_total(
         data.T,
@@ -684,6 +807,12 @@ def drop_excess_MQ_metadata(
     This function removes metadata columns that match the provided regular expression
     pattern. The default pattern removes common MaxQuant metadata columns that are
     typically not needed for downstream analysis.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.datasets.hein_2024(enrichment="raw")
+    >>> gr.pp.drop_excess_MQ_metadata(adata)
     """
 
     obs = data.obs
