@@ -42,7 +42,7 @@ dependencies = [
     "protdata",
     "pysankeybeta",
     "requests",
-    "scanpy[leiden] >= 1.12",
+    "scanpy[leiden] >= 1.10",
     "scikit-learn",
     "scipy",
     "seaborn",

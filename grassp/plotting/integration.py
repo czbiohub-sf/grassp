@@ -6,7 +6,6 @@ if TYPE_CHECKING:
     from typing import List, Literal
     from matplotlib.axes import Axes
 
-
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,6 +15,7 @@ import seaborn as sns
 
 from matplotlib import gridspec
 from matplotlib.markers import MarkerStyle
+from packaging.version import Version
 
 
 def remodeling_score(
@@ -101,7 +101,11 @@ def _get_cluster_colors(data: AnnData, color_key: str = "leiden") -> np.ndarray[
         Array of colors for the given color key
     """
     if f"{color_key}_colors" not in data.uns.keys():
-        scanpy.pl._utils.set_default_colors_for_categorical_obs(data, color_key)
+
+        if Version(scanpy.__version__) >= Version("1.12.0"):
+            scanpy.pl._utils.set_default_colors_for_categorical_obs(data, color_key)
+        else:
+            scanpy.pl._utils._set_default_colors_for_categorical_obs(data, color_key)
     return np.array(
         [data.uns[f"{color_key}_colors"][x] for x in data.obs[color_key].cat.codes]
     )
