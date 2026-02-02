@@ -7,7 +7,12 @@ from .clustering import (
 )
 from .enrichment import calculate_cluster_enrichment, rank_proteins_groups
 from .integration import align_adatas, aligned_umap, mr_score, remodeling_score
-from .localization import knn_annotation, knn_annotation_old
+from .localization import (
+    knn_annotation,
+    knn_annotation_old,
+    svm_annotation,
+    svm_train,
+)
 from .scoring import (
     calinski_habarasz_score,
     class_balance,

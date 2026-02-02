@@ -307,6 +307,78 @@ class TestClusteringFunctions:
         marker_mask = adata.obs["markers"].notna()
         assert np.allclose(adata.obs.loc[marker_mask, "knn_fixed_probability"], 1.0)
 
+    def test_svm_train_basic(self):
+        """Test SVM training with default parameters."""
+        adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
+
+        localization.svm_train(adata, gt_col="markers", cv_repeats=2)  # Faster for testing
+
+        # Check params stored
+        assert "svm.params" in adata.uns
+        assert "best_params" in adata.uns["svm.params"]
+        assert "C" in adata.uns["svm.params"]["best_params"]
+        assert "gamma" in adata.uns["svm.params"]["best_params"]
+
+    def test_svm_train_custom_ranges(self):
+        """Test SVM training with custom parameter ranges."""
+        adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
+
+        C_range = np.array([0.1, 1.0, 10.0])
+        gamma_range = np.array([0.01, 0.1])
+
+        localization.svm_train(
+            adata,
+            gt_col="markers",
+            C_range=C_range,
+            gamma_range=gamma_range,
+            cv_repeats=1,
+        )
+
+        assert adata.uns["svm.params"]["search_space"]["C_range"] == C_range.tolist()
+
+    def test_svm_annotation_basic(self):
+        """Test SVM annotation after training."""
+        adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
+
+        # Train then annotate
+        localization.svm_train(adata, gt_col="markers", cv_repeats=1)
+        localization.svm_annotation(adata, gt_col="markers")
+
+        # Check outputs
+        assert "svm_annotation" in adata.obs.columns
+        assert "svm_annotation_probabilities" in adata.obsm
+        assert "svm_annotation_probability" in adata.obs.columns
+        assert adata.obsm["svm_annotation_probabilities"].shape[0] == 100
+
+    def test_svm_annotation_fix_markers(self):
+        """Test that fix_markers preserves marker labels."""
+        adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
+
+        # Manually provide hyperparameters
+        localization.svm_annotation(
+            adata, gt_col="markers", C=1.0, gamma=0.1, fix_markers=True
+        )
+
+        # Markers should have probability 1.0
+        marker_mask = adata.obs["markers"].notna()
+        assert np.allclose(adata.obs.loc[marker_mask, "svm_annotation_probability"], 1.0)
+
+    def test_svm_annotation_no_hyperparams_error(self):
+        """Test error when no hyperparameters available."""
+        adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
+
+        with pytest.raises(ValueError, match="No hyperparameters found"):
+            localization.svm_annotation(adata, gt_col="markers")
+
+    def test_svm_annotation_manual_hyperparams(self):
+        """Test with manually specified hyperparameters."""
+        adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
+
+        # Should work without svm_train()
+        localization.svm_annotation(adata, gt_col="markers", C=1.0, gamma=0.1)
+
+        assert "svm_annotation" in adata.obs.columns
+
     def test_to_knn_graph(self):
         """Test conversion to networkx graph."""
         adata = make_enriched_data_with_structure(n_proteins=50, add_neighbors=True)

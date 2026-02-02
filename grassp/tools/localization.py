@@ -1,12 +1,17 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from anndata import AnnData
     from typing import List
 
+import warnings
+
 import numpy as np
 import pandas as pd
+
+from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
+from sklearn.svm import SVC
 
 
 def _get_knn_annotation_df(
@@ -158,3 +163,351 @@ def knn_annotation_old(
     ]  # take the first if there are ties
     data.obs[key_added] = majority_cluster.values
     return data if not inplace else None
+
+
+def svm_train(
+    data: AnnData,
+    gt_col: str,
+    C_range: np.ndarray = np.array([0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]),
+    gamma_range: np.ndarray = np.array([0.001, 0.01, 0.1, 1, 10, 100]),
+    class_weight: None | dict | Literal["balanced"] = "balanced",
+    cv_splits: int = 5,
+    cv_repeats: int = 20,
+    n_jobs: int = -1,
+    random_state: int | None = None,
+    inplace: bool = True,
+    key_added: str = "svm",
+) -> dict | None:
+    """Train SVM classifier with hyperparameter tuning using marker proteins.
+
+    Performs grid search over C and gamma parameters using repeated stratified
+    cross-validation. Best hyperparameters are stored in ``.uns`` for later use
+    with :func:`svm_annotation`.
+
+    Parameters
+    ----------
+    data
+        :class:`anndata.AnnData` object with proteins as observations.
+    gt_col
+        Observation column containing marker annotations. Proteins with NaN
+        values are considered unknown and excluded from training.
+    C_range
+        Array of C (regularization) values to search. Default: 2^-4 to 2^4.
+    gamma_range
+        Array of gamma (kernel coefficient) values. Default: 10^-3 to 10^2.
+    cv_splits
+        Number of cross-validation folds (default 5).
+    cv_repeats
+        Number of CV repetitions (default 20). Total fits per parameter
+        combination: ``cv_splits × cv_repeats``.
+    n_jobs
+        Number of parallel jobs. -1 uses all available cores.
+    random_state
+        Random seed for reproducibility.
+    inplace
+        If ``True`` store results in ``.uns``; if ``False`` return dict.
+    key_added
+        Key prefix for storing results in ``.uns`` (default ``"svm"``).
+
+    Returns
+    -------
+    None or dict
+        If ``inplace=False``, returns dictionary with best parameters and CV
+        results. Otherwise modifies ``data.uns[f"{key_added}.params"]`` in place.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.ds.hein_2024(enrichment="enriched")
+
+    # When actually training, increase cv_repeats and cv_splits
+    # We recommend >20 repeats with 5 splits
+    >>> gr.tl.svm_train(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
+    Fitting 4 folds for each of 54 candidates, totalling 216 fits
+    >>> adata.uns["svm.params"]["best_params"]
+    {'C': 2.0, 'gamma': 0.01}
+    """
+    # Validate gt_col exists
+    if gt_col not in data.obs.columns:
+        raise KeyError(f"Column '{gt_col}' not found in data.obs")
+
+    # Extract markers (non-NaN proteins)
+    marker_mask = data.obs[gt_col].notna()
+    if not marker_mask.any():
+        raise ValueError(f"No marker proteins found in '{gt_col}' (all values are NaN)")
+
+    X_train = data.X[marker_mask]
+    y_train = data.obs.loc[marker_mask, gt_col]
+
+    # Check for sufficient classes
+    if y_train.nunique() < 2:
+        raise ValueError("Need at least 2 classes for SVM training")
+
+    # Warn if too few samples per class for CV
+    min_class_count = y_train.value_counts().min()
+    if min_class_count < cv_splits:
+        warnings.warn(
+            f"Smallest class has {min_class_count} samples but cv_splits={cv_splits}. "
+            "Consider reducing cv_splits or ensuring balanced marker representation."
+        )
+
+    # Configure cross-validation
+    # 5-fold CV repeated 20 times = 100 fits per hyperparameter combo
+    cv = RepeatedStratifiedKFold(
+        n_splits=cv_splits, n_repeats=cv_repeats, random_state=random_state
+    )
+
+    # Create parameter grid
+    param_grid = {
+        'C': C_range,
+        'gamma': gamma_range,
+    }
+
+    # Configure SVM
+    svm = SVC(
+        kernel='rbf',
+        class_weight=class_weight,
+        probability=True,  # Needed for svm_annotation
+    )
+
+    # Run grid search
+    grid_search = GridSearchCV(
+        estimator=svm,
+        param_grid=param_grid,
+        cv=cv,
+        scoring='f1_macro',  # Balanced metric for multiclass
+        n_jobs=n_jobs,
+        verbose=1,
+    )
+
+    grid_search.fit(X_train, y_train.cat.codes)
+
+    # Store results
+    params = {
+        "method": "SVM-RBF",
+        "gt_col": gt_col,
+        "best_params": {
+            "C": float(grid_search.best_params_["C"]),
+            "gamma": float(grid_search.best_params_["gamma"]),
+        },
+        "cv_results": {
+            "best_score": float(grid_search.best_score_),
+            "cv_splits": cv_splits,
+            "cv_repeats": cv_repeats,
+            "total_fits": cv_splits * cv_repeats,
+            "scoring": "f1_macro",
+        },
+        "search_space": {
+            "C_range": C_range.tolist(),
+            "gamma_range": gamma_range.tolist(),
+        },
+        "class_weight": class_weight,
+        "class_labels": y_train.cat.categories.tolist(),
+        "n_markers": int(X_train.shape[0]),
+        "random_state": random_state,
+        "n_jobs": n_jobs,
+        "kernel": "rbf",
+        "cv_splits": cv_splits,
+        "cv_repeats": cv_repeats,
+    }
+
+    if inplace:
+        data.uns[f"{key_added}.params"] = params
+        return None
+    else:
+        return params
+
+
+def svm_annotation(
+    data: AnnData,
+    gt_col: str = "markers",
+    C: float | None = None,
+    gamma: float | str | None = None,
+    fix_markers: bool = False,
+    min_probability: float = 0.5,
+    inplace: bool = True,
+    key_added: str = "svm_annotation",
+    params_key: str | None = None,
+    class_weight: None | dict | Literal["balanced"] = "balanced",
+) -> dict | None:
+    """Classify proteins using SVM with marker-based training.
+
+    Trains an SVM classifier on marker proteins (non-NaN values in ``gt_col``)
+    and predicts localization for all proteins. Hyperparameters can be provided
+    manually or loaded from prior :func:`svm_train` call.
+
+    Similar to :func:`knn_annotation` but uses SVM instead of graph propagation.
+
+    Parameters
+    ----------
+    data
+        :class:`anndata.AnnData` with feature matrix in ``.X``.
+    gt_col
+        Observation column with marker labels (NaN for unknowns).
+    C
+        SVM regularization parameter. If ``None``, loads from ``.uns``.
+    gamma
+        RBF kernel coefficient. If ``None``, loads from ``.uns``.
+    fix_markers
+        If ``True`` marker proteins retain their original labels with
+        probability 1.0.
+    min_probability
+        Confidence threshold; predictions below this are set to NaN.
+    inplace
+        If ``True`` modify data in place; else return dict.
+    key_added
+        Base name for results (default ``"svm_annotation"``).
+    params_key
+        Key to load hyperparameters from ``.uns`` (default ``"svm.params"``).
+
+    Returns
+    -------
+    None or dict
+        If ``inplace=True``, modifies data with:
+
+        - ``.obs[f"{key_added}"]``: Predicted labels
+        - ``.obs[f"{key_added}_probability"]``: Max probability per protein
+        - ``.obsm[f"{key_added}_probabilities"]``: Full probability matrix
+        - ``.uns[f"{key_added}_colors"]``: Color scheme (copied from ``gt_col``)
+
+        If ``inplace=False``, returns dict with predictions and probabilities.
+
+    Raises
+    ------
+    ValueError
+        If no hyperparameters found and none provided manually.
+    KeyError
+        If ``gt_col`` not found in ``.obs``.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> import scanpy as sc
+    >>> adata = gr.ds.hein_2024(enrichment="enriched")
+
+    ##### Option 1: Annotate directly, with fixed hyperparameters #####
+    >>> gr.tl.svm_annotation(
+    ...     adata,
+    ...     gt_col="hein2024_gt_component",
+    ...     min_probability=0.5,
+    ...     C=10,
+    ...     gamma=0.01,
+    ... )
+    >>> sc.pl.umap(adata, color="svm_annotation") # doctest: +SKIP
+
+    ##### Option 2: Train SVM hyperparameters, then annotate #####
+    # When actually training, increase cv_repeats and cv_splits
+    # We recommend >20 repeats with 5 splits
+    >>> gr.tl.svm_train(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
+    Fitting 4 folds for each of 54 candidates, totalling 216 fits
+    >>> adata.uns["svm.params"]["best_params"]
+    {'C': 2.0, 'gamma': 0.01}
+    >>> gr.tl.svm_annotation(adata, gt_col="hein2024_gt_component", min_probability=0.5)
+    >>> sc.pl.umap(adata, color="svm_annotation") # doctest: +SKIP
+    """
+    # If hyperparameters not provided, try loading from .uns
+    if C is None or gamma is None:
+        if params_key is None:
+            params_key = "svm.params"
+
+        if params_key not in data.uns:
+            raise ValueError(
+                f"No hyperparameters found in data.uns['{params_key}']. "
+                "Either:\n"
+                "  1) Run svm_train() first to tune hyperparameters, or\n"
+                "  2) Provide C and gamma explicitly (e.g., C=1.0, gamma=0.1)"
+            )
+
+        stored_params = data.uns[params_key]
+        if C is None:
+            C = stored_params["best_params"]["C"]
+        if gamma is None:
+            gamma = stored_params["best_params"]["gamma"]
+        if class_weight is None:
+            class_weight = stored_params["class_weight"]
+
+    # Validate gt_col
+    if gt_col not in data.obs.columns:
+        raise KeyError(f"Column '{gt_col}' not found in data.obs")
+
+    # Extract markers
+    marker_mask = data.obs[gt_col].notna()
+    if not marker_mask.any():
+        raise ValueError(f"No marker proteins found in '{gt_col}'")
+
+    X_train = data.X[marker_mask]
+    y_train = data.obs.loc[marker_mask, gt_col]
+    X_all = data.X
+
+    categories = y_train.cat.categories
+    y_train_codes = y_train.cat.codes
+
+    # Train SVM
+    svm = SVC(
+        C=C,
+        gamma=gamma,
+        kernel='rbf',
+        class_weight=class_weight,
+        probability=True,
+        random_state=42,
+    )
+    svm.fit(X_train, y_train_codes)
+
+    # Get probability matrix (n_proteins, n_classes)
+    probabilities = svm.predict_proba(X_all)
+
+    # Get predictions (argmax)
+    pred_codes = np.argmax(probabilities, axis=1)
+    pred_labels = categories[pred_codes].to_numpy()
+
+    # Get max probability
+    max_prob = np.max(probabilities, axis=1)
+
+    # Handle fix_markers
+    if fix_markers:
+        # Set marker probabilities to 1.0 for their true class
+        marker_indices = np.where(marker_mask)[0]
+        for idx, label in zip(marker_indices, y_train):
+            label_idx = categories.get_loc(label)
+            probabilities[idx, :] = 0.0
+            probabilities[idx, label_idx] = 1.0
+            pred_labels[idx] = label
+            max_prob[idx] = 1.0
+
+    # Apply probability threshold
+    low_conf_mask = max_prob < min_probability
+    pred_labels[low_conf_mask] = np.nan
+
+    # Store results
+    if inplace:
+        # Probabilities matrix
+        data.obsm[f"{key_added}_probabilities"] = probabilities
+
+        # Predicted labels (categorical)
+        data.obs[f"{key_added}"] = pd.Categorical(pred_labels, categories=categories)
+
+        # Max probability
+        data.obs[f"{key_added}_probability"] = max_prob
+
+        # Copy colors if available
+        if f"{gt_col}_colors" in data.uns:
+            data.uns[f"{key_added}_colors"] = data.uns[f"{gt_col}_colors"]
+
+        # Store metadata
+        data.uns[f"{key_added}_params"] = {
+            "method": "SVM-RBF",
+            "C": C,
+            "gamma": gamma,
+            "gt_col": gt_col,
+            "fix_markers": fix_markers,
+            "min_probability": min_probability,
+        }
+
+        return None
+    else:
+        return {
+            "probabilities": probabilities,
+            "labels": pred_labels,
+            "max_probability": max_prob,
+            "categories": categories,
+        }
