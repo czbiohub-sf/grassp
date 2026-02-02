@@ -100,10 +100,21 @@ def tagm_map_contours(
     else:
         dimensions = dimensions[0]
     lmv = sample_tagm_map(adata, size=size)
-    mv = np.concatenate(lmv, axis=0)
+    mv = np.concatenate(lmv, axis=0)  # concatenate for efficency
     ing = Ingest(adata)
     if embedding == "umap":
-        emb = ing._umap.transform(mv)
+        # Check if UMAP was fitted on PCA representation
+        if ing._use_rep == "X_pca":
+            # Project synthetic samples to PCA space first
+            if ing._pca_centered:
+                mv_centered = mv - mv.mean(axis=0)
+            else:
+                mv_centered = mv
+            mv_pca = np.dot(mv_centered, ing._pca_basis[:, : ing._n_pcs])
+            emb = ing._umap.transform(mv_pca)
+        else:
+            # UMAP was fitted on raw data
+            emb = ing._umap.transform(mv)
     elif embedding == "pca":
         if ing._pca_centered:
             mv -= mv.mean(axis=0)
