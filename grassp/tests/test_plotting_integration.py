@@ -21,7 +21,7 @@ from anndata import AnnData  # noqa: E402
 
 from grassp.plotting import clustering, heatmaps, integration, qc, ternary  # noqa: E402
 from grassp.preprocessing import enrichment, simple  # noqa: E402
-from grassp.tools import clustering as tl_clustering  # noqa: E402
+from grassp.tools import localization as tl_localization  # noqa: E402
 from grassp.tools import scoring  # noqa: E402
 
 # ==============================================================================
@@ -211,7 +211,7 @@ class TestClusteringPlots:
         )
 
         # Run KNN annotation to get predictions
-        tl_clustering.knn_annotation(
+        tl_localization.knn_annotation(
             adata, gt_col="markers", key_added="knn_pred", min_probability=0
         )
 

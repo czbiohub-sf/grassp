@@ -24,6 +24,7 @@ from grassp.tools import (  # noqa: E402
     clustering,
     enrichment,
     integration,
+    localization,
     scoring,
     tagm,
 )
@@ -273,7 +274,7 @@ class TestClusteringFunctions:
             n_proteins=100, marker_fraction=0.3, add_neighbors=True
         )
 
-        clustering.knn_annotation(
+        localization.knn_annotation(
             adata,
             gt_col="markers",
             key_added="knn_annotation",
@@ -294,7 +295,7 @@ class TestClusteringFunctions:
             n_proteins=100, marker_fraction=0.3, add_neighbors=True
         )
 
-        clustering.knn_annotation(
+        localization.knn_annotation(
             adata,
             gt_col="markers",
             key_added="knn_fixed",
@@ -632,7 +633,7 @@ class TestScoringFunctions:
         )
 
         # First create predictions (use min_probability=0 to get all predictions)
-        clustering.knn_annotation(
+        localization.knn_annotation(
             adata, gt_col="markers", key_added="predictions", min_probability=0
         )
 
@@ -1220,7 +1221,7 @@ class TestCompleteWorkflows:
         assert "mc_cluster" in adata.obs.columns
 
         # Step 2: KNN annotation
-        clustering.knn_annotation(
+        localization.knn_annotation(
             adata,
             gt_col="markers",
             key_added="knn_annotation",
@@ -1305,7 +1306,7 @@ class TestErrorHandling:
         adata = make_enriched_data_with_structure(n_proteins=50, add_neighbors=True)
 
         with pytest.raises(KeyError):
-            clustering.knn_annotation(adata, gt_col="nonexistent_column")
+            localization.knn_annotation(adata, gt_col="nonexistent_column")
 
     def test_silhouette_score_missing_embedding(self):
         """Test error when embedding not found."""

@@ -13,7 +13,7 @@ import scipy.cluster.hierarchy
 import seaborn as sns
 import sklearn.metrics
 
-from .clustering import knn_annotation
+from .localization import knn_annotation
 
 
 def class_balance(
