@@ -175,8 +175,8 @@ def svm_train(
     cv_repeats: int = 20,
     n_jobs: int = -1,
     random_state: int | None = None,
-    inplace: bool = True,
     key_added: str = "svm",
+    inplace: bool = True,
 ) -> dict | None:
     """Train SVM classifier with hyperparameter tuning using marker proteins.
 
@@ -204,10 +204,13 @@ def svm_train(
         Number of parallel jobs. -1 uses all available cores.
     random_state
         Random seed for reproducibility.
-    inplace
-        If ``True`` store results in ``.uns``; if ``False`` return dict.
     key_added
         Key prefix for storing results in ``.uns`` (default ``"svm"``).
+    inplace
+        If ``True`` store results in ``.uns``; if ``False`` return grid search
+        object and dictionary with best parameters and CV results. This can be
+        useful if you want to inspect the grid search object or use the best
+        parameters for other tasks.
 
     Returns
     -------
@@ -315,7 +318,7 @@ def svm_train(
         data.uns[f"{key_added}.params"] = params
         return None
     else:
-        return params
+        return grid_search, params
 
 
 def svm_annotation(
