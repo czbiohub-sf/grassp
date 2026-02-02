@@ -291,6 +291,7 @@ def tagm_map_train(
         "method": method,
         "gt_col": gt_col,
         "seed": seed,
+        "markers": markers,
         "priors": priors,
         "posteriors": posteriors,
         "datasize": {"data": adata.X.shape},
@@ -310,7 +311,6 @@ def tagm_map_train(
 def tagm_map_predict(
     adata: AnnData,
     params: dict | None = None,
-    gt_col: str | None = None,
     probJoint: bool = False,
     probOutlier: bool = True,
     inplace: bool = True,
@@ -330,7 +330,8 @@ def tagm_map_predict(
     Workflow
     --------
     1. Retrieve MAP parameters from *params* or
-       ``adata.uns['tagm.map.params']``.
+       ``adata.uns['tagm.map.params']``. This includes the marker column name
+       (``gt_col``) used during training.
     2. Split observations into *labelled* (marker) and *unlabelled* sets via
        ``adata.obs[gt_col]``.
     3. Compute posterior probabilities for every component and the outlier
@@ -344,13 +345,13 @@ def tagm_map_predict(
     ----------
     adata
         :class:`anndata.AnnData` with proteins as observations and fractions
-        as variables.
+        as variables. The marker column (``gt_col``) must match the one used
+        during training with :func:`tagm_map_train`.
     params
         Parameter dictionary as returned by :func:`tagm_map_train`.  If
         ``None`` (default) the parameters are read from
-        ``adata.uns['tagm.map.params']``.
-    gt_col
-        Observation column containing marker labels (default ``"markers"``).
+        ``adata.uns['tagm.map.params']``. The marker column name (``gt_col``)
+        is automatically read from the stored parameters.
     probJoint
         If ``True`` also store the joint probability matrix in
         ``adata.obs['tagm.map.joint']`` (default *False*).
@@ -380,15 +381,15 @@ def tagm_map_predict(
     mu = posteriors["mu"]  # shape (K, D)
     sigma = posteriors["sigma"]  # shape (K, D, D)
     weights = posteriors["weights"]  # shape (K,)
-    gt_col = params["gt_col"] if gt_col is None else gt_col
+    markers = params["markers"]  # Get markers from trained model
+    K = len(markers)
+    gt_col = params["gt_col"]  # Always use the gt_col from training
 
     # Split data.
     marker_idx = adata.obs[gt_col].notna()
     unknown_idx = adata.obs[gt_col].isna()
     adata_markers = adata[marker_idx].copy()
     adata_unknown = adata[unknown_idx].copy()
-    markers = np.sort(adata_markers.obs[gt_col].unique())
-    K = len(markers)
 
     X = np.asarray(adata_unknown.X)
     D = X.shape[1]
