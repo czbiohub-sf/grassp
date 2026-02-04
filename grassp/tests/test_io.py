@@ -650,3 +650,133 @@ class TestReadProlocdata:
         # __classVersion__ should not be in MIAPE_metadata
         miape = result.uns["MIAPE_metadata"]
         assert ".__classVersion__" not in miape
+
+
+# ==============================================================================
+# Tests for _preprocess_adata (NaN handling)
+# ==============================================================================
+
+
+class TestPreprocessAdata:
+    """Test _preprocess_adata function for NaN replacement."""
+
+    def test_nan_replacement_in_X_dense(self):
+        """Test that NaNs in .X (dense) are replaced with 0."""
+        # Create AnnData with NaNs in .X
+        X = np.array([[1.0, np.nan, 3.0], [np.nan, 5.0, 6.0], [7.0, 8.0, np.nan]])
+        adata = AnnData(X=X)
+
+        result = read._preprocess_adata(adata)
+
+        # Check NaNs are replaced with 0
+        assert not np.any(np.isnan(result.X))
+        expected = np.array([[1.0, 0.0, 3.0], [0.0, 5.0, 6.0], [7.0, 8.0, 0.0]])
+        assert np.allclose(result.X, expected)
+
+    def test_nan_replacement_in_X_sparse(self):
+        """Test that NaNs in .X (sparse) are replaced with 0."""
+        from scipy.sparse import csr_matrix
+
+        # Create sparse matrix with NaNs
+        dense = np.array([[1.0, np.nan, 0.0], [0.0, 5.0, np.nan], [7.0, 0.0, 9.0]])
+        X = csr_matrix(dense)
+        adata = AnnData(X=X)
+
+        result = read._preprocess_adata(adata)
+
+        # Check NaNs are replaced with 0
+        assert not np.any(np.isnan(result.X.data))
+
+    def test_nan_replacement_in_layers_dense(self):
+        """Test that NaNs in layers (dense) are replaced with 0."""
+        X = np.array([[1.0, 2.0], [3.0, 4.0]])
+        layer1 = np.array([[np.nan, 2.0], [3.0, np.nan]])
+        layer2 = np.array([[1.0, np.nan], [np.nan, 4.0]])
+
+        adata = AnnData(X=X, layers={"layer1": layer1, "layer2": layer2})
+
+        result = read._preprocess_adata(adata)
+
+        # Check NaNs are replaced with 0 in all layers
+        assert not np.any(np.isnan(result.layers["layer1"]))
+        assert not np.any(np.isnan(result.layers["layer2"]))
+
+    def test_nan_replacement_in_layers_sparse(self):
+        """Test that NaNs in layers (sparse) are replaced with 0."""
+        from scipy.sparse import csr_matrix
+
+        X = np.array([[1.0, 2.0], [3.0, 4.0]])
+        layer_dense = np.array([[np.nan, 0.0], [3.0, np.nan]])
+        layer_sparse = csr_matrix(layer_dense)
+
+        adata = AnnData(X=X, layers={"sparse_layer": layer_sparse})
+
+        result = read._preprocess_adata(adata)
+
+        # Check NaNs are replaced with 0
+        assert not np.any(np.isnan(result.layers["sparse_layer"].data))
+
+    def test_return_value(self):
+        """Test that _preprocess_adata returns the modified AnnData."""
+        X = np.array([[1.0, np.nan], [np.nan, 4.0]])
+        adata = AnnData(X=X)
+
+        result = read._preprocess_adata(adata)
+
+        # Check that it returns an AnnData object
+        assert isinstance(result, AnnData)
+        # Check that it's the same object (modified in-place)
+        assert result is adata
+
+    @patch("protdata.io.read_maxquant")
+    def test_nan_handling_integration_maxquant(self, mock_read, tmp_path):
+        """Integration test: verify NaN handling with mock MaxQuant data."""
+        # Create mock AnnData with NaNs (as protdata would return it)
+        X_with_nans = np.array(
+            [
+                [100.0, np.nan, 150.0],  # Sample 1
+                [np.nan, 190.0, 160.0],  # Sample 2
+                [105.0, 210.0, np.nan],  # Sample 3
+            ],
+            dtype=float,
+        )
+
+        obs = pd.DataFrame(
+            {"sample_name": ["Sample_A", "Sample_B", "Sample_C"]},
+            index=["Sample_A", "Sample_B", "Sample_C"],
+        )
+
+        var = pd.DataFrame(
+            {"Protein IDs": ["P00001", "P00002", "P00003"]},
+            index=["P00001", "P00002", "P00003"],
+        )
+
+        # Add a layer with NaNs too
+        layer_with_nans = np.array(
+            [[np.nan, 2.0, 3.0], [4.0, np.nan, 6.0], [7.0, 8.0, np.nan]], dtype=float
+        )
+
+        mock_adata = AnnData(
+            X=X_with_nans, obs=obs, var=var, layers={"pvals": layer_with_nans}
+        )
+        mock_read.return_value = mock_adata
+
+        # Create a dummy file (content doesn't matter since we're mocking)
+        test_file = tmp_path / "proteinGroups.txt"
+        test_file.write_text("dummy content")
+
+        # Call read_maxquant
+        result = read.read_maxquant(str(test_file))
+
+        # Verify NaNs in .X are replaced with 0 (after transpose)
+        assert not np.any(np.isnan(result.X)), "NaNs found in .X after preprocessing"
+
+        # Verify NaNs in layers are replaced with 0
+        if "pvals" in result.layers:
+            assert not np.any(
+                np.isnan(result.layers["pvals"])
+            ), "NaNs found in layers after preprocessing"
+
+        # Verify dimensions after transpose (proteins in obs, samples in var)
+        assert result.n_obs == 3  # 3 proteins
+        assert result.shape[1] == 3  # 3 samples

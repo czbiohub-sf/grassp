@@ -7,6 +7,7 @@ import anndata
 import numpy as np
 import pandas as pd
 import protdata
+import scipy.sparse
 
 # def read_alphastats(
 #     loader: alphastats.BaseLoader,
@@ -90,6 +91,26 @@ import protdata
 #     }
 #     adata.uns["proteins_as_obs"] = proteins_as_obs
 #     return adata
+
+
+def _preprocess_adata(adata: anndata.AnnData) -> anndata.AnnData:
+    """Preprocess an AnnData object."""
+
+    # Replace NaNs with 0 in .X
+    if isinstance(adata.X, np.ndarray):
+        adata.X = np.nan_to_num(adata.X, nan=0)
+    elif isinstance(adata.X, scipy.sparse.spmatrix):
+        adata.X.data = np.nan_to_num(adata.X.data, nan=0, copy=False)
+
+    # Replace NaNs with 0 in all layers
+    for layer in list(adata.layers.keys()):
+        arr = adata.layers[layer]
+        if isinstance(arr, np.ndarray):
+            adata.layers[layer] = np.nan_to_num(arr, nan=0, copy=False)
+        elif isinstance(arr, scipy.sparse.spmatrix):
+            adata.layers[layer].data = np.nan_to_num(arr.data, nan=0, copy=False)
+
+    return adata
 
 
 def read_prolocdata(file_name: str, allow_nullable_strings: bool = False) -> anndata.AnnData:
@@ -180,6 +201,7 @@ def read_prolocdata(file_name: str, allow_nullable_strings: bool = False) -> ann
     # Remove class version key if present
     metadata.pop(".__classVersion__", None)
     adata.uns["MIAPE_metadata"] = metadata
+    _preprocess_adata(adata)
 
     return adata
 
@@ -214,6 +236,7 @@ def read_maxquant(*args, **kwargs) -> anndata.AnnData:
     >>> adata = gr.io.read_maxquant('proteinGroups.txt')  # doctest: +SKIP
     """
     adata = protdata.io.read_maxquant(*args, **kwargs)
+    _preprocess_adata(adata)
     return adata.T
 
 
@@ -247,6 +270,7 @@ def read_fragpipe(*args, **kwargs) -> anndata.AnnData:
     >>> adata = gr.io.read_fragpipe('combined_protein.tsv')  # doctest: +SKIP
     """
     adata = protdata.io.read_fragpipe(*args, **kwargs)
+    _preprocess_adata(adata)
     return adata.T
 
 
@@ -280,4 +304,5 @@ def read_diann(*args, **kwargs) -> anndata.AnnData:
     >>> adata = gr.io.read_diann('report.tsv')  # doctest: +SKIP
     """
     adata = protdata.io.read_diann(*args, **kwargs)
+    _preprocess_adata(adata)
     return adata.T
