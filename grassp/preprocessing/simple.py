@@ -191,7 +191,7 @@ def filter_min_consecutive_fractions(
         if inplace:
             data.obs["consecutive_fractions"] = consecutive_fractions
     else:
-        groups = data.var.groupby(replicate_column)
+        groups = data.var.groupby(replicate_column, observed=True)
         protein_subset = np.repeat(0, repeats=data.n_obs)
         for _, g in groups:
             ad_sub = data[:, g.index].copy()
@@ -885,7 +885,8 @@ def calculate_replicate_cv(
     is_log: bool,
     layer: str | None = None,
     ignore_zeros: bool = True,
-) -> pd.DataFrame:
+    inplace: bool = True,
+) -> pd.DataFrame | None:
     """Calculate the coefficient of variation for each protein across replicates.
 
     Parameters
@@ -894,6 +895,23 @@ def calculate_replicate_cv(
         The annotated data matrix with proteins as observations (rows).
     grouping_columns
         Column name(s) in ``data.obs`` to group samples into replicates.
+    is_log
+        Whether the data is log-transformed, this determines the CV formula used.
+    layer
+        Layer to use for calculation, if None, the .X object is used.
+    ignore_zeros
+        Whether to ignore zero values.
+    inplace
+        Whether to modify data in place or return the result. If False, returns a :class:`~pandas.DataFrame` with the CVs.
+
+    Returns
+    -------
+    - If ``inplace=True``, modifies the input :class:`~anndata.AnnData` object and returns
+      ``None``. The following fields are added to the :class:`~anndata.AnnData` object:
+      - ``.obs["mean_replicate_cv"]``: Mean CV across replicates.
+      - ``.obsm["replicate_cv"]``: Replicate CVs per group.
+      - ``.uns["obsm_replicate_cv_headers"]``: Headers for the replicate CVs matrix.
+    - If ``inplace=False``, returns a :class:`~pandas.DataFrame` with the CVs per group.
     """
 
     if layer is not None:
@@ -901,10 +919,18 @@ def calculate_replicate_cv(
     else:
         X = data.X
 
-    groups = data.var.groupby(grouping_columns, sort=False)
+    groups = data.var.groupby(grouping_columns, sort=False, observed=True)
     # cvs = {name: calculate_cv(X_sub, is_log=is_log, axis=1, ignore_zeros=ignore_zeros) for name, g in groups}
     cvs = {
         name: _calculate_cv(X[:, g], is_log=is_log, axis=1, ignore_zeros=ignore_zeros)
         for name, g in groups.indices.items()
     }
-    return pd.DataFrame(cvs)
+    cvs_df = pd.DataFrame(cvs)
+
+    if inplace:
+        data.obs["mean_replicate_cv"] = cvs_df.mean(axis=1).values
+        data.obsm["replicate_cv"] = cvs_df.values
+        data.uns["obsm_replicate_cv_headers"] = cvs_df.columns.tolist()
+        return None
+    else:
+        return cvs_df
