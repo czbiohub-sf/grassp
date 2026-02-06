@@ -1,0 +1,9 @@
+{
+  "last-release-sha": "0e5c9229670117c9ae95bd5888c54ff71c4d7ae7",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "bump-minor-pre-major": true
+    }
+  }
+}
