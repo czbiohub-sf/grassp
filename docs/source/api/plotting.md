@@ -23,6 +23,7 @@ Many of [Scanpy's plotting](https://scanpy.readthedocs.io/en/stable/api/plotting
 
    pl.highly_variable_proteins
    pl.bait_volcano_plots
+   pl.marker_profiles
    pl.marker_profiles_split
    pl.protein_clustermap
    pl.sample_heatmap

@@ -413,3 +413,127 @@ def marker_profiles_split(
     if show:
         return None
     return axs
+
+
+def marker_profiles(
+    adata: AnnData,
+    marker_column: str,
+    plot_nan: bool = False,
+    error_type: str = 'std',
+    xticklabels: bool = False,
+    ylabel: str = 'Abundance',
+    replicate_column: str | None = None,
+    show: bool = True,
+    save: bool | str | None = None,
+) -> plt.Axes | None:
+    """Plot mean profiles with error bands for each marker annotation.
+
+    Creates a single plot showing the mean profile for each marker category
+    with shaded error regions (standard deviation or standard error).
+
+    This function assumes that ``adata.var`` is sorted by Replicate (if present)
+    and Fraction/Pulldown, so that related measurements are adjacent on the x-axis.
+
+    Parameters
+    ----------
+    adata
+        AnnData object with proteins in `.var` and samples/fractions in `.obs`.
+    marker_column
+        Column name in ``adata.obs`` containing marker annotations.
+    plot_nan
+        If ``True``, NaN entries in the marker column are included;
+        otherwise they are skipped.
+    error_type
+        Type of error to display: ``'std'`` for standard deviation or
+        ``'sem'`` for standard error of the mean. Default is ``'std'``.
+    xticklabels
+        If ``True``, label x-ticks with ``adata.var_names``.
+    ylabel
+        Label for the y-axis. Default is ``'Abundance'``.
+    replicate_column
+        Column name in ``adata.var`` indicating replicate groups. If provided,
+        vertical dashed lines are drawn at replicate boundaries (after the last
+        instance of each replicate).
+    show
+        If ``True`` (default) the plot is shown and the function returns ``None``.
+    save
+        If ``True`` or a ``str``, save the figure. A string is appended to the default filename.
+        Infer the filetype if ending on ``{'.pdf', '.png', '.svg'}``.
+
+    Returns
+    -------
+    Returns the Axes if ``show`` is ``False``, otherwise ``None``.
+
+    See Also
+    --------
+    marker_profiles_split : Plot individual profiles in separate subplots.
+    """
+    if error_type not in ['std', 'sem']:
+        raise ValueError("error_type must be 'std' or 'sem'")
+
+    # Prepare data
+    marker_series, categories, palette, replicate_boundaries = _prepare_marker_profile_data(
+        adata, marker_column, plot_nan, replicate_column
+    )
+
+    # Create figure
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    n_proteins = adata.n_vars
+
+    # Plot each category
+    for category in categories:
+        # Get samples in this category
+        if pd.isna(category):
+            mask = marker_series.isna()
+            category_name = "NaN"
+            color = "gray"
+        else:
+            mask = marker_series == category
+            category_name = str(category)
+            color = palette.get(category, "gray")
+
+        # Get data for this category (each row is a sample/fraction profile)
+        category_data = adata[mask, :].X
+
+        if category_data.shape[0] == 0:
+            continue
+
+        # Calculate mean and error
+        mean_profile = np.mean(category_data, axis=0)
+        if error_type == 'std':
+            error = np.std(category_data, axis=0)
+        else:  # 'sem'
+            error = np.std(category_data, axis=0) / np.sqrt(category_data.shape[0])
+
+        # Plot mean line with shaded error region
+        x = np.arange(n_proteins)
+        ax.plot(x, mean_profile, color=color, linewidth=2, label=category_name)
+        ax.fill_between(
+            x,
+            mean_profile - error,
+            mean_profile + error,
+            color=color,
+            alpha=0.2,
+        )
+
+    # Add vertical dashed lines at replicate boundaries
+    if replicate_boundaries:
+        for boundary in replicate_boundaries:
+            ax.axvline(boundary, color="gray", linestyle="--", linewidth=1, alpha=0.7)
+
+    ax.set_ylabel(ylabel)
+    ax.set_xlim(-0.5, n_proteins - 0.5)
+    ax.legend()
+
+    # Set x-tick labels if requested
+    if xticklabels:
+        ax.set_xticks(range(n_proteins))
+        ax.set_xticklabels(adata.var_names, rotation=90, ha="center")
+
+    plt.tight_layout()
+
+    _utils.savefig_or_show("marker_profiles", show=show, save=save)
+    if show:
+        return None
+    return ax
