@@ -476,6 +476,81 @@ class TestQCPlots:
 
         assert ax is not None
 
+    def test_marker_profiles_split_smoke(self):
+        """Verify marker_profiles_split executes without error."""
+        # Create small fractionation-style dataset
+        # Samples in obs, proteins in var
+        np.random.seed(42)
+        n_samples = 12  # 2 replicates × 6 fractions
+        n_proteins = 40
+
+        # Create sample/fraction metadata
+        obs_data = {
+            'Fraction': [f'F{i % 6 + 1}' for i in range(n_samples)],
+            'Replicate': [f'R{i // 6 + 1}' for i in range(n_samples)],
+            'Compartment': pd.Categorical(
+                ['Cytosol'] * 4 + ['Nucleus'] * 4 + ['Mitochondria'] * 4
+            ),
+        }
+        obs = pd.DataFrame(obs_data, index=[f'Sample{i}' for i in range(n_samples)])
+
+        # Create protein metadata
+        var_data = {
+            'Replicate': [f'R{i // (n_proteins // 2) + 1}' for i in range(n_proteins)],
+        }
+        var = pd.DataFrame(var_data, index=[f'P{str(i).zfill(5)}' for i in range(n_proteins)])
+
+        # Create intensity matrix with compartment-specific patterns
+        X = np.random.lognormal(mean=5, sigma=1, size=(n_samples, n_proteins))
+
+        adata = AnnData(X=X, obs=obs, var=var)
+
+        # Test basic plot
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            axs = qc.marker_profiles_split(
+                adata, marker_column='Compartment', n_columns=2, show=False
+            )
+
+        assert axs is not None
+
+        # Test with xticklabels
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            axs = qc.marker_profiles_split(
+                adata,
+                marker_column='Compartment',
+                xticklabels=True,
+                show=False,
+            )
+
+        assert axs is not None
+
+        # Test with replicate_column
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            axs = qc.marker_profiles_split(
+                adata,
+                marker_column='Compartment',
+                replicate_column='Replicate',
+                show=False,
+            )
+
+        assert axs is not None
+
+        # Test with custom ylabel and plot_mean
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            axs = qc.marker_profiles_split(
+                adata,
+                marker_column='Compartment',
+                ylabel='Log2 Intensity',
+                plot_mean=True,
+                show=False,
+            )
+
+        assert axs is not None
+
 
 # ==============================================================================
 # Ternary Plot Tests
