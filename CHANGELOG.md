@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.4](https://github.com/czbiohub-sf/grassp/compare/v0.0.3...v0.0.4) (2026-02-09)
+
+
+### Bug Fixes
+
+* bump version ([8867130](https://github.com/czbiohub-sf/grassp/commit/886713043206d580727e2a7823f7656dccc7e28f))
+* fetch tags in build ([d06132f](https://github.com/czbiohub-sf/grassp/commit/d06132f03748c888ec1f36915ac90e24c2953e93))
+
 ## [0.0.3](https://github.com/czbiohub-sf/grassp/compare/v0.0.3...v0.0.3) (2026-02-09)
 
 
