@@ -16,6 +16,7 @@ from anndata import AnnData
 
 from grassp.preprocessing import (
     annotation,
+    contaminants,
     enrichment,
     imputation,
     simple,
@@ -377,7 +378,7 @@ class TestOrgIPWorkflow:
 
         # Remove contaminants
         n_before = adata.n_obs
-        simple.remove_contaminants(
+        contaminants.remove_contaminants(
             adata,
             filter_columns=["Potential contaminant"],
             filter_value="+",
@@ -455,7 +456,7 @@ class TestDCWorkflow:
 
         # Remove contaminants
         n_before = adata.n_obs
-        simple.remove_contaminants(
+        contaminants.remove_contaminants(
             adata,
             filter_columns=["Potential contaminant"],
             filter_value="+",
@@ -728,7 +729,7 @@ class TestFilteringFunctions:
         )
         n_before = adata.n_obs
 
-        simple.remove_contaminants(
+        contaminants.remove_contaminants(
             adata,
             filter_columns=["Potential contaminant"],
             filter_value="+",
@@ -967,6 +968,7 @@ class TestUtilityFunctions:
             adata,
             grouping_columns="subcellular_enrichment",
             is_log=True,
+            inplace=False,
         )
 
         assert isinstance(cv_df, pd.DataFrame)
@@ -1002,7 +1004,7 @@ class TestErrorHandling:
         adata.obs = adata.obs.drop(columns=["Potential contaminant"])
 
         with pytest.raises(KeyError):
-            simple.remove_contaminants(
+            contaminants.remove_contaminants(
                 adata,
                 filter_columns=["Potential contaminant"],
                 filter_value="+",
