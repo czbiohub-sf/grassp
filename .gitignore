@@ -10,6 +10,8 @@ grassp/datasets/external/mmc*
 grassp/datasets/external/elife*
 grassp/datasets/external/uniprot_sp_accessions.tsv
 grassp/datasets/marker_curation/*.tsv
+grassp/datasets/marker_curation/*.md
+!grassp/datasets/marker_curation/README.md
 grassp/datasets/marker_curation/*.csv
 grassp/datasets/marker_curation/*.xlsx
 grassp/_version.py
