@@ -101,13 +101,19 @@ def knn_annotation(
     if inplace:
         data.obsm[f"{key_added}_probabilities"] = Y
         data.obsm[f"{key_added}_one_hot_labels"] = labels_one_hot
-        data.obs[f"{key_added}"] = labels.cat.categories[Y.argmax(axis=1)]
+        predicted = pd.Categorical(
+            labels.cat.categories[Y.argmax(axis=1)],
+            categories=labels.cat.categories,
+            ordered=labels.cat.ordered,
+        )
+        data.obs[f"{key_added}"] = predicted
         data.obs[f"{key_added}_probability"] = np.max(Y, axis=1)
         data.obs.loc[
             data.obs[f"{key_added}_probability"] < min_probability, f"{key_added}"
         ] = np.nan
         if f"{gt_col}_colors" in data.uns:
             data.uns[f"{key_added}_colors"] = data.uns[f"{gt_col}_colors"]
+
     else:
         return {
             "probabilities": Y,
