@@ -313,61 +313,6 @@ def longest_consecutive_run_per_row(a1: np.ndarray) -> np.ndarray:
     return max_lengths
 
 
-def remove_contaminants(
-    data: AnnData,
-    filter_columns: List[str] | None = None,
-    filter_value: str | None = None,
-    inplace: bool = True,
-) -> AnnData | None:
-    """Remove contaminant proteins from the data matrix.
-
-    Parameters
-    ----------
-    data
-        The annotated data matrix with proteins as observations (rows).
-    filter_columns
-        Column names in data.obs to use for filtering contaminants. If None, uses
-        columns specified in data.uns['RawInfo']['filter_columns'].
-    filter_value
-        If provided, first convert filter columns to boolean by comparing to this value.
-        If None, assumes filter columns are already boolean.
-    inplace
-        Whether to modify data in place or return a copy.
-
-    Returns
-    -------
-
-    * If `inplace=False`, returns filtered data.
-    * If `inplace=True`, returns None.
-
-    Examples
-    --------
-    >>> import grassp as gr
-    >>> adata = gr.datasets.hein_2024(enrichment="raw")
-    >>> adata.shape
-    (8538, 183)
-    >>> gr.pp.remove_contaminants(
-    ...     adata,
-    ...     filter_columns=['Potential contaminant'],
-    ...     filter_value='+'
-    ... )
-    >>> adata.shape  # Contaminants removed
-    (8538, 183)
-    """
-
-    if filter_columns is None:
-        filter_columns = data.uns["RawInfo"]["filter_columns"]
-    elif isinstance(filter_columns, str):
-        filter_columns = [filter_columns]
-
-    if filter_value is not None:
-        data.obs[filter_columns] = data.obs[filter_columns].eq(filter_value)
-    is_contaminant = data.obs[filter_columns].any(axis=1)
-    if not inplace:
-        return data.copy()[~is_contaminant, :]
-    data._inplace_subset_obs(data.obs.index[~is_contaminant])
-
-
 def aggregate_proteins(
     data: AnnData,
     grouping_columns: str | List[str],

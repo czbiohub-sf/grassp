@@ -1,4 +1,5 @@
 from .annotation import add_external_validation_markers, add_markers, annotate_uniprot_cc
+from .contaminants import remove_contaminants, remove_cRAP_proteins
 from .enrichment import calculate_enrichment_vs_all, calculate_enrichment_vs_untagged
 from .imputation import impute_gaussian, impute_knn
 from .simple import (
@@ -14,5 +15,4 @@ from .simple import (
     highly_variable_proteins,
     neighbors,
     normalize_total,
-    remove_contaminants,
 )
