@@ -30,7 +30,7 @@ MARKER_COLORS = {
     "TGN": "#2F2F2F",
     "ERGIC": "#E0B400",
     "Mitochondrion": "#F28E1C",
-    "Peroxisome": "#E61E73",
+    "Peroxisome": "#3F1861",
     "Lysosome": "#E41A1C",
     "Early endosome": "#6DBE45",
     "Endosome": "#6DBE45",
@@ -39,7 +39,7 @@ MARKER_COLORS = {
     "Centrosome": "#1F78B4",
     "Proteasome": "#D81B60",
     "P-body": "#333333",
-    "Stress granule": "#6DBF3A",
+    "Stress granule": "#559529",
     "14-3-3 scaffold": "#4D4D4D",
     # Mitochondrial subcompartments (red-orange-brown gradient)
     "Mitochondrion - IM": "#F28E1C",
