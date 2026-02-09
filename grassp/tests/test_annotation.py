@@ -286,3 +286,254 @@ def test_add_markers_colors_use_predefined():
     if "Cytosol" in categories:
         cytosol_idx = list(categories).index("Cytosol")
         assert colors[cytosol_idx] == "#1B9E9E", "Predefined color for Cytosol not used"
+
+
+# Tests for add_external_validation_markers
+
+
+def test_add_external_validation_markers_all_columns():
+    """Test adding all external validation marker columns."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    # Add all external validation markers
+    annotation.add_external_validation_markers(adata, species="hsap", columns=None)
+
+    # Check that some expected columns were added
+    expected_columns = [
+        "Topological domain",
+        "Transmembrane",
+        "has_signal",
+        "has_transmem",
+    ]
+    for col in expected_columns:
+        assert col in adata.obs.columns, f"Expected column {col} not found"
+
+
+def test_add_external_validation_markers_specific_columns():
+    """Test adding specific external validation marker columns."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    # Add only specific columns
+    annotation.add_external_validation_markers(
+        adata, species="hsap", columns=["Transmembrane", "has_signal"]
+    )
+
+    # Check that requested columns were added
+    assert "Transmembrane" in adata.obs.columns
+    assert "has_signal" in adata.obs.columns
+
+    # Check that other columns were NOT added
+    assert "Intramembrane" not in adata.obs.columns
+    assert "has_transmem" not in adata.obs.columns
+
+
+def test_add_external_validation_markers_single_column_as_string():
+    """Test adding a single column as string (not list)."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    # Add single column as string
+    annotation.add_external_validation_markers(adata, species="hsap", columns="Transmembrane")
+
+    # Check that column was added
+    assert "Transmembrane" in adata.obs.columns
+
+    # Check that at least some proteins were annotated
+    n_annotated = adata.obs["Transmembrane"].notna().sum()
+    assert n_annotated > 0, "No proteins were annotated"
+
+
+def test_add_external_validation_markers_missing_column_warning():
+    """Test that warning is raised when some columns are not found."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    # Request one valid and one invalid column
+    with pytest.warns(UserWarning, match="Some columns not found"):
+        annotation.add_external_validation_markers(
+            adata, species="hsap", columns=["Transmembrane", "nonexistent_column"]
+        )
+
+    # Check that valid column was still added
+    assert "Transmembrane" in adata.obs.columns
+
+
+def test_add_external_validation_markers_all_columns_missing_error():
+    """Test that error is raised when all requested columns are not found."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    # Request only invalid columns
+    with pytest.raises(ValueError, match="None of the specified columns"):
+        annotation.add_external_validation_markers(
+            adata, species="hsap", columns=["nonexistent1", "nonexistent2"]
+        )
+
+
+def test_add_external_validation_markers_invalid_species():
+    """Test that error is raised for invalid species."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    with pytest.raises(FileNotFoundError, match="Species not found"):
+        annotation.add_external_validation_markers(adata, species="invalid_species")
+
+
+def test_add_external_validation_markers_with_protein_id_column():
+    """Test using a specific column for protein IDs instead of obs_names."""
+    X = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=float)
+    obs = pd.DataFrame(
+        {
+            "uniprot_id": ["P17050", "P07858", "O43676"],
+            "gene_name": ["GENE1", "GENE2", "GENE3"],
+        },
+        index=["protein1", "protein2", "protein3"],
+    )
+    var = pd.DataFrame(index=["sample1", "sample2", "sample3"])
+    adata = AnnData(X=X, obs=obs, var=var)
+
+    # Use the uniprot_id column
+    annotation.add_external_validation_markers(
+        adata, species="hsap", uniprot_id_column="uniprot_id", columns=["Transmembrane"]
+    )
+
+    # Check that marker column was added
+    assert "Transmembrane" in adata.obs.columns
+
+    # Check that at least some proteins were annotated
+    n_annotated = adata.obs["Transmembrane"].notna().sum()
+    assert n_annotated > 0, "No proteins were annotated"
+
+
+def test_add_external_validation_markers_invalid_protein_id_column():
+    """Test that error is raised for invalid protein_id_column."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    with pytest.raises(ValueError, match="Column .* not found"):
+        annotation.add_external_validation_markers(
+            adata, species="hsap", uniprot_id_column="nonexistent_column"
+        )
+
+
+def test_add_external_validation_markers_annotations_content():
+    """Test that actual annotations are present and correct."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    annotation.add_external_validation_markers(
+        adata, species="hsap", columns=["Transmembrane"]
+    )
+
+    # Check that we have some non-null annotations
+    annotations = adata.obs["Transmembrane"].dropna()
+    assert len(annotations) > 0, "No annotations found"
+
+    # Annotations should be strings
+    assert all(isinstance(val, str) for val in annotations), "Annotations should be strings"
+
+
+def test_add_external_validation_markers_other_species():
+    """Test with a different species (mouse)."""
+    # Create test data with mouse UniProt IDs
+    X = np.array([[1, 2, 3], [4, 5, 6]], dtype=float)
+    # Use some mouse UniProt IDs from external_markers_mmus.tsv
+    obs = pd.DataFrame(index=["A2AJ15", "A2ATU0"])
+    var = pd.DataFrame(index=["sample1", "sample2", "sample3"])
+    adata = AnnData(X=X, obs=obs, var=var)
+
+    # Add mouse external validation markers
+    annotation.add_external_validation_markers(
+        adata, species="mmus", columns=["Transmembrane"]
+    )
+
+    # Check that marker column exists
+    assert "Transmembrane" in adata.obs.columns
+
+
+def test_add_external_validation_markers_no_matching_proteins():
+    """Test behavior when no proteins match the marker file."""
+    # Create test data with fake UniProt IDs
+    X = np.array([[1, 2, 3], [4, 5, 6]], dtype=float)
+    obs = pd.DataFrame(index=["FAKE001", "FAKE002"])
+    var = pd.DataFrame(index=["sample1", "sample2", "sample3"])
+    adata = AnnData(X=X, obs=obs, var=var)
+
+    # Add markers - should not error but should report 0 matches
+    annotation.add_external_validation_markers(
+        adata, species="hsap", columns=["Transmembrane"]
+    )
+
+    # Check that column was added but all values are NaN
+    assert "Transmembrane" in adata.obs.columns
+    assert (
+        adata.obs["Transmembrane"].isna().all()
+    ), "Expected all NaN for non-matching proteins"
+
+
+def test_add_external_validation_markers_preserves_existing_obs():
+    """Test that existing .obs columns are preserved."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    # Add some existing columns
+    adata.obs["existing_column"] = ["A", "B", "C", "D", "E"]
+
+    # Add markers
+    annotation.add_external_validation_markers(
+        adata, species="hsap", columns=["Transmembrane"]
+    )
+
+    # Check that existing column is still there
+    assert "existing_column" in adata.obs.columns
+    assert list(adata.obs["existing_column"]) == ["A", "B", "C", "D", "E"]
+
+
+def test_add_external_validation_markers_creates_categorical():
+    """Test that marker columns are categorical (except boolean columns)."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_external_validation_markers(
+        adata, species="hsap", columns=["Transmembrane", "has_signal"]
+    )
+
+    # Non-boolean columns should be categorical
+    assert isinstance(adata.obs["Transmembrane"].dtype, pd.CategoricalDtype)
+
+    # Boolean columns should stay as strings (not categorical)
+    assert not isinstance(adata.obs["has_signal"].dtype, pd.CategoricalDtype)
+
+
+def test_add_external_validation_markers_no_colors():
+    """Test that no colors are added to .uns (unlike add_markers)."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_external_validation_markers(
+        adata, species="hsap", columns=["Transmembrane"]
+    )
+
+    # Should NOT have colors added
+    assert "Transmembrane_colors" not in adata.uns
+
+
+def test_add_external_validation_markers_duplicate_column_error():
+    """Test that error is raised if column already exists."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    # Add a column that will conflict
+    adata.obs["Transmembrane"] = "existing_value"
+
+    # Try to add the same column
+    with pytest.raises(ValueError, match="Column .* already exists"):
+        annotation.add_external_validation_markers(
+            adata, species="hsap", columns=["Transmembrane"]
+        )
+
+
+def test_add_external_validation_markers_multiple_columns():
+    """Test adding multiple columns at once."""
+    adata = make_test_anndata_with_uniprot_ids()
+    annotation.add_external_validation_markers(
+        adata, species="hsap", columns=["Transmembrane", "has_signal", "has_transmem"]
+    )
+
+    # Check all were added
+    assert "Transmembrane" in adata.obs.columns
+    assert "has_signal" in adata.obs.columns
+    assert "has_transmem" in adata.obs.columns
+
+    # Check categorical types
+    assert isinstance(adata.obs["Transmembrane"].dtype, pd.CategoricalDtype)
+    assert not isinstance(adata.obs["has_signal"].dtype, pd.CategoricalDtype)
+    assert not isinstance(adata.obs["has_transmem"].dtype, pd.CategoricalDtype)

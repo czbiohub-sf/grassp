@@ -494,6 +494,168 @@ def annotate_uniprot_cc(
     )
 
 
+def add_external_validation_markers(
+    data: AnnData,
+    species: str,
+    columns: list[str] | str | None = None,
+    uniprot_id_column: str | None = None,
+) -> None:
+    """Annotate proteins with external validation markers (MitoCarta, topology, etc.).
+
+    Matches protein IDs in ``.obs`` against curated external marker datasets
+    that include protein topology annotations, signal peptides, transmembrane
+    domains, and MitoCarta annotations. These markers are useful for validating
+    subcellular localization predictions.
+
+    Available columns include:
+
+    * ``Topological domain``: UniProt topology annotations
+    * ``Transmembrane``: Transmembrane domain annotations (e.g., "Helical")
+    * ``Intramembrane``: Intramembrane domain annotations
+    * ``Signal peptide``: Signal peptide annotations
+    * ``has_signal``: Boolean indicating presence of signal peptide
+    * ``has_transmem``: Boolean indicating presence of transmembrane domain
+    * ``has_intramem``: Boolean indicating presence of intramembrane domain
+    * ``has_topo_dom``: Boolean indicating presence of topological domain
+    * ``mitocarta``: MitoCarta annotation (human/mouse only)
+    * ``mitocarta_evidence``: MitoCarta evidence code (human/mouse only)
+    * ``mitocarta_subloc``: MitoCarta subcellular location (human/mouse only)
+
+    This function modifies the AnnData object in-place by adding annotation
+    columns to ``.obs``.
+
+    Parameters
+    ----------
+    data
+        AnnData object.
+    species
+        Species code to determine which marker file to read. Examples: 'hsap'
+        (human), 'mmus' (mouse), 'scer' (yeast), 'atha' (Arabidopsis), 'dmel'
+        (fly).
+    columns
+        Specific column(s) to include from the marker file. If None, includes
+        all available columns. Can be a single column name (string) or a list
+        of column names.
+    uniprot_id_column
+        Column in ``.obs`` containing UniProt IDs. If None, uses ``.obs_names``.
+
+    Returns
+    -------
+    None
+        Modifies ``data.obs`` in-place by adding marker annotation columns
+        (converted to categorical dtype for string columns).
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> import pandas as pd
+    >>> adata = gr.datasets.hein_2024(enrichment='raw')
+    >>> # Add all external validation markers
+    >>> gr.pp.add_external_validation_markers(adata, species='hsap')  # doctest: +ELLIPSIS
+    Added Topological domain annotations for ...
+    >>> # Add specific columns only
+    >>> gr.pp.add_external_validation_markers(
+    ...     adata, species='hsap',
+    ...     columns=['mitocarta', 'has_transmem']
+    ... )  # doctest: +ELLIPSIS
+    Added mitocarta annotations for ...
+
+    """
+    # Construct file path
+    module_path = Path(__file__).parent.parent
+    marker_file = module_path / "datasets" / "external" / f"external_markers_{species}.tsv"
+
+    # Get available species
+    marker_dir = module_path / "datasets" / "external"
+    available_species = [
+        f.stem.replace("external_markers_", "")
+        for f in marker_dir.glob("external_markers_*.tsv")
+        if f.is_file()
+    ]
+
+    if not marker_file.exists():
+        raise FileNotFoundError(
+            f"Species not found: {species}. "
+            f"Please use one of the available species: {available_species}"
+        )
+
+    # Read marker file
+    markers_df = pd.read_csv(marker_file, sep="\t", dtype=str, index_col="id")
+
+    # Get all available columns (everything except id, which is the index)
+    all_columns = [col for col in markers_df.columns]
+
+    # Determine which columns to include
+    if columns is None:
+        # Include all columns
+        columns_to_include = all_columns
+    else:
+        # Convert single string to list
+        if isinstance(columns, str):
+            columns = [columns]
+
+        # Check which columns are available
+        available_columns = set(all_columns)
+        requested_columns = set(columns)
+
+        found_columns = requested_columns & available_columns
+        missing_columns = requested_columns - available_columns
+
+        if not found_columns:
+            raise ValueError(
+                f"None of the specified columns {list(requested_columns)} "
+                f"were found in the marker file. "
+                f"Available columns: {list(available_columns)}"
+            )
+
+        if missing_columns:
+            warnings.warn(
+                f"Some columns not found in marker file: {list(missing_columns)}. "
+                f"Available columns: {list(available_columns)}. "
+                f"Proceeding with: {list(found_columns)}"
+            )
+
+        columns_to_include = list(found_columns)
+
+    # Raise if any of the new columns already exist
+    for col in columns_to_include:
+        if col in data.obs.columns:
+            raise ValueError(
+                f"Column '{col}' already exists in data.obs.columns. "
+                f"Please remove/rename the column before adding markers."
+            )
+
+    # Extract protein IDs from AnnData
+    if uniprot_id_column is None:
+        data.obs = data.obs.join(markers_df.loc[:, columns_to_include])
+    else:
+        if uniprot_id_column not in data.obs.columns:
+            raise ValueError(f"Column '{uniprot_id_column}' not found in data.obs.columns")
+        data.obs = data.obs.merge(
+            markers_df.loc[:, columns_to_include],
+            left_on=uniprot_id_column,
+            right_index=True,
+            how="left",
+            sort=False,
+        )
+
+    # Convert string columns to categorical
+    for col in columns_to_include:
+        # Convert non-boolean string columns to categorical
+        # Boolean columns (has_signal, has_transmem, etc.) should stay as strings
+        if not col.startswith("has_"):
+            data.obs[col] = pd.Categorical(data.obs[col])
+
+    # Report statistics
+    for col in columns_to_include:
+        n_proteins = len(data.obs)
+        n_annotated = sum(~data.obs[col].isna())
+        print(
+            f"Added {col} annotations for {n_annotated}/{n_proteins} proteins "
+            f"({n_annotated / n_proteins * 100:.1f}%)"
+        )
+
+
 def add_markers(
     data: AnnData,
     species: str,

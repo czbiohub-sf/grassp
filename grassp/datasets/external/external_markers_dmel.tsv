@@ -1,0 +1,1159 @@
+id	Topological domain	Transmembrane	Intramembrane	Signal peptide	has_signal	has_transmem	has_intramem	has_topo_dom
+A0A0B4K692	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+A0A0B4KEE4		Helical			False	True	False	False
+A0A0B4LFY9		Helical			False	True	False	False
+A0A0B7P9G0	Extracellular; Cytoplasmic	Helical			True	True	False	True
+A0A0U1QT59	Cytoplasmic; Extracellular	Helical			False	True	False	True
+A0A126GUP6					True	False	False	False
+A0A1F4	Cytoplasmic; Extracellular	Helical			False	True	False	True
+A1Z6H7	Perinuclear space; Cytoplasmic	Helical			True	True	False	True
+A1Z7G7	Extracellular; Cytoplasmic	Helical			False	True	False	True
+A1Z7L8	Extracellular; Cytoplasmic	Helical			True	True	False	True
+A1Z7R6		Helical			False	True	False	False
+A1Z877					True	False	False	False
+A1Z8N1	Cytoplasmic; Extracellular	Helical			False	True	False	True
+A1Z8R8	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+A1ZAG4	Cytoplasmic; Lumenal	Helical			False	True	False	True
+A1ZBD6		Helical			False	True	False	False
+A2VEY9		Helical			False	True	False	False
+A4VCL2	Cytoplasmic; Lumenal	Helical			False	True	False	True
+A8DYE2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+A8JUP7					True	False	False	False
+A8JUV4					True	False	False	False
+B5A5T4	Extracellular; Cytoplasmic	Helical			True	True	False	True
+B7TB45					True	False	False	False
+B7YZU2	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+C0HK98					True	False	False	False
+C0HK99					True	False	False	False
+C0HKQ7					True	False	False	False
+C0HKQ8					True	False	False	False
+C0HLZ9					True	False	False	False
+C0HM00					True	False	False	False
+E1JIB2		Helical			False	True	False	False
+E9NA96	Extracellular; Cytoplasmic	Helical			True	True	False	True
+F3YDF1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+M9MRD1	Cytoplasmic; Perinuclear space	Helical; Anchor for type IV membrane protein			False	True	False	True
+M9MSG8		Helical			False	True	False	False
+M9NDE3	Extracellular; Cytoplasmic	Helical			True	True	False	True
+M9PE65	Extracellular; Cytoplasmic	Helical			True	True	False	True
+O01346	Cytoplasmic; Lumenal	Helical			False	True	False	True
+O01404					True	False	False	False
+O01668	Extracellular; Cytoplasmic	Helical			False	True	False	True
+O02194	Cytoplasmic; Lumenal	Helical	Helical		False	True	True	True
+O02372					True	False	False	False
+O15943	Extracellular; Cytoplasmic	Helical			True	True	False	True
+O16829					True	False	False	False
+O18412	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
+O44342					True	False	False	False
+O44386	Extracellular; Cytoplasmic	Helical			True	True	False	True
+O46084		Helical			False	True	False	False
+O46197					True	False	False	False
+O61307	Cytoplasmic; Extracellular	Helical			False	True	False	True
+O61365	Cytoplasmic; Extracellular	Helical			False	True	False	True
+O61643					True	False	False	False
+O62589					True	False	False	False
+O77150					True	False	False	False
+O77277					True	False	False	False
+O96690					True	False	False	False
+O97148	Extracellular; Cytoplasmic	Helical			True	True	False	True
+O97394	Extracellular; Cytoplasmic	Helical			True	True	False	True
+O97422	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+P02843					True	False	False	False
+P02844					True	False	False	False
+P04412	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P04755	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P04950	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P05049					True	False	False	False
+P05623					True	False	False	False
+P06002	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P06607					True	False	False	False
+P07140					True	False	False	False
+P07207	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P07713					True	False	False	False
+P08099	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P08120					True	False	False	False
+P08144					True	False	False	False
+P08171					True	False	False	False
+P08255	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P08510	Cytoplasmic; Extracellular	Helical; Helical; Voltage-sensor	Helical		False	True	True	True
+P08953	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P09040					True	False	False	False
+P09208	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P09478	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P09615					True	False	False	False
+P09957					True	False	False	False
+P10040	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P10041	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P10090	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P10333					True	False	False	False
+P10552					True	False	False	False
+P10674					True	False	False	False
+P11046					True	False	False	False
+P11449					True	False	False	False
+P11584	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P12024					True	False	False	False
+P12080	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P12428	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P13238					True	False	False	False
+P13368	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P13582					True	False	False	False
+P13607		Helical			False	True	False	False
+P13709		Helical			False	True	False	False
+P14599	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P14773		Helical			False	True	False	False
+P14956					True	False	False	False
+P15215					True	False	False	False
+P15278	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P15425		Helical			True	True	False	False
+P16395	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P16620	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P16621	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P17644	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P17970		Helical			False	True	False	False
+P17971		Helical			False	True	False	False
+P17972		Helical; Helical; Voltage-sensor			False	True	False	False
+P18168	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P18170					True	False	False	False
+P18171					True	False	False	False
+P18475	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P18489	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
+P18502	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P18537	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P19334	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P20241	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P20350	Cytoplasmic; Lumenal	Helical			False	True	False	True
+P20905	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P21520					True	False	False	False
+P21521	Vesicular; Cytoplasmic	Helical			False	True	False	True
+P22270	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P22700	Cytoplasmic; Lumenal	Helical			False	True	False	True
+P22815	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P23380	Lumenal; Cytoplasmic	Helical			False	True	False	True
+P23645	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P23654	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+P24014					True	False	False	False
+P24492					True	False	False	False
+P25123	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P25162	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P25722	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+P25723					True	False	False	False
+P26016		Helical			True	True	False	False
+P27091					True	False	False	False
+P27716	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P28285	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P28286	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P28465					True	False	False	False
+P28466					True	False	False	False
+P29413					True	False	False	False
+P29844					True	False	False	False
+P29993	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P30430		Helical			True	True	False	False
+P30432	Cytoplasmic	Helical			True	True	False	True
+P30974	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P30975	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P32870	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P33085	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P33438					True	False	False	False
+P33450	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P34082	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P35500	Cytoplasmic; Extracellular	Helical; Helical; Voltage-sensor	Pore-forming		False	True	True	True
+P35832	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P35992	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P36193					True	False	False	False
+P40589					True	False	False	False
+P40689					True	False	False	False
+P40795					True	False	False	False
+P41596	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P41964					True	False	False	False
+P42287	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P42519	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+P42787	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P45843	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P48607					True	False	False	False
+P48994	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P49283		Helical			False	True	False	False
+P49415	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P49858	Lumenal; Cytoplasmic	Helical			False	True	False	True
+P51905	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P53624	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+P54191					True	False	False	False
+P54356					True	False	False	False
+P54360	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+P54399					True	False	False	False
+P54631					True	False	False	False
+P55162		Helical			False	True	False	False
+P56079		Helical			False	True	False	False
+P58957	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P61849					True	False	False	False
+P61855					True	False	False	False
+P81160					True	False	False	False
+P81641					True	False	False	False
+P81829					True	False	False	False
+P81909	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81910	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81912	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81917	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P82705					True	False	False	False
+P82706					True	False	False	False
+P83094	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P83293	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P83869					True	False	False	False
+P91645	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P91657	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P91679		Helical			False	True	False	False
+P91682	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P91685	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P91927		Helical			False	True	False	False
+P91928		Helical			False	True	False	False
+P98159					True	False	False	False
+P98163	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q00174					True	False	False	False
+Q00449	Cytoplasmic	Helical			False	True	False	True
+Q00725					True	False	False	False
+Q00748	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q00805					True	False	False	False
+Q01083	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q01603					True	False	False	False
+Q01819					True	False	False	False
+Q02280	Cytoplasmic; Extracellular	Helical; Helical; Voltage-sensor	Pore-forming		False	True	True	True
+Q02936					True	False	False	False
+Q03445	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q03720	Extracellular; Cytoplasmic	Helical; Helical; Voltage-sensor	Pore-forming		False	True	True	True
+Q04164	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q05319	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q06003	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q07171					True	False	False	False
+Q07407	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q08180	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q09024					True	False	False	False
+Q09101					True	False	False	False
+Q09147	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q09332					True	False	False	False
+Q0E9H9	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q0KHU5	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q0KHV6	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
+Q0KHY3	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q10714					True	False	False	False
+Q1JUZ1		Helical			False	True	False	False
+Q23997					True	False	False	False
+Q24025	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q24046	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q24048	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q24049					True	False	False	False
+Q24114					True	False	False	False
+Q24139	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q24157	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q24238		Helical			True	True	False	False
+Q24247	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q24270	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q24292	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q24298	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q24322	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q24323					True	False	False	False
+Q24342	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q24352	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q24372					True	False	False	False
+Q24395					True	False	False	False
+Q24418	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q24451	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q24468	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q24488	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q24498	Cytoplasmic	Helical	Pore-forming		False	True	True	True
+Q24509	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q24547	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q24563	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q24567					True	False	False	False
+Q24568					True	False	False	False
+Q26365		Helical			False	True	False	False
+Q26377					True	False	False	False
+Q27324	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q27333	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q27367	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q27591	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q27597	Lumenal; Cytoplasmic	Helical			False	True	False	True
+Q3KN41	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q4LBB6	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q4LBB9	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q4V4I9					True	False	False	False
+Q4V622	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q6AWJ9	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q6IGX9					True	False	False	False
+Q6NN55		Helical			False	True	False	False
+Q6NP91	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q6WV16	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q6WV17	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q6WV19	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q6WV20	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q709R6		Helical			False	True	False	False
+Q70PY2					True	False	False	False
+Q76NQ1	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q7JQ32	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q7JQF1	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q7JR71					True	False	False	False
+Q7JRE4	Nuclear; Perinuclear space	Helical			False	True	False	True
+Q7K1V5	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q7K237	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q7K4Y6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q7K5M0					True	False	False	False
+Q7KIN0	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q7KN92	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q7KRU8					True	False	False	False
+Q7KRW1		Helical			False	True	False	False
+Q7KUD5					True	False	False	False
+Q7KVA1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q7KVW5		Helical	Pore-forming		False	True	True	False
+Q7KVY7	Cytoplasmic	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q7YU24	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
+Q7Z020	Cytoplasmic; Extracellular	Helical	Pore-forming		False	True	True	True
+Q7Z2C4	Lumenal; Cytoplasmic	Helical; Signal-anchor for type III membrane protein			False	True	False	True
+Q868Z9					True	False	False	False
+Q86B61		Helical			False	True	False	False
+Q86BE9	Lumenal; Cytoplasmic	Helical			False	True	False	True
+Q86BJ3	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8I0P1	Cytoplasmic		Helical		False	False	True	True
+Q8IA42	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8IA43	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8IGJ0		Helical			False	True	False	False
+Q8IMX7	Cytoplasmic; Mitochondrial intermembrane	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q8IMZ9		Helical			False	True	False	False
+Q8IN35	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q8IN44					True	False	False	False
+Q8INK6					True	False	False	False
+Q8IQ70	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q8IRI6	Cytoplasmic; Extracellular	Helical			True	True	False	True
+Q8IS44	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q8ITC7	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q8ITC9	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q8MLV1		Helical			False	True	False	False
+Q8MLZ7					True	False	False	False
+Q8MM24					True	False	False	False
+Q8MPP0	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q8MPP3	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q8MRC9	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8MS59		Helical			False	True	False	False
+Q8MUJ1	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8MV48	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8MVS5	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8MYY6	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8SWV6		Helical			False	True	False	False
+Q8SX37	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q8SXL2					True	False	False	False
+Q8SXQ7		Helical			False	True	False	False
+Q8SXY6	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q8T045					True	False	False	False
+Q8T062	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8T9B6					True	False	False	False
+Q8WSF3					True	False	False	False
+Q94515		Helical			False	True	False	False
+Q94526	Cytoplasmic	Helical	Pore-forming		False	True	True	True
+Q94887	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q94900	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q94918					True	False	False	False
+Q94920		Beta stranded			False	True	False	False
+Q95029					True	False	False	False
+Q95078		Helical			False	True	False	False
+Q95NH6					True	False	False	False
+Q95RU0	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q95SP2	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q95ST2	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q95T12	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q95T64	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q95TU8	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q95YI5		Helical			False	True	False	False
+Q967D7	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9GNK5	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9GPJ1					True	False	False	False
+Q9GQQ0		Helical			False	True	False	False
+Q9I7K5	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q9NDM2	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9NHA8					True	False	False	False
+Q9NHB0					True	False	False	False
+Q9NIP6					True	False	False	False
+Q9NIV1	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q9U4G1	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9U4H5	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9U6A0	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9U6B8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9U969	Lumenal; Cytoplasmic	Helical			False	True	False	True
+Q9V3A4		Helical			False	True	False	False
+Q9V3C5		Helical			False	True	False	False
+Q9V3D4					True	False	False	False
+Q9V3L1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9V3N1					True	False	False	False
+Q9V3N2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V3R1					True	False	False	False
+Q9V3R8		Helical			False	True	False	False
+Q9V3X4	Cytoplasmic; Lumenal	Helical			True	True	False	True
+Q9V3Z2					True	False	False	False
+Q9V422	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V427	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V438					True	False	False	False
+Q9V477	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V492		Helical			False	True	False	False
+Q9V496					True	False	False	False
+Q9V4A7	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V4K2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V4X2					True	False	False	False
+Q9V576		Helical			False	True	False	False
+Q9V5E1	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V5N8	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V6G5	Mitochondrial intermembrane				False	False	True	True
+Q9V6K3	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V6X7					True	False	False	False
+Q9V730	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9V7A4	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V7H4	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q9V7W1	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9V7Y2	Lumenal; Cytoplasmic	Helical; Signal-anchor for type III membrane protein			False	True	False	True
+Q9V8F5					True	False	False	False
+Q9V8G0					True	False	False	False
+Q9V8Y9					True	False	False	False
+Q9V9Y4	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VA70					True	False	False	False
+Q9VA73	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
+Q9VA83					True	False	False	False
+Q9VAC5	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VAF0		Helical			False	True	False	False
+Q9VAF5	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VAJ3		Helical			False	True	False	False
+Q9VAQ8	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VAS7	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VB46	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VB68					True	False	False	False
+Q9VBC7					True	False	False	False
+Q9VBV3					True	False	False	False
+Q9VBW3	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VBZ9	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VC27	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VC44					True	False	False	False
+Q9VC47					True	False	False	False
+Q9VC57	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VCJ8					True	False	False	False
+Q9VCR3					True	False	False	False
+Q9VCY8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VCZ3	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VD73	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VD83					True	False	False	False
+Q9VDD3	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VDG1					True	False	False	False
+Q9VDG5	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VEG6					True	False	False	False
+Q9VEI3		Helical			False	True	False	False
+Q9VER6					True	False	False	False
+Q9VET0					True	False	False	False
+Q9VEV4		Helical			False	True	False	False
+Q9VEX0					True	False	False	False
+Q9VF14		Helical			False	True	False	False
+Q9VFC2					True	False	False	False
+Q9VFJ3		Helical			False	True	False	False
+Q9VFS6		Helical			False	True	False	False
+Q9VFX1					True	False	False	False
+Q9VFX3		Helical			False	True	False	False
+Q9VG08					True	False	False	False
+Q9VG09					True	False	False	False
+Q9VG55					True	False	False	False
+Q9VGE8					True	False	False	False
+Q9VGH7	Cytoplasmic	Helical	Helical; Note=Loop between two helices		False	True	True	True
+Q9VGN7	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
+Q9VGY6					True	False	False	False
+Q9VH14					True	False	False	False
+Q9VH58		Helical			False	True	False	False
+Q9VHG4	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q9VHQ7	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VHR8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VHV5			Note=Mediates targeting to membranes		False	False	True	False
+Q9VI20	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VIA5		Helical			True	True	False	False
+Q9VIH3					True	False	False	False
+Q9VII1		Helical			True	True	False	False
+Q9VII3	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VIK2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VIQ0					True	False	False	False
+Q9VJ83	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VJJ7	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VJN9					True	False	False	False
+Q9VJS7					True	False	False	False
+Q9VKA0	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q9VKA5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VKD7	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
+Q9VKJ7	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VLA1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VLJ6					True	False	False	False
+Q9VLK4					True	False	False	False
+Q9VLM5	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VLQ1	Lumenal; Cytoplasmic	Helical			False	True	False	True
+Q9VM08	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VM64	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VMA7	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VMD5		Helical			False	True	False	False
+Q9VMD9					True	False	False	False
+Q9VMH0	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VMK3					True	False	False	False
+Q9VMM6					True	False	False	False
+Q9VMU8		Helical			False	True	False	False
+Q9VN14					True	False	False	False
+Q9VNB5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VNJ5		Helical			False	True	False	False
+Q9VNM1	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VP76	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VP95					True	False	False	False
+Q9VPD3	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VPF0					True	False	False	False
+Q9VPQ2					True	False	False	False
+Q9VPR7	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VPT1	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VQ62					True	False	False	False
+Q9VQG2		Helical			False	True	False	False
+Q9VQG9					True	False	False	False
+Q9VQH2	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VQK4	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VQK9	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VR07	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VRC9	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VRG7		Helical			False	True	False	False
+Q9VRJ2	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VRQ9					True	False	False	False
+Q9VRR2	Cytoplasmic; Extracellular	Helical; Discontinuously helical	Helical		False	True	True	True
+Q9VRX6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VS29	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VS60	Cytoplasmic	Helical			False	True	False	True
+Q9VS97					True	False	False	False
+Q9VSB9	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VSH2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VSH3	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VSL7	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VT04		Helical			False	True	False	False
+Q9VT51					True	False	False	False
+Q9VT52					True	False	False	False
+Q9VT92	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VTG7	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VTH0					True	False	False	False
+Q9VTK2		Helical			False	True	False	False
+Q9VTM6	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VTN0	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VTT0		Helical			True	True	False	False
+Q9VTZ5					True	False	False	False
+Q9VUL9	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VUN0	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VUT6	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VUW9	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VUX3					True	False	False	False
+Q9VV72					True	False	False	False
+Q9VV87		Helical			False	True	False	False
+Q9VVA8	Cytoplasmic; Perinuclear space	Helical			False	True	False	True
+Q9VVD9		Helical			False	True	False	False
+Q9VVF7					True	False	False	False
+Q9VVH9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VVL1	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VVT2		Helical			False	True	False	False
+Q9VVX3	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VVX5		Helical			False	True	False	False
+Q9VW60	Cytoplasmic	Helical			False	True	False	True
+Q9VW71	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VW78		Helical			True	True	False	False
+Q9VWE0	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VWS4	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VWU1					True	False	False	False
+Q9VWV9		Helical			False	True	False	False
+Q9VX31		Helical			False	True	False	False
+Q9VXD9	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VXM0	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VY78		Helical; Note=After insertion into the membrane			False	True	False	False
+Q9VYB0					True	False	False	False
+Q9VYB7	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VYN8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VYV3					True	False	False	False
+Q9VYX7					True	False	False	False
+Q9VZ21	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VZ49					True	False	False	False
+Q9VZH2					True	False	False	False
+Q9VZJ6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VZJ9	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9VZL7	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VZU2		Helical			False	True	False	False
+Q9VZW5	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VZX1					True	False	False	False
+Q9VZZ4					True	False	False	False
+Q9W056	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W092					True	False	False	False
+Q9W0A0	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9W0C1	Cytoplasmic; Vesicular	Helical			False	True	False	True
+Q9W0G1	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W0H3		Helical			False	True	False	False
+Q9W0I6	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9W0T5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W0W6					True	False	False	False
+Q9W0Y6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W0Y8	Cytoplasmic; Extracellular	Helical; Helical; Voltage-sensor	Pore-forming		False	True	True	True
+Q9W192					True	False	False	False
+Q9W1C5		Helical			False	True	False	False
+Q9W1M8	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9W266	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9W2M2					True	False	False	False
+Q9W303					True	False	False	False
+Q9W345	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W365		Helical			True	True	False	False
+Q9W3C7					True	False	False	False
+Q9W3F7		Helical			False	True	False	False
+Q9W3T7	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9W3W5					True	False	False	False
+Q9W429		Helical			False	True	False	False
+Q9W436	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9W462		Helical			False	True	False	False
+Q9W497	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W4C5	Cytoplasmic	Helical			False	True	False	True
+Q9W4V8	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9W4Y2	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9W534	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9W589					True	False	False	False
+Q9W5A5	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9W5D4		Helical			False	True	False	False
+Q9W5Y0	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9XZ08	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9XZ63					True	False	False	False
+Q9Y0E4	Cytoplasmic; Perinuclear space	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q9Y117	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9Y169	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+A0A0B4K753	Lumenal; Cytoplasmic	Helical			False	True	False	True
+A1Z746		Helical			False	True	False	False
+A1ZA77		Helical			False	True	False	False
+A1ZAX0	Extracellular; Cytoplasmic	Helical			False	True	False	True
+A6MHQ4		Helical			False	True	False	False
+B7YZT2	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
+B7Z0X7	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+C0HJH4		Helical			False	True	False	False
+G5CKU5					True	False	False	False
+O18408					True	False	False	False
+O46077	Cytoplasmic; Extracellular	Helical			False	True	False	True
+O46101	Cytoplasmic; Extracellular	Helical			False	True	False	True
+O46107					True	False	False	False
+O77438	Extracellular; Cytoplasmic	Helical			True	True	False	True
+O77475	Lumenal; Cytoplasmic	Helical			False	True	False	True
+P00399		Helical			False	True	False	False
+P00408	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
+P00850		Helical			False	True	False	False
+P10334					True	False	False	False
+P10379	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P11997					True	False	False	False
+P15364					True	False	False	False
+P17207					True	False	False	False
+P18167					True	False	False	False
+P18169					True	False	False	False
+P18173					True	False	False	False
+P18490		Helical			False	True	False	False
+P18935		Helical			False	True	False	False
+P21663					True	False	False	False
+P25931	Extracellular; Cytoplasmic	Helical			False	True	False	True
+P29615					True	False	False	False
+P29681					True	False	False	False
+P32748	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+P36192					True	False	False	False
+P37159					True	False	False	False
+P37161					True	False	False	False
+P45884					True	False	False	False
+P48613	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58956	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58958	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58959	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81911	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81913	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81914	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81915	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81916	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81918	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81919	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81921	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81922	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81923	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P82701					True	False	False	False
+P83292	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P83294	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P83297	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P83972					True	False	False	False
+P91660		Helical			False	True	False	False
+Q07553	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q07892					True	False	False	False
+Q08832	Extracellular; Cytoplasmic	Helical		Or 27	True	True	False	True
+Q0E8C8					True	False	False	False
+Q0E8F2	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
+Q0E961		Helical			False	True	False	False
+Q24093	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q24278	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q24388					True	False	False	False
+Q4V5R4		Helical			False	True	False	False
+Q4V645					True	False	False	False
+Q59DY5					True	False	False	False
+Q59DY6					True	False	False	False
+Q59E04					True	False	False	False
+Q7JR49	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q7JUN3		Helical			False	True	False	False
+Q7JX57		Helical			False	True	False	False
+Q7JXF7					True	False	False	False
+Q7JYV2		Helical			False	True	False	False
+Q7K4B6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q7K566		Helical			False	True	False	False
+Q7KT91	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q7YTY6					True	False	False	False
+Q868T3	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q86LG1		Helical			False	True	False	False
+Q8IA41	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8IN41					True	False	False	False
+Q8IN42					True	False	False	False
+Q8IN43					True	False	False	False
+Q8INV7					True	False	False	False
+Q8IP68					True	False	False	False
+Q8MKK4	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8MR45					True	False	False	False
+Q8MSU3		Helical			False	True	False	False
+Q8SWR3	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q8SZ63	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q8T0R7					True	False	False	False
+Q95RA9					True	False	False	False
+Q95T10					True	False	False	False
+Q961C9	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q9NBW1	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9U4F3		Helical			False	True	False	False
+Q9U6L4	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9V3A6					True	False	False	False
+Q9V3Q2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V3W6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V498	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V4N3		Helical			False	True	False	False
+Q9V5Z7	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V6A9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V6H2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V751					True	False	False	False
+Q9V7U0					True	False	False	False
+Q9V818	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V9I2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V9I4	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VAK8					True	False	False	False
+Q9VAL0	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VAY3		Helical			False	True	False	False
+Q9VAZ3	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VB11		Helical			False	True	False	False
+Q9VBL5	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VBV8		Helical			False	True	False	False
+Q9VC35	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VCK1					True	False	False	False
+Q9VCR7	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q9VCS8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VCW0					True	False	False	False
+Q9VD76	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VDD1	Lumenal; Cytoplasmic	Helical			False	True	False	True
+Q9VDD7	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VDH4					True	False	False	False
+Q9VDH6	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VE50	Cytoplasmic	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q9VGP2					True	False	False	False
+Q9VGW1	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VHS2	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9VHS7		Helical			False	True	False	False
+Q9VHT4		Helical			False	True	False	False
+Q9VHX7		Helical			False	True	False	False
+Q9VIP7		Helical			False	True	False	False
+Q9VIR2					True	False	False	False
+Q9VJB6		Helical			False	True	False	False
+Q9VK50	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VKH6					True	False	False	False
+Q9VKI3					True	False	False	False
+Q9VKJ8					True	False	False	False
+Q9VL32	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VL84		Helical			False	True	False	False
+Q9VLU4					True	False	False	False
+Q9VLV7					True	False	False	False
+Q9VM09	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VM51		Helical			False	True	False	False
+Q9VML9	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VN12	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VN13		Helical			False	True	False	False
+Q9VN93					True	False	False	False
+Q9VNB3	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VPI2		Helical			True	True	False	False
+Q9VPN2	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VPT5	Peroxisomal matrix; Cytoplasmic	Helical			False	True	False	True
+Q9VQ29	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9VQ37		Helical			False	True	False	False
+Q9VQB7					True	False	False	False
+Q9VQG4		Helical			False	True	False	False
+Q9VR82	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VSU7	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q9VT08	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VT53					True	False	False	False
+Q9VTJ4					True	False	False	False
+Q9VU52	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VV96					True	False	False	False
+Q9VVR4					True	False	False	False
+Q9VVW3		Helical			False	True	False	False
+Q9VW87	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VXD1		Helical			False	True	False	False
+Q9VXD6		Helical			True	True	False	False
+Q9VYV5	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VYZ1	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VZM5		Helical			False	True	False	False
+Q9VZS7					True	False	False	False
+Q9W0M2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W0S3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9W1L5					True	False	False	False
+Q9W1P8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W1U5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W2E1		Helical			False	True	False	False
+Q9W332					True	False	False	False
+Q9W367	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W380		Helical			False	True	False	False
+Q9W3I5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W3T5	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9W3V8		Helical			False	True	False	False
+Q9W4Z4					True	False	False	False
+Q9W568					True	False	False	False
+Q9W594	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W5G6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W5U2					True	False	False	False
+Q9XZ14	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+A1Z7L1		Helical			False	True	False	False
+A1ZAI3		Helical			False	True	False	False
+A1ZAI5	Cytoplasmic; Peroxisomal	Helical			False	True	False	True
+A1ZB62					True	False	False	False
+A1ZB63					True	False	False	False
+A1ZB64					True	False	False	False
+B7Z031	Cytoplasmic; Extracellular	Helical			False	True	False	True
+B7Z0K8	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+B7Z0W9		Helical			False	True	False	False
+C0HJH3		Helical			False	True	False	False
+C0HKA2					True	False	False	False
+C0HKA3					True	False	False	False
+C0HKF7					True	False	False	False
+C0HKF8					True	False	False	False
+C0HL62					True	False	False	False
+C0HL63					True	False	False	False
+C0HL64					True	False	False	False
+C0HL65					True	False	False	False
+E1JI63	Cytoplasmic; Extracellular	Helical			False	True	False	True
+O17444	Cytoplasmic; Lumenal, vesicle	Helical			False	True	False	True
+O18405		Helical			False	True	False	False
+O44252		Helical			False	True	False	False
+O46108					True	False	False	False
+O46199					True	False	False	False
+O46200					True	False	False	False
+O46202					True	False	False	False
+O46203					True	False	False	False
+O46227					True	False	False	False
+O76767	Lumenal; Cytoplasmic	Helical			False	True	False	True
+O76879					True	False	False	False
+O97176					True	False	False	False
+P00417		Helical			False	True	False	False
+P02839					True	False	False	False
+P02840					True	False	False	False
+P03896		Helical			False	True	False	False
+P04814					True	False	False	False
+P07182					True	False	False	False
+P07184					True	False	False	False
+P07185					True	False	False	False
+P07187					True	False	False	False
+P07188					True	False	False	False
+P07189					True	False	False	False
+P07190					True	False	False	False
+P07191					True	False	False	False
+P07192					True	False	False	False
+P0DKM0		Helical			False	True	False	False
+P11995					True	False	False	False
+P11996					True	False	False	False
+P14484					True	False	False	False
+P16548					True	False	False	False
+P18929		Helical			False	True	False	False
+P18930		Helical			False	True	False	False
+P18931		Helical			False	True	False	False
+P18932		Helical			False	True	False	False
+P18933		Helical			False	True	False	False
+P18934		Helical			False	True	False	False
+P21750					True	False	False	False
+P22977					True	False	False	False
+P23488					True	False	False	False
+P26023					True	False	False	False
+P27779					True	False	False	False
+P27780					True	False	False	False
+P35004					True	False	False	False
+P35005					True	False	False	False
+P37160					True	False	False	False
+P42278					True	False	False	False
+P42279					True	False	False	False
+P42280					True	False	False	False
+P52905					True	False	False	False
+P53403	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P54192					True	False	False	False
+P54193					True	False	False	False
+P54194					True	False	False	False
+P54195					True	False	False	False
+P58950	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58951	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58952	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58953	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58954	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58955	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58960	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58961	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58962	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P58985	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81924	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P81928		Helical			False	True	False	False
+P82149	Cytoplasmic; Lumenal	Helical			False	True	False	True
+P82295		Helical			False	True	False	False
+P82982	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P82983	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P82984	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P82985	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P82986	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P83097	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P83118	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P83119	Extracellular; Cytoplasmic	Helical			True	True	False	True
+P83295	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P83296	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P83548					True	False	False	False
+P84180	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P84181	Cytoplasmic; Extracellular	Helical			False	True	False	True
+P84345		Helical			False	True	False	False
+P92029		Helical			False	True	False	False
+Q04691					True	False	False	False
+Q059A4	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q06521					True	False	False	False
+Q08694					True	False	False	False
+Q23970					True	False	False	False
+Q23982					True	False	False	False
+Q24155					True	False	False	False
+Q24188		Helical			False	True	False	False
+Q24319	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q26307					True	False	False	False
+Q26416					True	False	False	False
+Q6NP60		Helical			False	True	False	False
+Q7JVE7		Helical			False	True	False	False
+Q7JZV0					True	False	False	False
+Q7K0P4	Lumenal; Cytoplasmic	Helical			True	True	False	True
+Q7K4W1		Helical			False	True	False	False
+Q7KSC4		Helical			False	True	False	False
+Q86B91	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q86BF9					True	False	False	False
+Q8IA44	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q8IMN5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IMN6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IMQ6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IMZ5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IN23	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IN58	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8INM9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8INZ2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IPU5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IQ56		Helical			False	True	False	False
+Q8IRL8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IRR1					True	False	False	False
+Q8IRZ5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8MMF9					True	False	False	False
+Q8MSF5		Helical			False	True	False	False
+Q8MT80		Helical			False	True	False	False
+Q8MZC4		Helical			False	True	False	False
+Q8SY61					True	False	False	False
+Q8SYV9	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q8T0B1		Helical			False	True	False	False
+Q8T4E1					True	False	False	False
+Q8T8L8		Helical			False	True	False	False
+Q95R48	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q95SS8		Helical			False	True	False	False
+Q960W6		Helical			False	True	False	False
+Q961J5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9GN97	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9GNL3	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9I816	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9NFP1					True	False	False	False
+Q9U1H8		Helical			False	True	False	False
+Q9U1M2		Helical			False	True	False	False
+Q9U6L5					True	False	False	False
+Q9V3J3					True	False	False	False
+Q9V3X5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V3Y3					True	False	False	False
+Q9V447		Helical			False	True	False	False
+Q9V4C0					True	False	False	False
+Q9V568	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V589	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V7S5		Helical			False	True	False	False
+Q9V817	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V8Y2					True	False	False	False
+Q9V8Y7	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V969	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V9A8		Helical			False	True	False	False
+Q9V9N1	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9V9P3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9VAI6					True	False	False	False
+Q9VAJ4					True	False	False	False
+Q9VAM6	Lumenal; Cytoplasmic	Helical			False	True	False	True
+Q9VAW0	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VB26	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VB30	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VBL6					True	False	False	False
+Q9VBL7					True	False	False	False
+Q9VBN7		Helical			False	True	False	False
+Q9VBV5					True	False	False	False
+Q9VBW0	Cytoplasmic		Helical		False	False	True	True
+Q9VCA2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VCA9	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VCG4	Cytoplasmic; Perinuclear space	Helical			False	True	False	True
+Q9VCI5	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9VCK2					True	False	False	False
+Q9VCS9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VD74	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VDM1	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VE46	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VEU0	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VEU1	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VF81	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VFN2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VGG5	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VGG8	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VH78		Helical			False	True	False	False
+Q9VHB6		Helical			False	True	False	False
+Q9VHE6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VHQ2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VHQ6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VHS4	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VIH9	Extracellular	Helical			True	True	False	True
+Q9VJ10		Helical			False	True	False	False
+Q9VJF2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VKA4	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VKG9					True	False	False	False
+Q9VKX7		Helical			False	True	False	False
+Q9VL86					True	False	False	False
+Q9VLE5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VLM7	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
+Q9VLP9		Helical			False	True	False	False
+Q9VLR9		Helical			False	True	False	False
+Q9VMK1		Helical			False	True	False	False
+Q9VMR8					True	False	False	False
+Q9VNK9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VP04		Helical			False	True	False	False
+Q9VQ57	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VQE9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VQP9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VR94					True	False	False	False
+Q9VRK8					True	False	False	False
+Q9VRL2	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
+Q9VRN2	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VS77	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VSE7	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VT20	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VT50					True	False	False	False
+Q9VT90	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VU27	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VU58					True	False	False	False
+Q9VUK5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VUY0					True	False	False	False
+Q9VV36					True	False	False	False
+Q9VVF3	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VVH3		Helical			False	True	False	False
+Q9VVT9	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VVW1					True	False	False	False
+Q9VWE9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VWG0		Helical			False	True	False	False
+Q9VWH8	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VWL5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VWR8		Helical			False	True	False	False
+Q9VX39		Helical			False	True	False	False
+Q9VXL0	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VY86	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9VYF2		Helical			False	True	False	False
+Q9VYZ2	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VZ35					True	False	False	False
+Q9VZA4		Helical			False	True	False	False
+Q9VZS6		Helical			False	True	False	False
+Q9VZW8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W0R5	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9W0R6	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9W0V7	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9W145	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W1C9					True	False	False	False
+Q9W1N5	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W1N6	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W1P7	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W2B1	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W2B2		Helical			False	True	False	False
+Q9W2H1	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q9W2U9	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9W495	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9W4Q9					True	False	False	False
+Q9XY35	Mitochondrial matrix; Chloroplast intermembrane	Helical			False	True	False	True
+Q9Y115		Helical			False	True	False	False
+A1Z7U3	Lumenal; Cytoplasmic	Helical			False	True	False	True
+C0HKA4					True	False	False	False
+O46201					True	False	False	False
+O77286		Helical			False	True	False	False
+P02841					True	False	False	False
+P02842					True	False	False	False
+P07186					True	False	False	False
+P07701					True	False	False	False
+P23938					True	False	False	False
+P27781					True	False	False	False
+P40139					True	False	False	False
+P40140					True	False	False	False
+P54185					True	False	False	False
+P82384					True	False	False	False
+P83088	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+P83740		Helical			False	True	False	False
+Q23971					True	False	False	False
+Q27377					True	False	False	False
+Q5BI42	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q7JW12	Extracellular; Cytoplasmic	Helical			True	True	False	True
+Q8IN78		Helical			False	True	False	False
+Q8INQ7		Helical			False	True	False	False
+Q8INZ1	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IPK4					True	False	False	False
+Q8IQ72	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q8IQC1		Helical			False	True	False	False
+Q8MKJ4					True	False	False	False
+Q8MKK0					True	False	False	False
+Q8MRQ4	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q8SXT3					True	False	False	False
+Q8SY72		Helical			False	True	False	False
+Q9V4Q0	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V668	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9V931					True	False	False	False
+Q9V938					True	False	False	False
+Q9VAP3		Helical			False	True	False	False
+Q9VD26		Helical			False	True	False	False
+Q9VDQ0		Helical			False	True	False	False
+Q9VED0		Helical			False	True	False	False
+Q9VEG9	Nuclear; Perinuclear space	Helical			False	True	False	True
+Q9VES1		Helical			False	True	False	False
+Q9VGA2		Helical			False	True	False	False
+Q9VHN5	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VLC1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+Q9VMV6					True	False	False	False
+Q9VMW8		Helical			False	True	False	False
+Q9VN97		Helical			False	True	False	False
+Q9VNA0		Helical			False	True	False	False
+Q9VPB1		Helical			False	True	False	False
+Q9VPE4	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VPF8	Cytoplasmic; Extracellular	Helical			False	True	False	True
+Q9VPT7		Helical			False	True	False	False
+Q9VQ66					True	False	False	False
+Q9VR50		Helical			False	True	False	False
+Q9VR93		Helical			False	True	False	False
+Q9VRJ8		Helical			False	True	False	False
+Q9VTJ8	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
+Q9VTX8		Helical			False	True	False	False
+Q9VUT8		Helical			False	True	False	False
+Q9VV28					True	False	False	False
+Q9VVV2	Extracellular; Cytoplasmic	Helical			False	True	False	True
+Q9VW12		Helical			False	True	False	False
+Q9VWK6		Helical			False	True	False	False
+Q9VXT2		Helical			False	True	False	False
+Q9VXV9		Helical			False	True	False	False
+Q9VYY2	Cytoplasmic; Lumenal	Helical			False	True	False	True
+Q9VZ40					True	False	False	False
+Q9VZE7		Helical			False	True	False	False
+Q9W1K0		Helical			False	True	False	False
+Q9W1W9					True	False	False	False
+Q9W2C3					True	False	False	False
+Q9W376					True	False	False	False
+Q9W440					True	False	False	False
+Q9W4K2					True	False	False	False
+Q9Y123		Helical			False	True	False	False
+Q9Y140	Cytoplasmic; Peroxisomal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
+P40141					True	False	False	False
+Q9VNA4		Helical			False	True	False	False
