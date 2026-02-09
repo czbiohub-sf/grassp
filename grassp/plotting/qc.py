@@ -221,6 +221,73 @@ def bait_volcano_plots(
         return axs
 
 
+def _prepare_marker_profile_data(
+    adata: AnnData,
+    marker_column: str,
+    plot_nan: bool,
+    replicate_column: str | None,
+):
+    """Internal function to prepare data for marker profile plotting.
+
+    Parameters
+    ----------
+    adata
+        AnnData object with proteins in `.var` and samples/fractions in `.obs`.
+    marker_column
+        Column name in ``adata.obs`` containing marker annotations.
+    plot_nan
+        If ``True``, NaN entries in the marker column are included.
+    replicate_column
+        Column name in ``adata.var`` indicating replicate groups.
+
+    Returns
+    -------
+    marker_series
+        Series containing marker annotations from adata.obs
+    categories
+        List of marker categories to plot
+    palette
+        Dictionary mapping categories to colors
+    replicate_boundaries
+        List of x-positions for replicate boundary lines
+    """
+    # Validation
+    if marker_column not in adata.obs.columns:
+        raise ValueError(f"Column '{marker_column}' not found in adata.obs")
+
+    if replicate_column is not None and replicate_column not in adata.var.columns:
+        raise ValueError(f"Column '{replicate_column}' not found in adata.var")
+
+    # Get marker categories
+    if not isinstance(adata.obs[marker_column].dtype, pd.CategoricalDtype):
+        adata.obs[marker_column] = adata.obs[marker_column].astype('category')
+
+    marker_series = adata.obs[marker_column]
+    if plot_nan:
+        categories = marker_series.cat.categories
+        categories = categories[pd.notna(categories)] if not plot_nan else categories
+    else:
+        categories = marker_series.dropna().unique()
+
+    categories = sorted([cat for cat in categories if pd.notna(cat)])
+    if plot_nan and marker_series.isna().any():
+        categories.append(np.nan)
+
+    # Get colors for each marker category
+    palette = scanpy.plotting._tools.scatterplots._get_palette(adata, marker_column)
+
+    # Find replicate boundaries if replicate_column is provided
+    replicate_boundaries = []
+    if replicate_column is not None:
+        replicate_series = adata.var[replicate_column]
+        # Find indices where replicate changes (on the last protein of each replicate)
+        for i in range(1, len(replicate_series)):
+            if replicate_series.iloc[i - 1] != replicate_series.iloc[i]:
+                replicate_boundaries.append(i - 1)
+
+    return marker_series, categories, palette, replicate_boundaries
+
+
 def marker_profiles_split(
     adata: AnnData,
     marker_column: str,
@@ -273,39 +340,15 @@ def marker_profiles_split(
     Returns
     -------
     Returns the array of Axes if ``show`` is ``False``, otherwise ``None``.
+
+    See Also
+    --------
+    marker_profiles : Plot mean profiles with error bands in a single plot.
     """
-    if marker_column not in adata.obs.columns:
-        raise ValueError(f"Column '{marker_column}' not found in adata.obs")
-
-    if replicate_column is not None and replicate_column not in adata.var.columns:
-        raise ValueError(f"Column '{replicate_column}' not found in adata.var")
-
-    # Get marker categories
-    if not isinstance(adata.obs[marker_column].dtype, pd.CategoricalDtype):
-        adata.obs[marker_column] = adata.obs[marker_column].astype('category')
-
-    marker_series = adata.obs[marker_column]
-    if plot_nan:
-        categories = marker_series.cat.categories
-        categories = categories[pd.notna(categories)] if not plot_nan else categories
-    else:
-        categories = marker_series.dropna().unique()
-
-    categories = sorted([cat for cat in categories if pd.notna(cat)])
-    if plot_nan and marker_series.isna().any():
-        categories.append(np.nan)
-
-    # Get colors for each marker category
-    palette = scanpy.plotting._tools.scatterplots._get_palette(adata, marker_column)
-
-    # Find replicate boundaries if replicate_column is provided
-    replicate_boundaries = []
-    if replicate_column is not None:
-        replicate_series = adata.var[replicate_column]
-        # Find indices where replicate changes (last index of each replicate)
-        for i in range(len(replicate_series) - 1):
-            if replicate_series.iloc[i] != replicate_series.iloc[i + 1]:
-                replicate_boundaries.append(i + 0.5)
+    # Prepare data
+    marker_series, categories, palette, replicate_boundaries = _prepare_marker_profile_data(
+        adata, marker_column, plot_nan, replicate_column
+    )
 
     # Create figure
     n_categories = len(categories)
@@ -354,7 +397,7 @@ def marker_profiles_split(
         # Set x-tick labels if requested
         if xticklabels:
             ax.set_xticks(range(n_proteins))
-            ax.set_xticklabels(adata.var_names, rotation=90, ha="right")
+            ax.set_xticklabels(adata.var_names, rotation=90, ha="center")
 
         # Add legend to the last subplot with data
         if plot_mean and idx == len(categories) - 1:
