@@ -40,6 +40,10 @@ pip install grassp
 ```
 For details on installation, please see the [install section of the documentation](https://public.czbiohub.org/comp.bio/grassp/installation.html).
 
+## Changelog
+
+See the [CHANGELOG.md](https://github.com/czbiohub-sf/grassp/blob/main/CHANGELOG.md) for a detailed history of changes, updates, and version releases.
+
 ## Contributing
 
 If you'd like to contribute to **grassp** please feel free to look at our [contribution guide](https://public.czbiohub.org/comp.bio/grassp/contributing.html) and open a [Pull request](https://github.com/czbiohub-sf/grassp/pulls).

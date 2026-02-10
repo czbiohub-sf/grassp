@@ -13,5 +13,6 @@ tutorials/index
 api/index
 contributing
 contributors
+changelog
 references
 ```
