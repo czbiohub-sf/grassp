@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0](https://github.com/czbiohub-sf/grassp/compare/v0.0.4...v0.1.0) (2026-02-10)
+
+
+### Features
+
+* add changelog to docs and readme ([9e04579](https://github.com/czbiohub-sf/grassp/commit/9e045795afd537f40c6a351e9e7d652820531218))
+
 ## [0.0.4](https://github.com/czbiohub-sf/grassp/compare/v0.0.3...v0.0.4) (2026-02-09)
 
 
