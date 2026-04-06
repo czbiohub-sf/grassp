@@ -7,9 +7,11 @@ if TYPE_CHECKING:
 
 import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.svm import SVC
 
@@ -31,15 +33,44 @@ def _get_knn_annotation_df(
     return df
 
 
-def knn_annotation(
-    data,
-    gt_col,
-    fix_markers=False,
-    class_balance=True,
-    min_probability=0.5,
-    inplace=True,
+def _knn_annotation(
+    data: AnnData,
+    gt_col: str,
+    class_balance: bool = True,
     obsp_key="connectivities",
-    key_added="knn_annotation",
+):
+    """Helper function that does label propagation with fixed min_probability."""
+    labels = data.obs[gt_col].astype("category")
+    labels_one_hot = pd.get_dummies(labels).values
+    T = data.obsp[obsp_key]
+    # Propagate the labels with transition matrix T
+    Y = T @ labels_one_hot
+    Y[Y.sum(axis=1) == 0] = 1 / Y.shape[1]
+
+    # Class balance
+    if class_balance:
+        # gt_compartments with a lot of proteins are more likely to be in the neighborhood of a protein
+        # Adjust probability based on the number of proteins in the compartment
+        Y = Y / np.nansum(Y, axis=0) * labels_one_hot.sum(axis=0)
+        #
+    # Normalize the propagated labels to get probabilities
+    if any(Y.sum(axis=1) == 0):
+        print(Y[Y.sum(axis=1) == 0])
+    Y = Y / np.nansum(Y, axis=1)[:, None]
+
+    return Y, labels, labels_one_hot
+
+
+def knn_annotation(
+    data: AnnData,
+    gt_col: str,
+    fix_markers: bool = False,
+    class_balance: bool = True,
+    min_probability: float | None = None,
+    plot_optimization: bool = True,
+    inplace: bool = True,
+    obsp_key="connectivities",
+    key_added: str = "knn_annotation",
 ):
     """Propagate categorical annotations along the *k*-NN graph.
 
@@ -60,7 +91,10 @@ def knn_annotation(
     class_balance
         If ``True`` ground truth compartments with a lot of proteins are downweighted proportional to their size to prevent them from dominating the propagated labels.
     min_probability
-        If the probability of the most probable label is below this threshold, the label is set to ``np.nan``.
+        If the probability of the most probable label is below this threshold, the label is set to ``np.nan``. If ``None`` (default), the threshold is automatically
+        determine by the data. Specifically the threshold is chosen to maximize the F1 score for the given ground truth labels.
+    plot_optimization
+        If ``True`` a plot is shown showing the F1 score for different minimum probability thresholds.
     obsp_key
         Name of the neighbour connectivity graph to use (default ``"connectivities"``).
     key_added
@@ -75,23 +109,54 @@ def knn_annotation(
     - .uns[f"{key_added}_colors"] to make sure plotting uses the same colors as the ground truth labels
     - .obs[f"{key_added}_probability"] containing the probability of the most probable label
     """
-    labels = data.obs[gt_col].astype("category")
-    labels_one_hot = pd.get_dummies(labels).values
-    T = data.obsp[obsp_key]
-    # Propagate the labels with transition matrix T
-    Y = T @ labels_one_hot
-    Y[Y.sum(axis=1) == 0] = 1 / Y.shape[1]
 
-    # Class balance
-    if class_balance:
-        # gt_compartments with a lot of proteins are more likely to be in the neighborhood of a protein
-        # Adjust probability based on the number of proteins in the compartment
-        Y = Y / np.nansum(Y, axis=0) * labels_one_hot.sum(axis=0)
-        #
-    # Normalize the propagated labels to get probabilities
-    if any(Y.sum(axis=1) == 0):
-        print(Y[Y.sum(axis=1) == 0])
-    Y = Y / np.nansum(Y, axis=1)[:, None]
+    if min_probability is None:
+        min_probabilities = np.linspace(0.5, 1, 100)
+        f1 = []
+        for prob in min_probabilities:
+            Y, labels, labels_one_hot = _knn_annotation(
+                data,
+                gt_col=gt_col,
+                class_balance=class_balance,
+                obsp_key=obsp_key,
+            )
+
+            gt = data.obs[gt_col]
+            pred = pd.Categorical(
+                labels.cat.categories[Y.argmax(axis=1)],
+                categories=labels.cat.categories,
+                ordered=labels.cat.ordered,
+            )
+            pred[Y.max(axis=1) < prob] = np.nan
+            mask = gt.notna() & pred.notna()
+            y_true_raw = gt[mask]
+            y_pred_raw = pred[mask]
+            cats = pd.Index(y_true_raw.unique()).union(pd.Index(y_pred_raw.unique()))
+            y_true = pd.Categorical(y_true_raw, categories=cats).codes
+            y_pred = pd.Categorical(y_pred_raw, categories=cats).codes
+            f1.append(f1_score(y_true, y_pred, average="macro"))
+        min_probability = min_probabilities[np.argmax(f1)]
+
+        if plot_optimization:
+            plt.plot(min_probabilities, f1, label="F1 score")
+            plt.axvline(
+                x=min_probability,
+                color="red",
+                linestyle="--",
+                label=f"Optimal cutoff = {min_probability:.3f}",
+            )
+            plt.xlabel("Minimum probability cutoff")
+            plt.ylabel("F1 score")
+            plt.title("F1 score optimization")
+            plt.legend()
+            plt.show()
+
+    Y, labels, labels_one_hot = _knn_annotation(
+        data,
+        gt_col=gt_col,
+        class_balance=class_balance,
+        obsp_key=obsp_key,
+    )
 
     if fix_markers:
         # Set markers to 1
@@ -520,3 +585,58 @@ def svm_annotation(
             "max_probability": max_prob,
             "categories": categories,
         }
+
+
+def prune_markers_knn(
+    adata: AnnData, gt_col: str, key_added: str | None = None, min_probability: float = 0.9
+) -> AnnData:
+    """Remove "outliers" from marker proteins whose compartment label is not supported by their k-NN neighbourhood.
+
+    Runs :func:`knn_annotation` on the existing markers and retains only those
+    whose neighbours confidently predict the same compartment label. Markers
+    whose predicted label disagrees with their annotated label, or whose
+    neighbourhood confidence falls below ``min_probability``, are set to NaN in
+    the output column. Non-marker proteins (NaN in ``gt_col``) are always set
+    to NaN.
+
+    This is useful for cleaning noisy or misannotated training sets before
+    semi-supervised classification.
+
+    Parameters
+    ----------
+    adata
+        :class:`anndata.AnnData` with a populated neighbour graph
+        (``adata.obsp["connectivities"]``).
+    gt_col
+        ``.obs`` column containing the ground-truth compartment labels.
+        Proteins with NaN values are treated as unannotated.
+    key_added
+        ``.obs`` column to write the pruned labels to. Defaults to
+        ``"{gt_col}_pruned"``.
+    min_probability
+        Minimum k-NN probability for a marker to be considered
+        neighbourhood-consistent. Markers below this threshold are removed.
+        Increasing this value will remove more markers, leading to more consistent but sparser annotations.
+        Default is ``0.9``.
+
+    Returns
+    -------
+    Modifies ``adata.obs[key_added]`` in place: retained markers keep their
+    original label; removed markers are set to NaN.
+    """
+    key_added = key_added or f"{gt_col}_pruned"
+    knnres = knn_annotation(
+        adata, gt_col, min_probability=min_probability, inplace=False, fix_markers=False
+    )
+    labels, Y = knnres["labels"], knnres["probabilities"]
+
+    predicted = pd.Categorical(
+        labels[Y.argmax(axis=1)],
+        categories=adata.obs[gt_col].cat.categories,
+        ordered=adata.obs[gt_col].cat.ordered,
+    )
+    adata.obs[key_added] = predicted
+    adata.obs.loc[adata.obs[gt_col].isna(), key_added] = np.nan  # Remove non-markers
+    adata.obs.loc[adata.obs[gt_col] != adata.obs[key_added], key_added] = (
+        np.nan
+    )  # Remove non-predictable markers
