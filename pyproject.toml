@@ -61,6 +61,7 @@ dev = [
     "pre-commit~=4.0",
     "pylint~=3.0",
     "pytest~=8.0",
+    "xlrd",
 ]
 notebook = [
     "jupyter",

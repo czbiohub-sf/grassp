@@ -1,1724 +1,1724 @@
-id	Topological domain	Transmembrane	Intramembrane	Signal peptide	has_signal	has_transmem	has_intramem	has_topo_dom
-D6VTK4	Extracellular; Cytoplasmic	Helical			False	True	False	True
-O13547					True	False	False	False
-P00163	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P00401	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P00410	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P00420	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P00424	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P00635					True	False	False	False
-P00724					True	False	False	False
-P00729					True	False	False	False
-P00854		Helical			False	True	False	False
-P03873	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P03877		Helical			False	True	False	False
-P04039	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P04710		Helical			False	True	False	False
-P04817		Helical			False	True	False	False
-P04821		Helical			False	True	False	False
-P04840		Beta stranded			False	True	False	False
-P05030	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P05374	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P05375	Lumenal; Cytoplasmic	Helical	Helical		False	True	True	True
-P06197	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P07143	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P07213	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
-P07255	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P07267					True	False	False	False
-P07286		Helical			False	True	False	False
-P08004		Helical			False	True	False	False
-P08067	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P08456		Helical			False	True	False	False
-P08525	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P08640					True	False	False	False
-P09232					True	False	False	False
-P09620	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P0C5R9	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P0CD91	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P0CX77					True	False	False	False
-P0CX78					True	False	False	False
-P0CX79					True	False	False	False
-P0CZ17					True	False	False	False
-P10174	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P10614	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P10863					True	False	False	False
-P10870	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P11491	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P11655	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P11710		Helical			False	True	False	False
-P12630					True	False	False	False
-P12683	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P12684	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P12866	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P13134	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P13586	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P13587	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P14020	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
-P14180	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P14772	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P14906	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P15367	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P15703					True	False	False	False
-P16474					True	False	False	False
-P16603	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P16661	Lumenal; Cytoplasmic	Helical	Helical		False	True	True	True
-P17064	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P17260					True	False	False	False
-P17898	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P17967				Or 22	True	False	False	False
-P18238		Helical			False	True	False	False
-P18239		Helical			False	True	False	False
-P18410	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P19145	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P19516	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P19657	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P19807	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P20107	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P20840					True	False	False	False
-P21147	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P21560		Helical			False	True	False	False
-P21592		Helical			False	True	False	False
-P21825	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P22140	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P22146					True	False	False	False
-P22214	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
-P22289	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P22804	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
-P23285					True	False	False	False
-P23585	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P23642	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P23776					True	False	False	False
-P23833		Helical			False	True	False	False
-P23900	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P23968	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P25045	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P25297	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P25303					True	False	False	False
-P25340	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P25346	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P25353	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P25358	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P25360	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P25376	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P25385	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
-P25515	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P25573	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P25574	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P25587	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P25613	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P25618	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P25641	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P25653					True	False	False	False
-P25656	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P27514		Helical			False	True	False	False
-P27614	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P27654					True	False	False	False
-P27809	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P27810	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P27825	Lumenal	Helical			True	True	False	True
-P28319					True	False	False	False
-P28496	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P28737	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
-P28791	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
-P28795	Peroxisomal; Cytoplasmic	Helical			False	True	False	True
-P29029					True	False	False	False
-P29465	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P29704		Helical			False	True	False	False
-P30605	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P31109	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
-P31377	Cytoplasmic	Helical; Anchor for type IV membrane protein			False	True	False	True
-P31382	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P31755	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P32266	Mitochondrial matrix; Mitochondrial intermembrane	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P32319	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P32323					True	False	False	False
-P32329					True	False	False	False
-P32332		Helical			False	True	False	False
-P32334	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P32343	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P32352		Helical			False	True	False	False
-P32353	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P32361	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P32363		Helical			False	True	False	False
-P32368	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P32386	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P32462	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P32465	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P32466	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P32467	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P32472					True	False	False	False
-P32474					True	False	False	False
-P32476	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P32478					True	False	False	False
-P32486	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P32500	Cytoplasmic; Perinuclear space	Helical			False	True	False	True
-P32563	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P32568		Helical			False	True	False	False
-P32584	Cytoplasmic; Lumenal	Helical	Helical		False	True	True	True
-P32621	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P32623					True	False	False	False
-P32629	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P32660	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P32768					True	False	False	False
-P32784	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P32791	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P32798	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P32799	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P32800	Peroxisomal matrix; Cytoplasmic	Helical			False	True	False	True
-P32802	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P32803	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P32839	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P32842	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P32854	Cytoplasmic	Helical; Anchor for type IV membrane protein			False	True	False	True
-P32867	Cytoplasmic; Extracellular	Helical; Anchor for type IV membrane protein			False	True	False	True
-P32897	Mitochondrial intermembrane; Mitochondrial matrix	Helical; Note=Outer membrane; Helical; Note=Inner membrane			False	True	False	True
-P32900		Helical			False	True	False	False
-P32901	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P32906	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P32915	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P33296	Cytoplasmic	Helical			False	True	False	True
-P33300	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P33302	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P33310		Helical			False	True	False	False
-P33328	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
-P33336	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P33338		Helical			False	True	False	False
-P33413	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P33421	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P33448	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-P33754	Lumenal; Cytoplasmic	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P33767	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P33775	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P34163	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P34230		Helical			False	True	False	False
-P35176					True	False	False	False
-P35179	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P35180	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
-P35206	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P36016					True	False	False	False
-P36027	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P36033	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P36035	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P36044	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P36046	Mitochondrial matrix; Mitochondrial intermembrane	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P36051	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P36057		Helical			False	True	False	False
-P36060		Helical			False	True	False	False
-P36081	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P36091					True	False	False	False
-P36096	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P36107	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P36112	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P36135					True	False	False	False
-P36142	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P36148	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P36163	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P36170					True	False	False	False
-P37020	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P37296	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P37298	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P37299	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P38069	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P38084	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38085	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38109					True	False	False	False
-P38125	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38127		Helical			False	True	False	False
-P38130	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P38138					True	False	False	False
-P38211	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38212	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P38221		Helical			False	True	False	False
-P38225	Cytoplasmic; Extracellular	Helical			False	True	True	True
-P38227	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38228	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P38242	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P38244	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P38247		Helical			False	True	False	False
-P38248					True	False	False	False
-P38250	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38264		Helical			False	True	False	False
-P38279	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P38286		Helical			False	True	False	False
-P38287		Helical			False	True	False	False
-P38297	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-P38298	Lumenal; Cytoplasmic	Helical			False	True	True	True
-P38301	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P38307	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38310	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P38329	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P38341	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P38342	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38353	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38356	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38360	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38361	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38428	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P38626		Helical			False	True	False	False
-P38631	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38695	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38703	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38717	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38731	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38736	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
-P38742					True	False	False	False
-P38757		Helical			False	True	False	False
-P38770	Cytoplasmic; Perinuclear space	Helical			False	True	False	True
-P38778		Helical			False	True	False	False
-P38800	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38825	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
-P38836					True	False	False	False
-P38843		Helical			False	True	False	False
-P38844					True	False	False	False
-P38851	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38857	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P38869	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38875	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P38878	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38881		Helical			True	True	False	False
-P38887					True	False	False	False
-P38888					True	False	False	False
-P38894					True	False	False	False
-P38925	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38928	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P38929	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P38954	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38967	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38992		Helical			False	True	False	False
-P38993	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P38995	Cytoplasmic; Lumenal, vesicle	Helical			False	True	False	True
-P39003	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39004	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39006	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P39007	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P39010	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P39012	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P39105					True	False	False	False
-P39107	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P39109	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P39515	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P39524	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P39540	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P39547		Helical			False	True	False	False
-P39552	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39685	Cytoplasmic; Perinuclear space	Helical			False	True	False	True
-P39704	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P39719	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P39722	Cytoplasmic; Mitochondrial intermembrane	Helical; Anchor for type IV membrane protein			False	True	False	True
-P39727	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P39925	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P39926	Cytoplasmic; Extracellular	Helical; Anchor for type IV membrane protein			False	True	False	True
-P39928	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39952	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P39986	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P39997	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P40009	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P40015	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-P40046	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P40056	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40073	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40075	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
-P40086	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P40107	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40152	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P40218	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40219	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40318	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40319	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40341		Helical			False	True	False	False
-P40345	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40358	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True	True	False	True
-P40367	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P40416	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P40438	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P40458		Helical			False	True	False	False
-P40472					True	False	False	False
-P40474	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40501	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P40515	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-P40527	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40540	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40548	Perinuclear space; Cytoplasmic	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P40556	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P40557		Helical			True	True	False	False
-P40578		Helical			False	True	False	False
-P40857	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40890	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P40970		Helical			False	True	False	False
-P40988	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40989	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P41543	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P41698	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P41800	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P41809	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P41821	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P41834	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
-P41909		Helical			False	True	False	False
-P41948	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P42835					True	False	False	False
-P42836	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P42838	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P42839	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P43497					True	False	False	False
-P43555	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P43561	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P43564		Helical			False	True	False	False
-P43571		Helical			False	True	False	False
-P43585	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P43636		Helical			False	True	False	False
-P43682	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
-P46964	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P46965	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P46971	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P46972		Helical			False	True	False	False
-P46985	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P46989	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P47001					True	False	False	False
-P47013	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P47026	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P47032					True	False	False	False
-P47033					True	False	False	False
-P47069	Nuclear; Lumenal	Helical			False	True	False	True
-P47075	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P47082	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P47114	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P47124	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P47154	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P47178					True	False	False	False
-P47190	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P47818	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P48016	Cytoplasmic; Periplasmic	Helical			False	True	False	True
-P48231	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P48236	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P48439	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P48558	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P48813	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-P49018	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P49334	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-P49573	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P50076		Helical			False	True	False	False
-P50077		Helical			False	True	False	False
-P50078		Helical			False	True	False	False
-P50085		Helical; Signal-anchor for type II membrane protein			False	True	False	False
-P50087	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P50108	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P50110		Helical			False	True	False	False
-P50945	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P52870	Cytoplasmic	Helical			False	True	False	True
-P52871	Cytoplasmic	Helical			False	True	False	True
-P52923		Helical			False	True	False	False
-P53008	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P53012	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53039	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53045		Helical			False	True	False	False
-P53048	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53049	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53093		Helical			False	True	False	False
-P53109	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53146	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
-P53154	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53157	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P53159		Helical			False	True	False	False
-P53173	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53176	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53192	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P53223	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P53224	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53226	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53259		Helical			False	True	False	False
-P53262	Vacuolar; Cytoplasmic	Helical			True	True	False	True
-P53301					True	False	False	False
-P53311	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P53322	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53324	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P53334					True	False	False	False
-P53379					True	False	False	False
-P53507	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-P53541		Helical			True	True	False	False
-P53616					True	False	False	False
-P53633		Helical			False	True	False	False
-P53721	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P53740	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53746	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P53753					True	False	False	False
-P53832	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P53838	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53845	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53868	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53872					True	False	False	False
-P53895	Nuclear; Perinuclear space	Helical			False	True	False	True
-P53896	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P53943	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53950	Cytoplasmic; Vacuolar	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P53954	Lumenal; Cytoplasmic	Helical	Helical		False	True	True	True
-P53983	Perinuclear space; Nuclear	Helical			False	True	False	True
-P54070	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P54074	Perinuclear space; Nuclear	Helical			False	True	False	True
-P54781		Helical			False	True	False	False
-P54837	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P54854	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P54862	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P54867	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P61829		Helical			False	True	False	False
-P62651		Helical			False	True	False	False
-P80667	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P80967	Cytoplasmic	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P81450		Helical			False	True	False	False
-Q01589					True	False	False	False
-Q01590	Cytoplasmic	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q01896	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q01926	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q02725	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q02774	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q02776	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q02785	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q02795	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q02888	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q02896	Lumenal; Cytoplasmic	Helical			False	True	True	True
-Q02933					True	False	False	False
-Q03103					True	False	False	False
-Q03178					True	False	False	False
-Q03180					True	False	False	False
-Q03322	Cytoplasmic	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q03455	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q03529	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q03554	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q03579	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q03640	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q03655					True	False	False	False
-Q03674					True	False	False	False
-Q03687	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q03691	Lumenal	Helical			True	True	False	True
-Q03713	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-Q03714	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q03723	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q03770	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q03778					True	False	False	False
-Q03944	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q04013		Helical			False	True	False	False
-Q04080	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04082	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04119	Cytoplasmic; Vacuolar	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q04121	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q04228	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04338	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q04370	Peroxisomal matrix; Cytoplasmic	Helical			False	True	False	True
-Q04396	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q04458		Helical			False	True	False	False
-Q04472	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q04629	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q04651	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04705	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q04746	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q04924					True	False	False	False
-Q04935	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-Q04947	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04951					True	False	False	False
-Q04958	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04969	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q05031					True	False	False	False
-Q05164					True	False	False	False
-Q05359	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q05521	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-Q05567	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q05568	Peroxisomal matrix; Cytoplasmic	Helical			False	True	False	True
-Q05777					True	False	False	False
-Q05787		Helical			True	True	False	False
-Q05902	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q05934		Helical			False	True	False	False
-Q06058	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q06135					True	False	False	False
-Q06143		Helical			False	True	False	False
-Q06144	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06148		Helical			False	True	False	False
-Q06159		Helical			False	True	False	False
-Q06328	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-Q06346		Helical			False	True	False	False
-Q06493	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-Q06497		Helical			False	True	False	False
-Q06508		Helical			False	True	False	False
-Q06510	Mitochondrial intermembrane				False	False	True	True
-Q06522	Lumenal				False	False	True	True
-Q06541		Helical			False	True	False	False
-Q06551	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q06593	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06598	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06676	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q06681	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q06703					True	False	False	False
-Q06810		Helical			False	True	False	False
-Q06833	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q07560		Helical			False	True	False	False
-Q07651	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q07804	Cytoplasmic				False	False	True	True
-Q07824	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q07830		Helical			False	True	False	False
-Q07914	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-Q07950	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q08001	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q08108					True	False	False	False
-Q08109	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q08144	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q08179	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-Q08193					True	False	False	False
-Q08199					True	False	False	False
-Q08215	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q08218	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08417	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q08448		Helical			False	True	False	False
-Q08548	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q08650	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q08651		Helical			False	True	False	False
-Q08749	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q08760	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08905	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q08931	Nuclear; Perinuclear space	Helical			False	True	False	True
-Q08955		Helical			False	True	False	False
-Q08959		Helical; Anchor for type IV membrane protein			False	True	False	False
-Q08967	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q08986	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12006	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12010	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-Q12015	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q12063		Helical			False	True	False	False
-Q12082	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-Q12106	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-Q12127					True	False	False	False
-Q12142	Cytoplasmic; Lumenal	Helical			False	True	True	True
-Q12150	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q12164	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q12200		Helical			True	True	False	False
-Q12207	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12241	Cytoplasmic; Vacuolar	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q12255	Cytoplasmic; Vacuolar	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q12256	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12275		Helical			False	True	False	False
-Q12284	Cytoplasmic; Lumenal	Helical; Signal-anchor			False	True	False	True
-Q12300	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12303					True	False	False	False
-Q12324	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q12328	Mitochondrial intermembrane	Helical			False	True	False	True
-Q12333	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q12355					True	False	False	False
-Q12361	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q12382	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q12396	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q12402	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12404					True	False	False	False
-Q12438					True	False	False	False
-Q12443	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12445		Helical			False	True	False	False
-Q12465	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q12466	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12473	Vacuolar; Cytoplasmic	Helical			True	True	False	True
-Q12530		Helical			False	True	False	False
-Q12674	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q12675	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12691	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12697	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q12746	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q3E7B2	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q3E7B6	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q92316	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q96VH5	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q99190	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q99220					True	False	False	False
-Q99271	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q99287	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q99325	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q99380	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q99385	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q9ZZW7	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q9ZZX1		Helical			False	True	False	False
-D6W196		Helical			False	True	False	False
-P00425	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P00856		Helical			False	True	False	False
-P01149				Or 20	True	False	False	False
-P05316		Helical			False	True	False	False
-P06775	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P06783	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P0CD90	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P0CD99	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P0CE00	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P0CE68	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P10566		Helical			False	True	False	False
-P12685		Helical			False	True	False	False
-P13090	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P13181	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P14359	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P15365	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P15380		Helical			False	True	False	False
-P17261		Helical			False	True	False	False
-P18414	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P22023					True	False	False	False
-P23500		Helical			False	True	False	False
-P23501	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P23641	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P25334		Helical			True	True	False	False
-P25338	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P25365	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P25371	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P25381					True	False	False	False
-P25560	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P25580	Lumenal; Cytoplasmic	Helical; Signal-anchor for type III membrane protein			False	True	False	True
-P25594	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P25596	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P25621	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P25625	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P25628		Helical			False	True	False	False
-P26725	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P28584	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P30606	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P31379	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P31381		Helical			False	True	False	False
-P32331		Helical			False	True	False	False
-P32339	Cytoplasmic	Helical; Anchor for type IV membrane protein			False	True	False	True
-P32341	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P32378		Helical			False	True	False	False
-P32487	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P32522		Helical			False	True	False	False
-P32603					True	False	False	False
-P32781					True	False	False	False
-P32804	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P32837	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P32843	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P32907	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P33311		Helical			False	True	False	False
-P33550	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P33890					True	False	False	False
-P33894	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P34237	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			False	True	False	True
-P34240		Helical			False	True	False	False
-P34248	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P35723	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P35842					True	False	False	False
-P36029	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P36039		Helical			False	True	False	False
-P36062		Helical			False	True	False	False
-P36101		Helical			False	True	False	False
-P36110					True	False	False	False
-P36147		Helical			False	True	False	False
-P36164	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P36169	Extracellular; Cytoplasmic	Helical; Signal-anchor for type III membrane protein			False	True	False	True
-P36173	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P37302					True	False	False	False
-P38068					True	False	False	False
-P38072		Helical			False	True	False	False
-P38090	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38114		Helical			False	True	False	False
-P38131	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P38152		Helical			False	True	False	False
-P38166	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38179	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P38196	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38206	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P38224		Helical			False	True	False	False
-P38288					True	False	False	False
-P38359		Helical			False	True	False	False
-P38616					True	False	False	False
-P38724		Helical			False	True	False	False
-P38727	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38735	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P38756		Helical			False	True	False	False
-P38813	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P38837	Cytoplasmic; Perinuclear space	Helical			False	True	False	True
-P38865	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P38880	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P38921		Helical			False	True	False	False
-P38962	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P38966	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P38988		Helical			False	True	False	False
-P39103		Helical			False	True	False	False
-P39106	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P39535		Helical			False	True	False	False
-P39543	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P39548	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39709	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39712					True	False	False	False
-P39734		Helical			False	True	False	False
-P39924	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39932	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39953		Helical			False	True	False	False
-P39980		Helical			False	True	False	False
-P40004	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40030	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40035		Helical			False	True	False	False
-P40071	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P40074	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P40085	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40088		Helical			False	True	False	False
-P40092					True	False	False	False
-P40169	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40207		Helical			False	True	False	False
-P40260	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40310	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40312		Helical			False	True	False	False
-P40350	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P40351	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P40442					True	False	False	False
-P40452	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P40475	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40478		Beta stranded			False	True	False	False
-P40499	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40504	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P40526		Helical			False	True	False	False
-P40528	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40532	Cytoplasmic; Perinuclear space	Helical			False	True	False	True
-P40533	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P40549	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P40550	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40552					True	False	False	False
-P40576	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P40583					True	False	False	False
-P40885	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40886	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40897	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40975	Cytoplasmic	Helical			False	True	False	True
-P40986	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P41544	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P41733	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P41806	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P41815	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P41930	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P42833	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P42934	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P43549	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P43553	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P43560	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P43581	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P43614	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P46950		Helical			False	True	False	False
-P46956	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P46961	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P46982					True	False	False	False
-P46992					True	False	False	False
-P47040		Helical			True	True	False	False
-P47045	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P47055	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P47056	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P47088	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P47161		Helical			False	True	False	False
-P47179					True	False	False	False
-P47180					True	False	False	False
-P47185	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P48565	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P50276	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P50944	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P51533	Cytoplasmic	Helical			False	True	False	True
-P52867	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P52911					True	False	False	False
-P53059	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P53062		Helical			False	True	False	False
-P53073		Helical			False	True	False	False
-P53075					True	False	False	False
-P53108		Helical			False	True	False	False
-P53121	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P53153		Helical			False	True	False	False
-P53174	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53189					True	False	False	False
-P53198	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P53206		Helical			False	True	False	False
-P53214	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P53220	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P53239	Mitochondrial intermembrane; Mitochondrial matrix	Helical			False	True	False	True
-P53266	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-P53273	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-P53283	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53306	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53320		Helical			False	True	False	False
-P53337	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53388	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53389	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53390	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53629		Helical			False	True	False	False
-P53631	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53730	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P53756		Helical			False	True	False	False
-P53903		Helical			False	True	False	False
-P53938	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P81451		Helical			False	True	False	False
-P87284		Helical			False	True	False	False
-Q02783		Helical			False	True	False	False
-Q02883		Helical			False	True	False	False
-Q02969	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q03028		Helical			False	True	False	False
-Q03212	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q03218		Helical			False	True	False	False
-Q03281		Helical			False	True	False	False
-Q03289	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q03327	Cytoplasmic; Mitochondrial intermembrane	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q03370	Cytoplasmic; Peroxisomal	Helical			False	True	False	True
-Q03446		Helical			False	True	False	False
-Q03530	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q03707		Helical			False	True	False	False
-Q03824		Helical			False	True	False	False
-Q03829		Helical			False	True	False	False
-Q03860	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04172	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q04174	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q04182	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q04433					True	False	False	False
-Q04487	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q04562	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q04658	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04697	Lumenal; Cytoplasmic	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q04895	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q04952		Helical			False	True	False	False
-Q05131	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q05790					True	False	False	False
-Q05998	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06001	Cytoplasmic; Extracellular	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q06104	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06169		Helical			False	True	False	False
-Q06179					True	False	False	False
-Q06236	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q06325	Lumenal	Helical			True	True	False	True
-Q06350					True	False	False	False
-Q06417		Helical			False	True	False	False
-Q06451	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06538	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q06567	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q06668	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q06702					True	False	False	False
-Q06815	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q06991	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q07534		Helical			False	True	False	False
-Q07541	Lumenal; Cytoplasmic	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q08157	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q08176		Helical			False	True	False	False
-Q08219	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08232	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q08269		Helical			False	True	False	False
-Q08271					True	False	False	False
-Q08299	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q08409	Cytoplasmic	Helical			False	True	False	True
-Q08485		Helical			False	True	False	False
-Q08579		Helical			False	True	False	False
-Q08673					True	False	False	False
-Q08902	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q08906					True	False	False	False
-Q08908	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q08913	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08929	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q08970		Helical			False	True	False	False
-Q08991	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12001	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12013	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12016		Helical			False	True	False	False
-Q12025	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q12029		Helical			False	True	False	False
-Q12066		Helical			False	True	False	False
-Q12067	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q12078		Helical			False	True	False	False
-Q12096	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q12133	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q12171	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q12185		Helical			False	True	False	False
-Q12205	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q12209	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12215	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q12218					True	False	False	False
-Q12232	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q12235	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12270	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12289		Helical			False	True	False	False
-Q12296	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-Q12325	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12335					True	False	False	False
-Q12359	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q12372	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12375		Helical			False	True	False	False
-Q12403	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q12408					True	False	False	False
-Q12431	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12442	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12450	Lumenal; Cytoplasmic	Helical			True	True	False	True
-Q12467		Helical			False	True	False	False
-Q12482		Helical			False	True	False	False
-Q12520	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q12743	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q2V2P9	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q3E790		Helical			False	True	False	False
-Q3E798	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-Q3E834		Helical			False	True	False	False
-Q6Q595	Cytoplasmic	Helical; Anchor for type IV membrane protein			False	True	False	True
-Q99234	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q99297		Helical			False	True	False	False
-Q99316					True	False	False	False
-Q99332		Helical			False	True	False	False
-Q99382	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q99393	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P08459					True	False	False	False
-P0C155	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P0CE11	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P0CX13	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P13130					True	False	False	False
-P16151	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P16547	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
-P18411		Helical			False	True	False	False
-P18962	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P20048	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P22215	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P23797	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P24031					True	False	False	False
-P25036					True	False	False	False
-P25351	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P25354	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P25380					True	False	False	False
-P25568	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P25584		Helical			False	True	False	False
-P25585		Helical			False	True	False	False
-P25619	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P30777	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P32435					True	False	False	False
-P32616		Helical			False	True	False	False
-P32857	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P32858		Helical			False	True	False	False
-P32903	Cytoplasmic	Helical			False	True	False	True
-P33303		Helical			False	True	False	False
-P33335	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P35724	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P35735	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P36032	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P36125	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P36137	Perinuclear space; Cytoplasmic	Helical			True	True	False	True
-P36172	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P37267		Helical			False	True	False	False
-P38079	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38087		Helical			False	True	False	False
-P38124		Helical			False	True	False	False
-P38142	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P38156	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38176		Helical			False	True	False	False
-P38312	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38325		Helical			False	True	False	False
-P38335		Helical			False	True	False	False
-P38343	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38358	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P38374		Helical			False	True	False	False
-P38693					True	False	False	False
-P38702		Helical			False	True	False	False
-P38734	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38739		Helical			True	True	False	False
-P38745	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P38750	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38767	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38776	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38819	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P38842	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P38848	Cytoplasmic; Peroxisomal	Helical			False	True	False	True
-P38849	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P38958		Helical			False	True	False	False
-P38969		Helical			False	True	False	False
-P38971	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39005					True	False	False	False
-P39551	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39718		Helical			False	True	False	False
-P39981		Helical			False	True	False	False
-P39982	Cytoplasmic; Extracellular	Helical			True	True	False	True
-P39996	Cytoplasmic; Perinuclear space	Helical			False	True	False	True
-P40006	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P40039	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40100	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40309	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40355	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P40440	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40445	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40451		Helical			False	True	False	False
-P40464		Helical			False	True	False	False
-P40544	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40570		Helical			False	True	False	False
-P43548	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P43557		Helical			False	True	False	False
-P43562	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P43611					True	False	False	False
-P43613	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P43620		Helical			False	True	False	False
-P45820		Helical			False	True	False	False
-P46993	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P46999					True	False	False	False
-P47046	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P47081		Helical			False	True	False	False
-P47111	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P47153	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P47155	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P47187	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P48560					True	False	False	False
-P50080	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P50112					True	False	False	False
-P52290					True	False	False	False
-P52924	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53047	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53058					True	False	False	False
-P53099	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53142	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-P53203	Cytoplasmic; Peroxisomal	Helical			False	True	False	True
-P53241	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53253	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P53257		Helical			False	True	False	False
-P53279	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53285		Helical			False	True	False	False
-P53394	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53723		Helical			False	True	False	False
-P53735	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53744	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53751		Helical			False	True	False	False
-P53752		Helical			False	True	False	False
-P53835	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53878	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P53882		Helical			False	True	False	False
-P53898	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53918	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P53961		Helical			False	True	False	False
-P53966	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P54003	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P56508	Cytoplasmic; Vesicular	Helical			False	True	False	True
-P87275		Helical			False	True	False	False
-P89113					True	False	False	False
-Q02889	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q03029					True	False	False	False
-Q03079	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q03419	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q03516		Helical			False	True	False	False
-Q03673		Helical			False	True	False	False
-Q03697	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q03798		Helical			False	True	False	False
-Q03880	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q04083	Cytoplasmic; Mitochondrial intermembrane	Helical			False	True	False	True
-Q04210	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q04216	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q04301	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-Q04516	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q04602	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q04734	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q04767		Helical			False	True	False	False
-Q05648	Mitochondrial matrix; Mitochondrial intermembrane	Helical			False	True	False	True
-Q05827					True	False	False	False
-Q05867		Helical			False	True	False	False
-Q05899		Helical			False	True	False	False
-Q06011		Helical			False	True	False	False
-Q06107	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q06116		Helical			False	True	False	False
-Q06200	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06466		Helical			False	True	False	False
-Q06485		Helical			False	True	False	False
-Q06490					True	False	False	False
-Q06537		Helical			False	True	False	False
-Q06563		Helical			False	True	False	False
-Q06636	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q06644	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q06686	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q06689	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q07349		Helical			False	True	False	False
-Q07376	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q07451	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q07549	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q07660	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q07788	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q07798	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q07904	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q07959	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q07987					True	False	False	False
-Q07988					True	False	False	False
-Q07990					True	False	False	False
-Q08045					True	False	False	False
-Q08223		Helical			False	True	False	False
-Q08234	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q08268	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08280	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q08416	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q08693	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q08750		Helical			False	True	False	False
-Q08777	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08907					True	False	False	False
-Q08919	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-Q12057		Helical			False	True	False	False
-Q12117	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q12119		Helical			False	True	False	False
-Q12144	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12155	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12239	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12251		Helical			False	True	False	False
-Q12252	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q12282					True	False	False	False
-Q12350		Helical			False	True	False	False
-Q12374		Helical			False	True	False	False
-Q12407	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q12412	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12424	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q12436	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q12512					True	False	False	False
-Q12516	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q3E6R5		Helical			False	True	False	False
-Q3E824		Helical			False	True	False	False
-Q3E828	Mitochondrial intermembrane; Cytoplasmic	Helical			False	True	False	True
-Q7LHD1					True	False	False	False
-Q8TGJ3	Lumenal	Helical			True	True	False	True
-Q8TGN9		Helical			False	True	False	False
-Q99252		Helical			False	True	False	False
-A0A023PXB5		Helical			False	True	False	False
-A0A023PXH9		Helical			False	True	False	False
-A0A023PZE6		Helical			True	True	False	False
-A5Z2X5		Helical			False	True	False	False
-D6VPM8		Helical			False	True	False	False
-O13511		Helical			False	True	False	False
-O13512	Cytoplasmic; Extracellular	Helical			False	True	False	True
-O13529		Helical			False	True	False	False
-O13543		Helical			False	True	False	False
-O13550		Helical			False	True	False	False
-O13554		Helical			False	True	False	False
-O13566		Helical			False	True	False	False
-O13584		Helical			False	True	False	False
-O94084		Helical			False	True	False	False
-P0C261	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P0C289		Helical			False	True	False	False
-P0C5B8		Helical			False	True	False	False
-P0CD97	Cytoplasmic; Lumenal	Helical			False	True	False	True
-P0CD98	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P0CE85					True	False	False	False
-P0CE88					True	False	False	False
-P0CE89					True	False	False	False
-P0CE90					True	False	False	False
-P0CE91					True	False	False	False
-P0CE92					True	False	False	False
-P0CE93					True	False	False	False
-P0CF19		Helical			False	True	False	False
-P0CF20		Helical			False	True	False	False
-P0CL27		Helical			True	True	False	False
-P0CL28		Helical			True	True	False	False
-P0CL29		Helical			True	True	False	False
-P0CL30		Helical			True	True	False	False
-P0CL31		Helical			True	True	False	False
-P0CL34		Helical			False	True	False	False
-P0CL35		Helical			False	True	False	False
-P0CL36		Helical			False	True	False	False
-P0CL37		Helical			False	True	False	False
-P0CL38		Helical			False	True	False	False
-P0CL39		Helical			False	True	False	False
-P0CL40		Helical			False	True	False	False
-P0CL41		Helical			False	True	False	False
-P0CL42		Helical			False	True	False	False
-P0CX12	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P0CX18					True	False	False	False
-P0CX19					True	False	False	False
-P0CX99		Helical			False	True	False	False
-P25565		Helical			False	True	False	False
-P25610		Helical			False	True	False	False
-P25639	Lumenal; Cytoplasmic	Helical			True	True	False	True
-P28626		Helical			False	True	False	False
-P32564		Helical			False	True	False	False
-P32612		Helical			False	True	False	False
-P32633		Helical			False	True	False	False
-P34224		Helical			False	True	False	False
-P34251		Helical			False	True	False	False
-P35994					True	False	False	False
-P36034		Helical			False	True	False	False
-P36066		Helical			False	True	False	False
-P37265		Helical			False	True	False	False
-P38083		Helical			False	True	False	False
-P38150		Helical			False	True	False	False
-P38155					True	False	False	False
-P38168		Helical			False	True	False	False
-P38189	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38190		Helical			False	True	False	False
-P38192		Helical			False	True	False	False
-P38240	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38253		Helical			False	True	False	False
-P38267	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38268		Helical			False	True	False	False
-P38292	Peroxisomal; Cytoplasmic	Helical			False	True	False	True
-P38318	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P38320	Extracellular; Cytoplasmic	Helical			True	True	False	True
-P38355		Helical			False	True	False	False
-P38721		Helical			False	True	False	False
-P38723	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P38725					True	False	False	False
-P38726		Helical			False	True	False	False
-P38728		Helical			False	True	False	False
-P38740		Helical			False	True	False	False
-P38775		Helical			False	True	False	False
-P38832					True	False	False	False
-P38841					True	False	False	False
-P38868		Helical			False	True	False	False
-P39542	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39557	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P39931					True	False	False	False
-P39991		Helical			False	True	False	False
-P40049					True	False	False	False
-P40097		Helical			False	True	False	False
-P40098		Helical			False	True	False	False
-P40441	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40476		Helical			False	True	False	False
-P40497		Helical			False	True	False	False
-P40500	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P40502		Helical			False	True	False	False
-P40508		Helical			False	True	False	False
-P40514		Helical			False	True	False	False
-P40520					True	False	False	False
-P40524	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P40534		Helical			False	True	False	False
-P40585					True	False	False	False
-P42840	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P42946	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P43537	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P43542		Helical			False	True	False	False
-P43552	Cytoplasmic; Extracellular	Helical			True	True	False	True
-P43575		Helical			False	True	False	False
-P43590		Helical			False	True	False	False
-P43595		Helical			True	True	False	False
-P43600					True	False	False	False
-P43617		Helical			False	True	False	False
-P43624		Helical			False	True	False	False
-P46991	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P46996	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P46998		Helical			False	True	False	False
-P47010		Helical			False	True	False	False
-P47014		Helical			False	True	False	False
-P47020		Helical			False	True	False	False
-P47034		Helical			False	True	False	False
-P47090	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P47094		Helical			False	True	False	False
-P47121					True	False	False	False
-P47131		Helical			False	True	False	False
-P47144		Helical			False	True	False	False
-P47157					True	False	False	False
-P47159	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P50088		Helical			False	True	False	False
-P50943		Helical			False	True	False	False
-P53053	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53057					True	False	False	False
-P53074		Helical			False	True	False	False
-P53087		Helical			False	True	False	False
-P53089		Helical			False	True	False	False
-P53117		Helical			False	True	False	False
-P53120	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53134		Helical			False	True	False	False
-P53171		Helical			False	True	False	False
-P53209	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53217	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53249					True	False	False	False
-P53288		Helical			False	True	False	False
-P53293		Helical			False	True	False	False
-P53339	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53343		Helical			False	True	False	False
-P53344	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53427		Helical			False	True	False	False
-P53584	Extracellular; Cytoplasmic	Helical			False	True	False	True
-P53745	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			False	True	False	True
-P53747	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P53748	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53822	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53862	Cytoplasmic; Extracellular	Helical			True	True	False	True
-P53906		Helical			False	True	False	False
-P53908	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53925	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-P53928	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53932	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P53947		Helical			False	True	False	False
-P53956	Lumenal; Cytoplasmic	Helical			False	True	False	True
-P53964	Cytoplasmic; Extracellular	Helical			True	True	False	True
-P53975	Cytoplasmic; Extracellular	Helical			True	True	False	True
-P54072	Cytoplasmic; Extracellular	Helical			False	True	False	True
-P87267		Helical			True	True	False	False
-P9WEJ6		Helical			False	True	False	False
-Q02203	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q02786					True	False	False	False
-Q02820		Helical			False	True	False	False
-Q03050					True	False	False	False
-Q03102	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q03187		Helical			True	True	False	False
-Q03193	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q03263	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q03648		Helical			False	True	False	False
-Q03730	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q03783		Helical			False	True	False	False
-Q03795	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q03913		Helical			False	True	False	False
-Q04018		Helical			False	True	False	False
-Q04033					True	False	False	False
-Q04100		Helical			True	True	False	False
-Q04162	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q04398		Helical			False	True	False	False
-Q04835	Lumenal; Cytoplasmic	Helical			False	True	False	True
-Q04991	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-Q05497		Helical			False	True	False	False
-Q05611		Helical			False	True	False	False
-Q05637		Helical			False	True	False	False
-Q06089		Helical			False	True	False	False
-Q06158	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06170	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q06235		Helical			False	True	False	False
-Q06247		Helical			False	True	False	False
-Q07074		Helical			False	True	False	False
-Q07629	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q07716					True	False	False	False
-Q07790		Helical			True	True	False	False
-Q07829		Helical			False	True	False	False
-Q07895	Vacuolar; Cytoplasmic	Helical			True	True	False	True
-Q07986		Helical			False	True	False	False
-Q07992					True	False	False	False
-Q08023		Helical			False	True	False	False
-Q08238	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08240	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08272		Helical			True	True	False	False
-Q08300					True	False	False	False
-Q08322		Helical			False	True	False	False
-Q08498		Helical			True	True	False	False
-Q08559		Helical			False	True	False	False
-Q08630		Helical			False	True	False	False
-Q08743	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-Q08786	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08844	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q08900	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08910					True	False	False	False
-Q08912					True	False	False	False
-Q08922		Helical			False	True	False	False
-Q08958		Helical			False	True	False	False
-Q08974	Extracellular; Cytoplasmic	Helical			False	True	False	True
-Q08980	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q08989					True	False	False	False
-Q12042	Vacuolar; Cytoplasmic	Helical			False	True	False	True
-Q12064					True	False	False	False
-Q12079	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12116	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q12121		Helical			False	True	False	False
-Q12160		Helical			False	True	False	False
-Q12212					True	False	False	False
-Q12253	Cytoplasmic; Extracellular	Helical			False	True	False	True
-Q12254					True	False	False	False
-Q12301	Cytoplasmic; Vacuolar	Helical			False	True	False	True
-Q12331					True	False	False	False
-Q12346	Cytoplasmic; Lumenal	Helical			False	True	False	True
-Q12370					True	False	False	False
-Q12479		Helical			False	True	False	False
-Q12498		Helical			False	True	False	False
-Q2V2P2		Helical			False	True	False	False
-Q2V2P3		Helical			False	True	False	False
-Q2V2P5		Helical			False	True	False	False
-Q2V2Q2					True	False	False	False
-Q3E6R4					True	False	False	False
-Q3E770					True	False	False	False
-Q3E7A3		Helical			False	True	False	False
-Q3E7A7					True	False	False	False
-Q3E7B0		Helical			False	True	False	False
-Q3E7B9	Extracellular; Cytoplasmic	Helical			True	True	False	True
-Q3E7Z8		Helical			False	True	False	False
-Q3E842		Helical			False	True	False	False
-Q45U18		Helical			False	True	False	False
-Q6B0V8		Helical			False	True	False	False
-Q6B0X2		Helical			True	True	False	False
-Q870I1		Helical			False	True	False	False
-Q8TGK5		Helical			False	True	False	False
-Q8TGQ7		Helical			False	True	False	False
-Q8TGU7		Helical			False	True	False	False
-A0A023PXB9		Helical			False	True	False	False
-A0A023PXC2		Helical			True	True	False	False
-A0A023PXC7		Helical			False	True	False	False
-A0A023PXD5		Helical			True	True	False	False
-A0A023PXD9		Helical			False	True	False	False
-A0A023PXF8		Helical			False	True	False	False
-A0A023PXG3		Helical			False	True	False	False
-A0A023PXG7		Helical			False	True	False	False
-A0A023PXH4		Helical			False	True	False	False
-A0A023PXH6		Helical			False	True	False	False
-A0A023PXI0		Helical			False	True	False	False
-A0A023PXI4					True	False	False	False
-A0A023PXJ3		Helical			False	True	False	False
-A0A023PXJ7		Helical			False	True	False	False
-A0A023PXK2		Helical; Signal-anchor; Helical			False	True	False	False
-A0A023PXK7		Helical			False	True	False	False
-A0A023PXL1		Helical			False	True	False	False
-A0A023PXL7		Helical			False	True	False	False
-A0A023PXM7		Helical			False	True	False	False
-A0A023PXN9		Helical			False	True	False	False
-A0A023PXQ4		Helical			False	True	False	False
-A0A023PXQ9		Helical			False	True	False	False
-A0A023PYC6		Helical			True	True	False	False
-A0A023PYD0		Helical			False	True	False	False
-A0A023PYD7		Helical			False	True	False	False
-A0A023PYD9		Helical			True	True	False	False
-A0A023PYE4		Helical			False	True	False	False
-A0A023PYE9					True	False	False	False
-A0A023PYF4					True	False	False	False
-A0A023PYG1		Helical			False	True	False	False
-A0A023PYH0					True	False	False	False
-A0A023PYI5		Helical			False	True	False	False
-A0A023PYJ0		Helical			False	True	False	False
-A0A023PYJ7		Helical			False	True	False	False
-A0A023PYK2		Helical			False	True	False	False
-A0A023PZ94		Helical			False	True	False	False
-A0A023PZ99		Helical			False	True	False	False
-A0A023PZB8		Helical			False	True	False	False
-A0A023PZD0		Helical			False	True	False	False
-A0A023PZE1		Helical			False	True	False	False
-A0A023PZE2		Helical			False	True	False	False
-A0A023PZF3		Helical			False	True	False	False
-A0A023PZF9		Helical			False	True	False	False
-A0A023PZG0		Helical			True	True	False	False
-A0A023PZG5					True	False	False	False
-A0A023PZG9		Helical			False	True	False	False
-A0A023PZH1		Helical			False	True	False	False
-A0A023PZH4		Helical			False	True	False	False
-A0A023PZH5		Helical			False	True	False	False
-A0A023PZI4		Helical			False	True	False	False
-A0A023PZJ3		Helical			False	True	False	False
-A0A023PZK9		Helical			False	True	False	False
-A0A023PZL2		Helical			True	True	False	False
-A0A023PZM3		Helical			False	True	False	False
-I2HB70					True	False	False	False
-O13514		Helical			False	True	False	False
-O13515					True	False	False	False
-O13518		Helical			False	True	False	False
-O13519					True	False	False	False
-O13520		Helical			False	True	False	False
-O13522		Helical			False	True	False	False
-O13523		Helical			False	True	False	False
-O13530		Helical			False	True	False	False
-O13533		Helical			False	True	False	False
-O13537		Helical			False	True	False	False
-O13540		Helical			False	True	False	False
-O13544		Helical			False	True	False	False
-O13545		Helical			False	True	False	False
-O13560		Helical			False	True	False	False
-O13561		Helical			False	True	False	False
-O13562		Helical			False	True	False	False
-O13567		Helical			False	True	False	False
-O13568		Helical			False	True	False	False
-O13570		Helical			False	True	False	False
-O13572		Helical			False	True	False	False
-O13579		Helical			False	True	False	False
-O13583		Helical			False	True	False	False
-O94085		Helical			False	True	False	False
-P0C5E0		Helical			False	True	False	False
-P0C5L2		Helical			False	True	False	False
-P0C5L8					True	False	False	False
-P0C5M2		Helical			False	True	False	False
-P0C5M3		Helical			False	True	False	False
-P0C5M6					True	False	False	False
-P0C5M7		Helical			False	True	False	False
-P0C5N0		Helical			False	True	False	False
-P0C5N8		Helical			False	True	False	False
-P0C5N9		Helical			False	True	False	False
-P0C5P3		Helical			False	True	False	False
-P0C5P5		Helical			False	True	False	False
-P0C5Q3		Helical			False	True	False	False
-P0C5Q4		Helical			False	True	False	False
-P0C5R1		Helical			False	True	False	False
-P0C5R7		Helical			False	True	False	False
-P0C5R8		Helical			False	True	False	False
-P0CL32		Helical			False	True	False	False
-P0CL33		Helical			False	True	False	False
-P0CX92		Helical			False	True	False	False
-P0CX93		Helical			False	True	False	False
-P0CX94		Helical			False	True	False	False
-P0CX95		Helical			False	True	False	False
-P0CX96		Helical			False	True	False	False
-P0CX97		Helical			False	True	False	False
-P0CX98		Helical			False	True	False	False
-P0CY00		Helical			False	True	False	False
-P0CY01		Helical			False	True	False	False
-P25577					True	False	False	False
-P36092		Helical			False	True	False	False
-P36098		Helical			False	True	False	False
-P37264		Helical			False	True	False	False
-P38173		Helical			False	True	False	False
-P38185		Helical			False	True	False	False
-P38186		Helical			False	True	False	False
-P38215					True	False	False	False
-P38220		Helical			False	True	False	False
-P38233		Helical			False	True	False	False
-P38252		Helical			False	True	False	False
-P38258		Helical			False	True	False	False
-P38269		Helical			False	True	False	False
-P38311		Helical			False	True	False	False
-P38317		Helical			False	True	False	False
-P38327		Helical			False	True	False	False
-P38357		Helical			False	True	False	False
-P38362		Helical			False	True	False	False
-P38729					True	False	False	False
-P38733					True	False	False	False
-P38752		Helical			False	True	False	False
-P38799		Helical			False	True	False	False
-P38834		Helical			False	True	False	False
-P39532		Helical			False	True	False	False
-P39541		Helical			False	True	False	False
-P39545					True	False	False	False
-P39559		Helical			False	True	False	False
-P39563		Helical			False	True	False	False
-P39989					True	False	False	False
-P40163		Helical			False	True	False	False
-P40365		Helical			False	True	False	False
-P40519		Helical			False	True	False	False
-P40538		Helical			False	True	False	False
-P40587		Helical			False	True	False	False
-P43566		Helical			False	True	False	False
-P43578		Helical			False	True	False	False
-P43608		Helical			False	True	False	False
-P46986		Helical			False	True	False	False
-P47003		Helical			False	True	False	False
-P47022		Helical			False	True	False	False
-P47028		Helical			False	True	False	False
-P47062		Helical			False	True	False	False
-P47080		Helical			False	True	False	False
-P47091		Helical			False	True	False	False
-P47106		Helical			False	True	False	False
-P50083		Helical			False	True	False	False
-P53069		Helical			False	True	False	False
-P53106		Helical			False	True	False	False
-P53113		Helical			False	True	False	False
-P53116		Helical			True	True	False	False
-P53151		Helical			False	True	False	False
-P53160		Helical			False	True	False	False
-P53161		Helical			False	True	False	False
-P53181		Helical			False	True	False	False
-P53182		Helical			False	True	False	False
-P53190		Helical			False	True	False	False
-P53229		Helical			False	True	False	False
-P53245		Helical			False	True	False	False
-P53247		Helical			False	True	False	False
-P53268		Helical			False	True	False	False
-P53269		Helical			False	True	False	False
-P53282		Helical			False	True	False	False
-P53308		Helical			False	True	False	False
-P53310		Helical			False	True	False	False
-P53325		Helical			False	True	False	False
-P53342		Helical			False	True	False	False
-P53717		Helical			False	True	False	False
-P53726		Helical			False	True	False	False
-P53825		Helical			False	True	False	False
-P53826					True	False	False	False
-P53842		Helical			False	True	False	False
-P53856		Helical			False	True	False	False
-P53880		Helical			False	True	False	False
-P53884		Helical			False	True	False	False
-P53926		Helical			False	True	False	False
-P53979		Helical			False	True	False	False
-P87264		Helical			False	True	False	False
-P87266		Helical			False	True	False	False
-P87270		Helical			False	True	False	False
-P87272		Helical			False	True	False	False
-P87273		Helical			False	True	False	False
-P87274		Helical			False	True	False	False
-P87280		Helical			False	True	False	False
-P87281		Helical			False	True	False	False
-P87285		Helical			False	True	False	False
-P87287		Helical			True	True	False	False
-P90471		Helical			False	True	False	False
-P9WEJ2					True	False	False	False
-P9WEJ4		Helical			False	True	False	False
-Q00590		Helical			False	True	False	False
-Q02217		Helical			False	True	False	False
-Q03186		Helical			False	True	False	False
-Q03236		Helical			False	True	False	False
-Q03418		Helical			False	True	False	False
-Q03480		Helical			False	True	False	False
-Q03788		Helical			False	True	False	False
-Q03884		Helical			False	True	False	False
-Q03885		Helical			False	True	False	False
-Q03904		Helical			False	True	False	False
-Q04069		Helical			False	True	False	False
-Q04203		Helical			False	True	False	False
-Q04501		Helical			False	True	False	False
-Q04521					True	False	False	False
-Q04838		Helical			False	True	False	False
-Q04909		Helical			False	True	False	False
-Q05503		Helical			False	True	False	False
-Q05612		Helical			False	True	False	False
-Q05898		Helical			False	True	False	False
-Q06051		Helical			False	True	False	False
-Q06057		Helical			False	True	False	False
-Q06127		Helical			False	True	False	False
-Q07355		Helical			False	True	False	False
-Q07435		Helical			False	True	False	False
-Q07509		Helical			False	True	False	False
-Q07811		Helical			False	True	False	False
-Q07865		Helical			False	True	False	False
-Q07880					True	False	False	False
-Q07881		Helical			False	True	False	False
-Q08027		Helical			False	True	False	False
-Q08205		Helical			False	True	False	False
-Q08207		Helical			False	True	False	False
-Q08373		Helical			False	True	False	False
-Q08428		Helical			False	True	False	False
-Q08439					True	False	False	False
-Q08532					True	False	False	False
-Q08533		Helical			False	True	False	False
-Q08560		Helical			False	True	False	False
-Q08604		Helical			False	True	False	False
-Q08734		Helical			False	True	False	False
-Q08736		Helical			False	True	False	False
-Q08741		Helical			False	True	False	False
-Q08811		Helical			False	True	False	False
-Q08915		Helical			False	True	False	False
-Q08927		Helical			False	True	False	False
-Q08976					True	False	False	False
-Q12023		Helical			False	True	False	False
-Q12070					True	False	False	False
-Q12077		Helical			False	True	False	False
-Q12111		Helical			False	True	False	False
-Q12135		Helical			False	True	False	False
-Q12147		Helical			False	True	False	False
-Q12169		Helical			False	True	False	False
-Q12174		Helical			False	True	False	False
-Q12187		Helical			False	True	False	False
-Q12210		Helical			False	True	False	False
-Q12225		Helical			False	True	False	False
-Q12240		Helical			False	True	False	False
-Q12249		Helical			False	True	False	False
-Q12274		Helical			False	True	False	False
-Q12312		Helical			False	True	False	False
-Q12336		Helical			False	True	False	False
-Q12352		Helical			False	True	False	False
-Q12394		Helical			False	True	False	False
-Q12492		Helical			False	True	False	False
-Q12528		Helical			False	True	False	False
-Q2V2P6		Helical			False	True	False	False
-Q3E735		Helical			False	True	False	False
-Q3E739		Helical			False	True	False	False
-Q3E743		Helical			False	True	False	False
-Q3E750		Helical			False	True	False	False
-Q3E751		Helical			False	True	False	False
-Q3E755					True	False	False	False
-Q3E760		Helical			False	True	False	False
-Q3E763					True	False	False	False
-Q3E765		Helical			False	True	False	False
-Q3E776		Helical			False	True	False	False
-Q3E782					True	False	False	False
-Q3E796		Helical			False	True	False	False
-Q3E7Z4		Helical			False	True	False	False
-Q3E810		Helical			False	True	False	False
-Q3E814		Helical			False	True	False	False
-Q3E815		Helical			False	True	False	False
-Q3E820		Helical			False	True	False	False
-Q3E821					True	False	False	False
-Q3E837					True	False	False	False
-Q6B0R2		Helical			False	True	False	False
-Q6B0W0		Helical			False	True	False	False
-Q6B0Y1		Helical			False	True	False	False
-Q6B0Y5		Helical			False	True	False	False
-Q6B0Y6		Helical			False	True	False	False
-Q6B0Z2		Helical			False	True	False	False
-Q6B2I9		Helical			False	True	False	False
-Q8J0M4					True	False	False	False
-Q8TGM9		Helical			False	True	False	False
-Q8TGN7		Helical			False	True	False	False
-Q8TGP9		Helical			False	True	False	False
-Q8TGQ0		Helical			False	True	False	False
-Q8TGQ2					True	False	False	False
-Q8TGR2					True	False	False	False
-Q8TGR3		Helical			False	True	False	False
-Q8TGR7		Helical			False	True	False	False
-Q8TGS0		Helical			False	True	False	False
-Q8TGS1		Helical			False	True	False	False
-Q8TGS4					True	False	False	False
-Q8TGS5					True	False	False	False
-Q8TGS7		Helical			False	True	False	False
-Q8TGT1					True	False	False	False
-Q8TGT2		Helical			False	True	False	False
-Q8TGT4		Helical			False	True	False	False
-Q8TGT9		Helical			False	True	False	False
-Q8TGU2		Helical			False	True	False	False
-Q96VG6		Helical			False	True	False	False
-Q96VH1		Helical			False	True	False	False
-Q96VH3		Helical			False	True	False	False
-Q99401		Helical			False	True	False	False
+id	gene_name	Topological domain	Transmembrane	Intramembrane	has_signal	has_transmem	has_intramem	has_topo_dom
+D6VTK4	STE2	Extracellular; Cytoplasmic	Helical			True		True
+O13547	CCW14				True
+P00163	COB	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P00401	COX1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P00410	COX2	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P00420	COX3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P00424	COX5A	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P00635	PHO5				True
+P00724	SUC2				True
+P00729	PRC1				True
+P00854	ATP6		Helical			True
+P03873	BI2	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P03877	AI3		Helical			True
+P04039	COX8	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P04710	AAC1		Helical			True
+P04817	CAN1		Helical			True
+P04821	CDC25		Helical			True
+P04840	POR1		Beta stranded			True
+P05030	PMA1	Cytoplasmic; Extracellular	Helical			True		True
+P05374	CHO2	Lumenal; Cytoplasmic	Helical			True		True
+P05375	OPI3	Lumenal; Cytoplasmic	Helical	Helical		True	True	True
+P06197	PIS1	Cytoplasmic; Lumenal	Helical			True		True
+P07143	CYT1	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P07213	TOM70	Mitochondrial intermembrane; Cytoplasmic	Helical			True		True
+P07255	COX9	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P07267	PEP4				True
+P07286	ALG7		Helical			True
+P08004	CHS1		Helical			True
+P08067	RIP1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P08456	CHO1		Helical			True
+P08525	QCR8	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P08640	FLO11				True
+P09232	PRB1				True
+P09620	KEX1	Lumenal; Cytoplasmic	Helical		True	True		True
+P0C5R9		Lumenal; Cytoplasmic	Helical			True		True
+P0CD91	AQY1	Cytoplasmic; Extracellular	Helical			True		True
+P0CX77	ASP3-2				True
+P0CX78	ASP3-3				True
+P0CX79	ASP3-4				True
+P0CZ17	ASP3-1				True
+P10174	COX7	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P10614	ERG11	Lumenal; Cytoplasmic	Helical			True		True
+P10863	TIR1				True
+P10870	SNF3	Cytoplasmic; Extracellular	Helical			True		True
+P11491	PHO8	Cytoplasmic; Vacuolar	Helical			True		True
+P11655	SEC12	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P11710	FUS1		Helical			True
+P12630	BAR1				True
+P12683	HMG1	Cytoplasmic; Lumenal	Helical			True		True
+P12684	HMG2	Cytoplasmic; Lumenal	Helical			True		True
+P12866	STE6	Cytoplasmic; Extracellular	Helical			True		True
+P13134	KEX2	Lumenal; Cytoplasmic	Helical		True	True		True
+P13586	PMR1	Cytoplasmic; Lumenal	Helical			True		True
+P13587	ENA1	Cytoplasmic; Extracellular	Helical			True		True
+P14020	DPM1	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True		True
+P14180	CHS2	Extracellular; Cytoplasmic	Helical			True		True
+P14772	BPT1	Vacuolar; Cytoplasmic	Helical			True		True
+P14906	SEC63	Lumenal; Cytoplasmic	Helical			True		True
+P15367	SEC11	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P15703	BGL2				True
+P16474	KAR2				True
+P16603	NCP1	Lumenal; Cytoplasmic	Helical			True		True
+P16661	ALG1	Lumenal; Cytoplasmic	Helical	Helical		True	True	True
+P17064	FCY2	Cytoplasmic; Extracellular	Helical			True		True
+P17260	KRE1				True
+P17898	CPT1	Lumenal; Cytoplasmic	Helical			True		True
+P17967	PDI1				True
+P18238	AAC3		Helical			True
+P18239	PET9		Helical			True
+P18410	SPO7	Cytoplasmic; Extracellular	Helical			True		True
+P19145	GAP1	Cytoplasmic; Extracellular	Helical			True		True
+P19516	COX11	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P19657	PMA2	Cytoplasmic; Extracellular	Helical			True		True
+P19807	HNM1	Extracellular; Cytoplasmic	Helical			True		True
+P20107	ZRC1	Cytoplasmic; Vacuolar	Helical			True		True
+P20840	SAG1				True
+P21147	OLE1	Cytoplasmic; Lumenal	Helical			True		True
+P21560	CBP3		Helical			True
+P21592	COX10		Helical			True
+P21825	SEC62	Cytoplasmic; Lumenal	Helical			True		True
+P22140	EPT1	Lumenal; Cytoplasmic	Helical			True		True
+P22146	GAS1				True
+P22214	SEC22	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			True		True
+P22289	QCR9	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P22804	BET1	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			True		True
+P23285	CPR2				True
+P23585	HXT2	Cytoplasmic; Extracellular	Helical			True		True
+P23642	VAN1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P23776	EXG1				True
+P23833	SCO1		Helical			True
+P23900	FPS1	Extracellular; Cytoplasmic	Helical			True		True
+P23968	VMA16	Vacuolar; Cytoplasmic	Helical			True		True
+P25045	LCB1	Lumenal; Cytoplasmic	Helical			True		True
+P25297	PHO84	Extracellular; Cytoplasmic	Helical			True		True
+P25303	SCJ1				True
+P25340	ERG4	Lumenal; Cytoplasmic	Helical			True		True
+P25346	GIT1	Cytoplasmic; Extracellular	Helical			True		True
+P25353	NPP1	Cytoplasmic; Extracellular	Helical			True		True
+P25358	ELO2	Lumenal; Cytoplasmic	Helical			True		True
+P25360	PHO87	Extracellular; Cytoplasmic	Helical			True		True
+P25376	AGP1	Cytoplasmic; Extracellular	Helical			True		True
+P25385	BOS1	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			True		True
+P25515	VMA3	Vacuolar; Cytoplasmic	Helical			True		True
+P25573	MGR1	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P25574	EMC1	Lumenal; Cytoplasmic	Helical		True	True		True
+P25587	LDB16	Extracellular; Cytoplasmic	Helical			True		True
+P25613	ADY2	Cytoplasmic; Extracellular	Helical			True		True
+P25618	CWH43	Cytoplasmic; Extracellular	Helical			True		True
+P25641	ATG15	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P25653	FIG2				True
+P25656	CDC50	Cytoplasmic; Lumenal	Helical			True		True
+P27514	PHO91		Helical			True
+P27614	CPS1	Cytoplasmic; Lumenal	Helical			True		True
+P27654	TIP1				True
+P27809	KRE2	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P27810	KTR1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P27825	CNE1	Lumenal	Helical		True	True		True
+P28319	CWP1				True
+P28496	LAC1	Cytoplasmic; Lumenal	Helical			True		True
+P28737	MSP1	Mitochondrial intermembrane; Cytoplasmic	Helical			True		True
+P28791	SEC20	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True		True
+P28795	PEX3	Peroxisomal; Cytoplasmic	Helical			True		True
+P29029	CTS1				True
+P29465	CHS3	Cytoplasmic; Extracellular	Helical			True		True
+P29704	ERG9		Helical			True
+P30605	ITR1	Cytoplasmic; Extracellular	Helical			True		True
+P31109	SNC1	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			True		True
+P31377	SYN8	Cytoplasmic	Helical; Anchor for type IV membrane protein			True		True
+P31382	PMT2	Cytoplasmic; Lumenal	Helical			True		True
+P31755	OCH1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P32266	MGM1	Mitochondrial matrix; Mitochondrial intermembrane	Helical; Signal-anchor for type II membrane protein			True		True
+P32319	PEP1	Lumenal; Cytoplasmic	Helical		True	True		True
+P32323	AGA1				True
+P32329	YPS1				True
+P32332	OAC1		Helical			True
+P32334	MSB2	Extracellular; Cytoplasmic	Helical		True	True		True
+P32343	SSH4	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P32352	ERG2		Helical			True
+P32353	ERG3	Cytoplasmic; Lumenal	Helical			True		True
+P32361	IRE1	Lumenal; Cytoplasmic	Helical		True	True		True
+P32363	SPT14		Helical			True
+P32368	SAC1	Cytoplasmic; Lumenal	Helical			True		True
+P32386	YBT1	Lumenal; Cytoplasmic	Helical			True		True
+P32462	ERG24	Lumenal; Cytoplasmic	Helical			True		True
+P32465	HXT1	Cytoplasmic; Extracellular	Helical			True		True
+P32466	HXT3	Cytoplasmic; Extracellular	Helical			True		True
+P32467	HXT4	Cytoplasmic; Extracellular	Helical			True		True
+P32472	FPR2				True
+P32474	EUG1				True
+P32476	ERG1	Cytoplasmic; Lumenal	Helical			True		True
+P32478	HSP150				True
+P32486	KRE6	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P32500	NDC1	Cytoplasmic; Perinuclear space	Helical			True		True
+P32563	VPH1	Cytoplasmic; Vacuolar	Helical			True		True
+P32568	SNQ2		Helical			True
+P32584	STE14	Cytoplasmic; Lumenal	Helical	Helical		True	True	True
+P32621	GDA1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P32623	UTR2				True
+P32629	ANP1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P32660	DNF1	Cytoplasmic; Extracellular	Helical			True		True
+P32768	FLO1				True
+P32784	SCT1	Lumenal; Cytoplasmic	Helical			True		True
+P32791	FRE1	Extracellular; Cytoplasmic	Helical		True	True		True
+P32798	COT1	Cytoplasmic; Vacuolar	Helical			True		True
+P32799	COX13	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P32800	PEX2	Peroxisomal matrix; Cytoplasmic	Helical			True		True
+P32802	EMP70	Lumenal; Cytoplasmic	Helical		True	True		True
+P32803	EMP24	Lumenal; Cytoplasmic	Helical		True	True		True
+P32839	BCS1	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P32842	VMA11	Vacuolar; Cytoplasmic	Helical			True		True
+P32854	PEP12	Cytoplasmic	Helical; Anchor for type IV membrane protein			True		True
+P32867	SSO1	Cytoplasmic; Extracellular	Helical; Anchor for type IV membrane protein			True		True
+P32897	TIM23	Mitochondrial intermembrane; Mitochondrial matrix	Helical; Note=Outer membrane; Helical; Note=Inner membrane			True		True
+P32900	SKG6		Helical			True
+P32901	PTR2	Extracellular; Cytoplasmic	Helical			True		True
+P32906	MNS1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P32915	SEC61	Cytoplasmic; Lumenal	Helical			True		True
+P33296	UBC6	Cytoplasmic	Helical			True		True
+P33300	SUR1	Cytoplasmic; Extracellular	Helical			True		True
+P33302	PDR5	Cytoplasmic; Extracellular	Helical			True		True
+P33310	MDL1		Helical			True
+P33328	SNC2	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			True		True
+P33336	SKN1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P33338	SLA2		Helical			True
+P33413	DUR3	Cytoplasmic; Extracellular	Helical			True		True
+P33421	SDH3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P33448	TOM6	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+P33754	SEC66	Lumenal; Cytoplasmic	Helical; Signal-anchor for type II membrane protein			True		True
+P33767	WBP1	Lumenal; Cytoplasmic	Helical		True	True		True
+P33775	PMT1	Cytoplasmic; Lumenal	Helical			True		True
+P34163	TGL1	Lumenal; Cytoplasmic	Helical			True		True
+P34230	PXA2		Helical			True
+P35176	CPR5				True
+P35179	SSS1	Cytoplasmic; Extracellular	Helical			True		True
+P35180	TOM20	Mitochondrial intermembrane; Cytoplasmic	Helical			True		True
+P35206	CSG2	Lumenal; Cytoplasmic	Helical		True	True		True
+P36016	LHS1				True
+P36027	MID2	Extracellular; Cytoplasmic	Helical		True	True		True
+P36033	FRE2	Extracellular; Cytoplasmic	Helical		True	True		True
+P36035	JEN1	Cytoplasmic; Extracellular	Helical			True		True
+P36044	MNN4	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P36046	MIA40	Mitochondrial matrix; Mitochondrial intermembrane	Helical; Signal-anchor for type II membrane protein			True		True
+P36051	MCD4	Cytoplasmic; Lumenal	Helical			True		True
+P36057	SRP102		Helical			True
+P36060	MCR1		Helical			True
+P36081	PSG1	Lumenal; Cytoplasmic	Helical		True	True		True
+P36091	DCW1				True
+P36096	TUL1	Lumenal; Cytoplasmic	Helical		True	True		True
+P36107	AUR1	Cytoplasmic; Lumenal	Helical			True		True
+P36112	MIC60	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P36135	UTH1				True
+P36142	HFL1	Extracellular; Cytoplasmic	Helical			True		True
+P36148	GPT2	Lumenal; Cytoplasmic	Helical			True		True
+P36163	OMA1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P36170	FLO10				True
+P37020	GEF1	Cytoplasmic; Lumenal	Helical			True		True
+P37296	STV1	Cytoplasmic; Vacuolar	Helical			True		True
+P37298	SDH4	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P37299	QCR10	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P38069	MNN2	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			True		True
+P38084	BAP2	Cytoplasmic; Extracellular	Helical			True		True
+P38085	TAT1	Cytoplasmic; Extracellular	Helical			True		True
+P38109	ATG42				True
+P38125	DTR1	Cytoplasmic; Extracellular	Helical			True		True
+P38127	RIM2		Helical			True
+P38130	KTR3	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P38138	ROT2				True
+P38211	GPI18	Cytoplasmic; Lumenal	Helical			True		True
+P38212	RCR1	Lumenal; Cytoplasmic	Helical			True		True
+P38221	CDS1		Helical			True
+P38225	FAT1	Cytoplasmic; Extracellular	Helical			True	True	True
+P38227	QDR3	Extracellular; Cytoplasmic	Helical			True		True
+P38228	TCM62	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P38242	ALG14	Lumenal; Cytoplasmic	Helical			True		True
+P38244	PFF1	Cytoplasmic; Vacuolar	Helical			True		True
+P38247	SLM4		Helical			True
+P38248	ECM33				True
+P38250	IST2	Cytoplasmic; Extracellular	Helical			True		True
+P38264	PHO88		Helical			True
+P38279	RTC2	Vacuolar; Cytoplasmic	Helical			True		True
+P38286	IFA38		Helical			True
+P38287	CSH1		Helical			True
+P38297	FZO1	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+P38298	YPC1	Lumenal; Cytoplasmic	Helical			True	True	True
+P38301	GDT1	Cytoplasmic; Vacuolar	Helical			True		True
+P38307	DER1	Cytoplasmic; Lumenal	Helical			True		True
+P38310	FTH1	Vacuolar; Cytoplasmic	Helical			True		True
+P38329	VHC1	Cytoplasmic; Vacuolar	Helical			True		True
+P38341	MIC12	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P38342	TSC10	Cytoplasmic; Lumenal	Helical			True		True
+P38353	SSH1	Cytoplasmic; Lumenal	Helical			True		True
+P38356	BSD2	Extracellular; Cytoplasmic	Helical			True		True
+P38360	PCA1	Cytoplasmic; Extracellular	Helical			True		True
+P38361	PHO89	Extracellular; Cytoplasmic	Helical			True		True
+P38428	CUE1	Lumenal; Cytoplasmic	Helical			True		True
+P38626	CBR1		Helical			True
+P38631	FKS1	Cytoplasmic; Extracellular	Helical			True		True
+P38695	HXT5	Cytoplasmic; Extracellular	Helical			True		True
+P38703	LAG1	Cytoplasmic; Lumenal	Helical			True		True
+P38717	SIP3	Cytoplasmic; Lumenal	Helical			True		True
+P38731	ARN1	Extracellular; Cytoplasmic	Helical			True		True
+P38736	GOS1	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			True		True
+P38742	NPR3				True
+P38757	NEM1		Helical			True
+P38770	BRL1	Cytoplasmic; Perinuclear space	Helical			True		True
+P38778	SMF2		Helical			True
+P38800	LAM4	Cytoplasmic; Lumenal	Helical			True		True
+P38825	TOM71	Mitochondrial intermembrane; Cytoplasmic	Helical			True		True
+P38836	ECM14				True
+P38843	CHS7		Helical			True
+P38844	DSE2				True
+P38851	LAM1	Cytoplasmic; Lumenal	Helical			True		True
+P38857	MPC2	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P38869	SVP26	Cytoplasmic; Lumenal	Helical			True		True
+P38875	GPI16	Lumenal; Cytoplasmic	Helical		True	True		True
+P38878	LNP1	Cytoplasmic; Lumenal	Helical			True		True
+P38881	NVJ1		Helical		True	True
+P38887	SMN1				True
+P38888	MNL1				True
+P38894	FLO5				True
+P38925	SMF1	Extracellular; Cytoplasmic	Helical			True		True
+P38928	AXL2	Extracellular; Cytoplasmic	Helical		True	True		True
+P38929	PMC1	Cytoplasmic; Vacuolar	Helical			True		True
+P38954	IPT1	Cytoplasmic; Lumenal	Helical			True		True
+P38967	TAT2	Cytoplasmic; Extracellular	Helical			True		True
+P38992	SUR2		Helical			True
+P38993	FET3	Extracellular; Cytoplasmic	Helical		True	True		True
+P38995	CCC2	Cytoplasmic; Lumenal, vesicle	Helical			True		True
+P39003	HXT6	Cytoplasmic; Extracellular	Helical			True		True
+P39004	HXT7	Cytoplasmic; Extracellular	Helical			True		True
+P39006	PSD1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P39007	STT3	Cytoplasmic; Lumenal	Helical			True		True
+P39010	AKR1	Cytoplasmic; Lumenal	Helical			True		True
+P39012	GAA1	Cytoplasmic; Lumenal	Helical			True		True
+P39105	PLB1				True
+P39107	MNN9	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P39109	YCF1	Vacuolar; Cytoplasmic	Helical			True		True
+P39515	TIM17	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P39524	DRS2	Cytoplasmic; Lumenal	Helical			True		True
+P39540	ELO1	Lumenal; Cytoplasmic	Helical			True		True
+P39547	UIP3		Helical			True
+P39552	MST28	Cytoplasmic; Extracellular	Helical			True		True
+P39685	POM152	Cytoplasmic; Perinuclear space	Helical			True		True
+P39704	ERP2	Lumenal; Cytoplasmic	Helical		True	True		True
+P39719	FLC2	Lumenal; Cytoplasmic	Helical		True	True		True
+P39722	GEM1	Cytoplasmic; Mitochondrial intermembrane	Helical; Anchor for type IV membrane protein			True		True
+P39727	ERV46	Cytoplasmic; Lumenal	Helical			True		True
+P39925	AFG3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P39926	SSO2	Cytoplasmic; Extracellular	Helical; Anchor for type IV membrane protein			True		True
+P39928	SLN1	Cytoplasmic; Extracellular	Helical			True		True
+P39952	OXA1	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P39986	SPF1	Cytoplasmic; Lumenal	Helical			True		True
+P39997	NPP2	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			True		True
+P40009	YND1	Lumenal; Cytoplasmic	Helical			True		True
+P40015	ISC1	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+P40046	VTC1	Cytoplasmic; Vacuolar	Helical			True		True
+P40056	GET2	Cytoplasmic; Lumenal	Helical			True		True
+P40073	SHO1	Cytoplasmic; Extracellular	Helical			True		True
+P40075	SCS2	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True		True
+P40086	COX15	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P40107	VRG4	Cytoplasmic; Lumenal	Helical			True		True
+P40152	PPN2	Cytoplasmic; Vacuolar	Helical			True		True
+P40218	LDO45	Cytoplasmic; Lumenal	Helical			True		True
+P40219	LDO16	Cytoplasmic; Lumenal	Helical			True		True
+P40318	SSM4	Cytoplasmic; Lumenal	Helical			True		True
+P40319	ELO3	Extracellular; Cytoplasmic	Helical			True		True
+P40341	YTA12		Helical			True
+P40345	LRO1	Cytoplasmic; Lumenal	Helical			True		True
+P40358	JEM1	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein		True	True		True
+P40367	LAS21	Lumenal; Cytoplasmic	Helical		True	True		True
+P40416	ATM1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P40438	VTH1	Lumenal; Cytoplasmic	Helical		True	True		True
+P40458	ATG32		Helical			True
+P40472	SIM1				True
+P40474	QDR2	Cytoplasmic; Extracellular	Helical			True		True
+P40501	AVT7	Cytoplasmic; Vacuolar	Helical			True		True
+P40515	FIS1	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+P40527	NEO1	Extracellular; Cytoplasmic	Helical			True		True
+P40540	EMC5	Cytoplasmic; Lumenal	Helical			True		True
+P40548	SNL1	Perinuclear space; Cytoplasmic	Helical; Signal-anchor for type II membrane protein			True		True
+P40556	YIA6	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P40557	EPS1		Helical		True	True
+P40578	MGA2		Helical			True
+P40857	PHS1	Cytoplasmic; Lumenal	Helical			True		True
+P40890	VTH2	Lumenal; Cytoplasmic	Helical		True	True		True
+P40970	LCB2		Helical			True
+P40988	FET4	Extracellular; Cytoplasmic	Helical			True		True
+P40989	GSC2	Extracellular; Cytoplasmic	Helical			True		True
+P41543	OST1	Lumenal; Cytoplasmic	Helical		True	True		True
+P41698	BUD8	Extracellular; Cytoplasmic	Helical			True		True
+P41800	MMM1	Lumenal; Cytoplasmic	Helical			True		True
+P41809	HKR1	Extracellular; Cytoplasmic	Helical		True	True		True
+P41821	MID1	Extracellular; Cytoplasmic	Helical		True	True		True
+P41834	UFE1	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True		True
+P41909	PXA1		Helical			True
+P41948	MEP2	Extracellular; Cytoplasmic	Helical			True		True
+P42835	EGT2				True
+P42836	PFA3	Cytoplasmic; Vacuolar	Helical			True		True
+P42838	LEM3	Cytoplasmic; Extracellular	Helical			True		True
+P42839	VNX1	Cytoplasmic; Vacuolar	Helical			True		True
+P43497	CWP2				True
+P43555	EMP47	Lumenal; Cytoplasmic	Helical		True	True		True
+P43561	FET5	Extracellular; Cytoplasmic	Helical		True	True		True
+P43564	MIL1		Helical			True
+P43571	BST1		Helical			True
+P43585	VTC2	Cytoplasmic; Vacuolar	Helical			True		True
+P43636	ALG2		Helical			True
+P43682	SFT1	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True		True
+P46964	OST2	Cytoplasmic; Lumenal	Helical			True		True
+P46965	SPC1	Cytoplasmic; Lumenal	Helical			True		True
+P46971	PMT4	Lumenal; Cytoplasmic	Helical			True		True
+P46972	IMP2		Helical			True
+P46985	MNN11	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P46989	ATG27	Lumenal; Cytoplasmic	Helical		True	True		True
+P47001	CIS3				True
+P47013	LCB3	Lumenal; Cytoplasmic	Helical			True		True
+P47026	GWT1	Lumenal; Cytoplasmic	Helical			True		True
+P47032	PRY1				True
+P47033	PRY3				True
+P47069	MPS3	Nuclear; Lumenal	Helical			True		True
+P47075	VTC4	Cytoplasmic; Vacuolar	Helical			True		True
+P47082	AVT1	Cytoplasmic; Vacuolar	Helical			True		True
+P47114	KCH1	Extracellular; Cytoplasmic	Helical			True		True
+P47124	HOC1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P47154	STE24	Lumenal; Cytoplasmic	Helical			True		True
+P47178	DAN1				True
+P47190	PMT3	Cytoplasmic; Lumenal	Helical			True		True
+P47818	CCC1	Cytoplasmic; Vacuolar	Helical			True		True
+P48016	ATH1	Cytoplasmic; Periplasmic	Helical			True		True
+P48231	TCB2	Cytoplasmic; Extracellular	Helical			True		True
+P48236	GPC1	Cytoplasmic; Lumenal	Helical			True		True
+P48439	OST3	Lumenal; Cytoplasmic	Helical		True	True		True
+P48558	BXI1	Lumenal; Cytoplasmic	Helical			True		True
+P48813	GNP1	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+P49018	GPI8	Lumenal; Cytoplasmic	Helical		True	True		True
+P49334	TOM22	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+P49573	CTR1	Cytoplasmic; Extracellular	Helical			True		True
+P50076	DIE2		Helical			True
+P50077	CCH1		Helical			True
+P50078	TOS2		Helical			True
+P50085	PHB2		Helical; Signal-anchor for type II membrane protein			True
+P50087	MIC26	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P50108	MNN10	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P50110	SAM37		Helical			True
+P50945	MIC27	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P52870	SBH1	Cytoplasmic	Helical			True		True
+P52871	SBH2	Cytoplasmic	Helical			True		True
+P52923	AIF1		Helical			True
+P53008	CWH41	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P53012	SCS3	Cytoplasmic; Lumenal	Helical			True		True
+P53039	YIP1	Cytoplasmic; Lumenal	Helical			True		True
+P53045	ERG25		Helical			True
+P53048	MAL11	Cytoplasmic; Extracellular	Helical			True		True
+P53049	YOR1	Cytoplasmic; Extracellular	Helical			True		True
+P53093	YIP4		Helical			True
+P53109	AIM14	Extracellular; Cytoplasmic	Helical			True		True
+P53146	USE1	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True		True
+P53154	GUP1	Extracellular; Cytoplasmic	Helical			True		True
+P53157	MPC1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P53159	MPS2		Helical			True
+P53173	ERV14	Cytoplasmic; Extracellular	Helical			True		True
+P53176	MST27	Cytoplasmic; Extracellular	Helical			True		True
+P53192	GET1	Lumenal; Cytoplasmic	Helical			True		True
+P53223	CAX4	Lumenal; Cytoplasmic	Helical			True		True
+P53224	ORM1	Cytoplasmic; Extracellular	Helical			True		True
+P53226	BUD9	Extracellular; Cytoplasmic	Helical			True		True
+P53259	PCP1		Helical			True
+P53262	VOA1	Vacuolar; Cytoplasmic	Helical		True	True		True
+P53301	CRH1				True
+P53311	MPC3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P53322	TNA1	Extracellular; Cytoplasmic	Helical			True		True
+P53324	SAY1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P53334	SCW4				True
+P53379	MKC7				True
+P53507	TOM7	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+P53541	SPO1		Helical		True	True
+P53616	SUN4				True
+P53633	YIP3		Helical			True
+P53721	RCF2	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P53740		Cytoplasmic; Lumenal	Helical			True		True
+P53746	FRE4	Extracellular; Cytoplasmic	Helical		True	True		True
+P53753	DSE4				True
+P53832	WSC2	Extracellular; Cytoplasmic	Helical		True	True		True
+P53838	BOR1	Cytoplasmic; Extracellular	Helical			True		True
+P53845	YIF1	Cytoplasmic; Lumenal	Helical			True		True
+P53868	ALG9	Cytoplasmic; Lumenal	Helical			True		True
+P53872					True
+P53895	ASI2	Nuclear; Perinuclear space	Helical			True		True
+P53896	PGA1	Lumenal; Cytoplasmic	Helical		True	True		True
+P53943	AQR1	Extracellular; Cytoplasmic	Helical			True		True
+P53950	VAC7	Cytoplasmic; Vacuolar	Helical; Signal-anchor for type II membrane protein			True		True
+P53954	ALG11	Lumenal; Cytoplasmic	Helical	Helical		True	True	True
+P53983	ASI3	Perinuclear space; Nuclear	Helical			True		True
+P54070	KTR6	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P54074	ASI1	Perinuclear space; Nuclear	Helical			True		True
+P54781	ERG5		Helical			True
+P54837	ERV25	Lumenal; Cytoplasmic	Helical		True	True		True
+P54854	HXT15	Cytoplasmic; Extracellular	Helical			True		True
+P54862	HXT11	Cytoplasmic; Extracellular	Helical			True		True
+P54867	SLG1	Extracellular; Cytoplasmic	Helical		True	True		True
+P61829	OLI1		Helical			True
+P62651	ERI1		Helical			True
+P80667	PEX13	Lumenal; Cytoplasmic	Helical			True		True
+P80967	TOM5	Cytoplasmic	Helical; Signal-anchor for type II membrane protein			True		True
+P81450	ATP18		Helical			True
+Q01589	SED1				True
+Q01590	SED5	Cytoplasmic	Helical; Anchor for type IV membrane protein			True		True
+Q01896	ENA2	Cytoplasmic; Extracellular	Helical			True		True
+Q01926	MRS2	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q02725	VTC3	Cytoplasmic; Vacuolar	Helical			True		True
+Q02774	SHR3	Cytoplasmic; Lumenal	Helical			True		True
+Q02776	TIM50	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q02785	PDR12	Cytoplasmic; Extracellular	Helical			True		True
+Q02795	SWP1	Lumenal; Cytoplasmic	Helical		True	True		True
+Q02888	INA17	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q02896	YDC1	Lumenal; Cytoplasmic	Helical			True	True	True
+Q02933	RNY1				True
+Q03103	ERO1				True
+Q03178	PIR1				True
+Q03180	PIR3				True
+Q03322	TLG1	Cytoplasmic	Helical; Anchor for type IV membrane protein			True		True
+Q03455	MSC2	Cytoplasmic; Lumenal	Helical			True		True
+Q03529	SCS7	Cytoplasmic; Lumenal	Helical			True		True
+Q03554	GOT1	Cytoplasmic; Lumenal	Helical			True		True
+Q03579	LIP1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+Q03640	TCB3	Cytoplasmic; Extracellular	Helical			True		True
+Q03655	GAS3				True
+Q03674	PLB2				True
+Q03687	ANY1	Cytoplasmic; Lumenal	Helical			True		True
+Q03691	ROT1	Lumenal	Helical		True	True		True
+Q03713	RCF1	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+Q03714	USA1	Cytoplasmic; Extracellular	Helical			True		True
+Q03723	OST6	Lumenal; Cytoplasmic	Helical		True	True		True
+Q03770	SSY1	Cytoplasmic; Extracellular	Helical			True		True
+Q03778	FMN1				True
+Q03944	VPS64	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True		True
+Q04013	YHM2		Helical			True
+Q04080	GPI17	Cytoplasmic; Lumenal	Helical			True		True
+Q04082	GPI19	Cytoplasmic; Lumenal	Helical			True		True
+Q04119	PPN1	Cytoplasmic; Vacuolar	Helical; Signal-anchor for type II membrane protein			True		True
+Q04121	NHX1	Lumenal; Cytoplasmic	Helical		True	True		True
+Q04228	UBX2	Cytoplasmic; Lumenal	Helical			True		True
+Q04338	VTI1	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			True		True
+Q04370	PEX12	Peroxisomal matrix; Cytoplasmic	Helical			True		True
+Q04396	LPP1	Lumenal; Cytoplasmic	Helical			True		True
+Q04458	HFD1		Helical			True
+Q04472	MGR3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q04629	SWF1	Lumenal; Cytoplasmic	Helical			True		True
+Q04651	ERV41	Cytoplasmic; Lumenal	Helical			True		True
+Q04705	PRM6	Extracellular; Cytoplasmic	Helical			True		True
+Q04746	KAR5	Lumenal; Cytoplasmic	Helical		True	True		True
+Q04924	GTB1				True
+Q04935	COX20	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+Q04947	RTN1	Cytoplasmic; Lumenal	Helical			True		True
+Q04951	SCW10				True
+Q04958	NTE1	Cytoplasmic; Lumenal	Helical			True		True
+Q04969	SPC2	Cytoplasmic; Lumenal	Helical			True		True
+Q05031	DFG5				True
+Q05164	HPF1				True
+Q05359	ERP1	Lumenal; Cytoplasmic	Helical		True	True		True
+Q05521	DPP1	Vacuolar; Cytoplasmic	Helical			True		True
+Q05567	DPL1	Lumenal; Cytoplasmic	Helical			True		True
+Q05568	PEX10	Peroxisomal matrix; Cytoplasmic	Helical			True		True
+Q05777	NCW2				True
+Q05787	HRD3		Helical		True	True
+Q05902	ECM38	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+Q05934	VID22		Helical			True
+Q06058	SEI1	Cytoplasmic; Lumenal	Helical			True		True
+Q06135	GAS2				True
+Q06143	DIC1		Helical			True
+Q06144	ORM2	Cytoplasmic; Extracellular	Helical			True		True
+Q06148	NEJ1		Helical			True
+Q06159	ATG39		Helical			True
+Q06328	YPQ2	Vacuolar; Cytoplasmic	Helical			True		True
+Q06346	KEI1		Helical			True
+Q06493	YLH47	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+Q06497	ANT1		Helical			True
+Q06508	LOA1		Helical			True
+Q06510	TAZ1	Mitochondrial intermembrane					True	True
+Q06522		Lumenal					True	True
+Q06541	ARV1		Helical			True
+Q06551	ERF2	Cytoplasmic; Lumenal	Helical			True		True
+Q06593	OPT2	Cytoplasmic; Extracellular	Helical			True		True
+Q06598	ARR3	Cytoplasmic; Extracellular	Helical			True		True
+Q06676	YFT2	Cytoplasmic; Lumenal	Helical			True		True
+Q06681	YSP2	Cytoplasmic; Lumenal	Helical			True		True
+Q06703	CDA2				True
+Q06810	OPY2		Helical			True
+Q06833	NVJ2	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+Q07560	CRD1		Helical			True
+Q07651	FMP45	Cytoplasmic; Extracellular	Helical			True		True
+Q07804	YEH1	Cytoplasmic					True	True
+Q07824	TPO1	Cytoplasmic; Extracellular	Helical			True		True
+Q07830	GPI13		Helical			True
+Q07914	PAM18	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+Q07950	YEH2	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+Q08001	LAM6	Cytoplasmic; Lumenal	Helical			True		True
+Q08108	PLB3				True
+Q08109	HRD1	Cytoplasmic; Lumenal	Helical			True		True
+Q08144	TLG2	Cytoplasmic; Vesicular	Helical; Anchor for type IV membrane protein			True		True
+Q08179	MDM38	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+Q08193	GAS5				True
+Q08199	SIL1				True
+Q08215	PEX15	Cytoplasmic; Lumenal	Helical			True		True
+Q08218	LDS2	Cytoplasmic; Extracellular	Helical			True		True
+Q08417	RSB1	Extracellular; Cytoplasmic	Helical			True		True
+Q08448	LPL1		Helical			True
+Q08548	ALE1	Lumenal; Cytoplasmic	Helical			True		True
+Q08650	DGA1	Cytoplasmic; Lumenal	Helical			True		True
+Q08651	ENV9		Helical			True
+Q08749	TIM18	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q08760	RAX1	Cytoplasmic; Extracellular	Helical			True		True
+Q08905	FRE3	Extracellular; Cytoplasmic	Helical		True	True		True
+Q08931	PRM3	Nuclear; Perinuclear space	Helical			True		True
+Q08955	CSM4		Helical			True
+Q08959	PGC1		Helical; Anchor for type IV membrane protein			True
+Q08967	FLC1	Lumenal; Cytoplasmic	Helical		True	True		True
+Q08986	SAM3	Cytoplasmic; Extracellular	Helical			True		True
+Q12006	PFA4	Cytoplasmic; Lumenal	Helical			True		True
+Q12010	YPQ1	Vacuolar; Cytoplasmic	Helical			True		True
+Q12015	DSC3	Extracellular; Cytoplasmic	Helical			True		True
+Q12063	NUS1		Helical			True
+Q12082	DMO2	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+Q12106	MCP1	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+Q12127	CCW12				True
+Q12142	ATG9	Cytoplasmic; Lumenal	Helical			True	True	True
+Q12150	CSF1	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			True		True
+Q12164	POM33	Lumenal; Cytoplasmic	Helical			True		True
+Q12200	NCR1		Helical		True	True
+Q12207	NCE102	Cytoplasmic; Extracellular	Helical			True		True
+Q12241	VAM3	Cytoplasmic; Vacuolar	Helical; Anchor for type IV membrane protein			True		True
+Q12255	NYV1	Cytoplasmic; Vacuolar	Helical; Anchor for type IV membrane protein			True		True
+Q12256	TPO4	Cytoplasmic; Extracellular	Helical			True		True
+Q12275	CRM2		Helical			True
+Q12284	ERV2	Cytoplasmic; Lumenal	Helical; Signal-anchor			True		True
+Q12300	RGT2	Cytoplasmic; Extracellular	Helical			True		True
+Q12303	YPS3				True
+Q12324	YVC1	Cytoplasmic; Vacuolar	Helical			True		True
+Q12328	TIM22	Mitochondrial intermembrane	Helical			True		True
+Q12333	FRE7	Extracellular; Cytoplasmic	Helical			True		True
+Q12355	PST1				True
+Q12361	GPR1	Extracellular; Cytoplasmic	Helical			True		True
+Q12382	DGK1	Lumenal; Cytoplasmic	Helical			True		True
+Q12396	EMP46	Lumenal; Cytoplasmic	Helical		True	True		True
+Q12402	YOP1	Cytoplasmic; Lumenal	Helical			True		True
+Q12404	MPD1				True
+Q12438	GRX6				True
+Q12443	RTN2	Cytoplasmic; Lumenal	Helical			True		True
+Q12445	POM34		Helical			True
+Q12465	RAX2	Extracellular; Cytoplasmic	Helical		True	True		True
+Q12466	TCB1	Cytoplasmic; Extracellular	Helical			True		True
+Q12473	FRE6	Vacuolar; Cytoplasmic	Helical		True	True		True
+Q12530	RMP1		Helical			True
+Q12674	DNF3	Lumenal; Cytoplasmic	Helical			True		True
+Q12675	DNF2	Cytoplasmic; Extracellular	Helical			True		True
+Q12691	ENA5	Cytoplasmic; Extracellular	Helical			True		True
+Q12697	YPK9	Cytoplasmic; Vacuolar	Helical			True		True
+Q12746	PGA3	Extracellular; Cytoplasmic	Helical			True		True
+Q3E7B2	COA3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q3E7B6	VMA9	Lumenal; Cytoplasmic	Helical			True		True
+Q92316	OST5	Lumenal; Cytoplasmic	Helical			True		True
+Q96VH5	MIC10	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q99190	TSC13	Cytoplasmic; Lumenal	Helical			True		True
+Q99220	YOS9				True
+Q99271	NHA1	Cytoplasmic; Extracellular	Helical			True		True
+Q99287	SEY1	Cytoplasmic; Lumenal	Helical			True		True
+Q99325	ATG40	Lumenal; Cytoplasmic	Helical		True	True		True
+Q99380	OST4	Lumenal; Cytoplasmic	Helical			True		True
+Q99385	VCX1	Cytoplasmic; Vacuolar	Helical			True		True
+Q9ZZW7	BI3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q9ZZX1	AI5_ALPHA		Helical			True
+D6W196	SAL1		Helical			True
+P00425	COX5B	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P00856	ATP8		Helical			True
+P01149	MF(ALPHA)1				True
+P05316	FUR4		Helical			True
+P06775	HIP1	Cytoplasmic; Extracellular	Helical			True		True
+P06783	STE3	Extracellular; Cytoplasmic	Helical			True		True
+P0CD90	AQY2	Cytoplasmic; Extracellular	Helical			True		True
+P0CD99	MPH2	Cytoplasmic; Extracellular	Helical			True		True
+P0CE00	MPH3	Cytoplasmic; Extracellular	Helical			True		True
+P0CE68	NFT1	Extracellular; Cytoplasmic	Helical			True		True
+P10566	MRS3		Helical			True
+P12685	TRK1		Helical			True
+P13090	ATR1	Cytoplasmic; Extracellular	Helical			True		True
+P13181	GAL2	Cytoplasmic; Extracellular	Helical			True		True
+P14359	SNA3	Cytoplasmic; Lumenal	Helical			True		True
+P15365	DAL5	Cytoplasmic; Extracellular	Helical			True		True
+P15380	PUT4		Helical			True
+P17261	ERS1		Helical			True
+P18414	ERD2	Lumenal; Cytoplasmic	Helical			True		True
+P22023	KRE5				True
+P23500	MRS4		Helical			True
+P23501	YSR3	Lumenal; Cytoplasmic	Helical			True		True
+P23641	MIR1	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P25334	CPR4		Helical		True	True
+P25338	MPO1	Cytoplasmic; Lumenal	Helical			True		True
+P25365	SED4	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P25371	ADP1	Lumenal; Cytoplasmic	Helical		True	True		True
+P25381	RRT12				True
+P25560	RER1	Cytoplasmic; Lumenal	Helical			True		True
+P25580	PBN1	Lumenal; Cytoplasmic	Helical; Signal-anchor for type III membrane protein			True		True
+P25594	VBA3	Cytoplasmic; Vacuolar	Helical			True		True
+P25596	GEX1	Cytoplasmic; Extracellular	Helical			True		True
+P25621	FEN2	Cytoplasmic; Extracellular	Helical			True		True
+P25625	PER1	Lumenal; Cytoplasmic	Helical		True	True		True
+P25628	ARE1		Helical			True
+P26725	YUR1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P28584	TRK2	Cytoplasmic; Extracellular	Helical			True		True
+P30606	ITR2	Cytoplasmic; Extracellular	Helical			True		True
+P31379	LDS1	Cytoplasmic; Extracellular	Helical			True		True
+P31381	FUN26		Helical			True
+P32331	YMC1		Helical			True
+P32339	HMX1	Cytoplasmic	Helical; Anchor for type IV membrane protein			True		True
+P32341	VPH2	Cytoplasmic; Lumenal	Helical			True		True
+P32378	COQ2		Helical			True
+P32487	LYP1	Cytoplasmic; Extracellular	Helical			True		True
+P32522	PET309		Helical			True
+P32603	SPR1				True
+P32781	AGA2				True
+P32804	ZRT1	Extracellular; Cytoplasmic	Helical			True		True
+P32837	UGA4	Cytoplasmic; Vacuolar	Helical			True		True
+P32843	YME2	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P32907	ATO2	Extracellular; Cytoplasmic	Helical			True		True
+P33311	MDL2		Helical			True
+P33550	KTR2	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P33890	TIR2				True
+P33894	STE13	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P34237	COY1	Cytoplasmic; Lumenal	Helical; Anchor for type IV membrane protein			True		True
+P34240	ZRT3		Helical			True
+P34248		Lumenal; Cytoplasmic	Helical			True		True
+P35723	YET1	Lumenal; Cytoplasmic	Helical			True		True
+P35842	PHO11				True
+P36029	TPO5	Cytoplasmic; Extracellular	Helical			True		True
+P36039	EMC3		Helical			True
+P36062	AVT3		Helical			True
+P36101	TCD2		Helical			True
+P36110	PRY2				True
+P36147	PAM17		Helical			True
+P36164	TVP38	Lumenal; Cytoplasmic	Helical			True		True
+P36169	SKG1	Extracellular; Cytoplasmic	Helical; Signal-anchor for type III membrane protein			True		True
+P36173	GEX2	Cytoplasmic; Extracellular	Helical			True		True
+P37302	APE3				True
+P38068	GRX7				True
+P38072	SCO2		Helical			True
+P38090	AGP2	Cytoplasmic; Extracellular	Helical			True		True
+P38114	TBS1		Helical			True
+P38131	KTR4	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P38152	CTP1		Helical			True
+P38166	SFT2	Cytoplasmic; Lumenal	Helical			True		True
+P38179	ALG3	Lumenal; Cytoplasmic	Helical			True		True
+P38196	FUI1	Cytoplasmic; Extracellular	Helical			True		True
+P38206	RFT1	Lumenal; Cytoplasmic	Helical			True		True
+P38224	FIG1		Helical			True
+P38288	TOS1				True
+P38359	SUL1		Helical			True
+P38616	YGP1				True
+P38724	ARN2		Helical			True
+P38727	DFP4	Cytoplasmic; Extracellular	Helical			True		True
+P38735	VMR1	Vacuolar; Cytoplasmic	Helical			True		True
+P38756	TCD1		Helical			True
+P38813	BIG1	Lumenal; Cytoplasmic	Helical		True	True		True
+P38837	NSG1	Cytoplasmic; Perinuclear space	Helical			True		True
+P38865	CTR2	Cytoplasmic; Vacuolar	Helical			True		True
+P38880	MDM31	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P38921	PET8		Helical			True
+P38962	TVP23	Lumenal; Cytoplasmic	Helical			True		True
+P38966	VTC5	Cytoplasmic; Vacuolar	Helical			True		True
+P38988	GGC1		Helical			True
+P39103	COX14		Helical			True
+P39106	MNN1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P39535	PHO90		Helical			True
+P39543	SOP4	Lumenal; Cytoplasmic	Helical		True	True		True
+P39548	KTD1	Cytoplasmic; Extracellular	Helical			True		True
+P39709	SEO1	Cytoplasmic; Extracellular	Helical			True		True
+P39712	FLO9				True
+P39734	FRT2		Helical			True
+P39924	HXT13	Cytoplasmic; Extracellular	Helical			True		True
+P39932	STL1	Cytoplasmic; Extracellular	Helical			True		True
+P39953	YEA6		Helical			True
+P39980	SIT1		Helical			True
+P40004	YEA4	Cytoplasmic; Lumenal	Helical			True		True
+P40030	ERG28	Cytoplasmic; Lumenal	Helical			True		True
+P40035	PIC2		Helical			True
+P40071	TMN3	Lumenal; Cytoplasmic	Helical		True	True		True
+P40074	AVT6	Cytoplasmic; Vacuolar	Helical			True		True
+P40085	EMP65	Cytoplasmic; Lumenal	Helical			True		True
+P40088	FTR1		Helical			True
+P40092	SPI1				True
+P40169		Extracellular; Cytoplasmic	Helical			True		True
+P40207	ERG29		Helical			True
+P40260	MEP1	Extracellular; Cytoplasmic	Helical			True		True
+P40310	TOK1	Cytoplasmic; Extracellular	Helical			True		True
+P40312	CYB5		Helical			True
+P40350	ALG5	Lumenal; Cytoplasmic	Helical			True		True
+P40351	ALG8	Lumenal; Cytoplasmic	Helical			True		True
+P40442	CSS1				True
+P40452	COA1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P40475	QDR1	Cytoplasmic; Extracellular	Helical			True		True
+P40478	POR2		Beta stranded			True
+P40499	ICE2	Cytoplasmic; Lumenal	Helical			True		True
+P40504	KTR7	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P40526	DFG10		Helical			True
+P40528	SYG1	Cytoplasmic; Extracellular	Helical			True		True
+P40532	APQ12	Cytoplasmic; Perinuclear space	Helical			True		True
+P40533	TED1	Cytoplasmic; Lumenal	Helical			True		True
+P40549	MNT3	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P40550	PDR11	Cytoplasmic; Extracellular	Helical			True		True
+P40552	TIR3				True
+P40576	INA22	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P40583	YPS6				True
+P40885	HXT9	Cytoplasmic; Extracellular	Helical			True		True
+P40886	HXT8	Cytoplasmic; Extracellular	Helical			True		True
+P40897	OPT1	Extracellular; Cytoplasmic	Helical			True		True
+P40975	PMP2	Cytoplasmic	Helical			True		True
+P40986	CDC1	Cytoplasmic; Extracellular	Helical			True		True
+P41544	SYS1	Cytoplasmic; Lumenal	Helical			True		True
+P41733	GAB1	Cytoplasmic; Lumenal	Helical			True		True
+P41806	VMA21	Cytoplasmic; Lumenal	Helical			True		True
+P41815	BAP3	Cytoplasmic; Extracellular	Helical			True		True
+P41930	SSU1	Cytoplasmic; Extracellular	Helical			True		True
+P42833	HXT14	Cytoplasmic; Extracellular	Helical			True		True
+P42934	PMT6	Cytoplasmic; Lumenal	Helical			True		True
+P43549	AQY3	Cytoplasmic; Extracellular	Helical			True		True
+P43553	ALR2	Cytoplasmic; Extracellular	Helical			True		True
+P43560	LAM5	Cytoplasmic; Lumenal	Helical			True		True
+P43581	HXT10	Cytoplasmic; Extracellular	Helical			True		True
+P43614	KEG1	Lumenal; Cytoplasmic	Helical			True		True
+P46950	SNG1		Helical			True
+P46956	PHO86	Cytoplasmic; Extracellular	Helical			True		True
+P46961	GPI2	Cytoplasmic; Extracellular	Helical			True		True
+P46982	MNN5				True
+P46992	TOH1				True
+P47040	YHC3		Helical		True	True
+P47045	TIM54	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P47055	LOH1	Extracellular; Cytoplasmic	Helical		True	True		True
+P47056	IRC18	Extracellular; Cytoplasmic	Helical		True	True		True
+P47088	GPI14	Cytoplasmic; Lumenal	Helical			True		True
+P47161	VPS70		Helical			True
+P47179	DAN4				True
+P47180	PGU1				True
+P47185	HXT16	Cytoplasmic; Extracellular	Helical			True		True
+P48565	RIM21	Extracellular; Cytoplasmic	Helical			True		True
+P50276	MUP1	Cytoplasmic; Extracellular	Helical			True		True
+P50944	AVT4	Vacuolar; Cytoplasmic	Helical			True		True
+P51533	PDR10	Cytoplasmic	Helical			True		True
+P52867	PMT5	Lumenal; Cytoplasmic	Helical			True		True
+P52911	EXG2				True
+P53059	MNT2	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P53062	BRR6		Helical			True
+P53073	EMC4		Helical			True
+P53075	SHE10				True
+P53108	YIP5		Helical			True
+P53121	FLC3	Lumenal; Cytoplasmic	Helical		True	True		True
+P53153	LCL3		Helical			True
+P53174	PRM8	Cytoplasmic; Extracellular	Helical			True		True
+P53189	SCW11				True
+P53198	ERP6	Lumenal; Cytoplasmic	Helical		True	True		True
+P53206	MCY1		Helical			True
+P53214	MTL1	Extracellular; Cytoplasmic	Helical		True	True		True
+P53220	TIM21	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P53239	COX18	Mitochondrial intermembrane; Mitochondrial matrix	Helical			True		True
+P53266	SHY1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+P53273	VSB1	Vacuolar; Cytoplasmic	Helical			True		True
+P53283	TPO2	Cytoplasmic; Extracellular	Helical			True		True
+P53306	GPI1	Extracellular; Cytoplasmic	Helical			True		True
+P53320	MTM1		Helical			True
+P53337	ERV29	Cytoplasmic; Lumenal	Helical			True		True
+P53388	DIP5	Cytoplasmic; Extracellular	Helical			True		True
+P53389	HOL1	Extracellular; Cytoplasmic	Helical			True		True
+P53390	MEP3	Extracellular; Cytoplasmic	Helical			True		True
+P53629	ARE2		Helical			True
+P53631	HXT17	Cytoplasmic; Extracellular	Helical			True		True
+P53730	ALG12	Lumenal; Cytoplasmic	Helical			True		True
+P53756	PDR18		Helical			True
+P53903	PGA2		Helical			True
+P53938	EOS1	Lumenal; Cytoplasmic	Helical			True		True
+P81451	ATP19		Helical			True
+P87284	PMP3		Helical			True
+Q02783	MFM1		Helical			True
+Q02883	FMP30		Helical			True
+Q02969	PEX25	Cytoplasmic; Lumenal	Helical			True		True
+Q03028	ODC1		Helical			True
+Q03212	EAR1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+Q03218	MMT1		Helical			True
+Q03281	HEH2		Helical			True
+Q03289	PFA5	Cytoplasmic; Lumenal	Helical			True		True
+Q03327	UGO1	Cytoplasmic; Mitochondrial intermembrane	Helical; Signal-anchor for type II membrane protein			True		True
+Q03370	PEX29	Cytoplasmic; Peroxisomal	Helical			True		True
+Q03446	RCR2		Helical			True
+Q03530	RCE1	Lumenal; Cytoplasmic	Helical			True		True
+Q03707	SRC1		Helical			True
+Q03824	INP2		Helical			True
+Q03829	MME1		Helical			True
+Q03860	TVP15	Cytoplasmic; Lumenal	Helical			True		True
+Q04172	SHE9	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q04174	SMP3	Lumenal; Cytoplasmic	Helical			True		True
+Q04182	PDR15	Cytoplasmic; Extracellular	Helical			True		True
+Q04433	FIT1				True
+Q04487	SHH3	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q04562	TMN2	Extracellular; Cytoplasmic	Helical		True	True		True
+Q04658	SMA2	Cytoplasmic; Lumenal	Helical			True		True
+Q04697	GSF2	Lumenal; Cytoplasmic	Helical; Signal-anchor for type II membrane protein			True		True
+Q04895	DAL4	Cytoplasmic; Extracellular	Helical			True		True
+Q04952	FKS3		Helical			True
+Q05131	RCH1	Cytoplasmic; Extracellular	Helical			True		True
+Q05790	CRR1				True
+Q05998	THI7	Cytoplasmic; Extracellular	Helical			True		True
+Q06001	FAR10	Cytoplasmic; Extracellular	Helical; Anchor for type IV membrane protein			True		True
+Q06104	GLD1	Cytoplasmic; Extracellular	Helical			True		True
+Q06169	PEX30		Helical			True
+Q06179	FMP27				True
+Q06236	SHH4	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q06325	YPS7	Lumenal	Helical		True	True		True
+Q06350	CTS2				True
+Q06417	TDA5		Helical			True
+Q06451	TPO3	Cytoplasmic; Extracellular	Helical			True		True
+Q06538	CSC1	Extracellular; Cytoplasmic	Helical			True		True
+Q06567	MCP2	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q06668	OMS1	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q06702	CDA1				True
+Q06815	MRL1	Lumenal; Cytoplasmic	Helical		True	True		True
+Q06991	PUN1	Cytoplasmic; Extracellular	Helical			True		True
+Q07534	HEM25		Helical			True
+Q07541	EXP1	Lumenal; Cytoplasmic	Helical; Signal-anchor for type II membrane protein			True		True
+Q08157	TOS7	Cytoplasmic; Vacuolar	Helical			True		True
+Q08176	MIM1		Helical			True
+Q08219	RRT8	Cytoplasmic; Extracellular	Helical			True		True
+Q08232	DSC2	Extracellular; Cytoplasmic	Helical			True		True
+Q08269	ALR1		Helical			True
+Q08271	GAS4				True
+Q08299	ENB1	Cytoplasmic; Lumenal	Helical			True		True
+Q08409	AUS1	Cytoplasmic	Helical			True		True
+Q08485	NRT1		Helical			True
+Q08579	THI72		Helical			True
+Q08673	SRL1				True
+Q08902	AMF1	Extracellular; Cytoplasmic	Helical			True		True
+Q08906	FIT2				True
+Q08908	FRE5	Extracellular; Cytoplasmic	Helical		True	True		True
+Q08913	FEX1	Cytoplasmic; Extracellular	Helical			True		True
+Q08929	GUP2	Lumenal; Cytoplasmic	Helical		True	True		True
+Q08970	MMT2		Helical			True
+Q08991	FEX2	Cytoplasmic; Extracellular	Helical			True		True
+Q12001	ALG6	Cytoplasmic; Lumenal	Helical			True		True
+Q12013	AKR2	Cytoplasmic; Extracellular	Helical			True		True
+Q12016	VPS68		Helical			True
+Q12025	EMC10	Lumenal; Cytoplasmic	Helical		True	True		True
+Q12029	FSF1		Helical			True
+Q12066	NUR1		Helical			True
+Q12067	ATX2	Lumenal; Cytoplasmic	Helical			True		True
+Q12078	SMF3		Helical			True
+Q12096	GNT1	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+Q12133	SPC3	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+Q12171	MDM32	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q12185			Helical			True
+Q12205	MNL2	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+Q12209	FRE8	Cytoplasmic; Extracellular	Helical			True		True
+Q12215	WSC3	Extracellular; Cytoplasmic	Helical		True	True		True
+Q12218	TIR4				True
+Q12232	SLP1	Lumenal; Cytoplasmic	Helical		True	True		True
+Q12235	YCT1	Cytoplasmic; Lumenal	Helical			True		True
+Q12270	RBD2	Cytoplasmic; Lumenal	Helical			True		True
+Q12289	CRC1		Helical			True
+Q12296	MAM3	Vacuolar; Cytoplasmic	Helical			True		True
+Q12325	SUL2	Cytoplasmic; Extracellular	Helical			True		True
+Q12335	PST2				True
+Q12359	ATO3	Extracellular; Cytoplasmic	Helical			True		True
+Q12372	MMP1	Cytoplasmic; Extracellular	Helical			True		True
+Q12375	ORT1		Helical			True
+Q12403	ERP3	Lumenal; Cytoplasmic	Helical		True	True		True
+Q12408	NPC2				True
+Q12431	EMC6	Cytoplasmic; Lumenal	Helical			True		True
+Q12442	IZH2	Cytoplasmic; Extracellular	Helical			True		True
+Q12450	ERP4	Lumenal; Cytoplasmic	Helical		True	True		True
+Q12467	MRX4		Helical			True
+Q12482	AGC1		Helical			True
+Q12520	HUT1	Lumenal; Cytoplasmic	Helical			True		True
+Q12743	DFM1	Cytoplasmic; Lumenal	Helical			True		True
+Q2V2P9	COX26	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q3E790	TSC3		Helical			True
+Q3E798	MIM2	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+Q3E834	YOS1		Helical			True
+Q6Q595	SCS22	Cytoplasmic	Helical; Anchor for type IV membrane protein			True		True
+Q99234	DFG16	Extracellular; Cytoplasmic	Helical			True		True
+Q99297	ODC2		Helical			True
+Q99316	MPD2				True
+Q99332	FRT1		Helical			True
+Q99382	ENV10	Cytoplasmic; Lumenal	Helical			True		True
+Q99393	IZH4	Cytoplasmic; Lumenal	Helical			True		True
+P08459	SPS2				True
+P0C155		Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			True		True
+P0CE11	HVG1	Lumenal; Cytoplasmic	Helical			True		True
+P0CX13	COS3	Cytoplasmic; Extracellular	Helical			True		True
+P13130	SPS100				True
+P16151	ERD1	Extracellular; Cytoplasmic	Helical			True		True
+P16547	OM45	Mitochondrial intermembrane; Cytoplasmic	Helical			True		True
+P18411	FUN14		Helical			True
+P18962	DAP2	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P20048	SEC59	Cytoplasmic; Lumenal	Helical			True		True
+P22215	SLY41	Cytoplasmic; Lumenal	Helical			True		True
+P23797	GPI12	Lumenal; Cytoplasmic	Helical			True		True
+P24031	PHO3				True
+P25036	YSP3				True
+P25351		Extracellular; Cytoplasmic	Helical			True		True
+P25354	DFP3	Cytoplasmic; Extracellular	Helical			True		True
+P25380	SPS22				True
+P25568	ATG22	Cytoplasmic; Vacuolar	Helical			True		True
+P25584	PEX34		Helical			True
+P25585	FYV5		Helical			True
+P25619	HSP30	Extracellular; Cytoplasmic	Helical			True		True
+P30777	GPI10	Cytoplasmic; Lumenal	Helical			True		True
+P32435	MF(ALPHA)2				True
+P32616			Helical			True
+P32857	PTM1	Lumenal; Cytoplasmic	Helical		True	True		True
+P32858	AIM26		Helical			True
+P32903	PMP1	Cytoplasmic	Helical			True		True
+P33303	SFC1		Helical			True
+P33335	SGE1	Cytoplasmic; Extracellular	Helical			True		True
+P35724	MNR2	Cytoplasmic; Extracellular	Helical			True		True
+P35735	SFK1	Cytoplasmic; Extracellular	Helical			True		True
+P36032	MCH2	Cytoplasmic; Extracellular	Helical			True		True
+P36125	GMH1	Cytoplasmic; Lumenal	Helical			True		True
+P36137	UIP5	Perinuclear space; Cytoplasmic	Helical		True	True		True
+P36172	VBA5	Cytoplasmic; Vacuolar	Helical			True		True
+P37267	CBP4		Helical			True
+P38079	YRO2	Extracellular; Cytoplasmic	Helical			True		True
+P38087	YMC2		Helical			True
+P38124	FLR1		Helical			True
+P38142		Cytoplasmic; Vacuolar	Helical			True		True
+P38156	MAL31	Cytoplasmic; Extracellular	Helical			True		True
+P38176	AVT5		Helical			True
+P38312	ERV15	Cytoplasmic; Extracellular	Helical			True		True
+P38325	OM14		Helical			True
+P38335	MTC4		Helical			True
+P38343	SLM6	Extracellular; Cytoplasmic	Helical			True		True
+P38358	VBA2	Cytoplasmic; Vacuolar	Helical			True		True
+P38374	YSY6		Helical			True
+P38693	PHO12				True
+P38702	LEU5		Helical			True
+P38734	MUP3	Extracellular; Cytoplasmic	Helical			True		True
+P38739	WSC4		Helical		True	True
+P38745		Lumenal; Cytoplasmic	Helical		True	True		True
+P38750		Extracellular; Cytoplasmic	Helical			True		True
+P38767	ERC1	Extracellular; Cytoplasmic	Helical			True		True
+P38776	YHK8	Cytoplasmic; Extracellular	Helical			True		True
+P38819	ERP5	Lumenal; Cytoplasmic	Helical		True	True		True
+P38842		Cytoplasmic; Lumenal	Helical			True		True
+P38848	PEX28	Cytoplasmic; Peroxisomal	Helical			True		True
+P38849	MTC6	Extracellular; Cytoplasmic	Helical		True	True		True
+P38958	PET100		Helical			True
+P38969	PNT1		Helical			True
+P38971	ALP1	Cytoplasmic; Extracellular	Helical			True		True
+P39005	KRE9				True
+P39551	PRM9	Cytoplasmic; Extracellular	Helical			True		True
+P39718	PEX22		Helical			True
+P39981	AVT2		Helical			True
+P39982	HHY1	Cytoplasmic; Extracellular	Helical		True	True		True
+P39996	GTT3	Cytoplasmic; Perinuclear space	Helical			True		True
+P40006	IRC22	Lumenal; Cytoplasmic	Helical		True	True		True
+P40039	FCY21	Cytoplasmic; Extracellular	Helical			True		True
+P40100	PUG1	Extracellular; Cytoplasmic	Helical			True		True
+P40309	KHA1	Extracellular; Cytoplasmic	Helical			True		True
+P40355	MNN14	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P40440		Cytoplasmic; Extracellular	Helical			True		True
+P40445		Extracellular; Cytoplasmic	Helical			True		True
+P40451	AIM20		Helical			True
+P40464	FLX1		Helical			True
+P40544	YKE4	Extracellular; Cytoplasmic	Helical			True		True
+P40570	VLD1		Helical			True
+P43548	AGP3	Cytoplasmic; Extracellular	Helical			True		True
+P43557	FMP32		Helical			True
+P43562		Cytoplasmic; Extracellular	Helical			True		True
+P43611	OSW7				True
+P43613	ERJ5	Lumenal; Cytoplasmic	Helical		True	True		True
+P43620	RMD8		Helical			True
+P45820	HUR1		Helical			True
+P46993	ASG7	Lumenal; Cytoplasmic	Helical			True		True
+P46999	PIR5				True
+P47046	IRC8	Cytoplasmic; Extracellular	Helical			True		True
+P47081	COX16		Helical			True
+P47111	VPS55	Cytoplasmic; Lumenal	Helical			True		True
+P47153	TDA4	Extracellular; Cytoplasmic	Helical			True		True
+P47155	ILM1	Cytoplasmic; Lumenal	Helical			True		True
+P47187	COS5	Cytoplasmic; Extracellular	Helical			True		True
+P48560	TOS6				True
+P50080	AZR1	Extracellular; Cytoplasmic	Helical			True		True
+P50112	KNH1				True
+P52290	DIA3				True
+P52924	COS10	Cytoplasmic; Extracellular	Helical			True		True
+P53047	RTA1	Extracellular; Cytoplasmic	Helical			True		True
+P53058	VEL1				True
+P53099	TPN1	Cytoplasmic; Extracellular	Helical			True		True
+P53142	VPS73	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+P53203	PEX31	Cytoplasmic; Peroxisomal	Helical			True		True
+P53241	VHT1	Extracellular; Cytoplasmic	Helical			True		True
+P53253	NNF2	Lumenal; Cytoplasmic	Helical			True		True
+P53257	TPC1		Helical			True
+P53279	FHN1	Cytoplasmic; Extracellular	Helical			True		True
+P53285	VPS62		Helical			True
+P53394		Cytoplasmic; Lumenal	Helical			True		True
+P53723			Helical			True
+P53735	ZRG17	Cytoplasmic; Lumenal	Helical			True		True
+P53744	BIO5	Cytoplasmic; Extracellular	Helical			True		True
+P53751			Helical			True
+P53752			Helical			True
+P53835	PRM1	Extracellular; Cytoplasmic	Helical			True		True
+P53878	PBR1	Lumenal; Cytoplasmic	Helical			True		True
+P53882	TDA7		Helical			True
+P53898	NSG2	Cytoplasmic; Lumenal	Helical			True		True
+P53918	ESBP6	Cytoplasmic; Lumenal	Helical			True		True
+P53961	GPI15		Helical			True
+P53966	KTR5	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P54003	SUR7	Cytoplasmic; Extracellular	Helical			True		True
+P56508	SNA2	Cytoplasmic; Vesicular	Helical			True		True
+P87275	AIM11		Helical			True
+P89113	DDR2				True
+Q02889	MGR2	Cytoplasmic; Extracellular	Helical			True		True
+Q03029	SPO19				True
+Q03079	MRX11	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q03419	IZH1	Lumenal; Cytoplasmic	Helical			True		True
+Q03516	RSN1		Helical			True
+Q03673	AIM34		Helical			True
+Q03697	YMD8	Cytoplasmic; Extracellular	Helical			True		True
+Q03798	AIM36		Helical			True
+Q03880	PKR1	Cytoplasmic; Lumenal	Helical			True		True
+Q04083	THI74	Cytoplasmic; Mitochondrial intermembrane	Helical			True		True
+Q04210	YET2	Lumenal; Cytoplasmic	Helical			True		True
+Q04216	DLT1	Cytoplasmic; Extracellular	Helical			True		True
+Q04301	VBA1	Vacuolar; Cytoplasmic	Helical			True		True
+Q04516	AIM33	Extracellular; Cytoplasmic	Helical			True		True
+Q04602	VBA4	Cytoplasmic; Vacuolar	Helical			True		True
+Q04734	RIM9	Cytoplasmic; Extracellular	Helical			True		True
+Q04767	TVP18		Helical			True
+Q05648	MRX10	Mitochondrial matrix; Mitochondrial intermembrane	Helical			True		True
+Q05827	HOR7				True
+Q05867			Helical			True
+Q05899			Helical			True
+Q06011	ECM19		Helical			True
+Q06107		Cytoplasmic; Lumenal	Helical			True		True
+Q06116	HOB2		Helical			True
+Q06200	ECM7	Cytoplasmic; Extracellular	Helical			True		True
+Q06466	TDA6		Helical			True
+Q06485	ATG33		Helical			True
+Q06490	THI22				True
+Q06537			Helical			True
+Q06563	SYM1		Helical			True
+Q06636	GPI11	Cytoplasmic; Lumenal	Helical			True		True
+Q06644	PMT7	Lumenal; Cytoplasmic	Helical			True		True
+Q06686	CTR3	Lumenal; Cytoplasmic	Helical			True		True
+Q06689		Extracellular; Cytoplasmic	Helical		True	True		True
+Q07349	MRX9		Helical			True
+Q07376	MCH1	Cytoplasmic; Vacuolar	Helical			True		True
+Q07451	YET3	Lumenal; Cytoplasmic	Helical			True		True
+Q07549	SNA4	Cytoplasmic; Vacuolar	Helical			True		True
+Q07660	BRE4	Cytoplasmic; Extracellular	Helical			True		True
+Q07788	COS7	Cytoplasmic; Extracellular	Helical			True		True
+Q07798	SPO75	Extracellular; Cytoplasmic	Helical			True		True
+Q07904	THI73	Cytoplasmic; Extracellular	Helical			True		True
+Q07959	IZH3	Lumenal; Cytoplasmic	Helical			True		True
+Q07987	PAU23				True
+Q07988	AFB1				True
+Q07990					True
+Q08045	LCL2				True
+Q08223	AIM39		Helical			True
+Q08234		Extracellular; Cytoplasmic	Helical			True		True
+Q08268	MCH4	Cytoplasmic; Extracellular	Helical			True		True
+Q08280	BSC6	Lumenal; Cytoplasmic	Helical			True		True
+Q08416	IRC23	Cytoplasmic; Lumenal	Helical			True		True
+Q08693	TRE2	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			True		True
+Q08750	MUM3		Helical			True
+Q08777	MCH5	Cytoplasmic; Extracellular	Helical			True		True
+Q08907	FIT3				True
+Q08919	TRE1	Cytoplasmic; Extracellular	Helical; Signal-anchor for type II membrane protein			True		True
+Q12057	PIN2		Helical			True
+Q12117	MRH1	Extracellular; Cytoplasmic	Helical			True		True
+Q12119	FCY22		Helical			True
+Q12144	PER33	Cytoplasmic; Lumenal	Helical			True		True
+Q12155	EMA19	Cytoplasmic; Lumenal	Helical			True		True
+Q12239		Cytoplasmic; Lumenal	Helical			True		True
+Q12251			Helical			True
+Q12252	PHM7	Extracellular; Cytoplasmic	Helical			True		True
+Q12282	SPR2				True
+Q12350	JID1		Helical			True
+Q12374	NCA2		Helical			True
+Q12407		Extracellular; Cytoplasmic	Helical			True		True
+Q12412	PNS1	Cytoplasmic; Extracellular	Helical			True		True
+Q12424		Extracellular; Cytoplasmic	Helical		True	True		True
+Q12436	ZRT2	Extracellular; Cytoplasmic	Helical			True		True
+Q12512	ZPS1				True
+Q12516	SRF1	Cytoplasmic; Extracellular	Helical			True		True
+Q3E6R5			Helical			True
+Q3E824			Helical			True
+Q3E828	MCO6	Mitochondrial intermembrane; Cytoplasmic	Helical			True		True
+Q7LHD1	CCW22				True
+Q8TGJ3	KSH1	Lumenal	Helical		True	True		True
+Q8TGN9	NAG1		Helical			True
+Q99252	ECM3		Helical			True
+A0A023PXB5	IRC2		Helical			True
+A0A023PXH9			Helical			True
+A0A023PZE6			Helical		True	True
+A5Z2X5			Helical			True
+D6VPM8	DFP1		Helical			True
+O13511			Helical			True
+O13512		Cytoplasmic; Extracellular	Helical			True		True
+O13529	ECM12		Helical			True
+O13543			Helical			True
+O13550			Helical			True
+O13554	VPS65		Helical			True
+O13566			Helical			True
+O13584	VPS69		Helical			True
+O94084	OPI9		Helical			True
+P0C261		Cytoplasmic; Extracellular	Helical			True		True
+P0C289			Helical			True
+P0C5B8			Helical			True
+P0CD97		Cytoplasmic; Lumenal	Helical			True		True
+P0CD98		Cytoplasmic; Extracellular	Helical			True		True
+P0CE85	PAU19				True
+P0CE88	PAU1				True
+P0CE89	PAU14				True
+P0CE90	PAU6				True
+P0CE91	PAU18				True
+P0CE92	PAU8				True
+P0CE93	PAU11				True
+P0CF19			Helical			True
+P0CF20			Helical			True
+P0CL27			Helical		True	True
+P0CL28			Helical		True	True
+P0CL29			Helical		True	True
+P0CL30			Helical		True	True
+P0CL31			Helical		True	True
+P0CL34			Helical			True
+P0CL35			Helical			True
+P0CL36			Helical			True
+P0CL37			Helical			True
+P0CL38			Helical			True
+P0CL39			Helical			True
+P0CL40			Helical			True
+P0CL41			Helical			True
+P0CL42			Helical			True
+P0CX12	COS2	Cytoplasmic; Extracellular	Helical			True		True
+P0CX18					True
+P0CX19					True
+P0CX99			Helical			True
+P25565			Helical			True
+P25610	PAU3		Helical			True
+P25639		Lumenal; Cytoplasmic	Helical		True	True		True
+P28626	YIM2		Helical			True
+P32564	SCM4		Helical			True
+P32612	PAU2		Helical			True
+P32633	MTC7		Helical			True
+P34224			Helical			True
+P34251			Helical			True
+P35994	PAU16				True
+P36034	COS9		Helical			True
+P36066			Helical			True
+P37265			Helical			True
+P38083			Helical			True
+P38150			Helical			True
+P38155	PAU24				True
+P38168			Helical			True
+P38189		Extracellular; Cytoplasmic	Helical			True		True
+P38190			Helical			True
+P38192	RRT1		Helical			True
+P38240		Cytoplasmic; Extracellular	Helical			True		True
+P38253			Helical			True
+P38267		Extracellular; Cytoplasmic	Helical			True		True
+P38268			Helical			True
+P38292	PEX32	Peroxisomal; Cytoplasmic	Helical			True		True
+P38318		Cytoplasmic; Extracellular	Helical			True		True
+P38320		Extracellular; Cytoplasmic	Helical		True	True		True
+P38355			Helical			True
+P38721			Helical			True
+P38723	COS8	Extracellular; Cytoplasmic	Helical			True		True
+P38725	PAU13				True
+P38726			Helical			True
+P38728	ECM34		Helical			True
+P38740			Helical			True
+P38775			Helical			True
+P38832	ANS1				True
+P38841					True
+P38868			Helical			True
+P39542		Cytoplasmic; Extracellular	Helical			True		True
+P39557		Cytoplasmic; Extracellular	Helical			True		True
+P39931	SSP120				True
+P39991			Helical			True
+P40049					True
+P40097			Helical			True
+P40098	FMP10		Helical			True
+P40441	HXT12	Cytoplasmic; Extracellular	Helical			True		True
+P40476	PRM5		Helical			True
+P40497			Helical			True
+P40500		Cytoplasmic; Extracellular	Helical			True		True
+P40502	AIM19		Helical			True
+P40508			Helical			True
+P40514			Helical			True
+P40520					True
+P40524		Extracellular; Cytoplasmic	Helical			True		True
+P40534	PRM2		Helical			True
+P40585	PAU15				True
+P42840		Cytoplasmic; Extracellular	Helical			True		True
+P42946	PRM10	Cytoplasmic; Extracellular	Helical			True		True
+P43537		Extracellular; Cytoplasmic	Helical			True		True
+P43542	COS4		Helical			True
+P43552		Cytoplasmic; Extracellular	Helical		True	True		True
+P43575	PAU5		Helical			True
+P43590			Helical			True
+P43595	DCV1		Helical		True	True
+P43600	CSS2				True
+P43617			Helical			True
+P43624			Helical			True
+P46991		Cytoplasmic; Extracellular	Helical			True		True
+P46996		Extracellular; Cytoplasmic	Helical			True		True
+P46998	FMP33		Helical			True
+P47010	IRC9		Helical			True
+P47014			Helical			True
+P47020			Helical			True
+P47034	ICS3		Helical			True
+P47090		Lumenal; Cytoplasmic	Helical			True		True
+P47094			Helical			True
+P47121					True
+P47131			Helical			True
+P47144	ECM27		Helical			True
+P47157					True
+P47159		Extracellular; Cytoplasmic	Helical			True		True
+P50088	SPG1		Helical			True
+P50943	RRT16		Helical			True
+P53053	COS12	Cytoplasmic; Extracellular	Helical			True		True
+P53057	YPS5				True
+P53074			Helical			True
+P53087			Helical			True
+P53089			Helical			True
+P53117	RRT6		Helical			True
+P53120		Cytoplasmic; Extracellular	Helical			True		True
+P53134			Helical			True
+P53171	GEP7		Helical			True
+P53209		Cytoplasmic; Extracellular	Helical			True		True
+P53217		Cytoplasmic; Extracellular	Helical			True		True
+P53249					True
+P53288			Helical			True
+P53293			Helical			True
+P53339		Extracellular; Cytoplasmic	Helical			True		True
+P53343	PAU12		Helical			True
+P53344	COS6	Cytoplasmic; Extracellular	Helical			True		True
+P53427	PAU4		Helical			True
+P53584	YTP1	Extracellular; Cytoplasmic	Helical			True		True
+P53745	MNT4	Cytoplasmic; Lumenal	Helical; Signal-anchor for type II membrane protein			True		True
+P53747		Cytoplasmic; Vacuolar	Helical			True		True
+P53748		Cytoplasmic; Extracellular	Helical			True		True
+P53822	COS1	Cytoplasmic; Extracellular	Helical			True		True
+P53862		Cytoplasmic; Extracellular	Helical		True	True		True
+P53906			Helical			True
+P53908		Cytoplasmic; Extracellular	Helical			True		True
+P53925		Cytoplasmic; Vacuolar	Helical			True		True
+P53928		Cytoplasmic; Extracellular	Helical			True		True
+P53932		Cytoplasmic; Extracellular	Helical			True		True
+P53947			Helical			True
+P53956		Lumenal; Cytoplasmic	Helical			True		True
+P53964		Cytoplasmic; Extracellular	Helical		True	True		True
+P53975		Cytoplasmic; Extracellular	Helical		True	True		True
+P54072		Cytoplasmic; Extracellular	Helical			True		True
+P87267			Helical		True	True
+P9WEJ6			Helical			True
+Q02203		Extracellular; Cytoplasmic	Helical		True	True		True
+Q02786	LCL1				True
+Q02820	NCE101		Helical			True
+Q03050	PAU10				True
+Q03102		Cytoplasmic; Extracellular	Helical			True		True
+Q03187			Helical		True	True
+Q03193		Cytoplasmic; Extracellular	Helical			True		True
+Q03263		Cytoplasmic; Extracellular	Helical			True		True
+Q03648			Helical			True
+Q03730		Cytoplasmic; Vacuolar	Helical			True		True
+Q03783	BUD26		Helical			True
+Q03795		Extracellular; Cytoplasmic	Helical			True		True
+Q03913	VPS61		Helical			True
+Q04018			Helical			True
+Q04033					True
+Q04100			Helical		True	True
+Q04162		Cytoplasmic; Extracellular	Helical			True		True
+Q04398	SPG3		Helical			True
+Q04835		Lumenal; Cytoplasmic	Helical			True		True
+Q04991	FMP42	Vacuolar; Cytoplasmic	Helical			True		True
+Q05497			Helical			True
+Q05611	BSC2		Helical			True
+Q05637	PHM6		Helical			True
+Q06089			Helical			True
+Q06158		Cytoplasmic; Extracellular	Helical			True		True
+Q06170		Cytoplasmic; Extracellular	Helical			True		True
+Q06235			Helical			True
+Q06247			Helical			True
+Q07074			Helical			True
+Q07629		Cytoplasmic; Extracellular	Helical			True		True
+Q07716	AIM6				True
+Q07790			Helical		True	True
+Q07829	RRT7		Helical			True
+Q07895		Vacuolar; Cytoplasmic	Helical		True	True		True
+Q07986			Helical			True
+Q07992	BUD28				True
+Q08023	FMP25		Helical			True
+Q08238		Cytoplasmic; Extracellular	Helical			True		True
+Q08240		Cytoplasmic; Extracellular	Helical			True		True
+Q08272			Helical		True	True
+Q08300	CSS3				True
+Q08322	PAU20		Helical			True
+Q08498			Helical		True	True
+Q08559	FYV12		Helical			True
+Q08630	IRC13		Helical			True
+Q08743		Vacuolar; Cytoplasmic	Helical			True		True
+Q08786		Cytoplasmic; Extracellular	Helical			True		True
+Q08844		Extracellular; Cytoplasmic	Helical		True	True		True
+Q08900		Cytoplasmic; Extracellular	Helical			True		True
+Q08910					True
+Q08912					True
+Q08922			Helical			True
+Q08958			Helical			True
+Q08974		Extracellular; Cytoplasmic	Helical			True		True
+Q08980		Cytoplasmic; Extracellular	Helical			True		True
+Q08989					True
+Q12042		Vacuolar; Cytoplasmic	Helical			True		True
+Q12064	BUD30				True
+Q12079		Cytoplasmic; Extracellular	Helical			True		True
+Q12116	TMS1	Cytoplasmic; Vacuolar	Helical			True		True
+Q12121			Helical			True
+Q12160			Helical			True
+Q12212	SIA1				True
+Q12253		Cytoplasmic; Extracellular	Helical			True		True
+Q12254	SVS1				True
+Q12301		Cytoplasmic; Vacuolar	Helical			True		True
+Q12331					True
+Q12346		Cytoplasmic; Lumenal	Helical			True		True
+Q12370	PAU17				True
+Q12479	IRC11		Helical			True
+Q12498	PRM4		Helical			True
+Q2V2P2			Helical			True
+Q2V2P3			Helical			True
+Q2V2P5			Helical			True
+Q2V2Q2					True
+Q3E6R4					True
+Q3E770	PAU9				True
+Q3E7A3			Helical			True
+Q3E7A7					True
+Q3E7B0			Helical			True
+Q3E7B9		Extracellular; Cytoplasmic	Helical		True	True		True
+Q3E7Z8			Helical			True
+Q3E842			Helical			True
+Q45U18			Helical			True
+Q6B0V8	IRC16		Helical			True
+Q6B0X2			Helical		True	True
+Q870I1			Helical			True
+Q8TGK5			Helical			True
+Q8TGQ7			Helical			True
+Q8TGU7			Helical			True
+A0A023PXB9			Helical			True
+A0A023PXC2			Helical		True	True
+A0A023PXC7			Helical			True
+A0A023PXD5			Helical		True	True
+A0A023PXD9			Helical			True
+A0A023PXF8			Helical			True
+A0A023PXG3			Helical			True
+A0A023PXG7			Helical			True
+A0A023PXH4			Helical			True
+A0A023PXH6			Helical			True
+A0A023PXI0			Helical			True
+A0A023PXI4					True
+A0A023PXJ3			Helical			True
+A0A023PXJ7			Helical			True
+A0A023PXK2			Helical; Signal-anchor; Helical			True
+A0A023PXK7			Helical			True
+A0A023PXL1			Helical			True
+A0A023PXL7			Helical			True
+A0A023PXM7			Helical			True
+A0A023PXN9			Helical			True
+A0A023PXQ4			Helical			True
+A0A023PXQ9			Helical			True
+A0A023PYC6			Helical		True	True
+A0A023PYD0			Helical			True
+A0A023PYD7			Helical			True
+A0A023PYD9			Helical		True	True
+A0A023PYE4			Helical			True
+A0A023PYE9					True
+A0A023PYF4					True
+A0A023PYG1			Helical			True
+A0A023PYH0					True
+A0A023PYI5			Helical			True
+A0A023PYJ0			Helical			True
+A0A023PYJ7			Helical			True
+A0A023PYK2			Helical			True
+A0A023PZ94			Helical			True
+A0A023PZ99			Helical			True
+A0A023PZB8			Helical			True
+A0A023PZD0			Helical			True
+A0A023PZE1			Helical			True
+A0A023PZE2			Helical			True
+A0A023PZF3			Helical			True
+A0A023PZF9			Helical			True
+A0A023PZG0			Helical		True	True
+A0A023PZG5					True
+A0A023PZG9			Helical			True
+A0A023PZH1			Helical			True
+A0A023PZH4			Helical			True
+A0A023PZH5			Helical			True
+A0A023PZI4			Helical			True
+A0A023PZJ3			Helical			True
+A0A023PZK9			Helical			True
+A0A023PZL2			Helical		True	True
+A0A023PZM3			Helical			True
+I2HB70					True
+O13514			Helical			True
+O13515					True
+O13518			Helical			True
+O13519					True
+O13520			Helical			True
+O13522			Helical			True
+O13523			Helical			True
+O13530			Helical			True
+O13533			Helical			True
+O13537			Helical			True
+O13540			Helical			True
+O13544			Helical			True
+O13545			Helical			True
+O13560			Helical			True
+O13561			Helical			True
+O13562			Helical			True
+O13567			Helical			True
+O13568			Helical			True
+O13570			Helical			True
+O13572			Helical			True
+O13579			Helical			True
+O13583			Helical			True
+O94085			Helical			True
+P0C5E0			Helical			True
+P0C5L2			Helical			True
+P0C5L8					True
+P0C5M2			Helical			True
+P0C5M3			Helical			True
+P0C5M6					True
+P0C5M7			Helical			True
+P0C5N0			Helical			True
+P0C5N8			Helical			True
+P0C5N9			Helical			True
+P0C5P3			Helical			True
+P0C5P5			Helical			True
+P0C5Q3			Helical			True
+P0C5Q4			Helical			True
+P0C5R1			Helical			True
+P0C5R7			Helical			True
+P0C5R8			Helical			True
+P0CL32			Helical			True
+P0CL33			Helical			True
+P0CX92			Helical			True
+P0CX93			Helical			True
+P0CX94			Helical			True
+P0CX95			Helical			True
+P0CX96			Helical			True
+P0CX97			Helical			True
+P0CX98			Helical			True
+P0CY00			Helical			True
+P0CY01			Helical			True
+P25577					True
+P36092			Helical			True
+P36098			Helical			True
+P37264			Helical			True
+P38173			Helical			True
+P38185			Helical			True
+P38186			Helical			True
+P38215					True
+P38220			Helical			True
+P38233			Helical			True
+P38252			Helical			True
+P38258			Helical			True
+P38269			Helical			True
+P38311			Helical			True
+P38317			Helical			True
+P38327			Helical			True
+P38357			Helical			True
+P38362			Helical			True
+P38729					True
+P38733					True
+P38752			Helical			True
+P38799			Helical			True
+P38834			Helical			True
+P39532			Helical			True
+P39541			Helical			True
+P39545	PAU7				True
+P39559			Helical			True
+P39563			Helical			True
+P39989					True
+P40163			Helical			True
+P40365			Helical			True
+P40519			Helical			True
+P40538			Helical			True
+P40587			Helical			True
+P43566			Helical			True
+P43578			Helical			True
+P43608			Helical			True
+P46986			Helical			True
+P47003			Helical			True
+P47022			Helical			True
+P47028			Helical			True
+P47062			Helical			True
+P47080			Helical			True
+P47091			Helical			True
+P47106			Helical			True
+P50083			Helical			True
+P53069			Helical			True
+P53106			Helical			True
+P53113			Helical			True
+P53116			Helical		True	True
+P53151			Helical			True
+P53160			Helical			True
+P53161			Helical			True
+P53181			Helical			True
+P53182			Helical			True
+P53190			Helical			True
+P53229			Helical			True
+P53245			Helical			True
+P53247			Helical			True
+P53268			Helical			True
+P53269			Helical			True
+P53282			Helical			True
+P53308			Helical			True
+P53310			Helical			True
+P53325			Helical			True
+P53342			Helical			True
+P53717			Helical			True
+P53726			Helical			True
+P53825			Helical			True
+P53826					True
+P53842			Helical			True
+P53856			Helical			True
+P53880			Helical			True
+P53884			Helical			True
+P53926			Helical			True
+P53979			Helical			True
+P87264			Helical			True
+P87266			Helical			True
+P87270			Helical			True
+P87272			Helical			True
+P87273			Helical			True
+P87274			Helical			True
+P87280			Helical			True
+P87281			Helical			True
+P87285			Helical			True
+P87287			Helical		True	True
+P90471			Helical			True
+P9WEJ2					True
+P9WEJ4			Helical			True
+Q00590			Helical			True
+Q02217			Helical			True
+Q03186			Helical			True
+Q03236			Helical			True
+Q03418			Helical			True
+Q03480			Helical			True
+Q03788			Helical			True
+Q03884			Helical			True
+Q03885			Helical			True
+Q03904			Helical			True
+Q04069			Helical			True
+Q04203			Helical			True
+Q04501			Helical			True
+Q04521					True
+Q04838			Helical			True
+Q04909			Helical			True
+Q05503			Helical			True
+Q05612			Helical			True
+Q05898			Helical			True
+Q06051			Helical			True
+Q06057			Helical			True
+Q06127			Helical			True
+Q07355			Helical			True
+Q07435			Helical			True
+Q07509			Helical			True
+Q07811			Helical			True
+Q07865			Helical			True
+Q07880					True
+Q07881			Helical			True
+Q08027			Helical			True
+Q08205			Helical			True
+Q08207			Helical			True
+Q08373			Helical			True
+Q08428			Helical			True
+Q08439					True
+Q08532					True
+Q08533			Helical			True
+Q08560			Helical			True
+Q08604			Helical			True
+Q08734			Helical			True
+Q08736			Helical			True
+Q08741			Helical			True
+Q08811			Helical			True
+Q08915			Helical			True
+Q08927			Helical			True
+Q08976					True
+Q12023			Helical			True
+Q12070					True
+Q12077			Helical			True
+Q12111			Helical			True
+Q12135			Helical			True
+Q12147			Helical			True
+Q12169			Helical			True
+Q12174			Helical			True
+Q12187			Helical			True
+Q12210			Helical			True
+Q12225			Helical			True
+Q12240			Helical			True
+Q12249			Helical			True
+Q12274			Helical			True
+Q12312			Helical			True
+Q12336			Helical			True
+Q12352			Helical			True
+Q12394			Helical			True
+Q12492			Helical			True
+Q12528			Helical			True
+Q2V2P6			Helical			True
+Q3E735			Helical			True
+Q3E739			Helical			True
+Q3E743			Helical			True
+Q3E750			Helical			True
+Q3E751			Helical			True
+Q3E755					True
+Q3E760			Helical			True
+Q3E763					True
+Q3E765			Helical			True
+Q3E776			Helical			True
+Q3E782					True
+Q3E796			Helical			True
+Q3E7Z4			Helical			True
+Q3E810			Helical			True
+Q3E814			Helical			True
+Q3E815			Helical			True
+Q3E820			Helical			True
+Q3E821					True
+Q3E837					True
+Q6B0R2			Helical			True
+Q6B0W0			Helical			True
+Q6B0Y1			Helical			True
+Q6B0Y5			Helical			True
+Q6B0Y6			Helical			True
+Q6B0Z2			Helical			True
+Q6B2I9			Helical			True
+Q8J0M4					True
+Q8TGM9			Helical			True
+Q8TGN7			Helical			True
+Q8TGP9			Helical			True
+Q8TGQ0			Helical			True
+Q8TGQ2					True
+Q8TGR2					True
+Q8TGR3			Helical			True
+Q8TGR7			Helical			True
+Q8TGS0			Helical			True
+Q8TGS1			Helical			True
+Q8TGS4					True
+Q8TGS5					True
+Q8TGS7			Helical			True
+Q8TGT1					True
+Q8TGT2			Helical			True
+Q8TGT4			Helical			True
+Q8TGT9			Helical			True
+Q8TGU2			Helical			True
+Q96VG6			Helical			True
+Q96VH1			Helical			True
+Q96VH3			Helical			True
+Q99401			Helical			True

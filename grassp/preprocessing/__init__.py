@@ -1,4 +1,9 @@
-from .annotation import add_external_validation_markers, add_markers, annotate_uniprot_cc
+from .annotation import (
+    add_external_validation_markers,
+    add_markers,
+    annotate_uniprot_cc,
+    set_sensible_compartment_colors,
+)
 from .contaminants import remove_contaminants, remove_cRAP_proteins
 from .enrichment import calculate_enrichment_vs_all, calculate_enrichment_vs_untagged
 from .imputation import impute_gaussian, impute_knn

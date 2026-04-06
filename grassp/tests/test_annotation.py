@@ -537,3 +537,73 @@ def test_add_external_validation_markers_multiple_columns():
     assert isinstance(adata.obs["Transmembrane"].dtype, pd.CategoricalDtype)
     assert not isinstance(adata.obs["has_signal"].dtype, pd.CategoricalDtype)
     assert not isinstance(adata.obs["has_transmem"].dtype, pd.CategoricalDtype)
+
+
+# Tests for gene name-based merging
+
+
+def test_add_external_validation_markers_with_gene_names():
+    """Test gene name-based merging."""
+    X = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=float)
+    obs = pd.DataFrame(
+        {"gene_symbol": ["MT-CO1", "CYC1", "UNKNOWN"]},
+        index=["protein1", "protein2", "protein3"],
+    )
+    var = pd.DataFrame(index=["sample1", "sample2", "sample3"])
+    adata = AnnData(X=X, obs=obs, var=var)
+
+    annotation.add_external_validation_markers(
+        adata,
+        species="hsap",
+        columns=["mitocarta"],
+        use_gene_names=True,
+        gene_names_column="gene_symbol",
+    )
+
+    assert "mitocarta" in adata.obs.columns
+    assert adata.obs["mitocarta"].notna().sum() >= 1
+
+
+def test_add_external_validation_markers_gene_names_with_obs_names():
+    """Test using obs_names as gene names."""
+    X = np.array([[1, 2, 3], [4, 5, 6]], dtype=float)
+    obs = pd.DataFrame(index=["MT-CO1", "CYC1"])
+    var = pd.DataFrame(index=["sample1", "sample2", "sample3"])
+    adata = AnnData(X=X, obs=obs, var=var)
+
+    annotation.add_external_validation_markers(
+        adata, species="hsap", columns=["mitocarta"], use_gene_names=True
+    )
+
+    assert "mitocarta" in adata.obs.columns
+    assert adata.obs["mitocarta"].notna().sum() >= 1
+
+
+def test_add_external_validation_markers_gene_names_invalid_column():
+    """Test error when gene_names_column doesn't exist."""
+    adata = make_test_anndata_with_uniprot_ids()
+
+    with pytest.raises(ValueError, match="Column .* not found"):
+        annotation.add_external_validation_markers(
+            adata, species="hsap", use_gene_names=True, gene_names_column="nonexistent_column"
+        )
+
+
+def test_add_external_validation_markers_gene_names_all_columns():
+    """Test using gene names with all columns (columns=None)."""
+    X = np.array([[1, 2, 3], [4, 5, 6]], dtype=float)
+    obs = pd.DataFrame({"gene": ["MT-CO1", "CYC1"]}, index=["prot1", "prot2"])
+    var = pd.DataFrame(index=["sample1", "sample2", "sample3"])
+    adata = AnnData(X=X, obs=obs, var=var)
+
+    # Should work without specifying columns (include all)
+    annotation.add_external_validation_markers(
+        adata, species="hsap", use_gene_names=True, gene_names_column="gene"
+    )
+
+    # Check that various columns were added
+    assert "mitocarta" in adata.obs.columns
+    assert "Topological domain" in adata.obs.columns
+    assert "has_transmem" in adata.obs.columns
+    # gene_name should NOT be added as a column (it was the merge key)
+    assert "gene_name" not in adata.obs.columns

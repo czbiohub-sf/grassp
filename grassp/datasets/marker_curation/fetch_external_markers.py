@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Fetch external validation markers from UniProt and MitoCarta for multiple species.
+Fetch external validation markers from UniProt, MitoCarta, and MitoCop for multiple species.
 
 This script downloads:
 1. UniProt features (signal peptides, transmembrane domains, etc.) via REST API
 2. MitoCarta mitochondrial protein annotations (human and mouse only)
+3. MitoCop mitochondrial protein annotations (human only)
 
 Output: TSV files with merged external markers for each species.
 """
@@ -18,6 +19,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import numpy as np
 import pandas as pd
 import requests
 
@@ -134,7 +136,7 @@ def fetch_uniprot_features(species_code: str, reviewed_only: bool = True) -> pd.
     Returns
     -------
     pd.DataFrame
-        DataFrame with columns: id, Signal peptide, Transmembrane, Intramembrane,
+        DataFrame with columns: id, Transmembrane, Intramembrane,
         Topological domain, has_signal, has_transmem, has_intramem, has_topo_dom
     """
     config = SPECIES_CONFIG[species_code]
@@ -152,7 +154,7 @@ def fetch_uniprot_features(species_code: str, reviewed_only: bool = True) -> pd.
     params = {
         'query': query,
         'format': 'tsv',
-        'fields': 'accession,ft_topo_dom,ft_transmem,ft_intramem,ft_signal',
+        'fields': 'accession,gene_primary,ft_topo_dom,ft_transmem,ft_intramem,ft_signal',
     }
 
     # Retry logic with exponential backoff
@@ -174,20 +176,39 @@ def fetch_uniprot_features(species_code: str, reviewed_only: bool = True) -> pd.
 
     df = pd.read_csv(StringIO(response.text), sep='\t')
 
-    # Rename 'Entry' to 'id'
-    df = df.rename(columns={'Entry': 'id'})
+    # Rename 'Entry' to 'id' and 'Gene Names (primary)' to 'gene_name'
+    df = df.rename(columns={'Entry': 'id', 'Gene Names (primary)': 'gene_name'})
 
     # Create boolean columns (before parsing, to check for any content)
-    df['has_signal'] = df['Signal peptide'].notna() & (df['Signal peptide'] != '')
-    df['has_transmem'] = df['Transmembrane'].notna() & (df['Transmembrane'] != '')
-    df['has_intramem'] = df['Intramembrane'].notna() & (df['Intramembrane'] != '')
-    df['has_topo_dom'] = df['Topological domain'].notna() & (df['Topological domain'] != '')
+    # Use True for matches and NaN for non-matches (no False values)
+
+    # Handle Signal peptide column if it exists (API may not return it)
+    if 'Signal peptide' in df.columns:
+        df['has_signal'] = (
+            df['Signal peptide'].notna() & (df['Signal peptide'] != '')
+        ).replace(False, np.nan)
+        # Parse and then drop the column
+        df['Signal peptide'] = df['Signal peptide'].apply(parse_feature_notes)
+        df = df.drop(columns=['Signal peptide'])
+    else:
+        # If no signal column, set has_signal to NaN for all
+        df['has_signal'] = np.nan
+        logger.warning("Signal peptide column not returned by UniProt API")
+
+    df['has_transmem'] = (df['Transmembrane'].notna() & (df['Transmembrane'] != '')).replace(
+        False, np.nan
+    )
+    df['has_intramem'] = (df['Intramembrane'].notna() & (df['Intramembrane'] != '')).replace(
+        False, np.nan
+    )
+    df['has_topo_dom'] = (
+        df['Topological domain'].notna() & (df['Topological domain'] != '')
+    ).replace(False, np.nan)
 
     # Parse feature annotations to extract note values
     df['Topological domain'] = df['Topological domain'].apply(parse_feature_notes)
     df['Transmembrane'] = df['Transmembrane'].apply(parse_feature_notes)
     df['Intramembrane'] = df['Intramembrane'].apply(parse_feature_notes)
-    df['Signal peptide'] = df['Signal peptide'].apply(parse_feature_notes)
 
     logger.info(f"Fetched {len(df)} proteins from UniProt")
     logger.info(f"  - Signal peptides: {df['has_signal'].sum()}")
@@ -199,7 +220,7 @@ def fetch_uniprot_features(species_code: str, reviewed_only: bool = True) -> pd.
 
 
 def fetch_mitocarta_data(
-    species_code: str, score_threshold: float = 20.0, cache_dir: Path = Path('./cache')
+    species_code: str, score_threshold: float = 1.0, cache_dir: Path = Path('./cache')
 ) -> Optional[pd.DataFrame]:
     """
     Fetch MitoCarta mitochondrial protein annotations.
@@ -286,6 +307,7 @@ def fetch_mitocarta_data(
             'SubMitoLocalization',
         ],
     )
+    gene_col = find_column(df, ['Symbol', 'Gene', 'Gene name', 'gene symbol', 'gene_name'])
 
     # Report found columns
     logger.info("MitoCarta columns found:")
@@ -293,6 +315,7 @@ def fetch_mitocarta_data(
     logger.info(f"  - Score: {score_col}")
     logger.info(f"  - Evidence: {evidence_col}")
     logger.info(f"  - SubLocalization: {subloc_col}")
+    logger.info(f"  - Gene: {gene_col}")
 
     # Check required columns
     if uniprot_col is None:
@@ -315,6 +338,8 @@ def fetch_mitocarta_data(
     # Create output DataFrame
     result = pd.DataFrame()
     result['id'] = df_filtered[uniprot_col]
+    if gene_col:
+        result['gene_name'] = df_filtered[gene_col].values
     result['mitocarta'] = True
 
     # Add optional columns if available
@@ -326,10 +351,117 @@ def fetch_mitocarta_data(
     return result
 
 
+def fetch_mitocop_data(
+    species_code: str, cache_dir: Path = Path('./cache')
+) -> Optional[pd.DataFrame]:
+    """
+    Fetch MitoCop mitochondrial protein annotations.
+
+    Only available for human (hsap).
+
+    Reference: Konig et al. 2021, Cell Metabolism
+    https://doi.org/10.1016/j.cmet.2021.11.010
+
+    Parameters
+    ----------
+    species_code
+        Species code (e.g., 'hsap')
+    cache_dir
+        Directory to cache downloaded Excel files
+
+    Returns
+    -------
+    pd.DataFrame or None
+        DataFrame with columns: id, mitocop
+        Returns None if species is not human or download fails
+    """
+    # MitoCop is only available for human
+    if species_code != 'hsap':
+        return None
+
+    species_name = SPECIES_CONFIG[species_code]['name']
+    url = 'https://ars.els-cdn.com/content/image/1-s2.0-S1550413121005295-mmc2.xlsx'
+
+    logger.info(f"Fetching MitoCop data for {species_name}...")
+
+    # Create cache directory
+    cache_dir.mkdir(exist_ok=True)
+    cache_file = cache_dir / 'MitoCop_hsap.xlsx'
+
+    # Download file if not cached
+    if not cache_file.exists():
+        logger.info(f"Downloading MitoCop file to {cache_file}...")
+        try:
+            response = requests.get(url, timeout=120)
+            response.raise_for_status()
+            cache_file.write_bytes(response.content)
+        except requests.RequestException as e:
+            logger.error(f"Failed to download MitoCop data: {e}")
+            return None
+    else:
+        logger.info(f"Using cached MitoCop file: {cache_file}")
+
+    # Read Excel file (third sheet, 0-indexed = sheet 2)
+    # Headers are in the second row, so skip the first row
+    try:
+        df = pd.read_excel(cache_file, sheet_name=2, header=1)
+    except Exception as e:
+        logger.error(f"Failed to read MitoCop Excel file: {e}")
+        return None
+
+    # Find the protein ID column
+    id_col = find_column(df, ['Simplified protein IDs', 'Protein IDs', 'UniProt'])
+
+    if id_col is None:
+        logger.error("Could not find UniProt ID column in MitoCop file")
+        logger.info(f"Available columns: {list(df.columns)}")
+        return None
+
+    gene_col = find_column(df, ['Gene name', 'Gene', 'gene symbol', 'Symbol'])
+
+    logger.info("MitoCop columns found:")
+    logger.info(f"  - UniProt ID: {id_col}")
+    logger.info(f"  - Gene: {gene_col}")
+
+    # Filter out rows with missing IDs
+    df_filtered = df[df[id_col].notna()].copy()
+
+    # Split rows where multiple IDs are present (separated by semicolon)
+    rows_to_expand = []
+    for idx, row in df_filtered.iterrows():
+        ids = str(row[id_col]).split(';')
+        # Clean and strip whitespace from each ID
+        ids = [id_val.strip() for id_val in ids if id_val.strip()]
+
+        gene_name = None
+        if gene_col and pd.notna(row[gene_col]):
+            gene_name = str(row[gene_col]).strip()
+
+        for protein_id in ids:
+            row_data = {'id': protein_id}
+            if gene_name:
+                row_data['gene_name'] = gene_name
+            rows_to_expand.append(row_data)
+
+    # Create output DataFrame
+    result = pd.DataFrame(rows_to_expand)
+    result['mitocop'] = True
+
+    # Remove duplicates (if any protein appears multiple times)
+    result = result.drop_duplicates(subset='id')
+
+    logger.info(
+        f"Extracted {len(result)} unique proteins from MitoCop "
+        f"(from {len(df_filtered)} original rows)"
+    )
+
+    return result
+
+
 def create_external_markers(
     species_code: str,
     reviewed_only: bool = True,
-    mitocarta_threshold: float = 20.0,
+    mitocarta_threshold: float = 0.0,
     cache_dir: Path = Path('./cache'),
 ) -> pd.DataFrame:
     """
@@ -349,7 +481,7 @@ def create_external_markers(
     Returns
     -------
     pd.DataFrame
-        Merged DataFrame with UniProt features and MitoCarta annotations
+        Merged DataFrame with UniProt features, MitoCarta, and MitoCop annotations
     """
     # Fetch UniProt features
     uniprot_df = fetch_uniprot_features(species_code, reviewed_only)
@@ -359,19 +491,49 @@ def create_external_markers(
 
     # Merge if MitoCarta data available
     if mitocarta_df is not None:
-        merged_df = uniprot_df.merge(mitocarta_df, on='id', how='left')
+        merged_df = uniprot_df.merge(
+            mitocarta_df, on='id', how='left', suffixes=('', '_mitocarta')
+        )
+
+        # Resolve gene_name: prefer UniProt, fill NaN from MitoCarta
+        if 'gene_name_mitocarta' in merged_df.columns:
+            merged_df['gene_name'] = merged_df['gene_name'].fillna(
+                merged_df['gene_name_mitocarta']
+            )
+            merged_df = merged_df.drop(columns=['gene_name_mitocarta'])
+
         logger.info(
             f"Merged MitoCarta data: {merged_df['mitocarta'].sum()} mitochondrial proteins"
         )
     else:
         merged_df = uniprot_df
 
-    # Filter out proteins with no markers (all boolean columns are False)
+    # Fetch MitoCop data (if available)
+    mitocop_df = fetch_mitocop_data(species_code, cache_dir)
+
+    # Merge if MitoCop data available
+    if mitocop_df is not None:
+        merged_df = merged_df.merge(mitocop_df, on='id', how='left', suffixes=('', '_mitocop'))
+
+        # Resolve gene_name: prefer existing, fill NaN from MitoCop
+        if 'gene_name_mitocop' in merged_df.columns:
+            merged_df['gene_name'] = merged_df['gene_name'].fillna(
+                merged_df['gene_name_mitocop']
+            )
+            merged_df = merged_df.drop(columns=['gene_name_mitocop'])
+
+        logger.info(
+            f"Merged MitoCop data: {merged_df['mitocop'].sum()} mitochondrial proteins"
+        )
+
+    # Filter out proteins with no markers (all boolean columns are NaN)
     bool_cols = ['has_signal', 'has_transmem', 'has_intramem', 'has_topo_dom']
     if 'mitocarta' in merged_df.columns:
         bool_cols.append('mitocarta')
+    if 'mitocop' in merged_df.columns:
+        bool_cols.append('mitocop')
 
-    # Keep rows where at least one boolean column is True
+    # Keep rows where at least one boolean column is True (NaN is treated as False)
     has_any_marker = merged_df[bool_cols].any(axis=1)
     filtered_df = merged_df[has_any_marker].copy()
 
@@ -409,13 +571,28 @@ def validate_dataframe(df: pd.DataFrame, species_code: str) -> bool:
     if len(df) < 100:
         logger.warning(f"Low row count: {len(df)} proteins (expected > 100)")
 
-    # Check boolean columns
+    # Check boolean columns (now contain True/NaN, so dtype is float or object)
     bool_cols = ['has_signal', 'has_transmem', 'has_intramem', 'has_topo_dom']
     for col in bool_cols:
         if col in df.columns:
-            if not df[col].dtype == bool:
-                logger.error(f"Column {col} is not boolean type")
+            # Check that column only contains True or NaN
+            unique_vals = df[col].dropna().unique()
+            if len(unique_vals) > 0 and not all(val for val in unique_vals):
+                logger.error(f"Column {col} contains unexpected values: {unique_vals}")
                 return False
+
+    # Check gene_name column exists
+    if 'gene_name' not in df.columns:
+        logger.error("gene_name column is missing")
+        return False
+
+    # Check coverage
+    n_with_gene_name = df['gene_name'].notna().sum()
+    coverage = n_with_gene_name / len(df) * 100
+    logger.info(f"Gene name coverage: {n_with_gene_name}/{len(df)} ({coverage:.1f}%)")
+
+    if coverage < 50:
+        logger.warning(f"Low gene name coverage: {coverage:.1f}%")
 
     logger.info(f"Validation passed for {species_code}")
     return True
@@ -442,8 +619,8 @@ def main():
     parser.add_argument(
         '--mitocarta-threshold',
         type=float,
-        default=20.0,
-        help='Minimum MitoCarta score threshold (default: 20.0)',
+        default=-100.0,
+        help='Minimum MitoCarta score threshold (default: -100.0 to include all)',
     )
     parser.add_argument(
         '--output-dir',
@@ -508,6 +685,7 @@ def main():
                 'has_intramem': df['has_intramem'].sum(),
                 'has_topo_dom': df['has_topo_dom'].sum(),
                 'mitocarta': df['mitocarta'].sum() if 'mitocarta' in df.columns else 0,
+                'mitocop': df['mitocop'].sum() if 'mitocop' in df.columns else 0,
             }
 
         except Exception as e:
@@ -529,6 +707,8 @@ def main():
         logger.info(f"  Topological domain: {stats['has_topo_dom']}")
         if stats['mitocarta'] > 0:
             logger.info(f"  MitoCarta proteins: {stats['mitocarta']}")
+        if stats['mitocop'] > 0:
+            logger.info(f"  MitoCop proteins: {stats['mitocop']}")
 
 
 if __name__ == '__main__':
