@@ -19,7 +19,10 @@ def calculate_cluster_enrichment(
     gene_name_key: str = "Gene_name_canonical",
     gene_sets: str | None = None,
     obs_key_added: str = "Cell_compartment",
-    enrichment_ranking_metric: Literal["P-value", "Odds Ratio", "Combined Score"] = "P-value",
+    enrichment_ranking_metric: Literal[
+        "Adjusted P-value", "P-value", "Odds Ratio", "Combined Score"
+    ] = "Adjusted P-value",
+    enrichment_threshold: float = 0.05,
     return_enrichment_res: bool = True,
     inplace: bool = True,
 ) -> Optional[Union[AnnData, pd.DataFrame]]:
@@ -49,7 +52,10 @@ def calculate_cluster_enrichment(
         cluster.
     enrichment_ranking_metric
         Column used to rank results within each cluster.  Valid options are
-        ``"P-value"``, ``"Odds Ratio"`` and ``"Combined Score"``.
+        ``"Adjusted P-value"``, ``"P-value"``, ``"Odds Ratio"`` and ``"Combined Score"``.
+    enrichment_threshold
+        Threshold for the enrichment ranking metric. Only terms with a ranking metric value less than or equal to this threshold are considered.
+
     return_enrichment_res
         If ``True`` return the full :class:`pandas.DataFrame` of Enrichr
         results.
@@ -78,7 +84,11 @@ def calculate_cluster_enrichment(
 
     enrichr_results = []
     enrichr_top_terms = dict()
-    sort_ascending = enrichment_ranking_metric == "P-value"
+    sort_ascending = (
+        enrichment_ranking_metric == "P-value"
+        or enrichment_ranking_metric == "Adjusted P-value"
+    )
+    # print(f"Sorting {enrichment_ranking_metric} in {'ascending' if sort_ascending else 'descending'} order")
 
     if gene_sets is None:
         # Use the reviewed UniProt subcellular compartment gene sets by default.
@@ -99,22 +109,49 @@ def calculate_cluster_enrichment(
             background=obs_df[gene_name_key].tolist(),
             outdir=None,
         ).results
-
-        er = pd.DataFrame(er)
-        top_term = er.sort_values(enrichment_ranking_metric, ascending=sort_ascending).iloc[0][
-            "Term"
-        ]
-        enrichr_top_terms[n] = top_term
-        er[cluster_key] = n
-        enrichr_results.append(er)
+        if len(er) > 0:
+            er = pd.DataFrame(er)
+            top_term = er.sort_values(
+                enrichment_ranking_metric, ascending=sort_ascending
+            ).iloc[0]["Term"]
+            enrichr_top_terms[n] = top_term
+            er[cluster_key] = n
+            enrichr_results.append(er)
+        else:
+            # Create a single-row DataFrame (all NaN except correct cluster_key)
+            er = pd.DataFrame(
+                [{"Term": np.nan, "P-value": 1, "Odds Ratio": 0, "Combined Score": 0}],
+                columns=["Term", "P-value", "Odds Ratio", "Combined Score"],
+            )
+            enrichr_top_terms[n] = "NaN"
+            er[cluster_key] = n
+            enrichr_results.append(er)
 
     enrichr_results = pd.concat(enrichr_results)
+
+    # Bonferroni adjustment for testing multiple clusters (it's already adjusted for multiple testing against terms by gseapy, but we need to adjust for the number of clusters)
+    enrichr_results["Adjusted P-value"] = enrichr_results["Adjusted P-value"] * len(groups)
 
     if inplace:
         # Add top term annotation to data.obs
         obs_df[obs_key_added] = groups[cluster_key].transform(
             lambda x: enrichr_top_terms[x.name]
         )
+        obs_df[f"{obs_key_added}_{enrichment_ranking_metric}"] = groups[cluster_key].transform(
+            lambda x: enrichr_results[enrichr_results[cluster_key] == x.name]
+            .sort_values(enrichment_ranking_metric, ascending=sort_ascending)
+            .iloc[0][enrichment_ranking_metric]
+        )
+        if sort_ascending:
+            obs_df.loc[
+                obs_df[f"{obs_key_added}_{enrichment_ranking_metric}"] >= enrichment_threshold,
+                f"{obs_key_added}",
+            ] = np.nan
+        else:
+            obs_df.loc[
+                obs_df[f"{obs_key_added}_{enrichment_ranking_metric}"] <= enrichment_threshold,
+                f"{obs_key_added}",
+            ] = np.nan
         if return_enrichment_res:
             return enrichr_results
         return None
