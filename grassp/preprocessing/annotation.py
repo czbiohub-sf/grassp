@@ -1046,13 +1046,14 @@ def add_markers(
 
 def set_sensible_compartment_colors(
     data: AnnData,
+    columns: list[str] | None = None,
     cutoff: float = 0.3,
     verbose: bool = False,
     plot_mapping: bool = False,
 ) -> None:
     """Assign colors to compartment annotation columns in ``.obs`` using the built-in color dictionary.
 
-    Scans all columns in ``.obs`` and identifies those that look like compartment
+    Scans columns in ``.obs`` and identifies those that look like compartment
     annotation columns by checking what fraction of their unique values appear in the
     built-in :data:`MARKER_COLORS` dictionary. Matching is case-insensitive and treats
     underscores as spaces (e.g. ``"endoplasmic_reticulum"`` matches ``"Endoplasmic Reticulum"``).
@@ -1068,6 +1069,9 @@ def set_sensible_compartment_colors(
     ----------
     data
         AnnData object whose ``.obs`` columns are scanned for compartment annotations.
+    columns
+        List of column names in ``.obs`` to process. If ``None`` (default), all columns
+        in ``.obs`` are scanned.
     cutoff
         Minimum fraction of unique values in a column that must be recognised compartments
         for that column to receive a ``'{col}_colors'`` entry in ``.uns``. Default is ``0.3``.
@@ -1091,7 +1095,8 @@ def set_sensible_compartment_colors(
     plotted_color_maps: dict[str, dict[str, str]] = {}
     plotted_fallback_masks: dict[str, set[str]] = {}
 
-    for col in data.obs.columns:
+    cols_to_scan = columns if columns is not None else list(data.obs.columns)
+    for col in cols_to_scan:
         series = data.obs[col]
 
         # Collect unique non-null string-like values
