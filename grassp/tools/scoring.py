@@ -283,7 +283,7 @@ def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
         pred = data.obs[pred_col]
 
     gt = data.obs[gt_col]
-    mask = gt.notna() & pred.notna()
+    mask = gt.notna()
     y_true_raw = gt[mask]
     y_pred_raw = pred[mask]
 
@@ -293,6 +293,7 @@ def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
             pd.Index(labels)
             .union(pd.Index(y_true_raw.unique()))
             .union(pd.Index(y_pred_raw.unique()))
+            .dropna()
         )
         y_true = pd.Categorical(y_true_raw, categories=cats).codes
         y_pred = pd.Categorical(y_pred_raw, categories=cats).codes
@@ -304,10 +305,12 @@ def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
             return f1_arr * w
         return float((f1_arr * w).sum())
     else:
-        cats = pd.Index(y_true_raw.unique()).union(pd.Index(y_pred_raw.unique()))
+        cats = pd.Index(y_true_raw.unique()).union(pd.Index(y_pred_raw.unique())).dropna()
         y_true = pd.Categorical(y_true_raw, categories=cats).codes
         y_pred = pd.Categorical(y_pred_raw, categories=cats).codes
-        return sklearn.metrics.f1_score(y_true, y_pred, average=average)
+        return sklearn.metrics.f1_score(
+            y_true, y_pred, average=average, labels=np.arange(len(cats))
+        )
 
 
 def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False, plot=True):
