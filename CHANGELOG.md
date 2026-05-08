@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.1.0](https://github.com/czbiohub-sf/grassp/compare/v0.0.4...v0.1.0) (2026-05-08)
+
+
+### Features
+
+* add bonferroni corrected pval ([c412702](https://github.com/czbiohub-sf/grassp/commit/c4127025af94f4827f9ffb2ab913185a3984b4b2))
+* add changelog to docs and readme ([9e04579](https://github.com/czbiohub-sf/grassp/commit/9e045795afd537f40c6a351e9e7d652820531218))
+* add cluster merging algorithm ([7bc2517](https://github.com/czbiohub-sf/grassp/commit/7bc2517fd6d1ce6f54de064d936ef460ab919a7e))
+* add column selection to sensible markers ([158b374](https://github.com/czbiohub-sf/grassp/commit/158b374a003a4465a96d859f18608f8037ca2f89))
+* add consolidated goterms ([d059078](https://github.com/czbiohub-sf/grassp/commit/d0590788c5e8a0082bc373e6d6c62a4795e8b1da))
+* add filter to cluster enrichment ([3d87f33](https://github.com/czbiohub-sf/grassp/commit/3d87f33d81502100244a1ff88c56af58ef44b296))
+* add marker pruning function ([a544a97](https://github.com/czbiohub-sf/grassp/commit/a544a978e8448ef1a8738b7454581b6e7eabd1b5))
+* embedding plots with numericcal alpha ([2168e6b](https://github.com/czbiohub-sf/grassp/commit/2168e6b8f9ea56aa97e09b69a2e19dfd1daed888))
+* external markers with gene names and sensible colors ([c3c763c](https://github.com/czbiohub-sf/grassp/commit/c3c763cd73d2eb98e7813c338b3f0fdac9ae16e4))
+* knn_annotation has label propagation ([a3ab7ff](https://github.com/czbiohub-sf/grassp/commit/a3ab7ffe54b191eb474d7bd1d1cd0066278f02e9))
+
+
+### Bug Fixes
+
+* annotation tests updated names ([da8ba07](https://github.com/czbiohub-sf/grassp/commit/da8ba078a82300d68dea129ae3d2a5ac9b0dfc91))
+* f1 score includes na predictions ([c2f91d7](https://github.com/czbiohub-sf/grassp/commit/c2f91d7d49604dbc8166c539d8351886c8093369))
+* fix CI ([96bcfd8](https://github.com/czbiohub-sf/grassp/commit/96bcfd84ddb59c1894f9ca9b5ac939a614d91c85))
+
 ## [0.0.4](https://github.com/czbiohub-sf/grassp/compare/v0.0.3...v0.0.4) (2026-02-09)
 
 
