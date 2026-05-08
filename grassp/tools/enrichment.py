@@ -20,8 +20,12 @@ def calculate_cluster_enrichment(
     gene_sets: str | None = None,
     obs_key_added: str = "Cell_compartment",
     enrichment_ranking_metric: Literal[
-        "Adjusted P-value", "P-value", "Odds Ratio", "Combined Score"
-    ] = "Adjusted P-value",
+        "Adjusted P-value",
+        "Adjusted P-value Bonferroni",
+        "P-value",
+        "Odds Ratio",
+        "Combined Score",
+    ] = "Adjusted P-value Bonferroni",
     enrichment_threshold: float = 0.05,
     return_enrichment_res: bool = True,
     inplace: bool = True,
@@ -87,6 +91,7 @@ def calculate_cluster_enrichment(
     sort_ascending = (
         enrichment_ranking_metric == "P-value"
         or enrichment_ranking_metric == "Adjusted P-value"
+        or enrichment_ranking_metric == "Adjusted P-value Bonferroni"
     )
     # print(f"Sorting {enrichment_ranking_metric} in {'ascending' if sort_ascending else 'descending'} order")
 
@@ -111,6 +116,10 @@ def calculate_cluster_enrichment(
         ).results
         if len(er) > 0:
             er = pd.DataFrame(er)
+            # Bonferroni adjustment for testing multiple clusters (it's already adjusted for multiple testing against terms by gseapy, but we need to adjust for the number of clusters)
+            er["Adjusted P-value Bonferroni"] = np.minimum(
+                er["Adjusted P-value"] * len(groups), 1.0
+            )
             top_term = er.sort_values(
                 enrichment_ranking_metric, ascending=sort_ascending
             ).iloc[0]["Term"]
@@ -128,9 +137,6 @@ def calculate_cluster_enrichment(
             enrichr_results.append(er)
 
     enrichr_results = pd.concat(enrichr_results)
-
-    # Bonferroni adjustment for testing multiple clusters (it's already adjusted for multiple testing against terms by gseapy, but we need to adjust for the number of clusters)
-    enrichr_results["Adjusted P-value"] = enrichr_results["Adjusted P-value"] * len(groups)
 
     if inplace:
         # Add top term annotation to data.obs
