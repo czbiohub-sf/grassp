@@ -37,19 +37,19 @@ def test_add_markers_all_authors():
 
     # Check that marker columns were added
     expected_columns = [
-        "lilley",
-        "christopher",
-        "geladaki",
-        "itzhak",
-        "villaneuva",
-        "hein2024_component",
-        "hein2024_gt_component",
+        "marker_lilley",
+        "marker_christopher",
+        "marker_geladaki",
+        "marker_itzhak",
+        "marker_villaneuva",
+        "marker_hein2025",
+        "marker_hein2025_gt",
     ]
     for col in expected_columns:
         assert col in adata.obs.columns, f"Expected column {col} not found"
 
     # Check that at least some proteins were annotated
-    n_annotated = adata.obs["lilley"].notna().sum()
+    n_annotated = adata.obs["marker_lilley"].notna().sum()
     assert n_annotated > 0, "No proteins were annotated"
 
 
@@ -58,15 +58,17 @@ def test_add_markers_specific_authors():
     adata = make_test_anndata_with_uniprot_ids()
 
     # Add only specific authors
-    annotation.add_markers(adata, species="hsap", authors=["lilley", "christopher"])
+    annotation.add_markers(
+        adata, species="hsap", authors=["marker_lilley", "marker_christopher"]
+    )
 
     # Check that requested columns were added
-    assert "lilley" in adata.obs.columns
-    assert "christopher" in adata.obs.columns
+    assert "marker_lilley" in adata.obs.columns
+    assert "marker_christopher" in adata.obs.columns
 
     # Check that other columns were NOT added
-    assert "geladaki" not in adata.obs.columns
-    assert "itzhak" not in adata.obs.columns
+    assert "marker_geladaki" not in adata.obs.columns
+    assert "marker_itzhak" not in adata.obs.columns
 
 
 def test_add_markers_single_author_as_string():
@@ -74,13 +76,13 @@ def test_add_markers_single_author_as_string():
     adata = make_test_anndata_with_uniprot_ids()
 
     # Add single author as string
-    annotation.add_markers(adata, species="hsap", authors="lilley")
+    annotation.add_markers(adata, species="hsap", authors="marker_lilley")
 
     # Check that column was added
-    assert "lilley" in adata.obs.columns
+    assert "marker_lilley" in adata.obs.columns
 
     # Check that at least some proteins were annotated
-    n_annotated = adata.obs["lilley"].notna().sum()
+    n_annotated = adata.obs["marker_lilley"].notna().sum()
     assert n_annotated > 0, "No proteins were annotated"
 
 
@@ -90,10 +92,12 @@ def test_add_markers_missing_author_warning():
 
     # Request one valid and one invalid author
     with pytest.warns(UserWarning, match="Some authors not found"):
-        annotation.add_markers(adata, species="hsap", authors=["lilley", "nonexistent_author"])
+        annotation.add_markers(
+            adata, species="hsap", authors=["marker_lilley", "nonexistent_author"]
+        )
 
     # Check that valid author was still added
-    assert "lilley" in adata.obs.columns
+    assert "marker_lilley" in adata.obs.columns
 
 
 def test_add_markers_all_authors_missing_error():
@@ -130,10 +134,10 @@ def test_add_markers_with_protein_id_column():
     annotation.add_markers(adata, species="hsap", uniprot_id_column="uniprot_id")
 
     # Check that marker columns were added
-    assert "lilley" in adata.obs.columns
+    assert "marker_lilley" in adata.obs.columns
 
     # Check that at least some proteins were annotated
-    n_annotated = adata.obs["lilley"].notna().sum()
+    n_annotated = adata.obs["marker_lilley"].notna().sum()
     assert n_annotated > 0, "No proteins were annotated"
 
 
@@ -149,10 +153,10 @@ def test_add_markers_annotations_content():
     """Test that actual annotations are present and correct."""
     adata = make_test_anndata_with_uniprot_ids()
 
-    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"])
 
     # Check that we have some non-null annotations
-    annotations = adata.obs["lilley"].dropna()
+    annotations = adata.obs["marker_lilley"].dropna()
     assert len(annotations) > 0, "No annotations found"
 
     # Annotations should be strings (subcellular locations)
@@ -172,10 +176,10 @@ def test_add_markers_other_species():
     annotation.add_markers(adata, species="mmus")
 
     # Check that marker columns exist (mouse has fewer authors)
-    assert "lilley" in adata.obs.columns
+    assert "marker_lilley" in adata.obs.columns
 
     # Check that proteins were annotated
-    n_annotated = adata.obs["lilley"].notna().sum()
+    n_annotated = adata.obs["marker_lilley"].notna().sum()
     assert n_annotated > 0, "No mouse proteins were annotated"
 
 
@@ -188,11 +192,13 @@ def test_add_markers_no_matching_proteins():
     adata = AnnData(X=X, obs=obs, var=var)
 
     # Add markers - should not error but should report 0 matches
-    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"])
 
     # Check that column was added but all values are NaN
-    assert "lilley" in adata.obs.columns
-    assert adata.obs["lilley"].isna().all(), "Expected all NaN for non-matching proteins"
+    assert "marker_lilley" in adata.obs.columns
+    assert (
+        adata.obs["marker_lilley"].isna().all()
+    ), "Expected all NaN for non-matching proteins"
 
 
 def test_add_markers_preserves_existing_obs():
@@ -203,7 +209,7 @@ def test_add_markers_preserves_existing_obs():
     adata.obs["existing_column"] = ["A", "B", "C", "D", "E"]
 
     # Add markers
-    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"])
 
     # Check that existing column is still there
     assert "existing_column" in adata.obs.columns
@@ -213,38 +219,38 @@ def test_add_markers_preserves_existing_obs():
 def test_add_markers_creates_categorical():
     """Test that marker columns are categorical."""
     adata = make_test_anndata_with_uniprot_ids()
-    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"])
 
-    assert isinstance(adata.obs["lilley"].dtype, pd.CategoricalDtype)
+    assert isinstance(adata.obs["marker_lilley"].dtype, pd.CategoricalDtype)
 
 
 def test_add_markers_adds_colors_to_uns():
     """Test that colors are added to .uns."""
     adata = make_test_anndata_with_uniprot_ids()
-    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"])
 
-    assert "lilley_colors" in adata.uns
-    assert isinstance(adata.uns["lilley_colors"], list)
+    assert "marker_lilley_colors" in adata.uns
+    assert isinstance(adata.uns["marker_lilley_colors"], list)
 
 
 def test_add_markers_colors_match_categories():
     """Test that color list length matches number of categories."""
     adata = make_test_anndata_with_uniprot_ids()
-    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"])
 
-    n_categories = len(adata.obs["lilley"].cat.categories)
-    n_colors = len(adata.uns["lilley_colors"])
+    n_categories = len(adata.obs["marker_lilley"].cat.categories)
+    n_colors = len(adata.uns["marker_lilley_colors"])
     assert n_categories == n_colors
 
 
 def test_add_markers_no_colors_option():
     """Test add_colors=False option."""
     adata = make_test_anndata_with_uniprot_ids()
-    annotation.add_markers(adata, species="hsap", authors=["lilley"], add_colors=False)
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"], add_colors=False)
 
-    assert "lilley_colors" not in adata.uns
+    assert "marker_lilley_colors" not in adata.uns
     # Should still be categorical
-    assert isinstance(adata.obs["lilley"].dtype, pd.CategoricalDtype)
+    assert isinstance(adata.obs["marker_lilley"].dtype, pd.CategoricalDtype)
 
 
 def test_add_markers_colors_are_valid_hex():
@@ -252,36 +258,38 @@ def test_add_markers_colors_are_valid_hex():
     import re
 
     adata = make_test_anndata_with_uniprot_ids()
-    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"])
 
     hex_pattern = re.compile(r'^#[0-9A-Fa-f]{6}$')
-    for color in adata.uns["lilley_colors"]:
+    for color in adata.uns["marker_lilley_colors"]:
         assert hex_pattern.match(color), f"Invalid hex color: {color}"
 
 
 def test_add_markers_multiple_authors_with_colors():
     """Test that colors are added for multiple authors."""
     adata = make_test_anndata_with_uniprot_ids()
-    annotation.add_markers(adata, species="hsap", authors=["lilley", "christopher"])
+    annotation.add_markers(
+        adata, species="hsap", authors=["marker_lilley", "marker_christopher"]
+    )
 
     # Check both are categorical
-    assert isinstance(adata.obs["lilley"].dtype, pd.CategoricalDtype)
-    assert isinstance(adata.obs["christopher"].dtype, pd.CategoricalDtype)
+    assert isinstance(adata.obs["marker_lilley"].dtype, pd.CategoricalDtype)
+    assert isinstance(adata.obs["marker_christopher"].dtype, pd.CategoricalDtype)
 
     # Check both have colors
-    assert "lilley_colors" in adata.uns
-    assert "christopher_colors" in adata.uns
+    assert "marker_lilley_colors" in adata.uns
+    assert "marker_christopher_colors" in adata.uns
 
 
 def test_add_markers_colors_use_predefined():
     """Test that predefined colors from MARKER_COLORS are used."""
     adata = make_test_anndata_with_uniprot_ids()
-    annotation.add_markers(adata, species="hsap", authors=["lilley"])
+    annotation.add_markers(adata, species="hsap", authors=["marker_lilley"])
 
     # Check that at least one color matches the predefined dictionary
     # We know "Cytosol" exists in markers and has color "#1B9E9E"
-    categories = adata.obs["lilley"].cat.categories
-    colors = adata.uns["lilley_colors"]
+    categories = adata.obs["marker_lilley"].cat.categories
+    colors = adata.uns["marker_lilley_colors"]
 
     if "Cytosol" in categories:
         cytosol_idx = list(categories).index("Cytosol")
