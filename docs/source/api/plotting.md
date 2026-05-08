@@ -29,6 +29,18 @@ Many of [Scanpy's plotting](https://scanpy.readthedocs.io/en/stable/api/plotting
    pl.sample_heatmap
 ```
 
+## Embedding
+```{eval-rst}
+.. autosummary::
+   :nosignatures:
+   :toctree: ../generated/
+
+   pl.embedding_prob
+   pl.umap_prob
+   pl.pca_prob
+   pl.tsne_prob
+```
+
 ## Integration
 ```{eval-rst}
 .. autosummary::
