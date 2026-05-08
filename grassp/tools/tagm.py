@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from anndata import AnnData
 
+import sys
+
 import numpy as np
 import pandas as pd
 
@@ -210,7 +212,7 @@ def tagm_map_train(
     all_data = np.asarray(adata.X)
     M = np.mean(all_data, axis=0)
     V = np.cov(all_data, rowvar=False) / 2
-    if np.min(np.linalg.eigvals(V)) < np.finfo(float).eps:
+    if np.min(np.linalg.eigvals(V)) < sys.float_info.epsilon:
         V = V + np.eye(D) * 1e-6
     eps = (u - 1) / (u + v - 2)
 
@@ -398,7 +400,7 @@ def tagm_map_predict(
     all_data = np.asarray(adata.X)
     M = np.mean(all_data, axis=0)
     V = np.cov(all_data, rowvar=False) / 2
-    if np.min(eigvals(V)) < np.finfo(float).eps:
+    if np.min(eigvals(V)) < sys.float_info.epsilon:
         V = V + np.eye(D) * 1e-6
 
     # Compute a and b for unknown data.
