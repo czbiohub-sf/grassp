@@ -307,6 +307,86 @@ class TestClusteringFunctions:
         marker_mask = adata.obs["markers"].notna()
         assert np.allclose(adata.obs.loc[marker_mask, "knn_fixed_probability"], 1.0)
 
+    def test_knn_annotation_spreading_basic(self):
+        """Test KNN annotation with method='spreading'."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=100, marker_fraction=0.3, add_neighbors=True
+        )
+
+        localization.knn_annotation(
+            adata,
+            gt_col="markers",
+            key_added="knn_spread",
+            method="spreading",
+            min_probability=0.3,
+            verbose=False,
+        )
+
+        assert "knn_spread" in adata.obs.columns
+        assert "knn_spread_probabilities" in adata.obsm
+        assert "knn_spread_probability" in adata.obs.columns
+        assert adata.obs["knn_spread"].notna().sum() > 0
+        assert (adata.obs["knn_spread_probability"] <= 1.0).all()
+
+    def test_knn_annotation_spreading_alpha_extremes(self):
+        """Small alpha anchors predictions to seeds; large alpha lets them drift."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=100, marker_fraction=0.3, add_neighbors=True
+        )
+
+        localization.knn_annotation(
+            adata,
+            gt_col="markers",
+            key_added="spread_low",
+            method="spreading",
+            alpha=0.05,
+            min_probability=0.0,
+            verbose=False,
+        )
+        localization.knn_annotation(
+            adata,
+            gt_col="markers",
+            key_added="spread_high",
+            method="spreading",
+            alpha=0.95,
+            min_probability=0.0,
+            verbose=False,
+        )
+
+        marker_mask = adata.obs["markers"].notna()
+        agree_low = (
+            adata.obs.loc[marker_mask, "spread_low"].astype(str)
+            == adata.obs.loc[marker_mask, "markers"].astype(str)
+        ).mean()
+        agree_high = (
+            adata.obs.loc[marker_mask, "spread_high"].astype(str)
+            == adata.obs.loc[marker_mask, "markers"].astype(str)
+        ).mean()
+        assert agree_low >= agree_high
+
+    def test_knn_annotation_spreading_invalid_alpha(self):
+        """alpha outside [0, 1] raises ValueError."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=50, marker_fraction=0.3, add_neighbors=True
+        )
+
+        with pytest.raises(ValueError):
+            localization.knn_annotation(
+                adata,
+                gt_col="markers",
+                method="spreading",
+                alpha=1.5,
+                verbose=False,
+            )
+        with pytest.raises(ValueError):
+            localization.knn_annotation(
+                adata,
+                gt_col="markers",
+                method="spreading",
+                alpha=-0.1,
+                verbose=False,
+            )
+
     def test_svm_train_basic(self):
         """Test SVM training with default parameters."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
@@ -820,6 +900,7 @@ class TestEnrichmentFunctions:
                     {
                         "Term": ["Mitochondrion", "ER", "Nucleus"],
                         "P-value": [0.001, 0.01, 0.05],
+                        "Adjusted P-value": [0.003, 0.02, 0.05],
                         "Odds Ratio": [5.2, 3.1, 2.0],
                         "Combined Score": [50, 30, 20],
                     }
@@ -868,6 +949,7 @@ class TestEnrichmentFunctions:
                     {
                         "Term": ["Mitochondrion", "ER"],
                         "P-value": [0.001, 0.01],
+                        "Adjusted P-value": [0.003, 0.02],
                         "Odds Ratio": [5.2, 3.1],
                         "Combined Score": [50, 30],
                     }
@@ -937,6 +1019,7 @@ class TestEnrichmentFunctions:
                     {
                         "Term": ["Term_A", "Term_B", "Term_C"],
                         "P-value": [0.05, 0.001, 0.01],
+                        "Adjusted P-value": [0.15, 0.003, 0.03],
                         "Odds Ratio": [2.0, 5.2, 3.1],
                         "Combined Score": [20, 50, 30],
                     }

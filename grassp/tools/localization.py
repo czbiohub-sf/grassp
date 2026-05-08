@@ -7,11 +7,10 @@ if TYPE_CHECKING:
 
 import warnings
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.sparse as sp
 
-from sklearn.metrics import f1_score
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.svm import SVC
 
@@ -38,13 +37,95 @@ def _knn_annotation(
     gt_col: str,
     class_balance: bool = True,
     obsp_key="connectivities",
+    iterative: bool = False,
+    max_iter: int = 30,
+    tol: float = 1e-3,
+    verbose: bool = True,
+    fix_markers: bool = False,
+    method: Literal["propagation", "spreading"] = "propagation",
+    alpha: float = 0.8,
 ):
-    """Helper function that does label propagation with fixed min_probability."""
+    """Helper function that does label propagation/spreading with fixed min_probability."""
     labels = data.obs[gt_col].astype("category")
     labels_one_hot = pd.get_dummies(labels).values
-    T = data.obsp[obsp_key]
-    # Propagate the labels with transition matrix T
-    Y = T @ labels_one_hot
+    if obsp_key == "distances":
+        # Build a Gaussian RBF affinity W from the kNN distance graph, restricted
+        # to the existing sparsity pattern. sigma defaults to the median nonzero
+        # distance, which gives a data-driven kernel width that's narrower than
+        # UMAP's fuzzy-union "connectivities" and thus produces more
+        # boundary-localized smoothing in label spreading. The result is cached
+        # at adata.obsp["W_spreading"].
+        D = data.obsp[obsp_key]
+        sigma = float(np.median(D.data)) if D.nnz > 0 else 1.0
+        W = D.copy()
+        W.data = np.exp(-(D.data**2) / (2.0 * sigma**2))
+        data.obsp["W_spreading"] = W
+        T = W
+    else:
+        T = data.obsp[obsp_key]
+    if method == "spreading":
+        # Label spreading (Zhou et al., 2003): build the symmetric normalized
+        # operator S = D^(-1/2) W D^(-1/2) once, then iterate
+        #     F(t+1) = alpha * S @ F(t) + (1 - alpha) * Y_0
+        # alpha controls soft clamping: small alpha keeps seeds close to Y_0,
+        # alpha -> 1 lets labeled rows drift freely.
+        if not 0 <= alpha <= 1:
+            raise ValueError(f"alpha must be in [0, 1), got {alpha}")
+        d = np.asarray(T.sum(axis=1)).ravel()
+        d_inv_sqrt = np.zeros_like(d, dtype=float)
+        nz = d > 0
+        d_inv_sqrt[nz] = 1.0 / np.sqrt(d[nz])
+        D_inv_sqrt = sp.diags(d_inv_sqrt)
+        S = D_inv_sqrt @ T @ D_inv_sqrt
+        Y_0 = labels_one_hot.astype(float)
+        Y = Y_0.copy()
+        for i in range(max_iter):
+            Y_new = alpha * np.asarray(S @ Y) + (1 - alpha) * Y_0
+            diff = np.abs(Y_new - Y).sum()
+            Y = Y_new
+            if verbose:
+                print(f"Diff: {diff:.3f}, Iteration {i} completed")
+            if diff < tol:
+                if verbose:
+                    print(f"Diff: {diff:.3f}, Converged")
+                break
+        else:
+            warnings.warn(
+                f"knn_annotation: max_iter={max_iter} reached without convergence "
+                f"(tol={tol})."
+            )
+    elif iterative:
+        # Iterative propagation with hard clamping, mirroring
+        # sklearn.semi_supervised.LabelPropagation: at each step propagate along T,
+        # row-normalize, then reset labeled rows to their original one-hot. Stops when
+        # |Y - Y_prev|.sum() < tol or after max_iter iterations.
+        unlabeled = labels_one_hot.sum(axis=1) == 0
+        labeled_oh = labels_one_hot.astype(float)
+        Y = labeled_oh.copy()
+        Y_prev = np.zeros_like(Y)
+        for _ in range(max_iter):
+            diff = np.abs(Y - Y_prev).sum()
+            if diff < tol:
+                if verbose:
+                    print(f"Diff: {diff:.3f}, Converged")
+                break
+            Y_prev = Y
+            Y = np.asarray(T @ Y)
+            row_sums = Y.sum(axis=1)
+            row_sums[row_sums == 0] = 1
+            Y = Y / row_sums[:, None]
+            if fix_markers:
+                Y[~unlabeled] = labeled_oh[~unlabeled]
+            if verbose:
+                print(f"Diff: {diff:.3f}, Iteration {_} completed")
+        else:
+            warnings.warn(
+                f"knn_annotation: max_iter={max_iter} reached without convergence "
+                f"(tol={tol})."
+            )
+    else:
+        # Single-step propagation along T
+        Y = T @ labels_one_hot
     Y[Y.sum(axis=1) == 0] = 1 / Y.shape[1]
 
     # Class balance
@@ -71,6 +152,12 @@ def knn_annotation(
     inplace: bool = True,
     obsp_key="connectivities",
     key_added: str = "knn_annotation",
+    iterative: bool = False,
+    max_iter: int = 1000,
+    tol: float = 1e-3,
+    verbose: bool = True,
+    method: Literal["propagation", "spreading"] = "propagation",
+    alpha: float = 0.8,
 ):
     """Propagate categorical annotations along the *k*-NN graph.
 
@@ -97,9 +184,44 @@ def knn_annotation(
         If ``True`` a plot is shown showing the F1 score for different minimum probability thresholds.
     obsp_key
         Name of the neighbour connectivity graph to use (default ``"connectivities"``).
+        If ``obsp_key="distances"`` is passed, a Gaussian RBF affinity
+        ``W = exp(-d² / (2σ²))`` is built on the kNN distance graph (with σ
+        the median nonzero distance) and used as the spreading/propagation
+        operator. The resulting matrix is cached at ``adata.obsp["W_spreading"]``
+        for inspection. This typically gives a narrower effective kernel than
+        UMAP's fuzzy-union ``connectivities``, which is useful when you want
+        boundary-localized uncertainty in :func:`label spreading <knn_annotation>`.
     key_added
         Name of the new column that will hold the propagated annotation
         (default ``"knn_annotation"``).
+    iterative
+        If ``True`` perform multi-step label propagation with hard clamping (in the
+        style of :class:`sklearn.semi_supervised.LabelPropagation`). At every step
+        the label distribution is propagated along ``T``, row-normalized, then
+        labeled rows are reset to their initial one-hot encoding. Iteration stops
+        when ``|Y - Y_prev|.sum() < tol`` or when ``max_iter`` is reached.
+        If ``False`` (default) only a single propagation step is performed.
+        Ignored when ``method="spreading"`` (spreading is always iterative).
+    max_iter
+        Maximum number of propagation iterations when ``iterative=True`` or
+        ``method="spreading"`` (default 30).
+    tol
+        Convergence tolerance on the L1 change of the label distribution between
+        consecutive iterations (default ``1e-3``).
+    verbose
+        If ``True`` print progress to the console.
+    method
+        Either ``"propagation"`` (default, Zhu & Ghahramani, 2002) or
+        ``"spreading"`` (Zhou et al., 2003). Spreading uses the symmetric
+        normalized operator ``S = D^{-1/2} W D^{-1/2}`` and a soft clamp
+        controlled by ``alpha``, which makes it more robust to noisy seeds.
+    alpha
+        Soft-clamping parameter for label spreading, in ``[0, 1)``. The update
+        rule is ``F(t+1) = alpha * S @ F(t) + (1 - alpha) * Y_0``: small
+        ``alpha`` keeps predictions close to the initial seeds, ``alpha`` close
+        to 1 lets labeled rows drift. Ignored when ``method="propagation"``.
+        Default ``0.8`` (matches :class:`sklearn.semi_supervised.LabelSpreading`).
+
 
     Returns
     -------
@@ -111,55 +233,70 @@ def knn_annotation(
     """
 
     if min_probability is None:
-        min_probabilities = np.linspace(0.5, 1, 100)
-        f1 = []
-        for prob in min_probabilities:
-            Y, labels, labels_one_hot = _knn_annotation(
-                data,
-                gt_col=gt_col,
-                class_balance=class_balance,
-                obsp_key=obsp_key,
-            )
+        min_probability = 0.0
+    #     min_probabilities = np.linspace(0.5, 1, 100)
+    #     f1 = []
+    #     for prob in min_probabilities:
+    #         Y, labels, labels_one_hot = _knn_annotation(
+    #             data,
+    #             gt_col=gt_col,
+    #             class_balance=class_balance,
+    #             obsp_key=obsp_key,
+    #             iterative=iterative,
+    #             max_iter=max_iter,
+    #             tol=tol,
+    #             verbose=verbose,
+    #         )
 
-            gt = data.obs[gt_col]
-            pred = pd.Categorical(
-                labels.cat.categories[Y.argmax(axis=1)],
-                categories=labels.cat.categories,
-                ordered=labels.cat.ordered,
-            )
-            pred[Y.max(axis=1) < prob] = np.nan
-            mask = gt.notna() & pred.notna()
-            y_true_raw = gt[mask]
-            y_pred_raw = pred[mask]
-            cats = pd.Index(y_true_raw.unique()).union(pd.Index(y_pred_raw.unique()))
-            y_true = pd.Categorical(y_true_raw, categories=cats).codes
-            y_pred = pd.Categorical(y_pred_raw, categories=cats).codes
-            f1.append(f1_score(y_true, y_pred, average="macro"))
-        min_probability = min_probabilities[np.argmax(f1)]
+    #         gt = data.obs[gt_col]
+    #         pred = pd.Categorical(
+    #             labels.cat.categories[Y.argmax(axis=1)],
+    #             categories=labels.cat.categories,
+    #             ordered=labels.cat.ordered,
+    #         )
+    #         pred[Y.max(axis=1) < prob] = np.nan
+    #         mask = gt.notna() #& pred.notna()
+    #         y_true_raw = gt[mask]
+    #         y_pred_raw = pred[mask]
+    #         cats = pd.Index(y_true_raw.unique()).union(pd.Index(y_pred_raw.unique())).dropna()
+    #         y_true = pd.Categorical(y_true_raw, categories=cats).codes
+    #         y_pred = pd.Categorical(y_pred_raw, categories=cats).codes
+    #         f1.append(f1_score(y_true, y_pred, average="macro", labels=np.arange(len(cats))))
+    #     min_probability = min_probabilities[np.argmax(f1)]
 
-        if plot_optimization:
-            plt.plot(min_probabilities, f1, label="F1 score")
-            plt.axvline(
-                x=min_probability,
-                color="red",
-                linestyle="--",
-                label=f"Optimal cutoff = {min_probability:.3f}",
-            )
-            plt.xlabel("Minimum probability cutoff")
-            plt.ylabel("F1 score")
-            plt.title("F1 score optimization")
-            plt.legend()
-            plt.show()
+    # if plot_optimization:
+    #     plt.plot(min_probabilities, f1, label="F1 score")
+    #     plt.axvline(
+    #         x=min_probability,
+    #         color="red",
+    #         linestyle="--",
+    #         label=f"Optimal cutoff = {min_probability:.3f}",
+    #     )
+    #     plt.xlabel("Minimum probability cutoff")
+    #     plt.ylabel("F1 score")
+    #     plt.title("F1 score optimization")
+    #     plt.legend()
+    #     plt.show()
 
     Y, labels, labels_one_hot = _knn_annotation(
         data,
         gt_col=gt_col,
         class_balance=class_balance,
         obsp_key=obsp_key,
+        iterative=iterative,
+        max_iter=max_iter,
+        tol=tol,
+        verbose=verbose,
+        fix_markers=fix_markers,
+        method=method,
+        alpha=alpha,
     )
 
     if fix_markers:
-        # Set markers to 1
+        # Pin marker rows to their original one-hot encoding after the
+        # propagation/spreading + class_balance + row-normalize pipeline.
+        # This guarantees marker probabilities are 1.0 for their seed class
+        # regardless of method ("propagation"/"spreading") or iterative mode.
         marker_mask = labels_one_hot.sum(axis=1) == 1
         Y[marker_mask] = labels_one_hot[marker_mask].astype(float)
 
