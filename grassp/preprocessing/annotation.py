@@ -1088,8 +1088,8 @@ def set_sensible_compartment_colors(
     # Build a fallback palette from matplotlib's tab20 family (60 distinct colors)
     _fallback_palette = [
         mcolors.to_hex(c)
-        for palette in (plt.cm.tab20.colors, plt.cm.tab20b.colors, plt.cm.tab20c.colors)
-        for c in palette
+        for name in ("tab20", "tab20b", "tab20c")
+        for c in plt.get_cmap(name).colors
     ]
 
     plotted_color_maps: dict[str, dict[str, str]] = {}
