@@ -1,3 +1,9 @@
+from .cluster_merging import (
+    dendrogram_cherry_pairs,
+    merge_clusters_go,
+    merge_small_clusters,
+    paga_dendrogram,
+)
 from .clustering import (
     calculate_interfacialness_score,
     get_n_nearest_neighbors,
