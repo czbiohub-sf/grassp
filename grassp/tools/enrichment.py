@@ -1,4 +1,5 @@
 from __future__ import annotations
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 if TYPE_CHECKING:
@@ -11,6 +12,74 @@ import scanpy
 from scipy import cluster, spatial
 
 rank_proteins_groups = scanpy.tl.rank_genes_groups
+
+
+# Map from species code → filename of the bundled consolidated GMT.
+# Shared between `calculate_cluster_enrichment` and `merge_clusters_go`.
+_SPECIES_TO_GMT_FILENAME: dict[str, str] = {
+    "hsap": "consolidated_goterms_human.gmt",
+    "mmus": "consolidated_goterms_mouse.gmt",
+    "scer": "consolidated_goterms_yeast.gmt",
+}
+
+
+def _load_gmt(
+    path: str | dict[str, list[str]] | None = None,
+    species: Literal["hsap", "mmus", "scer"] = "hsap",
+) -> dict[str, list[str]]:
+    """Resolve a gene-set source into a ``{term: [gene, ...]}`` dict.
+
+    Parameters
+    ----------
+    path
+        One of:
+        - ``dict`` — returned as-is.
+        - existing file path — parsed as GMT.
+        - non-existing string — treated as a ``gseapy`` library name and
+          fetched via :func:`gseapy.get_library`.
+        - ``None`` — uses the consolidated UniProt subcellular-location gene
+          sets bundled with grassp, picked according to ``species``.
+    species
+        Used only when ``path is None``. One of ``"hsap"``, ``"mmus"``,
+        ``"scer"``; selects the matching ``consolidated_goterms_*.gmt`` file
+        in ``grassp/datasets/external/``.
+
+    Returns
+    -------
+    dict[str, list[str]]
+        Mapping of term name → list of gene symbols.
+    """
+    if isinstance(path, dict):
+        return path
+    if path is None:
+        if species not in _SPECIES_TO_GMT_FILENAME:
+            raise ValueError(
+                f"species must be one of {sorted(_SPECIES_TO_GMT_FILENAME)}, "
+                f"got {species!r}"
+            )
+        path = str(
+            Path(__file__).parent.parent
+            / "datasets"
+            / "external"
+            / _SPECIES_TO_GMT_FILENAME[species]
+        )
+
+    import os
+
+    if not os.path.exists(path):
+        import gseapy as gp
+
+        return gp.get_library(name=path)
+    gene_sets: dict[str, list[str]] = {}
+    with open(path) as f:
+        for line in f:
+            parts = line.strip().split("\t")
+            if len(parts) < 3:
+                continue
+            term = parts[0]
+            genes = [g for g in parts[2:] if g]
+            gene_sets[term] = genes
+    return gene_sets
 
 
 def calculate_cluster_enrichment(
@@ -101,27 +170,10 @@ def calculate_cluster_enrichment(
     )
     # print(f"Sorting {enrichment_ranking_metric} in {'ascending' if sort_ascending else 'descending'} order")
 
-    if gene_sets is None:
-        # Pick the consolidated UniProt subcellular gene-set file for the
-        # requested species. Mapping matches the files produced by
-        # marker_curation/fetch_custom_goterms.py.
-        from pathlib import Path
-
-        species_to_filename = {
-            "hsap": "consolidated_goterms_human.gmt",
-            "mmus": "consolidated_goterms_mouse.gmt",
-            "scer": "consolidated_goterms_yeast.gmt",
-        }
-        if species not in species_to_filename:
-            raise ValueError(
-                f"species must be one of {sorted(species_to_filename)}, got {species!r}"
-            )
-        gene_sets = str(
-            Path(__file__).parent.parent
-            / "datasets"
-            / "external"
-            / species_to_filename[species]
-        )
+    # Resolve the gene-set source to a {term: [gene, ...]} dict. Handles dict
+    # passthrough, file paths, gseapy library names, and the species-specific
+    # default when `gene_sets is None`.
+    gene_sets = _load_gmt(gene_sets, species=species)
 
     for n, group in groups:
         gene_list = group[gene_name_key].tolist()

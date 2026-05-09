@@ -1,7 +1,6 @@
 from __future__ import annotations
 from itertools import combinations
-from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Literal, Optional
 
 import numpy as np
 import scanpy as sc
@@ -12,56 +11,19 @@ from scipy.sparse import issparse
 from scipy.spatial.distance import squareform
 from scipy.stats import fisher_exact
 
-from .enrichment import calculate_cluster_enrichment
+from .enrichment import _load_gmt, calculate_cluster_enrichment
+
+__all__ = [  # re-export private helper for callers/tests that imported it here
+    "_load_gmt",
+    "calculate_cluster_enrichment",
+    "dendrogram_cherry_pairs",
+    "merge_clusters_go",
+    "merge_small_clusters",
+    "paga_dendrogram",
+]
 
 if TYPE_CHECKING:
     from anndata import AnnData
-
-
-# ── Gene-set loading ──────────────────────────────────────────────────────────
-
-
-def _load_gmt(path: str | dict[str, list[str]] | None) -> dict[str, list[str]]:
-    """Parse a GMT file or gseapy library name into a gene-set dict.
-
-    Parameters
-    ----------
-    path
-        A ``dict`` (returned as-is), a path to a ``.gmt`` file, a gseapy
-        library name (fetched via ``gseapy.get_library``), or ``None``
-        (returns the default UniProt subcellular compartment gene sets
-        bundled with grassp).
-
-    Returns
-    -------
-    dict[str, list[str]]
-        Mapping of term name to list of gene symbols.
-    """
-    if path is None:
-        path = str(
-            Path(__file__).parent.parent
-            / 'datasets'
-            / 'external'
-            / 'custom_goterms_genes_reviewed.gmt'
-        )
-    if isinstance(path, dict):
-        return path
-    import os
-
-    if not os.path.exists(path):
-        import gseapy as gp
-
-        return gp.get_library(name=path)
-    gene_sets: dict[str, list[str]] = {}
-    with open(path) as f:
-        for line in f:
-            parts = line.strip().split('\t')
-            if len(parts) < 3:
-                continue
-            term = parts[0]
-            genes = [g for g in parts[2:] if g]
-            gene_sets[term] = genes
-    return gene_sets
 
 
 # ── Pair-testing helpers ──────────────────────────────────────────────────────
@@ -907,6 +869,7 @@ def merge_clusters_go(
     connectivity_lower: float = 0.5,
     cluster_col: str = 'leiden',
     gene_sets_path: Optional[str | dict] = None,
+    species: Literal['hsap', 'mmus', 'scer'] = 'hsap',
     gene_name_key: str = 'Gene_name_canonical',
     compartment_col: str = 'Cell_compartment',
     key_added: str = 'leiden_merged',
@@ -951,8 +914,15 @@ def merge_clusters_go(
         ``adata.obs`` column with initial cluster labels.
     gene_sets_path
         Path to a GMT file, a gseapy library name, a pre-loaded
-        ``dict[str, list[str]]``, or ``None`` (uses the default UniProt
-        subcellular compartment gene sets bundled with grassp).
+        ``dict[str, list[str]]``, or ``None`` (uses the consolidated UniProt
+        subcellular compartment gene sets for the chosen ``species``).
+    species
+        Species code used to pick the default gene-set file when
+        ``gene_sets_path`` is ``None``. One of ``"hsap"`` (human,
+        ``consolidated_goterms_human.gmt``), ``"mmus"`` (mouse,
+        ``consolidated_goterms_mouse.gmt``), or ``"scer"`` (yeast,
+        ``consolidated_goterms_yeast.gmt``). Default ``"hsap"``. Ignored when
+        an explicit ``gene_sets_path`` is provided.
     gene_name_key
         ``adata.obs`` column with gene/protein names used for enrichment.
     compartment_col
@@ -971,7 +941,7 @@ def merge_clusters_go(
         If True, plot the initial PAGA dendrogram after convergence with leaf
         lines colored by compartment term and merge nodes colored by p-value.
     """
-    gene_sets = _load_gmt(gene_sets_path)
+    gene_sets = _load_gmt(gene_sets_path, species=species)
 
     # Initialise working column from the original clustering
     adata.obs[key_added] = adata.obs[cluster_col].astype(str).astype('category')
