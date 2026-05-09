@@ -27,6 +27,7 @@ def calculate_cluster_enrichment(
         "Combined Score",
     ] = "Adjusted P-value Bonferroni",
     enrichment_threshold: float = 0.05,
+    species: Literal["hsap", "mmus", "scer"] = "hsap",
     return_enrichment_res: bool = True,
     inplace: bool = True,
 ) -> Optional[Union[AnnData, pd.DataFrame]]:
@@ -59,7 +60,12 @@ def calculate_cluster_enrichment(
         ``"Adjusted P-value"``, ``"P-value"``, ``"Odds Ratio"`` and ``"Combined Score"``.
     enrichment_threshold
         Threshold for the enrichment ranking metric. Only terms with a ranking metric value less than or equal to this threshold are considered.
-
+    species
+        Species code used to pick the default gene-set file when ``gene_sets``
+        is ``None``. One of ``"hsap"`` (human, ``consolidated_goterms_human.gmt``),
+        ``"mmus"`` (mouse, ``consolidated_goterms_mouse.gmt``), or
+        ``"scer"`` (yeast, ``consolidated_goterms_yeast.gmt``). Default
+        ``"hsap"``. Ignored when an explicit ``gene_sets`` path is provided.
     return_enrichment_res
         If ``True`` return the full :class:`pandas.DataFrame` of Enrichr
         results.
@@ -96,14 +102,25 @@ def calculate_cluster_enrichment(
     # print(f"Sorting {enrichment_ranking_metric} in {'ascending' if sort_ascending else 'descending'} order")
 
     if gene_sets is None:
-        # Use the reviewed UniProt subcellular compartment gene sets by default.
+        # Pick the consolidated UniProt subcellular gene-set file for the
+        # requested species. Mapping matches the files produced by
+        # marker_curation/fetch_custom_goterms.py.
         from pathlib import Path
 
+        species_to_filename = {
+            "hsap": "consolidated_goterms_human.gmt",
+            "mmus": "consolidated_goterms_mouse.gmt",
+            "scer": "consolidated_goterms_yeast.gmt",
+        }
+        if species not in species_to_filename:
+            raise ValueError(
+                f"species must be one of {sorted(species_to_filename)}, got {species!r}"
+            )
         gene_sets = str(
             Path(__file__).parent.parent
             / "datasets"
             / "external"
-            / "custom_goterms_genes_reviewed.gmt"
+            / species_to_filename[species]
         )
 
     for n, group in groups:
