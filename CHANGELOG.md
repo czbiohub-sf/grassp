@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0](https://github.com/czbiohub-sf/grassp/compare/v0.1.0...v0.2.0) (2026-05-09)
+
+
+### Features
+
+* add custom goterm set for the 3 supported species ([21d4d89](https://github.com/czbiohub-sf/grassp/commit/21d4d89c223d3a3d6f08b5286c8b4c0e0a25be47))
+* add custom goterm set for the 3 supported species ([89c9963](https://github.com/czbiohub-sf/grassp/commit/89c996345e4db4b28c53306368dfe398937057a9))
+
 ## [0.1.0](https://github.com/czbiohub-sf/grassp/compare/v0.0.4...v0.1.0) (2026-05-08)
 
 
