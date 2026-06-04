@@ -3,6 +3,7 @@ from itertools import combinations
 from typing import TYPE_CHECKING, Literal, Optional
 
 import numpy as np
+import pandas as pd
 import scanpy as sc
 import scipy.cluster.hierarchy as sch
 
@@ -163,6 +164,37 @@ def _test_pair(
     p2 = _term_split_pvalue_two_sided(genes1, genes2, term_set2)
 
     return (min(p1, p2), p1, p2, False)
+
+
+def _enrich_genes(
+    gene_list: list[str],
+    background: list[str],
+    gene_sets: dict[str, list[str]],
+) -> tuple[Optional[str], float]:
+    """Run gseapy enrichment for *gene_list* against *background*.
+
+    Used to evaluate a hypothetical merged cluster's enrichment against the
+    global protein background.
+
+    Returns
+    -------
+    tuple[Optional[str], float]
+        ``(top_term, Adjusted P-value)``.  Returns ``(None, 1.0)`` when no
+        terms are returned by gseapy.
+    """
+    import gseapy
+
+    er = gseapy.enrich(
+        gene_list=gene_list,
+        gene_sets=gene_sets,
+        background=background,
+        outdir=None,
+    ).results
+    if len(er) == 0:
+        return None, 1.0
+    er = pd.DataFrame(er)
+    top = er.sort_values('Adjusted P-value', ascending=True).iloc[0]
+    return top['Term'], float(top['Adjusted P-value'])
 
 
 def _should_merge(p1: float, p2: float, terms_agree: bool, adjusted_cutoff: float) -> bool:
@@ -400,6 +432,7 @@ def _one_merge_round_dendrogram(
     compartment_col: str,
     verbose: bool,
     merge_log: Optional[list] = None,
+    require_improved_enrichment: bool = False,
 ) -> tuple[dict[str, str], int]:
     """One round of dendrogram flat-group pair testing and greedy merging.
 
@@ -430,7 +463,13 @@ def _one_merge_round_dendrogram(
         Print per-pair decisions.
     merge_log
         If provided, a dict entry is appended for every merged pair, recording
-        ``c1``, ``c2``, ``min_p``, ``p1``, ``p2``, and ``terms_agree``.
+        ``c1``, ``c2``, ``min_p``, ``p1``, ``p2``, ``terms_agree``,
+        ``merged_term``, and ``merged_p``.
+    require_improved_enrichment
+        If True, compute the gseapy enrichment p-value of the merged cluster
+        against the global protein background and reject the merge unless this
+        p-value is strictly lower than the better of the two split clusters'
+        stored enrichment p-values.
 
     Returns
     -------
@@ -469,9 +508,41 @@ def _one_merge_round_dendrogram(
             )
 
         if _should_merge(p1, p2, terms_agree, pv_cutoff_adjusted):
+            merged_term: Optional[str] = None
+            merged_p: Optional[float] = None
+            best_split_p: Optional[float] = None
+            if require_improved_enrichment:
+                genes_merged = list(
+                    _gene_set(adata, cluster_col, c1, gene_name_key)
+                    | _gene_set(adata, cluster_col, c2, gene_name_key)
+                )
+                background = adata.obs[gene_name_key].tolist()
+                merged_term, merged_p = _enrich_genes(genes_merged, background, gene_sets)
+
+                pval_col = f'{compartment_col}_Adjusted P-value'
+                p_c1 = float(adata.obs.loc[adata.obs[cluster_col] == c1, pval_col].iloc[0])
+                p_c2 = float(adata.obs.loc[adata.obs[cluster_col] == c2, pval_col].iloc[0])
+                best_split_p = min(p_c1, p_c2)
+
+                if merged_p >= best_split_p:
+                    if verbose:
+                        print(
+                            f' → merged({merged_term}, p={merged_p:.3g})'
+                            f' not better than best split p={best_split_p:.3g},'
+                            f' skip'
+                        )
+                    continue
+
             if verbose:
                 reason = 'terms agree' if terms_agree else 'both non-significant'
-                print(f' → {reason}, merge candidate')
+                if require_improved_enrichment:
+                    print(
+                        f' → {reason},'
+                        f' merged({merged_term}, p={merged_p:.3g}'
+                        f' < split p={best_split_p:.3g}), merge candidate'
+                    )
+                else:
+                    print(f' → {reason}, merge candidate')
             candidates.append(
                 dict(
                     c1=c1,
@@ -481,6 +552,8 @@ def _one_merge_round_dendrogram(
                     p1=p1,
                     p2=p2,
                     terms_agree=terms_agree,
+                    merged_term=merged_term,
+                    merged_p=merged_p,
                 )
             )
         elif verbose:
@@ -508,15 +581,21 @@ def _one_merge_round_dendrogram(
                     'p1': cand['p1'],
                     'p2': cand['p2'],
                     'terms_agree': cand['terms_agree'],
+                    'merged_term': cand.get('merged_term'),
+                    'merged_p': cand.get('merged_p'),
                 }
             )
         if verbose:
             t1 = _best_term(adata, cluster_col, c1, compartment_col)
             t2 = _best_term(adata, cluster_col, c2, compartment_col)
             reason = 'terms agree' if cand['terms_agree'] else f"min_p={cand['min_p']:.3g}"
+            extra = ''
+            if cand.get('merged_p') is not None:
+                extra = f"  merged({cand.get('merged_term')}," f" p={cand['merged_p']:.3g})"
             print(
                 f'  {c1}({t1}) vs {c2}({t2}): conn={cand["conn_val"]:.3f}'
-                f'  p1={cand["p1"]:.3g} p2={cand["p2"]:.3g} → MERGE ({reason})'
+                f'  p1={cand["p1"]:.3g} p2={cand["p2"]:.3g}{extra}'
+                f' → MERGE ({reason})'
             )
 
     return mapping, len(mapping)
@@ -877,6 +956,7 @@ def merge_clusters_go(
     verbose: bool = True,
     plot_iterations: bool = False,
     plot_dendrogram: bool = False,
+    require_improved_enrichment: bool = False,
 ) -> None:
     """Iteratively merge overclustered Leiden clusters using PAGA and GO enrichment.
 
@@ -940,6 +1020,13 @@ def merge_clusters_go(
     plot_dendrogram
         If True, plot the initial PAGA dendrogram after convergence with leaf
         lines colored by compartment term and merge nodes colored by p-value.
+    require_improved_enrichment
+        If True, before each merge run a gseapy enrichment of the merged
+        cluster's gene list against the global protein background and only
+        merge when the merged cluster's best ``Adjusted P-value`` is strictly
+        lower than the better of the two split clusters' stored p-values.
+        Adds the merged cluster's top term and p-value to the verbose log
+        and to ``merge_log`` entries.
     """
     gene_sets = _load_gmt(gene_sets_path, species=species)
 
@@ -1003,6 +1090,7 @@ def merge_clusters_go(
             compartment_col=compartment_col,
             verbose=verbose,
             merge_log=merge_log if plot_dendrogram else None,
+            require_improved_enrichment=require_improved_enrichment,
         )
 
         if n_merges == 0:
