@@ -136,8 +136,8 @@ MARKER_COLORS = {
     "PM - Peripheral 2": "#5A6D86",
     "Cell cortex": "#202b39",
     # Protein complexes (gray shades)
-    "Protein Complex": "#BEBADA",
-    "Large Protein Complex": "#AEAACA",
+    "Protein Complex": "#8983B5",
+    "Large Protein Complex": "#6E6896",
     # Toxoplasma-specific (distinct colors)
     "Apicoplast": "#FB8072",
     "Apical 1": "#FDB462",
