@@ -10,6 +10,11 @@ fields into individual rows, deduplicates, and writes:
 - ``../grassp/datasets/external/consolidated_goterms_{species}.gmt`` keyed
   on the consolidated compartment label.
 
+In addition, a handful of large protein complexes that subcellular proteomics
+experiments routinely resolve as distinct clusters (60S/40S cytosolic
+ribosomes, 26S proteasome) are fetched per species via EBI Complex Portal
+cross-references or a UniProt keyword when no Complex Portal entry exists.
+
 Run from anywhere:
     python marker_curation/fetch_custom_goterms.py
 """
@@ -93,19 +98,51 @@ SPECIES: dict[str, int] = {
     "yeast": 559292,
 }
 
+# Additional UniProt subcellular-location terms to fetch only for a specific
+# species (e.g. yeast vacuole has no shared counterpart in TERM_MAP). Same
+# shape as TERM_MAP: term -> consolidated compartment label.
+SPECIES_SPECIFIC_TERMS: dict[str, dict[str, str]] = {
+    "yeast": {
+        "Vacuole": "Vacuole",
+    },
+}
+
+# Curated protein complexes that are often resolved as their own clusters in
+# subcellular proteomics experiments. Each entry maps a consolidated label to a
+# per-species UniProt query fragment. Complex Portal cross-references
+# (`xref:complexportal-CPX-NNNN`) are used where curated; the mouse 26S
+# proteasome is not curated in Complex Portal so the UniProt "Proteasome"
+# keyword (KW-0647) is used instead.
+COMPLEX_QUERIES: dict[str, dict[str, str]] = {
+    "60S cytosolic ribosome": {
+        "human": "xref:complexportal-CPX-5183",
+        "mouse": "xref:complexportal-CPX-5262",
+        "yeast": "xref:complexportal-CPX-1601",
+    },
+    "40S cytosolic ribosome": {
+        "human": "xref:complexportal-CPX-5223",
+        "mouse": "xref:complexportal-CPX-5261",
+        "yeast": "xref:complexportal-CPX-1599",
+    },
+    "Proteasome": {
+        "human": "xref:complexportal-CPX-5993",
+        "mouse": "keyword:KW-0647",
+        "yeast": "xref:complexportal-CPX-2262",
+    },
+}
+
 UNIPROT_URL = "https://rest.uniprot.org/uniprotkb/stream"
 UNIPROT_HEADERS = {"User-Agent": "grassp-marker-curation/0.1"}
 REQUEST_SLEEP = 0.3  # seconds between calls — be polite to UniProt
 
 
 # ----------------------------------------------------------------- functions
-def fetch_term_genes(term: str, taxon_id: int, session: requests.Session) -> list[str]:
-    """Return gene-name tokens for reviewed UniProt entries with the given
-    subcellular-location term in the given taxon. Each protein's
-    space-separated ``Gene Names`` field is split into individual tokens
-    (primary + synonyms), so a protein with several gene names produces
-    several entries."""
-    query = f'((cc_scl_term:"{term}") AND (reviewed:true)) ' f"AND (model_organism:{taxon_id})"
+def _fetch_uniprot_gene_tokens(query: str, session: requests.Session) -> list[str]:
+    """Run a TSV UniProt stream query and return all gene-name tokens.
+
+    Each protein's space-separated ``Gene Names`` field is split into
+    individual tokens (primary + synonyms) so a protein with several gene
+    names produces several entries."""
     params = {
         "fields": "accession,id,gene_names",
         "format": "tsv",
@@ -129,11 +166,31 @@ def fetch_term_genes(term: str, taxon_id: int, session: requests.Session) -> lis
     return genes
 
 
+def fetch_term_genes(term: str, taxon_id: int, session: requests.Session) -> list[str]:
+    """Return gene-name tokens for reviewed UniProt entries with the given
+    subcellular-location term in the given taxon."""
+    query = f'((cc_scl_term:"{term}") AND (reviewed:true)) ' f"AND (model_organism:{taxon_id})"
+    return _fetch_uniprot_gene_tokens(query, session)
+
+
+def fetch_complex_genes(
+    query_fragment: str, taxon_id: int, session: requests.Session
+) -> list[str]:
+    """Return gene-name tokens for reviewed UniProt entries matching a custom
+    query fragment (typically ``xref:complexportal-CPX-NNNN`` or
+    ``keyword:KW-NNNN``) within the given taxon."""
+    query = f"(({query_fragment}) AND (reviewed:true)) AND (model_organism:{taxon_id})"
+    return _fetch_uniprot_gene_tokens(query, session)
+
+
 def fetch_species(species: str, taxon_id: int, session: requests.Session) -> pd.DataFrame:
-    """Loop over every term in :data:`TERM_MAP`, collect a long-format
-    DataFrame with one row per gene name, and deduplicate."""
+    """Loop over every term in :data:`TERM_MAP`, every species-specific term
+    in :data:`SPECIES_SPECIFIC_TERMS`, and every complex in
+    :data:`COMPLEX_QUERIES`; collect a long-format DataFrame with one row per
+    gene name, and deduplicate."""
     records: list[dict[str, str]] = []
-    for term, consolidated in TERM_MAP.items():
+    term_map: dict[str, str] = {**TERM_MAP, **SPECIES_SPECIFIC_TERMS.get(species, {})}
+    for term, consolidated in term_map.items():
         try:
             genes = fetch_term_genes(term, taxon_id, session)
         except requests.RequestException as exc:
@@ -149,6 +206,28 @@ def fetch_species(species: str, taxon_id: int, session: requests.Session) -> pd.
             )
         print(f"  {term:55s}  {len(genes):5d} gene tokens")
         time.sleep(REQUEST_SLEEP)
+
+    for complex_label, species_to_query in COMPLEX_QUERIES.items():
+        query_fragment = species_to_query.get(species)
+        if query_fragment is None:
+            print(f"  {complex_label:55s}  (no query defined for {species}, skip)")
+            continue
+        try:
+            genes = fetch_complex_genes(query_fragment, taxon_id, session)
+        except requests.RequestException as exc:
+            print(f"  ERROR  complex {complex_label!r} ({species}): {exc}")
+            continue
+        for gene in genes:
+            records.append(
+                {
+                    "Compartment": complex_label,
+                    "Compartment_consolidated": complex_label,
+                    "Gene_name": gene,
+                }
+            )
+        print(f"  {complex_label:55s}  {len(genes):5d} gene tokens" f"  [{query_fragment}]")
+        time.sleep(REQUEST_SLEEP)
+
     df = pd.DataFrame(
         records, columns=["Compartment", "Compartment_consolidated", "Gene_name"]
     )
