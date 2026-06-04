@@ -176,11 +176,11 @@ def calculate_cluster_enrichment(
     gene_sets = _load_gmt(gene_sets, species=species)
 
     for n, group in groups:
-        gene_list = group[gene_name_key].tolist()
+        gene_list = group[gene_name_key].astype(str).tolist()
         er = gseapy.enrich(
             gene_list=gene_list,
             gene_sets=gene_sets,
-            background=obs_df[gene_name_key].tolist(),
+            background=obs_df[gene_name_key].astype(str).tolist(),
             outdir=None,
         ).results
         if len(er) > 0:
