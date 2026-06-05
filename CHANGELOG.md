@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/czbiohub-sf/grassp/compare/v0.2.0...v0.3.0) (2026-06-05)
+
+
+### Features
+
+* include goterms for human, yeast and mouse ([708f65a](https://github.com/czbiohub-sf/grassp/commit/708f65af32538725ece734641b3b60d59bb6e072))
+* option for only merging when improved enrichment ([f36d0f3](https://github.com/czbiohub-sf/grassp/commit/f36d0f32ef80be50f17ba881f5f7fc5c356341a6))
+
+
+### Bug Fixes
+
+* make sure gene names are str ([6a6f97d](https://github.com/czbiohub-sf/grassp/commit/6a6f97d6e360b63ae9eb562e8f9bbfee544ce0ea))
+
 ## [0.2.0](https://github.com/czbiohub-sf/grassp/compare/v0.1.0...v0.2.0) (2026-05-09)
 
 
