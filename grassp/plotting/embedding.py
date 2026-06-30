@@ -249,6 +249,18 @@ def embedding_prob(
     -------
     matplotlib.axes.Axes
         The axes containing the scatter.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.ds.itzhak_2016()
+    >>> # colour by compartment, fade points by how many maps they were profiled in
+    >>> gr.pl.embedding_prob(
+    ...     adata,
+    ...     basis="X_umap",
+    ...     color="compartment",
+    ...     color_prob="Profiled in how many maps?",
+    ... )
     """
     # ---------------------------------------------------------------- validate
     resolved_basis, coords = _get_basis(adata, basis)
@@ -474,17 +486,29 @@ def embedding_prob(
 
 
 def umap_prob(adata: AnnData, color: str, color_prob: str, **kwargs) -> Axes:
-    """Convenience wrapper for :func:`embedding_prob` on ``adata.obsm["X_umap"]``."""
+    """Convenience wrapper for :func:`embedding_prob` on ``adata.obsm["X_umap"]``.
+
+    ``color``, ``color_prob`` and any extra keyword arguments are forwarded to
+    :func:`embedding_prob`; see there for the full parameter list.
+    """
     return embedding_prob(adata, "X_umap", color, color_prob, **kwargs)
 
 
 def pca_prob(adata: AnnData, color: str, color_prob: str, **kwargs) -> Axes:
-    """Convenience wrapper for :func:`embedding_prob` on ``adata.obsm["X_pca"]``."""
+    """Convenience wrapper for :func:`embedding_prob` on ``adata.obsm["X_pca"]``.
+
+    ``color``, ``color_prob`` and any extra keyword arguments are forwarded to
+    :func:`embedding_prob`; see there for the full parameter list.
+    """
     return embedding_prob(adata, "X_pca", color, color_prob, **kwargs)
 
 
 def tsne_prob(adata: AnnData, color: str, color_prob: str, **kwargs) -> Axes:
-    """Convenience wrapper for :func:`embedding_prob` on ``adata.obsm["X_tsne"]``."""
+    """Convenience wrapper for :func:`embedding_prob` on ``adata.obsm["X_tsne"]``.
+
+    ``color``, ``color_prob`` and any extra keyword arguments are forwarded to
+    :func:`embedding_prob`; see there for the full parameter list.
+    """
     return embedding_prob(adata, "X_tsne", color, color_prob, **kwargs)
 
 
@@ -750,9 +774,9 @@ def pretty_embedding(
 
     Examples
     --------
-    >>> import grassp as gs
-    >>> adata = gs.ds.example_data()
-    >>> gs.pl.pretty_embedding(adata, color='compartment')
+    >>> import grassp as gr
+    >>> adata = gr.ds.itzhak_2016()
+    >>> gr.pl.pretty_embedding(adata, color="compartment")
     """
     if vector_text:
         _set_vector_friendly_fonts()
