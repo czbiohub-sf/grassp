@@ -33,6 +33,7 @@ classifiers = [
 
 # list package dependencies here
 dependencies = [
+    "adjustText",
     "anndata",
     "markov_clustering",
     "matplotlib",
@@ -143,6 +144,11 @@ ensure_newline_before_comments = true
 disable = ["C", "R", "W", "unsubscriptable-object", "import-error"]
 msg-template = "{line},{column},{category},{symbol}:{msg}"
 reports = "n"
+# scipy re-exports names (e.g. ConvexHull) from compiled C extensions via
+# `from ._qhull import *`. pylint parses source statically and can't see into
+# .so files, so it flags those names as no-name-in-module. Allow-listing scipy
+# lets pylint import the extensions and introspect them for real.
+extension-pkg-allow-list = ["scipy"]
 
 
 [tool.pytest.ini_options]

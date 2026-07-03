@@ -136,3 +136,6 @@ ENV/
 # mypy
 .mypy_cache/
 .dmypy.json
+
+# local scratch data & scripts (not tracked)
+local/
