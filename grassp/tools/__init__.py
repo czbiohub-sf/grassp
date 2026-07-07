@@ -4,6 +4,7 @@ from .cluster_merging import (
     merge_small_clusters,
     paga_dendrogram,
 )
+from .ccompass import ccompass, ccompass_default_params
 from .clustering import (
     calculate_interfacialness_score,
     get_n_nearest_neighbors,

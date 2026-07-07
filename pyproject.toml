@@ -68,6 +68,12 @@ notebook = [
     "matplotlib",
     "jupytext",
 ]
+# C-COMPASS integration (gr.tl.ccompass). Pulls in tensorflow/keras via ccompass.
+# tensorboard is required by keras-tuner but missing from ccompass's metadata.
+ccompass = [
+    "ccompass",
+    "tensorboard",
+]
 build = [
     "twine",
     "build",
