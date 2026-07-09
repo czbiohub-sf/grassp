@@ -73,3 +73,6 @@ intersphinx_mapping = dict(
 # Execute notebooks only when out-of-date and set timeout
 nb_execution_mode = "cache"  # or "force" to always run, "off" to skip
 nb_execution_timeout = 300  # seconds
+# The C-COMPASS tutorial needs the optional tensorflow-backed extra and takes minutes to
+# train, so it is shipped pre-rendered and excluded from build-time execution.
+nb_execution_excludepatterns = ["**/ccompass_tutorial.ipynb"]
