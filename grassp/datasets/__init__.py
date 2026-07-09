@@ -5,6 +5,7 @@ from .example_data import (
     hek_dc_2025,
     itzhak_2016,
     list_prolocdata_files,
+    load_dataset,
     schessner_2023,
 )
 from .metadata import subcellular_annotations, uniprot_compartment_goterms
