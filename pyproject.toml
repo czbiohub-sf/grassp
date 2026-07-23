@@ -37,6 +37,7 @@ dependencies = [
     "markov_clustering",
     "matplotlib",
     "networkx",
+    "numba",
     "numpy",
     "pandas",
     "protdata",
