@@ -53,7 +53,9 @@ TERM_MAP: dict[str, str] = {
     "Cytosol": "Cytoplasm",
     "Early endosome": "Endosome",
     "Endoplasmic reticulum": "Endoplasmic reticulum",
-    "Endoplasmic reticulum-Golgi intermediate compartment": "Golgi apparatus",
+    # ERGIC is an SL child of "Endoplasmic reticulum" and co-fractionates with it;
+    # assign it to ER (not Golgi) so the Golgi set isn't inflated with ER-like proteins.
+    "Endoplasmic reticulum-Golgi intermediate compartment": "Endoplasmic reticulum",
     "Endosome": "Endosome",
     "Filopodium": "Cell cortex",
     "Focal adhesion": "Cell cortex",
