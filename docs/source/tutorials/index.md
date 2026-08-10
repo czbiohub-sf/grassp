@@ -9,4 +9,5 @@ notebooks/DC_tutorial
 notebooks/OrgIP_tutorial
 notebooks/integration_tutorial
 notebooks/ccompass_tutorial
+notebooks/diffusion_tutorial
 ```

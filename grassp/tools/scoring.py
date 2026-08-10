@@ -13,7 +13,7 @@ import scipy.cluster.hierarchy
 import seaborn as sns
 import sklearn.metrics
 
-from .localization import knn_annotation
+from .localization import competitive_propagation
 
 
 def class_balance(
@@ -277,7 +277,7 @@ def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
     F1 score.
     """
     if pred_col is None:
-        knnres = knn_annotation(data, gt_col, inplace=False, min_probability=0)
+        knnres = competitive_propagation(data, gt_col, inplace=False, min_probability=0)
         pred = knnres["labels"][knnres["probabilities"].argmax(axis=1)]
     else:
         pred = data.obs[pred_col]
@@ -338,7 +338,7 @@ def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False,
 
     # Notation: n observations, g ground truth label classes
     if pred_col is None:
-        knnres = knn_annotation(data, gt_col, inplace=False, min_probability=0)
+        knnres = competitive_propagation(data, gt_col, inplace=False, min_probability=0)
     else:
         knnres = {
             "probabilities": data.obsm[f"{pred_col}_probabilities"],
