@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/czbiohub-sf/grassp/compare/v0.3.0...v0.4.0) (2026-08-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* ds.subcellular_annotations is removed; use pp.add_markers(adata, species="hsap") instead.
+
+### Features
+
+* Annotation improvements ([#27](https://github.com/czbiohub-sf/grassp/issues/27)) ([75ed0c8](https://github.com/czbiohub-sf/grassp/commit/75ed0c8656feec93a384b1300ca87b5cc7bdf100))
+
 ## [0.3.0](https://github.com/czbiohub-sf/grassp/compare/v0.2.0...v0.3.0) (2026-06-05)
 
 
