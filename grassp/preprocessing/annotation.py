@@ -643,7 +643,8 @@ def add_external_validation_markers(
     >>> # Add all external validation markers
     >>> gr.pp.add_external_validation_markers(adata, species='hsap')  # doctest: +ELLIPSIS
     Added Topological domain annotations for ...
-    >>> # Add specific columns only
+    >>> # Add specific columns only. Adding a column twice is an error, so start over.
+    >>> adata = gr.datasets.hein_2024(enrichment='raw')
     >>> gr.pp.add_external_validation_markers(
     ...     adata, species='hsap',
     ...     columns=['mitocarta', 'has_transmem']
@@ -839,13 +840,17 @@ def add_markers(
 
         * - authors
           - source
-        * - hein2024_gt_component
+        * - marker_hein2025_gt
           - Marker list used in Hein et al. 2024, Cell, https://doi.org/10.1016/j.cell.2024.11.028
-        * - hein2024_component
+        * - marker_hein2025
           - Full annotations from Hein et al. 2024, Cell, https://doi.org/10.1016/j.cell.2024.11.028
-        * - lilley, christopher, geladaki, itzhak, villaneuva, christoforou
+        * - marker_lilley, marker_christopher, marker_geladaki, marker_itzhak,
+            marker_villaneuva, marker_christoforou, marker_barylyuk, marker_moloney
           - Obtained from pRoloc. See: https://bioconductor.org/packages/pRoloc/
             and https://lgatto.github.io/pRoloc/reference/pRolocmarkers.html
+
+    Which of these columns exist depends on the species; pass ``authors=None``
+    (the default) to add every column available for that species.
 
     **Protein ID types by species:**
 
@@ -924,16 +929,16 @@ def add_markers(
     >>> import pandas as pd
     >>> adata = gr.datasets.hein_2024(enrichment='raw')
     >>> # Add specific author annotations
-    >>> gr.pp.add_markers(adata, species='hsap', authors=['christopher'])  # doctest: +ELLIPSIS
-    Added christopher annotations for ...
+    >>> gr.pp.add_markers(adata, species='hsap', authors=['marker_christopher'])  # doctest: +ELLIPSIS
+    Added marker_christopher annotations for ...
     >>> # Check categorical dtype and colors
-    >>> isinstance(adata.obs['christopher'].dtype, pd.CategoricalDtype)
+    >>> isinstance(adata.obs['marker_christopher'].dtype, pd.CategoricalDtype)
     True
-    >>> 'christopher_colors' in adata.uns
+    >>> 'marker_christopher_colors' in adata.uns
     True
     >>> # Disable automatic color mapping
-    >>> gr.pp.add_markers(adata, species='hsap', authors=['lilley'], add_colors=False)  # doctest: +ELLIPSIS
-    Added lilley annotations for ...
+    >>> gr.pp.add_markers(adata, species='hsap', authors=['marker_lilley'], add_colors=False)  # doctest: +ELLIPSIS
+    Added marker_lilley annotations for ...
     """
     # Construct file path
     module_path = Path(__file__).parent.parent

@@ -17,7 +17,6 @@ C-COMPASS is an *optional* dependency; install it with ``pip install grassp[ccom
 """
 
 from __future__ import annotations
-
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -89,10 +88,13 @@ def ccompass_default_params(as_dict: bool = False, path: str | None = None):
 
     Use this to discover, inspect, and customize the parameters:
 
-    >>> import grassp as gr
-    >>> gr.tl.ccompass_default_params()                 # prints every field + default
-    >>> gr.tl.ccompass_default_params(path="params.yaml")   # write an editable template
-    >>> gr.tl.ccompass(adata, marker_key="marker", nn_params="params.yaml")
+    .. code-block:: python
+
+        import grassp as gr
+
+        gr.tl.ccompass_default_params()  # every field + default
+        gr.tl.ccompass_default_params(path="params.yaml")  # editable template
+        gr.tl.ccompass(adata, marker_key="marker", nn_params="params.yaml")
 
     These are C-COMPASS's :class:`~ccompass.core.NeuralNetworkParametersModel` defaults
     with grassp's one override, ``NN_optimization="short"`` (the C-COMPASS-paper setting;
@@ -367,12 +369,8 @@ def ccompass(
             metrics = stats.metrics
             classnames = list(stats.classnames)
 
-            _write_contributions(
-                data, key, metrics, classnames, "CC_", "_contributions"
-            )
-            _write_contributions(
-                data, key, metrics, classnames, "fCC_", "_fcontributions"
-            )
+            _write_contributions(data, key, metrics, classnames, "CC_", "_contributions")
+            _write_contributions(data, key, metrics, classnames, "fCC_", "_fcontributions")
             data.uns[f"{key}_categories"] = classnames
             _write_labels(data, key, metrics["NN_winner"])
             _write_labels(data, f"{key}_fwinner", metrics["fNN_winner"])
@@ -383,8 +381,8 @@ def ccompass(
             key = f"{key_added}{suffix}"
             cc = _mean_condition_contributions(class_predictions, condition)
             classnames = list(cc.columns)
-            data.obsm[f"{key}_contributions"] = (
-                cc.reindex(data.obs_names).to_numpy(dtype=float)
+            data.obsm[f"{key}_contributions"] = cc.reindex(data.obs_names).to_numpy(
+                dtype=float
             )
             data.uns[f"{key}_categories"] = classnames
             winner = pd.Series(
@@ -422,9 +420,7 @@ def _write_labels(data: AnnData, col: str, winner: pd.Series) -> None:
     data.obs[col] = pd.Categorical(aligned)
 
 
-def _mean_condition_contributions(
-    class_predictions: dict, condition: str
-) -> pd.DataFrame:
+def _mean_condition_contributions(class_predictions: dict, condition: str) -> pd.DataFrame:
     """Average per-round network outputs across all replicates of a condition."""
     frames = []
     for subcon, pred in class_predictions.items():
