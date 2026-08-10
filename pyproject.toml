@@ -122,7 +122,7 @@ exclude = '''
     | \.hg
     | \.mypy_cache
     | \.tox
-    | \.venv
+    | \.venv[^/]*
     | _build
     | build
     | dist
