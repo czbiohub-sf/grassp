@@ -33,14 +33,14 @@ Pipeline (per term ``t``, marker-free and self-tuning):
 """
 
 from __future__ import annotations
-
 import itertools
-import warnings
+
 from typing import Literal
 
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+
 from anndata import AnnData
 from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import average_precision_score
@@ -76,6 +76,7 @@ def _symmetric_normalized(W) -> sp.csr_matrix:
 
 def _make_diffuser(S, n):
     """Return a ``diffuse(Y, alpha)`` closure computing the label-spreading fixed point."""
+
     def diffuse(Y, alpha, max_iter=60, tol=1e-4):
         Y = np.asarray(Y, dtype=float)
         F = Y.copy()
@@ -109,8 +110,21 @@ def _containment(cats, gene_sets) -> np.ndarray:
 # --------------------------------------------------------------------------- #
 # calibration
 # --------------------------------------------------------------------------- #
-def _calibrate(OOF, Y01, valid, astar, denom_by_a, diffuse, n, terms,
-               calibration, kappa, n_probe, cv_splits, seed):
+def _calibrate(
+    OOF,
+    Y01,
+    valid,
+    astar,
+    denom_by_a,
+    diffuse,
+    n,
+    terms,
+    calibration,
+    kappa,
+    n_probe,
+    cv_splits,
+    seed,
+):
     """Map honest scores ``OOF`` to calibrated per-term probabilities. See module docstring."""
     Pcal = np.zeros((n, len(terms)))
     kf = KFold(n_splits=cv_splits, shuffle=True, random_state=seed)
@@ -136,8 +150,8 @@ def _calibrate(OOF, Y01, valid, astar, denom_by_a, diffuse, n, terms,
             G = rng.choice([-1.0, 1.0], size=(n, n_probe))
             Mg = diffuse(G, a)
             off_sum = np.maximum(denom_by_a[a] - (G * Mg).mean(axis=1), 1e-9)
-            off_sq = np.maximum((Mg ** 2).mean(axis=1) - (G * Mg).mean(axis=1) ** 2, 1e-12)
-            neff_by_a[a] = off_sum ** 2 / off_sq
+            off_sq = np.maximum((Mg**2).mean(axis=1) - (G * Mg).mean(axis=1) ** 2, 1e-12)
+            neff_by_a[a] = off_sum**2 / off_sq
         Z = np.zeros((n, len(terms)))
         for j, t in enumerate(terms):
             if not valid[j]:
@@ -153,7 +167,9 @@ def _calibrate(OOF, Y01, valid, astar, denom_by_a, diffuse, n, terms,
         for tr, te in kf.split(np.arange(n)):
             iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1)
             iso.fit(Z[np.ix_(tr, vj)].ravel(), Y01[np.ix_(tr, vj)].ravel())
-            P[np.ix_(te, vj)] = iso.predict(Z[np.ix_(te, vj)].ravel()).reshape(len(te), len(vj))
+            P[np.ix_(te, vj)] = iso.predict(Z[np.ix_(te, vj)].ravel()).reshape(
+                len(te), len(vj)
+            )
         return P
 
     def _size_aware(Z):
@@ -196,8 +212,9 @@ def _calibrate(OOF, Y01, valid, astar, denom_by_a, diffuse, n, terms,
                     p_sc = isos[order[-1]].predict(Z[te, j])
                 else:
                     f = (x - smed_s[k - 1]) / (smed_s[k] - smed_s[k - 1] + 1e-9)
-                    p_sc = ((1 - f) * isos[order[k - 1]].predict(Z[te, j])
-                            + f * isos[order[k]].predict(Z[te, j]))
+                    p_sc = (1 - f) * isos[order[k - 1]].predict(Z[te, j]) + f * isos[
+                        order[k]
+                    ].predict(Z[te, j])
                 P[te, j] = w[j] * p_term + (1 - w[j]) * p_sc
         return P
 
@@ -224,8 +241,9 @@ def _calibrate(OOF, Y01, valid, astar, denom_by_a, diffuse, n, terms,
 # --------------------------------------------------------------------------- #
 # resolution
 # --------------------------------------------------------------------------- #
-def _resolve(P, cats, gene_sets, sizes, mode, min_probability, eta, tau, maxk, cap,
-             min_term_size):
+def _resolve(
+    P, cats, gene_sets, sizes, mode, min_probability, eta, tau, maxk, cap, min_term_size
+):
     """Turn the per-term probability matrix into a per-protein call. Returns a label array.
 
     ``sizes`` is the per-term number of members present in the map. ``min_term_size``
@@ -257,24 +275,32 @@ def _resolve(P, cats, gene_sets, sizes, mode, min_probability, eta, tau, maxk, c
         out = np.empty(n, dtype=object)
         for i in range(n):
             cand = np.where((P[i] >= tau) & eligible)[0]
-            if len(cand) == 0:                                   # fall back to best eligible term
+            if len(cand) == 0:  # fall back to best eligible term
                 cand = np.array([elig_idx[P[i, elig_idx].argmax()]])
             if len(cand) > cap:
                 cand = cand[np.argsort(P[i, cand])[::-1][:cap]]
             pobs = P[i, cand]
             best, bA = -1e18, ()
-            for A in [()] + [x for k in range(1, maxk + 1)
-                             for x in itertools.combinations(range(len(cand)), k)]:
+            for A in [()] + [
+                x
+                for k in range(1, maxk + 1)
+                for x in itertools.combinations(range(len(cand)), k)
+            ]:
                 sub = cand[list(A)]
-                ph = np.clip(C[np.ix_(sub, cand)].max(0) if len(A) else np.zeros(len(cand)),
-                             eps, 1 - eps)
+                ph = np.clip(
+                    C[np.ix_(sub, cand)].max(0) if len(A) else np.zeros(len(cand)),
+                    eps,
+                    1 - eps,
+                )
                 v = np.sum(pobs * np.log(ph) + (1 - pobs) * np.log(1 - ph)) - eta * len(A)
                 if v > best:
                     best, bA = v, A
             sel = cand[list(bA)]
             out[i] = cats[sel[np.argmin(sizes[sel])]] if len(sel) else None
         return out
-    raise ValueError(f"resolve must be 'likelihood', 'specific', 'argmax' or None; got {mode!r}")
+    raise ValueError(
+        f"resolve must be 'likelihood', 'specific', 'argmax' or None; got {mode!r}"
+    )
 
 
 def _map_sizes(cats, gene_sets, pop):
@@ -311,9 +337,13 @@ def resolve_diffusion(
     P = np.asarray(data.obsm[f"{key_added}_probabilities"], dtype=float)
     pop = set(data.obs[gene_key].astype(str))
     sizes = _map_sizes(cats, gmt, pop)
-    labels = _resolve(P, cats, gmt, sizes, mode, min_probability, eta, tau, maxk, cap, min_term_size)
+    labels = _resolve(
+        P, cats, gmt, sizes, mode, min_probability, eta, tau, maxk, cap, min_term_size
+    )
     if out_key is None:
-        out_key = f"{key_added}_resolved_specific" if mode == "specific" else f"{key_added}_resolved"
+        out_key = (
+            f"{key_added}_resolved_specific" if mode == "specific" else f"{key_added}_resolved"
+        )
     data.obs[out_key] = pd.Categorical(labels)
 
 
@@ -459,30 +489,64 @@ def independent_diffusion(
             f"no term has >= cv_splits ({cv_splits}) members in the map; nothing to calibrate."
         )
 
-    Pcal = _calibrate(OOF, Y01, valid, astar, denom_by_a, diffuse, n, terms,
-                      calibration, kappa, n_probe, cv_splits, seed)
+    Pcal = _calibrate(
+        OOF,
+        Y01,
+        valid,
+        astar,
+        denom_by_a,
+        diffuse,
+        n,
+        terms,
+        calibration,
+        kappa,
+        n_probe,
+        cv_splits,
+        seed,
+    )
 
     adata.obsm[f"{key_added}_probabilities"] = Pcal
     adata.uns[f"{key_added}_categories"] = terms
-    adata.uns[f"{key_added}_alpha"] = np.array([astar.get(t, np.nan) for t in terms], dtype=float)
+    adata.uns[f"{key_added}_alpha"] = np.array(
+        [astar.get(t, np.nan) for t in terms], dtype=float
+    )
     maxp = Pcal.max(axis=1)
     adata.obs[f"{key_added}_maxp"] = maxp.astype(np.float32)
 
-    sizes = Y01.sum(axis=0)                       # per-term members present in the map
+    sizes = Y01.sum(axis=0)  # per-term members present in the map
     if resolve is not None:
-        labels = _resolve(Pcal, terms, seeds, sizes, resolve, min_probability, eta, tau,
-                          maxk, cap, min_term_size)
+        labels = _resolve(
+            Pcal,
+            terms,
+            seeds,
+            sizes,
+            resolve,
+            min_probability,
+            eta,
+            tau,
+            maxk,
+            cap,
+            min_term_size,
+        )
         adata.obs[f"{key_added}_resolved"] = pd.Categorical(labels)
         elig = sizes >= max(int(min_term_size), 1)
         compact = []
         for i in range(n):
-            hi = [terms[j] for j in range(len(terms)) if Pcal[i, j] >= min_probability and elig[j]]
-            compact.append("/".join(hi) if hi else (labels[i] if labels[i] is not None else None))
+            hi = [
+                terms[j]
+                for j in range(len(terms))
+                if Pcal[i, j] >= min_probability and elig[j]
+            ]
+            compact.append(
+                "/".join(hi) if hi else (labels[i] if labels[i] is not None else None)
+            )
         adata.obs[f"{key_added}_resolved_label_compact"] = compact
 
     if verbose:
         av = [a for a in astar.values()]
-        print(f"[independent_diffusion] {int(valid.sum())}/{len(terms)} terms scored; "
-              f"a* {min(av):.2f}-{max(av):.2f}; calibration={calibration}; resolve={resolve}; "
-              f"coverage(maxp>0)={float((maxp > 0).mean()):.3f}")
+        print(
+            f"[independent_diffusion] {int(valid.sum())}/{len(terms)} terms scored; "
+            f"a* {min(av):.2f}-{max(av):.2f}; calibration={calibration}; resolve={resolve}; "
+            f"coverage(maxp>0)={float((maxp > 0).mean()):.3f}"
+        )
     return adata if copy else None

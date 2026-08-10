@@ -3,7 +3,6 @@ from itertools import combinations
 from typing import TYPE_CHECKING, Literal, Optional
 
 import numpy as np
-import pandas as pd
 import scanpy as sc
 import scipy.cluster.hierarchy as sch
 
@@ -240,7 +239,9 @@ def _annotate_clusters(
 def _bf_from_uns(adata: AnnData, compartment_col: str) -> dict[str, float]:
     """Per-cluster log-Bayes-factor (log_evidence - log_null) from the round's MGSA."""
     ev = adata.uns[f'{compartment_col}_evidence']
-    return {str(cl): float(ev.loc[cl, 'log_evidence'] - ev.loc[cl, 'log_null']) for cl in ev.index}
+    return {
+        str(cl): float(ev.loc[cl, 'log_evidence'] - ev.loc[cl, 'log_null']) for cl in ev.index
+    }
 
 
 def _merge_score_mgsa_evidence(
@@ -270,8 +271,9 @@ def _merge_score_mgsa_evidence(
         _gene_set(adata, cluster_col, c1, gene_name_key)
         | _gene_set(adata, cluster_col, c2, gene_name_key)
     )
-    d = mgsa(genes, gene_sets, population=population, method='exact',
-             max_active=max_active).diagnostics
+    d = mgsa(
+        genes, gene_sets, population=population, method='exact', max_active=max_active
+    ).diagnostics
     bf_union = float(d['log_evidence'] - d['log_null'])
     return bf_union - bf1 - bf2
 
@@ -563,17 +565,30 @@ def _one_merge_round_dendrogram(
             # (default 0) merges, so no-signal / same-compartment pairs merge and
             # only clearly-negative (distinct-compartment) pairs are kept apart.
             score = _merge_score_mgsa_evidence(
-                adata, cluster_col, (c1, c2), gene_sets, gene_name_key,
-                bf_cache, population, max_active,
+                adata,
+                cluster_col,
+                (c1, c2),
+                gene_sets,
+                gene_name_key,
+                bf_cache,
+                population,
+                max_active,
             )
             if verbose:
-                print(f'  {c1} vs {c2}: conn={conn_val:.3f} merge_score={score:.2f}'
-                      f' → {"MERGE candidate" if score >= merge_threshold else "keep separate"}')
+                print(
+                    f'  {c1} vs {c2}: conn={conn_val:.3f} merge_score={score:.2f}'
+                    f' → {"MERGE candidate" if score >= merge_threshold else "keep separate"}'
+                )
             if score >= merge_threshold:
                 candidates.append(
                     dict(
-                        c1=c1, c2=c2, conn_val=conn_val,
-                        min_p=np.nan, p1=np.nan, p2=np.nan, terms_agree=False,
+                        c1=c1,
+                        c2=c2,
+                        conn_val=conn_val,
+                        min_p=np.nan,
+                        p1=np.nan,
+                        p2=np.nan,
+                        terms_agree=False,
                         merged_score=float(score),
                         # apply strongest-evidence merges first
                         _sortkey=(-score,),
@@ -756,13 +771,13 @@ def _plot_merge_dendrogram(
     if color_key in adata.uns and len(adata.uns[color_key]) >= len(cats):
         term_color: dict[str, str] = dict(zip(cats, adata.uns[color_key]))
     else:
-        cmap20 = plt.cm.get_cmap('tab20')
+        cmap20 = plt.get_cmap('tab20')
         term_color = {
             t: mcolors.to_hex(cmap20(i / max(len(cats), 1))) for i, t in enumerate(cats)
         }
 
     pv_norm = mcolors.PowerNorm(gamma=0.5, vmin=0, vmax=1)
-    pv_cmap = cm.get_cmap('magma_r')
+    pv_cmap = plt.get_cmap('magma_r')
 
     # 5. Figure layout constants
     _ax_l, _ax_b, _ax_w, _ax_h = 0.04, 0.18, 0.67, 0.78
@@ -1116,8 +1131,16 @@ def merge_clusters_go(
 
     # Run enrichment on the initial clusters to populate compartment_col
     _annotate_clusters(
-        adata, key_added, gene_sets, gene_name_key, compartment_col,
-        merge_method, n_steps, n_restarts, seed, max_active,
+        adata,
+        key_added,
+        gene_sets,
+        gene_name_key,
+        compartment_col,
+        merge_method,
+        n_steps,
+        n_restarts,
+        seed,
+        max_active,
     )
 
     # Build initial dendrogram and capture state for the optional plot
@@ -1199,8 +1222,16 @@ def merge_clusters_go(
 
         # Recompute annotation for merged clusters and rebuild dendrogram
         _annotate_clusters(
-            adata, key_added, gene_sets, gene_name_key, compartment_col,
-            merge_method, n_steps, n_restarts, seed, max_active,
+            adata,
+            key_added,
+            gene_sets,
+            gene_name_key,
+            compartment_col,
+            merge_method,
+            n_steps,
+            n_restarts,
+            seed,
+            max_active,
         )
         paga_dendrogram(adata, key_added, linkage_method=linkage_method)
 
