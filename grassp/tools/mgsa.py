@@ -57,9 +57,9 @@ for correctness/portability, not production use).
 """
 
 from __future__ import annotations
-
 import math
 import warnings
+
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterable, Literal, Mapping, Optional, Sequence, Union
 
@@ -140,8 +140,9 @@ def load_gmt(
 # --------------------------------------------------------------------------- #
 # ``counts`` layout: [n11, n10, n01, n00, n_active, n_inactive]
 @_njit
-def _toggle(i, active, hidden_count, observed, members_flat, set_ptr, partition,
-            pos_of_set, counts):
+def _toggle(
+    i, active, hidden_count, observed, members_flat, set_ptr, partition, pos_of_set, counts
+):
     """Flip set ``i`` on<->off, updating the partition and contingency counts."""
     if active[i] == 0:
         # activate: move i from the inactive region into the active region
@@ -206,9 +207,30 @@ def _score(counts, ai, bi, pi, la, lma, lb, lmb, lp, lmp, lpa, lpb, lpp):
 
 
 @_njit
-def _chain_core(n_sets, N, members_flat, set_ptr, observed, la, lma, lb, lmb,
-                lp, lmp, lpa, lpb, lpp, n_alpha, n_beta, n_p, n_steps, burn_in, thin,
-                flip_freq, seed):
+def _chain_core(
+    n_sets,
+    N,
+    members_flat,
+    set_ptr,
+    observed,
+    la,
+    lma,
+    lb,
+    lmb,
+    lp,
+    lmp,
+    lpa,
+    lpb,
+    lpp,
+    n_alpha,
+    n_beta,
+    n_p,
+    n_steps,
+    burn_in,
+    thin,
+    flip_freq,
+    seed,
+):
     """Run one MCMC restart; return activity/parameter histograms and MAP state."""
     np.random.seed(seed)
 
@@ -222,9 +244,9 @@ def _chain_core(n_sets, N, members_flat, set_ptr, observed, la, lma, lb, lmb,
     for g in range(N):
         if observed[g]:
             lo += 1
-    counts[1] = lo          # n10: every observed gene starts as a false positive
-    counts[3] = N - lo      # n00: every other gene starts as a true negative
-    counts[5] = n_sets      # n_inactive
+    counts[1] = lo  # n10: every observed gene starts as a false positive
+    counts[3] = N - lo  # n00: every other gene starts as a true negative
+    counts[5] = n_sets  # n_inactive
 
     ai = int(np.random.random() * n_alpha)
     bi = int(np.random.random() * n_beta)
@@ -254,21 +276,48 @@ def _chain_core(n_sets, N, members_flat, set_ptr, observed, la, lma, lb, lmb,
             # ------- set-state move -------
             idx = int(np.random.random() * old_nbhd)
             if idx < n_sets:
-                _toggle(idx, active, hidden_count, observed, members_flat,
-                        set_ptr, partition, pos_of_set, counts)
+                _toggle(
+                    idx,
+                    active,
+                    hidden_count,
+                    observed,
+                    members_flat,
+                    set_ptr,
+                    partition,
+                    pos_of_set,
+                    counts,
+                )
                 mv = 0
                 s1 = idx
                 s2 = -1
             else:
                 r = idx - n_sets
-                ik = r // old_na          # which inactive set to activate
-                ak = r % old_na           # which active set to deactivate
+                ik = r // old_na  # which inactive set to activate
+                ak = r % old_na  # which active set to deactivate
                 s_add = partition[ik]
                 s_rem = partition[old_ni + ak]
-                _toggle(s_add, active, hidden_count, observed, members_flat,
-                        set_ptr, partition, pos_of_set, counts)
-                _toggle(s_rem, active, hidden_count, observed, members_flat,
-                        set_ptr, partition, pos_of_set, counts)
+                _toggle(
+                    s_add,
+                    active,
+                    hidden_count,
+                    observed,
+                    members_flat,
+                    set_ptr,
+                    partition,
+                    pos_of_set,
+                    counts,
+                )
+                _toggle(
+                    s_rem,
+                    active,
+                    hidden_count,
+                    observed,
+                    members_flat,
+                    set_ptr,
+                    partition,
+                    pos_of_set,
+                    counts,
+                )
                 mv = 1
                 s1 = s_add
                 s2 = s_rem
@@ -280,11 +329,29 @@ def _chain_core(n_sets, N, members_flat, set_ptr, observed, la, lma, lb, lmb,
                 cur_score = new_score
                 n_accept += 1
             else:  # undo (toggling is its own inverse)
-                _toggle(s1, active, hidden_count, observed, members_flat,
-                        set_ptr, partition, pos_of_set, counts)
+                _toggle(
+                    s1,
+                    active,
+                    hidden_count,
+                    observed,
+                    members_flat,
+                    set_ptr,
+                    partition,
+                    pos_of_set,
+                    counts,
+                )
                 if mv == 1:
-                    _toggle(s2, active, hidden_count, observed, members_flat,
-                            set_ptr, partition, pos_of_set, counts)
+                    _toggle(
+                        s2,
+                        active,
+                        hidden_count,
+                        observed,
+                        members_flat,
+                        set_ptr,
+                        partition,
+                        pos_of_set,
+                        counts,
+                    )
         else:
             # ------- parameter move -------
             w = int(np.random.random() * 3)
@@ -329,8 +396,19 @@ def _chain_core(n_sets, N, members_flat, set_ptr, observed, la, lma, lb, lmb,
                 map_bi = bi
                 map_pi = pi
 
-    return (activity, ah, bh, ph, nsamples, n_accept, map_score, map_active,
-            map_ai, map_bi, map_pi)
+    return (
+        activity,
+        ah,
+        bh,
+        ph,
+        nsamples,
+        n_accept,
+        map_score,
+        map_active,
+        map_ai,
+        map_bi,
+        map_pi,
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -424,8 +502,20 @@ def _lse(vals: np.ndarray) -> float:
     return mx + float(np.log(np.exp(vals - mx).sum()))
 
 
-def _exact_solve(cand_masks, o_mask, N, n_obs, n_total, alpha_grid, beta_grid,
-                 p_grid, max_active, lprior_a=None, lprior_b=None, lprior_p=None):
+def _exact_solve(
+    cand_masks,
+    o_mask,
+    N,
+    n_obs,
+    n_total,
+    alpha_grid,
+    beta_grid,
+    p_grid,
+    max_active,
+    lprior_a=None,
+    lprior_b=None,
+    lprior_p=None,
+):
     """Exact marginal posteriors by enumerating configurations with <= ``max_active``
     active candidate sets, with ``alpha``/``beta``/``p`` integrated analytically.
 
@@ -756,9 +846,18 @@ def mgsa(
             cand_masks.append(mask)
 
         marg_c, apost, bpost, ppost, map_state, n_ab, log_evidence, log_null = _exact_solve(
-            cand_masks, o_mask, N, int(n_obs_in_pop), n_sets,
-            alpha_grid, beta_grid, p_grid, max_active,
-            lprior_a, lprior_b, lprior_p,
+            cand_masks,
+            o_mask,
+            N,
+            int(n_obs_in_pop),
+            n_sets,
+            alpha_grid,
+            beta_grid,
+            p_grid,
+            max_active,
+            lprior_a,
+            lprior_b,
+            lprior_p,
         )
         estimate = np.zeros(n_sets)
         for j, si in enumerate(cand_idx):
@@ -773,22 +872,37 @@ def mgsa(
             },
             index=set_names,
         )
-        alpha_post = pd.DataFrame({"value": alpha_grid, "estimate": apost,
-                                   "std_error": np.zeros(alpha_grid.size)})
-        beta_post = pd.DataFrame({"value": beta_grid, "estimate": bpost,
-                                  "std_error": np.zeros(beta_grid.size)})
-        p_post = pd.DataFrame({"value": p_grid, "estimate": ppost,
-                               "std_error": np.zeros(p_grid.size)})
+        alpha_post = pd.DataFrame(
+            {"value": alpha_grid, "estimate": apost, "std_error": np.zeros(alpha_grid.size)}
+        )
+        beta_post = pd.DataFrame(
+            {"value": beta_grid, "estimate": bpost, "std_error": np.zeros(beta_grid.size)}
+        )
+        p_post = pd.DataFrame(
+            {"value": p_grid, "estimate": ppost, "std_error": np.zeros(p_grid.size)}
+        )
 
         eps = 1e-12
-        ac, bc, pc = (np.clip(alpha_grid, eps, 1 - eps), np.clip(beta_grid, eps, 1 - eps),
-                      np.clip(p_grid, eps, 1 - eps))
-        av = (n_obs_in_pop - map_state["b"]) * np.log(ac) + \
-            (N - map_state["a"] - (n_obs_in_pop - map_state["b"])) * np.log1p(-ac) + lprior_a
-        bv = map_state["b"] * np.log1p(-bc) + \
-            (map_state["a"] - map_state["b"]) * np.log(bc) + lprior_b
-        pv = map_state["depth"] * np.log(pc) + \
-            (n_sets - map_state["depth"]) * np.log1p(-pc) + lprior_p
+        ac, bc, pc = (
+            np.clip(alpha_grid, eps, 1 - eps),
+            np.clip(beta_grid, eps, 1 - eps),
+            np.clip(p_grid, eps, 1 - eps),
+        )
+        av = (
+            (n_obs_in_pop - map_state["b"]) * np.log(ac)
+            + (N - map_state["a"] - (n_obs_in_pop - map_state["b"])) * np.log1p(-ac)
+            + lprior_a
+        )
+        bv = (
+            map_state["b"] * np.log1p(-bc)
+            + (map_state["a"] - map_state["b"]) * np.log(bc)
+            + lprior_b
+        )
+        pv = (
+            map_state["depth"] * np.log(pc)
+            + (n_sets - map_state["depth"]) * np.log1p(-pc)
+            + lprior_p
+        )
         map_estimate = {
             "sets": [set_names[cand_idx[i]] for i in map_state["combo"]],
             "alpha": float(alpha_grid[int(av.argmax())]),
@@ -821,7 +935,7 @@ def mgsa(
     members_flat = np.empty(int(set_ptr[-1]), dtype=np.int64)
     for si in range(n_sets):
         if members_lists[si]:
-            members_flat[set_ptr[si]:set_ptr[si + 1]] = members_lists[si]
+            members_flat[set_ptr[si] : set_ptr[si + 1]] = members_lists[si]
 
     eps = 1e-12
     la = np.log(np.clip(alpha_grid, eps, 1 - eps))
@@ -862,11 +976,41 @@ def mgsa(
     best_map = None
 
     for r in range(n_restarts):
-        (activity, ah, bh, ph, nsamples, n_accept, map_score, map_active,
-         map_ai, map_bi, map_pi) = _chain_core(
-            n_sets, N, members_flat, set_ptr, observed, la, lma, lb, lmb, lp,
-            lmp, lpa, lpb, lpp, n_alpha, n_beta, n_p, int(n_steps), burn_in, int(thin),
-            float(flip_freq), int(seeds[r]),
+        (
+            activity,
+            ah,
+            bh,
+            ph,
+            nsamples,
+            n_accept,
+            map_score,
+            map_active,
+            map_ai,
+            map_bi,
+            map_pi,
+        ) = _chain_core(
+            n_sets,
+            N,
+            members_flat,
+            set_ptr,
+            observed,
+            la,
+            lma,
+            lb,
+            lmb,
+            lp,
+            lmp,
+            lpa,
+            lpb,
+            lpp,
+            n_alpha,
+            n_beta,
+            n_p,
+            int(n_steps),
+            burn_in,
+            int(thin),
+            float(flip_freq),
+            int(seeds[r]),
         )
         ns = max(nsamples, 1)
         sets_marg[:, r] = activity / ns
@@ -1080,9 +1224,7 @@ def calculate_mgsa(
 
     if inplace:
         obs_df = data.obs
-        obs_df[obs_key_added] = groups[cluster_key].transform(
-            lambda x: top_terms[x.name]
-        )
+        obs_df[obs_key_added] = groups[cluster_key].transform(lambda x: top_terms[x.name])
         data.uns[posterior_uns_key or f"{obs_key_added}_posterior"] = posterior
         data.uns[f"{obs_key_added}_map"] = map_matrix
         data.uns[f"{obs_key_added}_evidence"] = evidence
@@ -1162,9 +1304,7 @@ def mgsa_to_cluster_distribution(
                 "use_map=True requires map_matrix (data.uns[f'{obs_key_added}_map'] "
                 "from calculate_mgsa)."
             )
-        mask = (
-            map_matrix.reindex(index=q.index, columns=q.columns).fillna(0).astype(float) > 0
-        )
+        mask = map_matrix.reindex(index=q.index, columns=q.columns).fillna(0).astype(float) > 0
         q = q.where(mask, 0.0)
     if inactivity == "product":
         unk = (1.0 - q).prod(axis=1)
@@ -1176,7 +1316,7 @@ def mgsa_to_cluster_distribution(
     denom = q.sum(axis=1) + (unk if unknown_label is not None else 0.0)
     Q = q.div(denom.where(denom > 0, np.nan), axis=0)
     if unknown_label is not None:
-        Q[unknown_label] = (unk / denom.where(denom > 0, np.nan))
+        Q[unknown_label] = unk / denom.where(denom > 0, np.nan)
     Q = Q.fillna(0.0)
 
     # Clusters with no active mass -> all unknown (or uniform if no unknown class).

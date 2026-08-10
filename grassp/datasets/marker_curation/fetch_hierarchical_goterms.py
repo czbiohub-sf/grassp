@@ -64,7 +64,6 @@ Run from anywhere:
 """
 
 from __future__ import annotations
-
 import argparse
 import sys
 import time
@@ -78,11 +77,7 @@ from grassp.datasets.uniprot_cc import find_roots, uniprot_subcellular_vocabular
 
 # Reuse the sibling script's UniProt gene-token query + polite defaults.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fetch_custom_goterms import (  # noqa: E402
-    REQUEST_SLEEP,
-    UNIPROT_HEADERS,
-    fetch_term_genes,
-)
+from fetch_custom_goterms import REQUEST_SLEEP, UNIPROT_HEADERS, fetch_term_genes  # noqa: E402
 
 # ------------------------------------------------------------------- config
 # Species name -> NCBI taxonomy id (as used by UniProt's model_organism filter)
@@ -268,7 +263,10 @@ def build_tables(
     for acc in nodes["SL_id"]:
         entry = vocab[acc]
         child = entry["ID"]
-        for relation, parents in (("is_a", entry.get("HI", [])), ("part_of", entry.get("HP", []))):
+        for relation, parents in (
+            ("is_a", entry.get("HI", [])),
+            ("part_of", entry.get("HP", [])),
+        ):
             for parent in parents:
                 if parent in kept_names:
                     edge_records.append(
@@ -287,7 +285,9 @@ def build_tables(
     return nodes, edges, genes_by_term
 
 
-def write_gmt(genes_by_term: dict[str, list[str]], term_to_acc: dict[str, str], path: Path) -> None:
+def write_gmt(
+    genes_by_term: dict[str, list[str]], term_to_acc: dict[str, str], path: Path
+) -> None:
     """Write a GMT keyed on the (unconsolidated) SL term name; the description
     field holds the SL accession so the hierarchy id survives into the GMT."""
     with path.open("w") as f:

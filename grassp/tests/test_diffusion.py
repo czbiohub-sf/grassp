@@ -1,5 +1,6 @@
 """Tests for independent (one-vs-rest) label diffusion and the competitive_propagation
 rename / knn_annotation deprecation."""
+
 import warnings
 
 import anndata as ad
@@ -62,8 +63,9 @@ def test_likelihood_resolver_prefers_specific_over_broad(blob_adata):
 @pytest.mark.parametrize("calibration", ["size_aware", "shrunk", "pooled", "per_term", "none"])
 def test_calibration_modes_run(blob_adata, calibration):
     a, gs = blob_adata
-    gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", calibration=calibration,
-                                resolve=None)
+    gr.tl.independent_diffusion(
+        a, gs, gene_key="gene_symbol", calibration=calibration, resolve=None
+    )
     P = a.obsm["ann_diffusion_probabilities"]
     assert np.isfinite(P).all()
 
@@ -107,10 +109,12 @@ def test_resolve_diffusion_standalone(blob_adata):
 def test_min_term_size_floor(blob_adata):
     a, gs = blob_adata
     # a floor larger than every term leaves nothing eligible -> all NA
-    gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", resolve="likelihood",
-                                min_term_size=10_000)
+    gr.tl.independent_diffusion(
+        a, gs, gene_key="gene_symbol", resolve="likelihood", min_term_size=10_000
+    )
     assert a.obs["ann_diffusion_resolved"].notna().sum() == 0
     # a modest floor still annotates most proteins (fallback to larger ancestor terms)
-    gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", resolve="likelihood",
-                                min_term_size=5)
+    gr.tl.independent_diffusion(
+        a, gs, gene_key="gene_symbol", resolve="likelihood", min_term_size=5
+    )
     assert a.obs["ann_diffusion_resolved"].notna().mean() > 0.8

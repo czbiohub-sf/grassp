@@ -479,8 +479,13 @@ def test_merge_clusters_go_mgsa_evidence_smoke():
     }
     n_before = adata.obs['cluster'].nunique()
     merge_clusters_go(
-        adata, cluster_col='cluster', gene_sets_path=gene_sets, key_added='merged',
-        merge_method='mgsa_evidence', merge_threshold=0.0, connectivity_lower=0.0,
+        adata,
+        cluster_col='cluster',
+        gene_sets_path=gene_sets,
+        key_added='merged',
+        merge_method='mgsa_evidence',
+        merge_threshold=0.0,
+        connectivity_lower=0.0,
         verbose=False,
     )
     assert 'merged' in adata.obs.columns

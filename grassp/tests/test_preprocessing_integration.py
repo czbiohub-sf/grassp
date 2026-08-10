@@ -14,13 +14,7 @@ import scanpy as sc
 
 from anndata import AnnData
 
-from grassp.preprocessing import (
-    annotation,
-    contaminants,
-    enrichment,
-    imputation,
-    simple,
-)
+from grassp.preprocessing import annotation, contaminants, enrichment, imputation, simple
 
 # ==============================================================================
 # Helper Functions for Creating Test Data

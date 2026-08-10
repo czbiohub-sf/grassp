@@ -123,7 +123,9 @@ def _propagate_soft(
     if class_balance:
         col_mass = np.nansum(Y, axis=0)
         scale = np.divide(
-            seed.sum(axis=0), col_mass, out=np.zeros_like(col_mass, dtype=float),
+            seed.sum(axis=0),
+            col_mass,
+            out=np.zeros_like(col_mass, dtype=float),
             where=col_mass > 0,
         )
         Y = Y * scale
@@ -434,9 +436,7 @@ def competitive_propagation(
         # that class as unassigned (NaN) while keeping the full probability
         # matrix (including the unknown column) in obsm.
         if seed_matrix is not None and unknown_label is not None:
-            data.obs.loc[
-                data.obs[f"{key_added}"] == unknown_label, f"{key_added}"
-            ] = np.nan
+            data.obs.loc[data.obs[f"{key_added}"] == unknown_label, f"{key_added}"] = np.nan
             data.obs[f"{key_added}"] = data.obs[f"{key_added}"].astype("category")
         if gt_col is not None and f"{gt_col}_colors" in data.uns:
             data.uns[f"{key_added}_colors"] = data.uns[f"{gt_col}_colors"]
@@ -805,7 +805,11 @@ def resolve_soft_labels(
     cats = list(data.uns[categories_key])
     N = P.shape[0]
 
-    uk = cats.index(unknown_label) if (unknown_label is not None and unknown_label in cats) else None
+    uk = (
+        cats.index(unknown_label)
+        if (unknown_label is not None and unknown_label in cats)
+        else None
+    )
     real_idx = [i for i in range(len(cats)) if i != uk]
     real_cats = [cats[i] for i in real_idx]
     unknown_mass = P[:, uk] if uk is not None else np.zeros(N)
@@ -959,7 +963,12 @@ def resolve_soft_labels(
 
             color_cols = [
                 c
-                for c in (key, f"{key}_secondary", f"{key}_label_compact", f"{key}_multiloc_label")
+                for c in (
+                    key,
+                    f"{key}_secondary",
+                    f"{key}_label_compact",
+                    f"{key}_multiloc_label",
+                )
                 if c in data.obs
             ]
             set_sensible_compartment_colors(

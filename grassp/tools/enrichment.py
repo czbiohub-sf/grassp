@@ -442,11 +442,15 @@ def enrichment_to_cluster_distribution(
         # compartment probability equals relative enrichment odds. Effect size,
         # not confidence, sets the split among significant terms.
         if "Odds Ratio" not in enr_res.columns:
-            raise KeyError("weight_by='odds_ratio' requires an 'Odds Ratio' column in enr_res.")
+            raise KeyError(
+                "weight_by='odds_ratio' requires an 'Odds Ratio' column in enr_res."
+            )
         odf = df.copy()
         odf["Odds Ratio"] = pd.to_numeric(odf["Odds Ratio"], errors="coerce")
         orat = (
-            odf.pivot_table(index=cluster_key, columns="Term", values="Odds Ratio", aggfunc="max")
+            odf.pivot_table(
+                index=cluster_key, columns="Term", values="Odds Ratio", aggfunc="max"
+            )
             .reindex(all_clusters)
             .reindex(columns=pv.columns)
             .to_numpy(dtype=float)[:, keep_mask]
@@ -465,9 +469,7 @@ def enrichment_to_cluster_distribution(
     # i.e. no enrichment), so the unknown class competes as an un-enriched term.
     logits = np.where(significant, base_logits, -np.inf)
     if unknown_label is not None:
-        logits = np.concatenate(
-            [logits, np.full((logits.shape[0], 1), float(s0))], axis=1
-        )
+        logits = np.concatenate([logits, np.full((logits.shape[0], 1), float(s0))], axis=1)
     row_max = np.max(logits, axis=1, keepdims=True)
     row_max = np.where(np.isfinite(row_max), row_max, 0.0)  # rows with all -inf
     with np.errstate(over="ignore"):

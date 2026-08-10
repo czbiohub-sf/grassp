@@ -10,15 +10,13 @@ part of the grassp suite.
 """
 
 from __future__ import annotations
+import importlib
 
+import anndata as ad
 import numpy as np
 import pandas as pd
 import pytest
 import scipy.sparse as sp
-
-import importlib
-
-import anndata as ad
 
 import grassp as gp
 
@@ -31,14 +29,20 @@ mgsa_mod = importlib.import_module("grassp.tools.mgsa")
 # --------------------------------------------------------------------------- #
 # Helpers
 # --------------------------------------------------------------------------- #
-def make_synthetic(seed=0, n_pop=2000, n_sets=30, set_size=40,
-                   active=("set3", "set11", "set20"), alpha=0.05, beta=0.2):
+def make_synthetic(
+    seed=0,
+    n_pop=2000,
+    n_sets=30,
+    set_size=40,
+    active=("set3", "set11", "set20"),
+    alpha=0.05,
+    beta=0.2,
+):
     """Synthetic dataset with a known set of active gene sets."""
     rng = np.random.default_rng(seed)
     pop = [f"g{i}" for i in range(n_pop)]
     sets = {
-        f"set{k}": list(rng.choice(pop, size=set_size, replace=False))
-        for k in range(n_sets)
+        f"set{k}": list(rng.choice(pop, size=set_size, replace=False)) for k in range(n_sets)
     }
     hidden = set()
     for a in active:
@@ -64,7 +68,7 @@ def _block_anndata(sizes=(10, 10, 10)):
     start = 0
     labels = []
     for b, s in enumerate(sizes):
-        A[start:start + s, start:start + s] = 1.0
+        A[start : start + s, start : start + s] = 1.0
         labels += [f"c{b}"] * s
         start += s
     np.fill_diagonal(A, 0.0)
@@ -82,7 +86,10 @@ def test_tiny_hand_case():
     res = mgsa_mod.mgsa(
         ["A", "B"],
         {"set1": ["A", "B", "C"], "set2": ["B", "C", "D"]},
-        n_steps=200_000, n_restarts=2, thin=50, seed=1,
+        n_steps=200_000,
+        n_restarts=2,
+        thin=50,
+        seed=1,
     )
     assert res.sets_results.loc["set1", "estimate"] > res.sets_results.loc["set2", "estimate"]
     assert res.diagnostics["population_size"] == 4
@@ -91,8 +98,9 @@ def test_tiny_hand_case():
 
 def test_synthetic_recovery():
     o, sets, pop, active, alpha, beta = make_synthetic(seed=0)
-    res = mgsa_mod.mgsa(o, sets, population=pop, n_steps=300_000,
-                        n_restarts=4, thin=50, seed=42)
+    res = mgsa_mod.mgsa(
+        o, sets, population=pop, n_steps=300_000, n_restarts=4, thin=50, seed=42
+    )
     sr = res.sets_results
     for a in active:
         assert sr.loc[a, "estimate"] > 0.9, f"{a} not recovered: {sr.loc[a, 'estimate']}"
@@ -115,16 +123,28 @@ def test_determinism():
 def test_default_grids():
     # deduplicate_terms=False so the 21 identical sets are kept (they drive the
     # n_sets-dependent default p grid).
-    res = mgsa_mod.mgsa(["A"], {f"s{i}": ["A", "B"] for i in range(21)},
-                        deduplicate_terms=False, n_steps=1000, thin=10, seed=0)
+    res = mgsa_mod.mgsa(
+        ["A"],
+        {f"s{i}": ["A", "B"] for i in range(21)},
+        deduplicate_terms=False,
+        n_steps=1000,
+        thin=10,
+        seed=0,
+    )
     np.testing.assert_allclose(res.alpha_post["value"], np.linspace(0.01, 0.3, 10))
     np.testing.assert_allclose(res.beta_post["value"], np.linspace(0.1, 0.95, 10))
     np.testing.assert_allclose(res.p_post["value"], np.linspace(1, 7, 10) / 21)
 
 
 def test_study_genes_outside_population_dropped():
-    res = mgsa_mod.mgsa(["A", "B", "ZZZ"], {"s1": ["A", "B", "C"]},
-                        population=["A", "B", "C"], n_steps=5000, thin=10, seed=0)
+    res = mgsa_mod.mgsa(
+        ["A", "B", "ZZZ"],
+        {"s1": ["A", "B", "C"]},
+        population=["A", "B", "C"],
+        n_steps=5000,
+        thin=10,
+        seed=0,
+    )
     assert res.diagnostics["study_genes_dropped"] == 1
     assert res.diagnostics["study_set_size_in_population"] == 2
 
@@ -136,8 +156,15 @@ def test_numpy_fallback_path(monkeypatch):
     monkeypatch.setattr(mgsa_mod, "_chain_core", mgsa_mod._chain_core.py_func)
     monkeypatch.setattr(mgsa_mod, "_toggle", mgsa_mod._toggle.py_func)
     monkeypatch.setattr(mgsa_mod, "_score", mgsa_mod._score.py_func)
-    res = mgsa_mod.mgsa(["A", "B"], {"set1": ["A", "B", "C"], "set2": ["B", "C", "D"]},
-                        method="mcmc", n_steps=20_000, n_restarts=1, thin=20, seed=1)
+    res = mgsa_mod.mgsa(
+        ["A", "B"],
+        {"set1": ["A", "B", "C"], "set2": ["B", "C", "D"]},
+        method="mcmc",
+        n_steps=20_000,
+        n_restarts=1,
+        thin=20,
+        seed=1,
+    )
     assert res.diagnostics["method"] == "mcmc"
     assert res.sets_results.loc["set1", "estimate"] > res.sets_results.loc["set2", "estimate"]
 
@@ -156,8 +183,9 @@ def test_exact_matches_mcmc():
         seed=0, n_sets=18, set_size=40, active=("set3", "set8", "set14")
     )
     ex = mgsa_mod.mgsa(o, sets, population=pop, method="exact", max_active=4)
-    mc = mgsa_mod.mgsa(o, sets, population=pop, method="mcmc",
-                       n_steps=300_000, n_restarts=4, thin=50, seed=1)
+    mc = mgsa_mod.mgsa(
+        o, sets, population=pop, method="mcmc", n_steps=300_000, n_restarts=4, thin=50, seed=1
+    )
     assert ex.diagnostics["method"] == "exact"
     a = ex.sets_results["estimate"]
     b = mc.sets_results["estimate"].reindex(a.index)
@@ -171,8 +199,16 @@ def test_exact_matches_mcmc():
 def test_auto_falls_back_to_mcmc():
     """`auto` uses MCMC when exact enumeration would be too large."""
     sets = {f"s{i}": ["A", "B"] for i in range(40)}
-    res = mgsa_mod.mgsa(["A", "B"], sets, method="auto", deduplicate_terms=False,
-                        exact_max_configs=100, n_steps=20_000, n_restarts=1, seed=0)
+    res = mgsa_mod.mgsa(
+        ["A", "B"],
+        sets,
+        method="auto",
+        deduplicate_terms=False,
+        exact_max_configs=100,
+        n_steps=20_000,
+        n_restarts=1,
+        seed=0,
+    )
     assert res.diagnostics["method"] == "mcmc"
 
 
@@ -194,9 +230,15 @@ def test_calculate_mgsa_wrapper():
     genes = list(adata.obs["gene_symbol"])
     sets = {"ER": genes[:20] + genes[40:50], "Nucleus": genes[20:40], "LD": genes[45:60]}
     post = gp.tl.calculate_mgsa(
-        adata, cluster_key="cluster", gene_name_key="gene_symbol",
-        gene_sets=sets, obs_key_added="mgsa_top",
-        n_steps=50_000, n_restarts=2, seed=0, verbose=False,
+        adata,
+        cluster_key="cluster",
+        gene_name_key="gene_symbol",
+        gene_sets=sets,
+        obs_key_added="mgsa_top",
+        n_steps=50_000,
+        n_restarts=2,
+        seed=0,
+        verbose=False,
     )
     # posterior matrix: clusters x sets
     assert list(post.index) == ["c0", "c1", "c2"]
@@ -223,11 +265,13 @@ def test_mgsa_to_cluster_distribution():
         index=["single", "diffuse", "dual"],
     )
     # use_map (recommended): MAP filters which sets get mass
-    Q, cats = gp.tl.mgsa_to_cluster_distribution(post, map_matrix=mapm, unknown_label="unknown")
+    Q, cats = gp.tl.mgsa_to_cluster_distribution(
+        post, map_matrix=mapm, unknown_label="unknown"
+    )
     assert cats[-1] == "unknown"
     np.testing.assert_allclose(Q.sum(axis=1).to_numpy(), 1.0, atol=1e-9)
-    assert Q.loc["single", "ER"] > 0.9            # confident single
-    assert Q.loc["diffuse", "unknown"] == 1.0     # empty MAP -> all unknown
+    assert Q.loc["single", "ER"] > 0.9  # confident single
+    assert Q.loc["diffuse", "unknown"] == 1.0  # empty MAP -> all unknown
     assert Q.loc["dual", "ER"] > 0.3 and Q.loc["dual", "LD"] > 0.3  # MAP pair shared
 
     # use_map=True requires a map_matrix
@@ -246,22 +290,34 @@ def test_mgsa_seed_feeds_soft_cluster_annotation():
     genes = list(adata.obs["gene_symbol"])
     sets = {"ER": genes[:15] + genes[30:38], "Nucleus": genes[15:30], "LD": genes[33:45]}
     post = gp.tl.calculate_mgsa(
-        adata, cluster_key="cluster", gene_name_key="gene_symbol",
-        gene_sets=sets, obs_key_added="mgsa_top",
-        n_steps=50_000, n_restarts=2, seed=0, verbose=False,
+        adata,
+        cluster_key="cluster",
+        gene_name_key="gene_symbol",
+        gene_sets=sets,
+        obs_key_added="mgsa_top",
+        n_steps=50_000,
+        n_restarts=2,
+        seed=0,
+        verbose=False,
     )
     Q, cats = gp.tl.mgsa_to_cluster_distribution(
         post, map_matrix=adata.uns["mgsa_top_map"], unknown_label="unknown"
     )
     gp.tl.soft_cluster_annotation(
-        adata, cluster_key="cluster", key_added="ann_mgsa",
-        cluster_distribution=(Q, cats), resolve="entropy_null",
-        null=None, verbose=False,   # null=None -> fast, deterministic eff_k gate
+        adata,
+        cluster_key="cluster",
+        key_added="ann_mgsa",
+        cluster_distribution=(Q, cats),
+        resolve="entropy_null",
+        null=None,
+        verbose=False,  # null=None -> fast, deterministic eff_k gate
     )
     # every protein resolved to a single compartment; c0->ER, c1->Nucleus
     types = adata.obs["ann_mgsa_resolved_type"].value_counts().to_dict()
     assert types.get("single", 0) == adata.n_obs
-    prim = adata.obs.groupby("cluster", observed=True)["ann_mgsa_resolved"].agg(
-        lambda s: s.mode().iloc[0]
-    ).to_dict()
+    prim = (
+        adata.obs.groupby("cluster", observed=True)["ann_mgsa_resolved"]
+        .agg(lambda s: s.mode().iloc[0])
+        .to_dict()
+    )
     assert prim["c0"] == "ER" and prim["c1"] == "Nucleus"
