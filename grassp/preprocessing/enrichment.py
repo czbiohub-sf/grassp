@@ -117,9 +117,9 @@ def calculate_enrichment_vs_untagged(
     data.var["_experimental_condition"] = data.var[covariates].apply(
         lambda x: "_".join(x.dropna().astype(str)), axis=1
     )
+    grouping_columns = [subcellular_enrichment_column] + covariates
+    data_aggr = aggregate_samples(data, grouping_columns=grouping_columns)
     try:
-        grouping_columns = [subcellular_enrichment_column] + covariates
-        data_aggr = aggregate_samples(data, grouping_columns=grouping_columns)
         if original_intensities_key is not None:
             data_aggr.layers[original_intensities_key] = data_aggr.X
         data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
@@ -161,9 +161,9 @@ def calculate_enrichment_vs_untagged(
             ]
         if keep_raw:
             data_aggr.raw = data.copy()
-    except Exception as e:
-        raise e
     finally:
+        # data_aggr is bound before the try block, so this cannot mask a failure
+        # above with an UnboundLocalError.
         data_aggr.var.drop(columns=["_experimental_condition"], inplace=True)
     return data_aggr
 

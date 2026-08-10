@@ -619,7 +619,11 @@ class TestClusteringFunctions:
         assert "tagm.map.probabilities" in adata.obsm
 
         # Check types and ranges
-        assert adata.obs["tagm.map.allocation"].dtype.name in ["category", "object"]
+        # pandas < 3 infers "object" for label columns, pandas >= 3 infers "str"
+        allocation_dtype = adata.obs["tagm.map.allocation"].dtype
+        assert isinstance(
+            allocation_dtype, pd.CategoricalDtype
+        ) or pd.api.types.is_string_dtype(allocation_dtype)
         assert (adata.obs["tagm.map.probability"] >= 0).all()
         assert (adata.obs["tagm.map.probability"] <= 1).all()
         assert (adata.obs["tagm.map.outlier"] >= 0).all()

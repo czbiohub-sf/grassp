@@ -9,6 +9,8 @@ import pandas as pd
 import protdata
 import scipy.sparse
 
+from ..util import layer_names
+
 # def read_alphastats(
 #     loader: alphastats.BaseLoader,
 #     x_dtype: Union[np.dtype, type, int, float, None] = None,
@@ -103,7 +105,7 @@ def _preprocess_adata(adata: anndata.AnnData) -> anndata.AnnData:
         adata.X.data = np.nan_to_num(adata.X.data, nan=0, copy=False)
 
     # Replace NaNs with 0 in all layers
-    for layer in list(adata.layers.keys()):
+    for layer in layer_names(adata):
         arr = adata.layers[layer]
         if isinstance(arr, np.ndarray):
             adata.layers[layer] = np.nan_to_num(arr, nan=0, copy=False)

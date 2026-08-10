@@ -358,8 +358,11 @@ def calculate_interfacialness_score(
         "jaccard_k1",
         "jaccard_k2",
     ]
-    res["jaccard_d2"].replace(np.nan, 0, inplace=True)  # nans come from zero counts
-    res["jaccard_score"].replace(np.nan, 0, inplace=True)  # nans come from zero counts
+    # nans come from zero counts. Assign the result back rather than calling
+    # .replace(inplace=True) on the extracted column: that is chained assignment,
+    # which under copy-on-write updates a temporary and leaves res untouched.
+    res["jaccard_d2"] = res["jaccard_d2"].fillna(0)
+    res["jaccard_score"] = res["jaccard_score"].fillna(0)
 
     # Annotate the data with the interfacialness scores
     res.index = data.obs.index
