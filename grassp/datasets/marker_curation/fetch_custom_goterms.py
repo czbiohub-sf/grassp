@@ -15,6 +15,12 @@ experiments routinely resolve as distinct clusters (60S/40S cytosolic
 ribosomes, 26S proteasome) are fetched per species via EBI Complex Portal
 cross-references or a UniProt keyword when no Complex Portal entry exists.
 
+Finally, a set of finer sub-compartments (:data:`FINE_TERMS`, e.g. ERGIC,
+P-body, Stress granule, Early endosome, Nuclear pore complex) are emitted as
+their own labels *in addition to* the coarse compartment they already belong
+to, so both granularities are available as markers (the coarse label remains a
+fallback).
+
 Run from anywhere:
     python marker_curation/fetch_custom_goterms.py
 """
@@ -30,13 +36,10 @@ import requests
 # ---------------------------------------------------------------------- terms
 # Map: fine-grained UniProt SL term -> consolidated compartment label.
 TERM_MAP: dict[str, str] = {
-    "Autophagosome": "Autophagosome",
     "COPI-coated vesicle": "Golgi apparatus",
     "COPII-coated vesicle": "Golgi apparatus",
     "Caveola": "Cell membrane",
-    "Cell cortex": "Cell cortex",
     "Cell membrane": "Cell membrane",
-    "Cell projection": "Cell cortex",
     "Cell surface": "Cell membrane",
     "Centriolar satellite": "Centrosome",
     "Centriole": "Centrosome",
@@ -57,8 +60,6 @@ TERM_MAP: dict[str, str] = {
     # assign it to ER (not Golgi) so the Golgi set isn't inflated with ER-like proteins.
     "Endoplasmic reticulum-Golgi intermediate compartment": "Endoplasmic reticulum",
     "Endosome": "Endosome",
-    "Filopodium": "Cell cortex",
-    "Focal adhesion": "Cell cortex",
     "Golgi apparatus": "Golgi apparatus",
     "Golgi stack": "Golgi apparatus",
     "Late endosome": "Endosome",
@@ -82,7 +83,6 @@ TERM_MAP: dict[str, str] = {
     "P-body": "RNA granules",
     "PML body": "Nucleus",
     "Peroxisome": "Peroxisome",
-    "Phagocytic cup": "Cell cortex",
     "Phagosome": "Endosome",
     "Rough endoplasmic reticulum": "Endoplasmic reticulum",
     "Smooth endoplasmic reticulum": "Endoplasmic reticulum",
@@ -131,6 +131,26 @@ COMPLEX_QUERIES: dict[str, dict[str, str]] = {
         "mouse": "keyword:KW-0647",
         "yeast": "xref:complexportal-CPX-2262",
     },
+}
+
+# Finer sub-compartments emitted as their OWN consolidated labels IN ADDITION to
+# the coarse label they already feed via TERM_MAP — so both granularities are
+# available and the coarse compartment stays a fallback. Enabled by the
+# independent-diffusion annotation, which no longer over-annotates small/noisy
+# terms. Chosen from the Hein et al. 2025 author annotations. Each is a UniProt
+# SL term queried per species (kept only where the species has reviewed
+# proteins). They remain contained in their coarse label:
+#   ERGIC        ⊂ Endoplasmic reticulum
+#   P-body       ⊂ RNA granules
+#   Stress granule ⊂ RNA granules
+#   Early endosome ⊂ Endosome
+#   Nuclear pore complex ⊂ Nucleus
+FINE_TERMS: dict[str, str] = {
+    "Endoplasmic reticulum-Golgi intermediate compartment": "ERGIC",
+    "P-body": "P-body",
+    "Stress granule": "Stress granule",
+    "Early endosome": "Early endosome",
+    "Nuclear pore complex": "Nuclear pore complex",
 }
 
 UNIPROT_URL = "https://rest.uniprot.org/uniprotkb/stream"
@@ -187,10 +207,14 @@ def fetch_complex_genes(
 
 def fetch_species(species: str, taxon_id: int, session: requests.Session) -> pd.DataFrame:
     """Loop over every term in :data:`TERM_MAP`, every species-specific term
-    in :data:`SPECIES_SPECIFIC_TERMS`, and every complex in
-    :data:`COMPLEX_QUERIES`; collect a long-format DataFrame with one row per
-    gene name, and deduplicate."""
+    in :data:`SPECIES_SPECIFIC_TERMS`, every complex in :data:`COMPLEX_QUERIES`,
+    and every finer sub-compartment in :data:`FINE_TERMS`; collect a long-format
+    DataFrame with one row per gene name, and deduplicate.
+
+    ``FINE_TERMS`` terms are also present (via TERM_MAP) in their coarse label,
+    so they contribute to both the coarse fallback and their own finer label."""
     records: list[dict[str, str]] = []
+    genes_cache: dict[str, list[str]] = {}  # reuse across coarse + fine passes
     term_map: dict[str, str] = {**TERM_MAP, **SPECIES_SPECIFIC_TERMS.get(species, {})}
     for term, consolidated in term_map.items():
         try:
@@ -198,6 +222,7 @@ def fetch_species(species: str, taxon_id: int, session: requests.Session) -> pd.
         except requests.RequestException as exc:
             print(f"  ERROR  {term!r} ({species}): {exc}")
             continue
+        genes_cache[term] = genes
         for gene in genes:
             records.append(
                 {
@@ -208,6 +233,27 @@ def fetch_species(species: str, taxon_id: int, session: requests.Session) -> pd.
             )
         print(f"  {term:55s}  {len(genes):5d} gene tokens")
         time.sleep(REQUEST_SLEEP)
+
+    # Finer sub-compartments as their own labels (see FINE_TERMS); reuse genes
+    # already fetched for the coarse pass, fetching only any not in TERM_MAP.
+    for fine_term, fine_label in FINE_TERMS.items():
+        genes = genes_cache.get(fine_term)
+        if genes is None:
+            try:
+                genes = fetch_term_genes(fine_term, taxon_id, session)
+            except requests.RequestException as exc:
+                print(f"  ERROR  {fine_term!r} ({species}): {exc}")
+                continue
+            time.sleep(REQUEST_SLEEP)
+        for gene in genes:
+            records.append(
+                {
+                    "Compartment": fine_term,
+                    "Compartment_consolidated": fine_label,
+                    "Gene_name": gene,
+                }
+            )
+        print(f"  {fine_label:55s}  {len(genes):5d} gene tokens  [fine]")
 
     for complex_label, species_to_query in COMPLEX_QUERIES.items():
         query_fragment = species_to_query.get(species)
