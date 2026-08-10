@@ -19,6 +19,8 @@ Any transformation of the data matrix that is not a *tool*. Other than *tools*, 
    :toctree: ../generated/
 
    pp.calculate_qc_metrics
+   pp.calculate_replicate_cv
+   pp.neighbors
    pp.filter_samples
    pp.filter_proteins
    pp.highly_variable_proteins
@@ -51,6 +53,7 @@ Any transformation of the data matrix that is not a *tool*. Other than *tools*, 
    :toctree: ../generated/
 
    pp.impute_gaussian
+   pp.impute_knn
 ```
 
 ## Annotation
@@ -61,5 +64,7 @@ Any transformation of the data matrix that is not a *tool*. Other than *tools*, 
    :toctree: ../generated/
 
    pp.add_markers
+   pp.add_external_validation_markers
    pp.annotate_uniprot_cc
+   pp.set_sensible_compartment_colors
 ```
