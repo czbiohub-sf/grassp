@@ -13,6 +13,7 @@ from scipy.spatial.distance import squareform
 from scipy.stats import fisher_exact
 
 from .enrichment import _load_gmt, calculate_cluster_enrichment
+from .mgsa import calculate_mgsa, mgsa
 
 __all__ = [  # re-export private helper for callers/tests that imported it here
     "_load_gmt",
@@ -166,38 +167,7 @@ def _test_pair(
     return (min(p1, p2), p1, p2, False)
 
 
-def _enrich_genes(
-    gene_list: list[str],
-    background: list[str],
-    gene_sets: dict[str, list[str]],
-) -> tuple[Optional[str], float]:
-    """Run gseapy enrichment for *gene_list* against *background*.
-
-    Used to evaluate a hypothetical merged cluster's enrichment against the
-    global protein background.
-
-    Returns
-    -------
-    tuple[Optional[str], float]
-        ``(top_term, Adjusted P-value)``.  Returns ``(None, 1.0)`` when no
-        terms are returned by gseapy.
-    """
-    import gseapy
-
-    er = gseapy.enrich(
-        gene_list=gene_list,
-        gene_sets=gene_sets,
-        background=background,
-        outdir=None,
-    ).results
-    if len(er) == 0:
-        return None, 1.0
-    er = pd.DataFrame(er)
-    top = er.sort_values('Adjusted P-value', ascending=True).iloc[0]
-    return top['Term'], float(top['Adjusted P-value'])
-
-
-def _should_merge(p1: float, p2: float, terms_agree: bool, adjusted_cutoff: float) -> bool:
+def _should_merge(p1: float, p2: float, terms_agree: bool, cutoff: float) -> bool:
     """Return True if a pair should be merged based on Fisher test results.
 
     Parameters
@@ -206,15 +176,104 @@ def _should_merge(p1: float, p2: float, terms_agree: bool, adjusted_cutoff: floa
         Fisher p-values for the two compartment terms.
     terms_agree
         If True, both clusters share the same best compartment term.
-    adjusted_cutoff
-        Bonferroni-corrected p-value threshold.
+    cutoff
+        Fisher-test p-value threshold; a pair merges when neither term's test is
+        significant (both ``p > cutoff``).
 
     Returns
     -------
     bool
         True if the pair should be merged.
     """
-    return terms_agree or (p1 > adjusted_cutoff and p2 > adjusted_cutoff)
+    return terms_agree or (p1 > cutoff and p2 > cutoff)
+
+
+# ── MGSA-based merging ─────────────────────────────────────────────────────────
+
+
+def _annotate_clusters(
+    adata: AnnData,
+    cluster_col: str,
+    gene_sets: dict[str, list[str]],
+    gene_name_key: str,
+    compartment_col: str,
+    merge_method: str,
+    n_steps: int,
+    n_restarts: int,
+    seed: Optional[int],
+    max_active: int = 4,
+) -> None:
+    """Populate ``compartment_col`` with the per-cluster top compartment.
+
+    Uses ORA (:func:`calculate_cluster_enrichment`) or MGSA
+    (:func:`~grassp.tl.calculate_mgsa`) depending on ``merge_method``. The MGSA
+    path additionally writes per-cluster (log) evidence to
+    ``adata.uns[f'{compartment_col}_evidence']`` (used by the merge test).
+    """
+    if merge_method == 'mgsa_evidence':
+        calculate_mgsa(
+            adata,
+            cluster_key=cluster_col,
+            gene_name_key=gene_name_key,
+            gene_sets=gene_sets,
+            obs_key_added=compartment_col,
+            max_active=max_active,
+            min_posterior=0.0,  # always assign a top compartment (like ORA threshold=1.0)
+            n_steps=n_steps,
+            n_restarts=n_restarts,
+            seed=seed,
+            return_result=False,
+            verbose=False,
+        )
+    else:
+        calculate_cluster_enrichment(
+            adata,
+            cluster_key=cluster_col,
+            gene_name_key=gene_name_key,
+            gene_sets=gene_sets,
+            obs_key_added=compartment_col,
+            enrichment_ranking_metric='Adjusted P-value',
+            enrichment_threshold=1.0,  # Always assign a top term
+        )
+
+
+def _bf_from_uns(adata: AnnData, compartment_col: str) -> dict[str, float]:
+    """Per-cluster log-Bayes-factor (log_evidence - log_null) from the round's MGSA."""
+    ev = adata.uns[f'{compartment_col}_evidence']
+    return {str(cl): float(ev.loc[cl, 'log_evidence'] - ev.loc[cl, 'log_null']) for cl in ev.index}
+
+
+def _merge_score_mgsa_evidence(
+    adata: AnnData,
+    cluster_col: str,
+    pair: tuple[str, str],
+    gene_sets: dict[str, list[str]],
+    gene_name_key: str,
+    bf_cache: dict[str, float],
+    population: list[str],
+    max_active: int,
+) -> float:
+    """Model-comparison merge score for one cluster pair.
+
+    ``score = BF(c1 ∪ c2) - BF(c1) - BF(c2)``, where ``BF(S) = logE(S) - logE_null(S)``
+    is the MGSA log-Bayes-factor of "some compartment active" vs. "nothing active".
+    Subtracting each set's own null cancels the population-background term, so the
+    score compares the *enrichment structure* of the merged cluster against the two
+    parts. It is positive when the parts share a compartment (splitting double-pays
+    that compartment's false-negative cost), ~0 when there is no signal either way,
+    and negative when the parts are distinct compartments (evidence against merging).
+    """
+    c1, c2 = pair
+    bf1 = bf_cache.get(str(c1), 0.0)
+    bf2 = bf_cache.get(str(c2), 0.0)
+    genes = list(
+        _gene_set(adata, cluster_col, c1, gene_name_key)
+        | _gene_set(adata, cluster_col, c2, gene_name_key)
+    )
+    d = mgsa(genes, gene_sets, population=population, method='exact',
+             max_active=max_active).diagnostics
+    bf_union = float(d['log_evidence'] - d['log_null'])
+    return bf_union - bf1 - bf2
 
 
 # ── PAGA dendrogram ───────────────────────────────────────────────────────────
@@ -426,13 +485,18 @@ def _one_merge_round_dendrogram(
     adata: AnnData,
     cluster_col: str,
     gene_sets: dict[str, list[str]],
-    pv_cutoff_adjusted: float,
+    pv_cutoff: float,
     connectivity_lower: float,
     gene_name_key: str,
     compartment_col: str,
     verbose: bool,
     merge_log: Optional[list] = None,
-    require_improved_enrichment: bool = False,
+    merge_method: str = 'ora',
+    n_steps: int = 200_000,
+    n_restarts: int = 3,
+    seed: Optional[int] = 0,
+    merge_threshold: float = 0.0,
+    max_active: int = 4,
 ) -> tuple[dict[str, str], int]:
     """One round of dendrogram flat-group pair testing and greedy merging.
 
@@ -440,8 +504,6 @@ def _one_merge_round_dendrogram(
     group of the PAGA-connectivity dendrogram (see :func:`dendrogram_cherry_pairs`).
     Pairs are sorted by (same compartment term first, then min p-value descending)
     and applied greedily — each cluster participates in at most one merge per round.
-    The Bonferroni threshold is passed in as ``pv_cutoff_adjusted`` and is fixed
-    for the whole run.
 
     Parameters
     ----------
@@ -451,8 +513,8 @@ def _one_merge_round_dendrogram(
         ``adata.obs`` column with current cluster labels.
     gene_sets
         Gene-set dict mapping term name → gene list.
-    pv_cutoff_adjusted
-        Bonferroni-corrected significance threshold (fixed for the whole run).
+    pv_cutoff
+        Fisher-test significance threshold for the merge decision.
     connectivity_lower
         Minimum PAGA connectivity; pairs below this are skipped.
     gene_name_key
@@ -463,13 +525,8 @@ def _one_merge_round_dendrogram(
         Print per-pair decisions.
     merge_log
         If provided, a dict entry is appended for every merged pair, recording
-        ``c1``, ``c2``, ``min_p``, ``p1``, ``p2``, ``terms_agree``,
-        ``merged_term``, and ``merged_p``.
-    require_improved_enrichment
-        If True, compute the gseapy enrichment p-value of the merged cluster
-        against the global protein background and reject the merge unless this
-        p-value is strictly lower than the better of the two split clusters'
-        stored enrichment p-values.
+        ``c1``, ``c2``, ``min_p``, ``p1``, ``p2``, ``terms_agree``, and
+        ``merged_score``.
 
     Returns
     -------
@@ -486,6 +543,12 @@ def _one_merge_round_dendrogram(
 
     candidates: list[dict] = []
 
+    # MGSA-evidence merge decisions reuse the round's `calculate_mgsa` per-cluster
+    # (log) evidence and run one union MGSA per candidate pair.
+    if merge_method == 'mgsa_evidence':
+        population = adata.obs[gene_name_key].astype(str).tolist()
+        bf_cache = _bf_from_uns(adata, compartment_col)
+
     for c1, c2 in cherry_pairs:
         idx1 = adata.obs[cluster_col].cat.categories.get_loc(c1)
         idx2 = adata.obs[cluster_col].cat.categories.get_loc(c2)
@@ -493,6 +556,29 @@ def _one_merge_round_dendrogram(
         if conn_val < connectivity_lower:
             if verbose:
                 print(f'  {c1} vs {c2}: conn={conn_val:.3f} < lower threshold, skip')
+            continue
+
+        if merge_method == 'mgsa_evidence':
+            # Merge unless there is distinct evidence against it: score >= threshold
+            # (default 0) merges, so no-signal / same-compartment pairs merge and
+            # only clearly-negative (distinct-compartment) pairs are kept apart.
+            score = _merge_score_mgsa_evidence(
+                adata, cluster_col, (c1, c2), gene_sets, gene_name_key,
+                bf_cache, population, max_active,
+            )
+            if verbose:
+                print(f'  {c1} vs {c2}: conn={conn_val:.3f} merge_score={score:.2f}'
+                      f' → {"MERGE candidate" if score >= merge_threshold else "keep separate"}')
+            if score >= merge_threshold:
+                candidates.append(
+                    dict(
+                        c1=c1, c2=c2, conn_val=conn_val,
+                        min_p=np.nan, p1=np.nan, p2=np.nan, terms_agree=False,
+                        merged_score=float(score),
+                        # apply strongest-evidence merges first
+                        _sortkey=(-score,),
+                    )
+                )
             continue
 
         min_p, p1, p2, terms_agree = _test_pair(
@@ -507,42 +593,10 @@ def _one_merge_round_dendrogram(
                 end='',
             )
 
-        if _should_merge(p1, p2, terms_agree, pv_cutoff_adjusted):
-            merged_term: Optional[str] = None
-            merged_p: Optional[float] = None
-            best_split_p: Optional[float] = None
-            if require_improved_enrichment:
-                genes_merged = list(
-                    _gene_set(adata, cluster_col, c1, gene_name_key)
-                    | _gene_set(adata, cluster_col, c2, gene_name_key)
-                )
-                background = adata.obs[gene_name_key].tolist()
-                merged_term, merged_p = _enrich_genes(genes_merged, background, gene_sets)
-
-                pval_col = f'{compartment_col}_Adjusted P-value'
-                p_c1 = float(adata.obs.loc[adata.obs[cluster_col] == c1, pval_col].iloc[0])
-                p_c2 = float(adata.obs.loc[adata.obs[cluster_col] == c2, pval_col].iloc[0])
-                best_split_p = min(p_c1, p_c2)
-
-                if merged_p >= best_split_p:
-                    if verbose:
-                        print(
-                            f' → merged({merged_term}, p={merged_p:.3g})'
-                            f' not better than best split p={best_split_p:.3g},'
-                            f' skip'
-                        )
-                    continue
-
+        if _should_merge(p1, p2, terms_agree, pv_cutoff):
             if verbose:
                 reason = 'terms agree' if terms_agree else 'both non-significant'
-                if require_improved_enrichment:
-                    print(
-                        f' → {reason},'
-                        f' merged({merged_term}, p={merged_p:.3g}'
-                        f' < split p={best_split_p:.3g}), merge candidate'
-                    )
-                else:
-                    print(f' → {reason}, merge candidate')
+                print(f' → {reason}, merge candidate')
             candidates.append(
                 dict(
                     c1=c1,
@@ -552,15 +606,16 @@ def _one_merge_round_dendrogram(
                     p1=p1,
                     p2=p2,
                     terms_agree=terms_agree,
-                    merged_term=merged_term,
-                    merged_p=merged_p,
+                    merged_score=None,
+                    # same term first, then highest min_p (least significant = safest)
+                    _sortkey=(not terms_agree, -min_p),
                 )
             )
         elif verbose:
             print(' → significant split, skip')
 
-    # Sort: same term first, then highest min_p (least significant = safest)
-    candidates.sort(key=lambda x: (not x['terms_agree'], -x['min_p']))
+    # Apply merges greedily in order of the per-method sort key.
+    candidates.sort(key=lambda x: x['_sortkey'])
 
     used: set[str] = set()
     mapping: dict[str, str] = {}
@@ -581,8 +636,7 @@ def _one_merge_round_dendrogram(
                     'p1': cand['p1'],
                     'p2': cand['p2'],
                     'terms_agree': cand['terms_agree'],
-                    'merged_term': cand.get('merged_term'),
-                    'merged_p': cand.get('merged_p'),
+                    'merged_score': cand.get('merged_score'),
                 }
             )
         if verbose:
@@ -590,8 +644,8 @@ def _one_merge_round_dendrogram(
             t2 = _best_term(adata, cluster_col, c2, compartment_col)
             reason = 'terms agree' if cand['terms_agree'] else f"min_p={cand['min_p']:.3g}"
             extra = ''
-            if cand.get('merged_p') is not None:
-                extra = f"  merged({cand.get('merged_term')}," f" p={cand['merged_p']:.3g})"
+            if cand.get('merged_score') is not None:
+                extra = f"  merged_score={cand['merged_score']:.2f}"
             print(
                 f'  {c1}({t1}) vs {c2}({t2}): conn={cand["conn_val"]:.3f}'
                 f'  p1={cand["p1"]:.3g} p2={cand["p2"]:.3g}{extra}'
@@ -609,7 +663,7 @@ def _plot_merge_dendrogram(
     initial_dendro_data: dict,
     initial_cluster_terms: dict[str, str],
     merge_log: list[dict],
-    pv_cutoff_adjusted: float,
+    pv_cutoff: float,
     compartment_col: str,
     ax=None,
 ) -> None:
@@ -632,7 +686,7 @@ def _plot_merge_dendrogram(
         Mapping of cluster ID → best compartment term at the start of the run.
     merge_log
         List of dicts as populated by :func:`_one_merge_round_dendrogram`.
-    pv_cutoff_adjusted
+    pv_cutoff
         Bonferroni-corrected p-value cutoff (lower bound of the color scale).
     compartment_col
         Name of the compartment ``adata.obs`` column, used for color lookup.
@@ -949,6 +1003,7 @@ def merge_clusters_go(
     cluster_col: str = 'leiden',
     gene_sets_path: Optional[str | dict] = None,
     species: Literal['hsap', 'mmus', 'scer'] = 'hsap',
+    deduplicate_terms: bool = True,
     gene_name_key: str = 'Gene_name_canonical',
     compartment_col: str = 'Cell_compartment',
     key_added: str = 'leiden_merged',
@@ -956,7 +1011,12 @@ def merge_clusters_go(
     verbose: bool = True,
     plot_iterations: bool = False,
     plot_dendrogram: bool = False,
-    require_improved_enrichment: bool = False,
+    merge_method: Literal['ora', 'mgsa_evidence'] = 'ora',
+    merge_threshold: float = 0.0,
+    max_active: int = 4,
+    n_steps: int = 200_000,
+    n_restarts: int = 3,
+    seed: Optional[int] = 0,
 ) -> None:
     """Iteratively merge overclustered Leiden clusters using PAGA and GO enrichment.
 
@@ -964,17 +1024,14 @@ def merge_clusters_go(
     PAGA connectivity (:func:`paga_dendrogram`).  Each round:
 
     1. Build the PAGA-connectivity dendrogram and identify flat cherry pairs.
-    2. For each pair with ``connectivity ≥ connectivity_lower``, run Fisher's
-       exact test (Bonferroni-corrected) on the best GO term of each cluster.
-    3. Pairs where both tests are non-significant (or both clusters share the
-       same top term) become merge candidates.
+    2. For each pair with ``connectivity ≥ connectivity_lower``, run a two-sided
+       Fisher's exact test on the best GO term of each cluster.
+    3. Pairs where both tests are non-significant at ``pv_cutoff`` (or both
+       clusters share the same top term) become merge candidates.
     4. Greedily merge non-overlapping candidates ordered by decreasing min
        p-value (least significant first).
     5. Recompute enrichment annotation and rebuild the dendrogram; repeat until
        no merges occur.
-
-    The Bonferroni threshold is fixed for the whole run as
-    ``pv_cutoff / (n_initial_clusters - 1)``.
 
     Results are written to ``adata.obs[key_added]``.
 
@@ -1003,6 +1060,10 @@ def merge_clusters_go(
         ``consolidated_goterms_mouse.gmt``), or ``"scer"`` (yeast,
         ``consolidated_goterms_yeast.gmt``). Default ``"hsap"``. Ignored when
         an explicit ``gene_sets_path`` is provided.
+    deduplicate_terms
+        If ``True`` (default), collapse gene sets with identical membership to a
+        single term (keeping the first-seen name) before merging, so synonymous /
+        duplicate compartments in fine ontologies do not distort the tests.
     gene_name_key
         ``adata.obs`` column with gene/protein names used for enrichment.
     compartment_col
@@ -1020,35 +1081,44 @@ def merge_clusters_go(
     plot_dendrogram
         If True, plot the initial PAGA dendrogram after convergence with leaf
         lines colored by compartment term and merge nodes colored by p-value.
-    require_improved_enrichment
-        If True, before each merge run a gseapy enrichment of the merged
-        cluster's gene list against the global protein background and only
-        merge when the merged cluster's best ``Adjusted P-value`` is strictly
-        lower than the better of the two split clusters' stored p-values.
-        Adds the merged cluster's top term and p-value to the verbose log
-        and to ``merge_log`` entries.
+    merge_method
+        How to decide merges.
+
+        - ``'ora'`` (default): pairwise Fisher differential-enrichment test on each
+          cluster's top term.
+        - ``'mgsa_evidence'``: Bayesian model comparison — merge iff
+          ``BF(c1∪c2) - BF(c1) - BF(c2) >= merge_threshold`` where
+          ``BF(S) = logE(S) - logE_null(S)`` is the MGSA log-Bayes-factor of
+          "some compartment active" vs. "nothing active". This *merges by default*
+          (no-signal pairs score ~0) and only keeps clusters apart when there is
+          distinct evidence against merging (negative score, i.e. the parts are
+          different compartments). Handles the small-cluster early-merge regime.
+          Self-consistent with the MGSA final annotation.
+    merge_threshold
+        Only for ``merge_method='mgsa_evidence'``: the minimum merge score to merge.
+        ``0.0`` (default) merges unless there is evidence against; a negative value
+        merges even in the face of weak evidence against; a positive value requires
+        positive evidence for merging.
+    max_active
+        For ``merge_method='mgsa_evidence'``: cap on simultaneously active sets in
+        the exact enumeration (forwarded to :func:`~grassp.tl.calculate_mgsa` /
+        :func:`mgsa`).
+    n_steps, n_restarts, seed
+        MGSA MCMC settings, used only if a run falls back to ``method='mcmc'`` (the
+        exact method is used for the small compartment vocabulary). Ignored for
+        ``merge_method='ora'``.
     """
-    gene_sets = _load_gmt(gene_sets_path, species=species)
+    gene_sets = _load_gmt(gene_sets_path, species=species, deduplicate_terms=deduplicate_terms)
 
     # Initialise working column from the original clustering
     adata.obs[key_added] = adata.obs[cluster_col].astype(str).astype('category')
+    n_initial = adata.obs[key_added].nunique()
 
     # Run enrichment on the initial clusters to populate compartment_col
-    calculate_cluster_enrichment(
-        adata,
-        cluster_key=key_added,
-        gene_name_key=gene_name_key,
-        gene_sets=gene_sets,
-        obs_key_added=compartment_col,
-        enrichment_ranking_metric='Adjusted P-value',
-        enrichment_threshold=1.0,  # Always assign a top term
+    _annotate_clusters(
+        adata, key_added, gene_sets, gene_name_key, compartment_col,
+        merge_method, n_steps, n_restarts, seed, max_active,
     )
-
-    # Bonferroni correction fixed for the whole run: n_categories - 1 possible merges
-    n_initial = adata.obs[key_added].nunique()
-    # pv_cutoff_adjusted = pv_cutoff / max(n_initial - 1, 1)
-    pv_cutoff_adjusted = pv_cutoff
-    # print(n_initial, pv_cutoff_adjusted)
 
     # Build initial dendrogram and capture state for the optional plot
     paga_dendrogram(adata, key_added, linkage_method=linkage_method)
@@ -1084,13 +1154,18 @@ def merge_clusters_go(
             adata,
             cluster_col=key_added,
             gene_sets=gene_sets,
-            pv_cutoff_adjusted=pv_cutoff_adjusted,
+            pv_cutoff=pv_cutoff,
             connectivity_lower=connectivity_lower,
             gene_name_key=gene_name_key,
             compartment_col=compartment_col,
             verbose=verbose,
             merge_log=merge_log if plot_dendrogram else None,
-            require_improved_enrichment=require_improved_enrichment,
+            merge_method=merge_method,
+            n_steps=n_steps,
+            n_restarts=n_restarts,
+            seed=seed,
+            merge_threshold=merge_threshold,
+            max_active=max_active,
         )
 
         if n_merges == 0:
@@ -1102,7 +1177,7 @@ def merge_clusters_go(
                     initial_dendro_data=initial_dendro_data,
                     initial_cluster_terms=initial_cluster_terms,
                     merge_log=merge_log,
-                    pv_cutoff_adjusted=pv_cutoff_adjusted,
+                    pv_cutoff=pv_cutoff,
                     compartment_col=compartment_col,
                 )
             break
@@ -1122,15 +1197,10 @@ def merge_clusters_go(
                 print('Only one cluster remains. Done.')
             break
 
-        # Recompute enrichment for merged clusters and rebuild dendrogram
-        calculate_cluster_enrichment(
-            adata,
-            cluster_key=key_added,
-            gene_name_key=gene_name_key,
-            gene_sets=gene_sets,
-            obs_key_added=compartment_col,
-            enrichment_ranking_metric='Adjusted P-value',
-            enrichment_threshold=1.0,
+        # Recompute annotation for merged clusters and rebuild dendrogram
+        _annotate_clusters(
+            adata, key_added, gene_sets, gene_name_key, compartment_col,
+            merge_method, n_steps, n_restarts, seed, max_active,
         )
         paga_dendrogram(adata, key_added, linkage_method=linkage_method)
 
