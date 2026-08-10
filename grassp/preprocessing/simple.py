@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 
 from anndata import AnnData
 
+from ..util import layer_names
+
 
 def filter_samples(
     data: AnnData | spmatrix | np.ndarray | DaskArray,
@@ -360,7 +362,7 @@ def aggregate_proteins(
     # obs_list = []
     obs = pd.DataFrame(index=groups.groups.keys(), columns=data.obs.columns)
     obs["n_merged_proteins"] = 1
-    layers_dict = {layer: X.copy() for layer in data.layers.keys()}
+    layers_dict = {layer: X.copy() for layer in layer_names(data)}
 
     individual_indices, obs_indices = [], []
     for i, (_, ind) in enumerate(groups.indices.items()):
@@ -382,15 +384,15 @@ def aggregate_proteins(
             X[i, :] = X_sub
             # obs_list.append(obs_sub)
             # Aggregate layers
-            for layer_name, layer_data in data.layers.items():
-                layer_sub = layer_data[ind, :]
+            for layer_name in layers_dict:
+                layer_sub = data.layers[layer_name][ind, :]
                 layer_sub = agg_func(layer_sub, axis=0)
                 layers_dict[layer_name][i, :] = layer_sub
 
     obs.iloc[individual_indices, :-1] = data.obs.iloc[obs_indices].copy()
     X[individual_indices] = data.X[obs_indices]
-    for layer_name, layer_data in data.layers.items():
-        layers_dict[layer_name][individual_indices] = layer_data[obs_indices]
+    for layer_name in layers_dict:
+        layers_dict[layer_name][individual_indices] = data.layers[layer_name][obs_indices]
 
     # obs = pd.concat(obs_list, axis=0)
     # X = np.vstack(X_list)
@@ -459,7 +461,7 @@ def aggregate_samples(
     groups = data.var.groupby(grouping_columns, observed=True)
     X_list = []
     var_list = []
-    layers_dict = {layer: [] for layer in data.layers.keys()}
+    layers_dict = {layer: [] for layer in layer_names(data)}
     # Determine obs columns to keep
     # g = groups.get_group((list(groups.groups)[0],))
     g0 = next(iter(groups))[1]
@@ -478,8 +480,8 @@ def aggregate_samples(
         var_list.append(var_sub)
 
         # Aggregate layers
-        for layer_name, layer_data in data.layers.items():
-            layer_sub = layer_data[:, ind]
+        for layer_name in layers_dict:
+            layer_sub = data.layers[layer_name][:, ind]
             layer_sub = agg_func(layer_sub, axis=1)
             layers_dict[layer_name].append(layer_sub)
 

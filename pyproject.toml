@@ -37,6 +37,7 @@ dependencies = [
     "markov_clustering",
     "matplotlib",
     "networkx",
+    "numba",
     "numpy",
     "pandas",
     "protdata",
@@ -67,6 +68,12 @@ notebook = [
     "jupyter",
     "matplotlib",
     "jupytext",
+]
+# C-COMPASS integration (gr.tl.ccompass). Pulls in tensorflow/keras via ccompass.
+# tensorboard is required by keras-tuner but missing from ccompass's metadata.
+ccompass = [
+    "ccompass",
+    "tensorboard",
 ]
 build = [
     "twine",
@@ -115,7 +122,7 @@ exclude = '''
     | \.hg
     | \.mypy_cache
     | \.tox
-    | \.venv
+    | \.venv[^/]*
     | _build
     | build
     | dist
@@ -141,6 +148,10 @@ ensure_newline_before_comments = true
 # E0401: unable-to-import (since it is possible that no one environment has all required packages)
 # E1136: unsubscriptable-object (anecdotal false positives for numpy objects)
 disable = ["C", "R", "W", "unsubscriptable-object", "import-error"]
+# numpy's C extensions are opaque to static inference, which makes pylint report
+# e.g. numpy.random.RandomState as a missing member. Letting it import numpy
+# resolves those without suppressing no-member everywhere.
+extension-pkg-allow-list = ["numpy"]
 msg-template = "{line},{column},{category},{symbol}:{msg}"
 reports = "n"
 

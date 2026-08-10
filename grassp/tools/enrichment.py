@@ -23,9 +23,37 @@ _SPECIES_TO_GMT_FILENAME: dict[str, str] = {
 }
 
 
+def _deduplicate_gene_sets(
+    gene_sets: dict[str, list[str]],
+) -> dict[str, list[str]]:
+    """Collapse terms with identical gene membership, keeping the first-seen name.
+
+    Fine-grained ontologies (e.g. Enrichr's ``COMPARTMENTS_Curated_2025``) list the
+    same compartment under several synonymous names with byte-identical gene sets
+    (``PEROXISOME`` ≡ ``MICROBODY``, ``PEROXISOMAL MEMBRANE`` ≡ ``MICROBODY
+    MEMBRANE``, …). Under a joint model such as MGSA these interchangeable sets
+    split the posterior mass among themselves, so no single one clears a posterior
+    threshold even when the compartment is unambiguous. Removing the exact
+    duplicates before analysis restores the undiluted signal.
+
+    Terms are grouped by their (order-independent) gene membership; for each group
+    the term appearing first in ``gene_sets`` is retained and the rest are dropped.
+    """
+    seen: dict[frozenset, str] = {}
+    deduped: dict[str, list[str]] = {}
+    for term, genes in gene_sets.items():
+        sig = frozenset(genes)
+        if sig in seen:
+            continue
+        seen[sig] = term
+        deduped[term] = list(genes)
+    return deduped
+
+
 def _load_gmt(
     path: str | dict[str, list[str]] | None = None,
     species: Literal["hsap", "mmus", "scer"] = "hsap",
+    deduplicate_terms: bool = True,
 ) -> dict[str, list[str]]:
     """Resolve a gene-set source into a ``{term: [gene, ...]}`` dict.
 
@@ -43,6 +71,10 @@ def _load_gmt(
         Used only when ``path is None``. One of ``"hsap"``, ``"mmus"``,
         ``"scer"``; selects the matching ``consolidated_goterms_*.gmt`` file
         in ``grassp/datasets/external/``.
+    deduplicate_terms
+        If ``True`` (default), collapse terms with identical gene membership via
+        :func:`_deduplicate_gene_sets`, keeping the first-seen name. A no-op for
+        libraries without duplicate sets (e.g. the bundled consolidated sets).
 
     Returns
     -------
@@ -50,7 +82,7 @@ def _load_gmt(
         Mapping of term name → list of gene symbols.
     """
     if isinstance(path, dict):
-        return path
+        return _deduplicate_gene_sets(path) if deduplicate_terms else dict(path)
     if path is None:
         if species not in _SPECIES_TO_GMT_FILENAME:
             raise ValueError(
@@ -69,7 +101,8 @@ def _load_gmt(
     if not os.path.exists(path):
         import gseapy as gp
 
-        return gp.get_library(name=path)
+        gene_sets = gp.get_library(name=path)
+        return _deduplicate_gene_sets(gene_sets) if deduplicate_terms else gene_sets
     gene_sets: dict[str, list[str]] = {}
     with open(path) as f:
         for line in f:
@@ -79,7 +112,7 @@ def _load_gmt(
             term = parts[0]
             genes = [g for g in parts[2:] if g]
             gene_sets[term] = genes
-    return gene_sets
+    return _deduplicate_gene_sets(gene_sets) if deduplicate_terms else gene_sets
 
 
 def calculate_cluster_enrichment(
@@ -97,6 +130,7 @@ def calculate_cluster_enrichment(
     ] = "Adjusted P-value Bonferroni",
     enrichment_threshold: float = 0.05,
     species: Literal["hsap", "mmus", "scer"] = "hsap",
+    deduplicate_terms: bool = True,
     return_enrichment_res: bool = True,
     inplace: bool = True,
 ) -> Optional[Union[AnnData, pd.DataFrame]]:
@@ -135,6 +169,9 @@ def calculate_cluster_enrichment(
         ``"mmus"`` (mouse, ``consolidated_goterms_mouse.gmt``), or
         ``"scer"`` (yeast, ``consolidated_goterms_yeast.gmt``). Default
         ``"hsap"``. Ignored when an explicit ``gene_sets`` path is provided.
+    deduplicate_terms
+        If ``True`` (default), collapse gene sets with identical membership to a
+        single term (keeping the first-seen name) before enrichment.
     return_enrichment_res
         If ``True`` return the full :class:`pandas.DataFrame` of Enrichr
         results.
@@ -173,7 +210,7 @@ def calculate_cluster_enrichment(
     # Resolve the gene-set source to a {term: [gene, ...]} dict. Handles dict
     # passthrough, file paths, gseapy library names, and the species-specific
     # default when `gene_sets is None`.
-    gene_sets = _load_gmt(gene_sets, species=species)
+    gene_sets = _load_gmt(gene_sets, species=species, deduplicate_terms=deduplicate_terms)
 
     for n, group in groups:
         gene_list = group[gene_name_key].astype(str).tolist()
@@ -234,6 +271,230 @@ def calculate_cluster_enrichment(
         if return_enrichment_res:
             return data, enrichr_results
         return data
+
+
+def enrichment_to_cluster_distribution(
+    enr_res: pd.DataFrame,
+    cluster_key: str = "leiden",
+    ranking_metric: Literal[
+        "Adjusted P-value",
+        "Adjusted P-value Bonferroni",
+        "P-value",
+    ] = "Adjusted P-value Bonferroni",
+    threshold: float = 0.05,
+    temperature: float = 1.0,
+    s0: float = 0.0,
+    s_max: float = 300.0,
+    unknown_label: str | None = "unknown",
+    weight_by: Literal["evidence", "odds_ratio"] = "evidence",
+) -> tuple[pd.DataFrame, list[str]]:
+    """Turn a per-cluster enrichment table into soft label distributions.
+
+    The default annotation pipeline assigns each cluster its single most
+    significant term (a hard, one-hot label).  This discards the fact that a
+    cluster may be only marginally enriched, or enriched for several terms of
+    near-equal significance.  When such a hard label is subsequently propagated
+    over the neighbour graph (:func:`~grassp.tl.competitive_propagation`) it produces
+    over-confident, and often wrong, annotations in poorly resolved regions.
+
+    This function instead converts the *full* per-(cluster, term) enrichment
+    table into a probability distribution over a shared compartment vocabulary,
+    with an explicit ``unknown`` class that absorbs uncertainty.  The resulting
+    distribution can be broadcast to proteins and used as a *soft seed* for
+    :func:`~grassp.tl.competitive_propagation` (see
+    :func:`~grassp.tl.soft_cluster_annotation`).
+
+    For every cluster ``c`` and term ``t`` an evidence score is computed as
+
+    .. math::
+
+        s(c, t) = \\mathrm{clip}\\bigl(\\log_{10}(\\text{threshold} /
+                  p_{\\text{adj}}(c, t)),\\; 0,\\; s_{\\max}\\bigr)
+
+    so that a term sitting exactly at ``threshold`` contributes zero evidence,
+    stronger enrichment contributes more (up to ``s_max``), and only terms with
+    ``p_adj <= threshold`` count.  Probabilities follow a tempered softmax with
+    an explicit unknown logit ``s0``::
+
+        w(c, t)       = exp(s(c, t) / temperature)   for significant terms
+        w(c, unknown) = exp(s0 / temperature)
+        Q[c, :]       = w / w.sum()
+
+    With the defaults (``s0 = 0``) the unknown class ties a term that is only
+    marginally significant, so weakly/ambiguously enriched clusters keep most of
+    their mass on ``unknown`` instead of committing to a wrong label.  As
+    ``temperature -> 0`` the distribution collapses onto the single best term,
+    recovering the behaviour of the hard pipeline.
+
+    Parameters
+    ----------
+    enr_res
+        Per-(cluster, term) enrichment table as returned by
+        :func:`calculate_cluster_enrichment` (``return_enrichment_res=True``).
+        Must contain the columns ``"Term"``, ``ranking_metric`` and
+        ``cluster_key``.
+    cluster_key
+        Name of the column in ``enr_res`` holding the cluster labels.
+    ranking_metric
+        p-value column used as the evidence metric.  Defaults to
+        ``"Adjusted P-value Bonferroni"`` (corrected for both term- and
+        cluster-multiplicity), matching the pipeline default.
+    threshold
+        Significance threshold.  Terms with ``ranking_metric > threshold`` (or
+        missing) are treated as non-significant and contribute no evidence.
+    temperature
+        Softmax temperature.  Larger values give more diffuse distributions;
+        ``temperature -> 0`` approaches winner-take-all.
+    s0
+        Evidence logit assigned to the ``unknown`` class.  ``0`` (default)
+        corresponds to a hypothetical term sitting exactly at ``threshold``.
+    s_max
+        Upper cap on the per-term evidence score ``log10(threshold/padj)``. Its
+        only role is to bound a literal ``padj == 0`` (which would give ``inf``);
+        it must stay well above realistic ``-log10(padj)`` values. The default
+        ``300`` is effectively "off". Do **not** set this small: a small cap
+        collapses the evidence of any two strongly-enriched terms to equal,
+        producing spurious ties between a compartment and an overlapping one
+        (e.g. Lysosome/Endosome, 40S ribosome/Nucleolus).
+    weight_by
+        How admissible (significant) terms are weighted against each other:
+
+        - ``"evidence"`` (default): logit is the clipped ``log10(threshold/padj)``
+          evidence score — confidence-weighted, size-dependent.
+        - ``"odds_ratio"``: logit is ``ln`` of the Haldane-Anscombe odds ratio
+          (gseapy's already-HA-corrected ``"Odds Ratio"`` column). Effect-size
+          weighted and size-independent, so ``P(A)/P(B) = (OR_A/OR_B)^(1/T)``.
+          The p-value still gates which terms are admissible; only significant
+          terms contribute regardless of this setting.
+    unknown_label
+        Name of the appended background/unknown category. If ``None``, no unknown
+        class is added: the distribution is purely relative over significant terms
+        and clusters with no significant term receive a uniform fallback (which
+        propagates to a high-entropy, unresolved distribution). Provided mainly to
+        ablate the value of the unknown class against the entropy-null resolver.
+
+    Returns
+    -------
+    Q : pandas.DataFrame
+        Row-stochastic matrix indexed by cluster label, with one column per
+        compartment in the vocabulary (plus ``unknown_label`` as the final column
+        unless ``unknown_label is None``).  Each row sums to 1.
+    categories : list of str
+        The ordered column vocabulary (significant terms, plus ``unknown_label``
+        last unless it is ``None``), suitable as ``seed_categories`` for
+        :func:`~grassp.tl.competitive_propagation`.
+    """
+    if ranking_metric not in enr_res.columns:
+        raise KeyError(
+            f"ranking_metric '{ranking_metric}' not found in enr_res columns: "
+            f"{list(enr_res.columns)}"
+        )
+    if cluster_key not in enr_res.columns:
+        raise KeyError(f"cluster_key '{cluster_key}' not found in enr_res columns.")
+
+    # Pivot to a (cluster x term) matrix of the ranking metric. Fallback rows
+    # (empty clusters) carry Term = NaN and lack the adjusted-p columns, so they
+    # (and any missing cluster/term combination) become NaN here and are treated
+    # as non-significant below.
+    df = enr_res.dropna(subset=["Term"]).copy()
+    df[ranking_metric] = pd.to_numeric(df[ranking_metric], errors="coerce")
+    pv = df.pivot_table(
+        index=cluster_key, columns="Term", values=ranking_metric, aggfunc="min"
+    )
+    # Guarantee every cluster is represented, even if all its terms were NaN.
+    all_clusters = pd.Index(enr_res[cluster_key].unique(), name=cluster_key)
+    pv = pv.reindex(all_clusters)
+
+    # Evidence score s = clip(log10(threshold / padj), 0, s_max). The upper cap
+    # only bounds a literal padj == 0 (which gives s = inf); it must stay far above
+    # realistic -log10(padj) values. A small cap (the old default of 8) is a bug:
+    # in dense data the true compartment is often astronomically significant (e.g.
+    # padj ~ 1e-150, s ~ 150) while an overlapping compartment is merely very
+    # significant (padj ~ 1e-18, s ~ 18); capping both at 8 collapses a 130-decade
+    # difference into an artificial 50/50 tie, which propagation then breaks toward
+    # the globally larger compartment (e.g. Lysosome -> Endosome, 40S -> Nucleolus).
+    with np.errstate(divide="ignore", invalid="ignore"):
+        s = np.log10(threshold / pv.to_numpy(dtype=float))
+    s = np.clip(s, 0.0, s_max)
+    s[~np.isfinite(s)] = 0.0
+    s[pv.to_numpy(dtype=float) > threshold] = 0.0
+    s = np.nan_to_num(s, nan=0.0)
+
+    # A term contributes only where it is actually significant (padj <= threshold).
+    significant = s > 0
+
+    # Keep only terms significant in >=1 cluster, tightening the vocabulary.
+    keep_mask = significant.any(axis=0)
+    keep_cols = list(pv.columns[keep_mask])
+    s = s[:, keep_mask]
+    significant = significant[:, keep_mask]
+
+    # Per-term softmax logit. The significance gate (above) is always the p-value;
+    # `weight_by` only chooses how admissible terms are *weighted* relative to each
+    # other.
+    if weight_by == "evidence":
+        # logit = clipped -log10(padj) evidence score.
+        base_logits = s
+    elif weight_by == "odds_ratio":
+        # logit = ln(Haldane-Anscombe odds ratio). gseapy's "Odds Ratio" column is
+        # already HA-corrected (adds 0.5 to each 2x2 cell), so it is finite and > 0.
+        # Weighting by ln(OR) makes P(A)/P(B) = (OR_A / OR_B)^(1/T): relative
+        # compartment probability equals relative enrichment odds. Effect size,
+        # not confidence, sets the split among significant terms.
+        if "Odds Ratio" not in enr_res.columns:
+            raise KeyError(
+                "weight_by='odds_ratio' requires an 'Odds Ratio' column in enr_res."
+            )
+        odf = df.copy()
+        odf["Odds Ratio"] = pd.to_numeric(odf["Odds Ratio"], errors="coerce")
+        orat = (
+            odf.pivot_table(
+                index=cluster_key, columns="Term", values="Odds Ratio", aggfunc="max"
+            )
+            .reindex(all_clusters)
+            .reindex(columns=pv.columns)
+            .to_numpy(dtype=float)[:, keep_mask]
+        )
+        with np.errstate(divide="ignore", invalid="ignore"):
+            base_logits = np.log(orat)
+        base_logits[~np.isfinite(base_logits)] = 0.0
+    else:
+        raise ValueError(f"weight_by must be 'evidence' or 'odds_ratio', got {weight_by!r}")
+
+    # Numerically-stable tempered softmax over the significant real terms (+ an
+    # optional unknown class at logit s0). Non-significant terms get logit -inf so
+    # their weight is exactly 0. Subtracting the per-row max before exp keeps the
+    # exponent bounded regardless of how large the evidence (or how small T) is.
+    # For weight_by='odds_ratio', s0=0 is a natural baseline (ln(OR)=0 <=> OR=1,
+    # i.e. no enrichment), so the unknown class competes as an un-enriched term.
+    logits = np.where(significant, base_logits, -np.inf)
+    if unknown_label is not None:
+        logits = np.concatenate([logits, np.full((logits.shape[0], 1), float(s0))], axis=1)
+    row_max = np.max(logits, axis=1, keepdims=True)
+    row_max = np.where(np.isfinite(row_max), row_max, 0.0)  # rows with all -inf
+    with np.errstate(over="ignore"):
+        w = np.exp((logits - row_max) / temperature)
+    w[~np.isfinite(w)] = 0.0
+    den = w.sum(axis=1, keepdims=True)
+
+    if unknown_label is not None:
+        # den > 0 always (the unknown logit is finite): weakly/non-enriched clusters
+        # (Sig(c)=∅) put all mass on unknown.
+        Q_values = w / den
+        categories = keep_cols + [unknown_label]
+    else:
+        # No unknown class: pure relative distribution over significant terms.
+        # Clusters with no significant term (den == 0) get a uniform fallback over
+        # the vocabulary, which propagates to a high-entropy (unresolved)
+        # distribution rather than a spurious confident label.
+        empty = den[:, 0] == 0
+        Q_values = np.divide(w, den, out=np.zeros_like(w), where=den > 0)
+        if empty.any() and w.shape[1] > 0:
+            Q_values[empty] = 1.0 / w.shape[1]
+        categories = keep_cols
+
+    Q = pd.DataFrame(Q_values, index=pv.index, columns=categories)
+    return Q, categories
 
 
 # Calculate pairwise distance matrix between samples

@@ -6,6 +6,18 @@ if TYPE_CHECKING:
 import warnings
 
 
+def layer_names(data: AnnData) -> list[str]:
+    """Names of the real layers in ``data``, excluding the main matrix.
+
+    anndata >= 0.13 backs ``.X`` with ``layers[None]``, so iterating over
+    ``data.layers`` also yields the main matrix under a ``None`` key. Code that
+    copies layers into a freshly built :class:`~anndata.AnnData` must skip it,
+    otherwise ``X=`` and ``layers[None]`` are both supplied and anndata rejects
+    the pair as inconsistent.
+    """
+    return [name for name in data.layers.keys() if name is not None]
+
+
 def confirm_proteins_as_obs(data: AnnData) -> None:
     if "proteins_as_obs" in data.uns.keys():
         if data.uns["proteins_as_obs"]:

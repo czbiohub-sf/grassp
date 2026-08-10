@@ -78,7 +78,16 @@ def _make_cluster_adata(
 
 def test_load_gmt_dict_passthrough():
     d = {'TermA': ['G1', 'G2'], 'TermB': ['G3']}
-    assert _load_gmt(d) is d
+    # Distinct sets -> dedup is a no-op; content is preserved (as a copy).
+    assert _load_gmt(d) == d
+    assert _load_gmt(d, deduplicate_terms=False) == d
+
+
+def test_load_gmt_deduplicates_identical_terms():
+    # TermB is a byte-identical synonym of TermA -> collapsed, first-seen kept.
+    d = {'TermA': ['G1', 'G2'], 'TermB': ['G2', 'G1'], 'TermC': ['G3']}
+    assert _load_gmt(d) == {'TermA': ['G1', 'G2'], 'TermC': ['G3']}
+    assert set(_load_gmt(d, deduplicate_terms=False)) == {'TermA', 'TermB', 'TermC'}
 
 
 def test_load_gmt_reads_gmt_file(tmp_path):
@@ -454,3 +463,32 @@ def test_merge_clusters_go_converges_no_merge(monkeypatch):
     )
     n_after = adata.obs['merged'].nunique()
     assert n_after == n_before
+
+
+# ── MGSA-based merging ─────────────────────────────────────────────────────────
+
+
+def test_merge_clusters_go_mgsa_evidence_smoke():
+    """merge_method='mgsa_evidence' runs end-to-end and collapses same-compartment clusters."""
+    adata = _make_cluster_adata(n_clusters=4)
+    genes = list(adata.obs['Gene_name_canonical'])
+    gene_sets = {
+        'Shared01': [g for g in genes if g.startswith(('GENE0_', 'GENE1_'))],
+        'Comp2': [g for g in genes if g.startswith('GENE2_')],
+        'Comp3': [g for g in genes if g.startswith('GENE3_')],
+    }
+    n_before = adata.obs['cluster'].nunique()
+    merge_clusters_go(
+        adata,
+        cluster_col='cluster',
+        gene_sets_path=gene_sets,
+        key_added='merged',
+        merge_method='mgsa_evidence',
+        merge_threshold=0.0,
+        connectivity_lower=0.0,
+        verbose=False,
+    )
+    assert 'merged' in adata.obs.columns
+    assert adata.obs['merged'].nunique() < n_before
+    # per-cluster evidence was cached for the model-comparison score
+    assert 'Cell_compartment_evidence' in adata.uns
