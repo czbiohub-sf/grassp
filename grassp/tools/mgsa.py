@@ -1295,7 +1295,7 @@ def mgsa_to_cluster_distribution(
         Row-stochastic (cluster x category) matrix, ``unknown`` last if present.
     categories : list of str
         Column order, suitable as ``seed_categories`` for
-        :func:`~grassp.tl.knn_annotation`.
+        :func:`~grassp.tl.competitive_propagation`.
     """
     q = posterior.clip(lower=0.0, upper=1.0).astype(float).fillna(0.0)
     if use_map:

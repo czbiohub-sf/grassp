@@ -294,14 +294,14 @@ def enrichment_to_cluster_distribution(
     significant term (a hard, one-hot label).  This discards the fact that a
     cluster may be only marginally enriched, or enriched for several terms of
     near-equal significance.  When such a hard label is subsequently propagated
-    over the neighbour graph (:func:`~grassp.tl.knn_annotation`) it produces
+    over the neighbour graph (:func:`~grassp.tl.competitive_propagation`) it produces
     over-confident, and often wrong, annotations in poorly resolved regions.
 
     This function instead converts the *full* per-(cluster, term) enrichment
     table into a probability distribution over a shared compartment vocabulary,
     with an explicit ``unknown`` class that absorbs uncertainty.  The resulting
     distribution can be broadcast to proteins and used as a *soft seed* for
-    :func:`~grassp.tl.knn_annotation` (see
+    :func:`~grassp.tl.competitive_propagation` (see
     :func:`~grassp.tl.soft_cluster_annotation`).
 
     For every cluster ``c`` and term ``t`` an evidence score is computed as
@@ -382,7 +382,7 @@ def enrichment_to_cluster_distribution(
     categories : list of str
         The ordered column vocabulary (significant terms, plus ``unknown_label``
         last unless it is ``None``), suitable as ``seed_categories`` for
-        :func:`~grassp.tl.knn_annotation`.
+        :func:`~grassp.tl.competitive_propagation`.
     """
     if ranking_metric not in enr_res.columns:
         raise KeyError(
