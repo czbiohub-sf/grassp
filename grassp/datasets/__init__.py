@@ -8,4 +8,4 @@ from .example_data import (
     load_dataset,
     schessner_2023,
 )
-from .metadata import subcellular_annotations, uniprot_compartment_goterms
+from .metadata import uniprot_compartment_goterms

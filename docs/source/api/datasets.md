@@ -60,6 +60,5 @@ Reference annotations bundled with grassp.
    :nosignatures:
    :toctree: ../generated/
 
-   ds.subcellular_annotations
    ds.uniprot_compartment_goterms
 ```
