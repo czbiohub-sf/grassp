@@ -4,6 +4,10 @@
     ".": {
       "release-type": "simple",
       "bump-minor-pre-major": true
+    },
+    "r/grasspio": {
+      "release-type": "r",
+      "bump-minor-pre-major": true
     }
   }
 }

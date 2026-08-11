@@ -1,0 +1,40 @@
+Package: grasspio
+Type: Package
+Title: Exchange Spatial Proteomics Data Between pRoloc and grassp
+Version: 0.1.0
+Authors@R: person(given = "Max", family = "Frank",
+                  email = "max.frank@czbiohub.org",
+                  role = c("aut", "cre"))
+Description: Converts between MSnbase 'MSnSet' objects, as used by the 'pRoloc'
+             and 'bandle' spatial proteomics frameworks, and the h5ad files
+             written by the Python package 'grassp'. The two data models are
+             nearly isomorphic -- both hold a features-by-fractions quantitation
+             matrix with feature and sample metadata -- but they share no file
+             format. This package supplies both directions, so an analysis can
+             be preprocessed in one language, classified in the other, and
+             brought back without losing annotations. Matrix-valued feature
+             metadata columns, which pRoloc uses for per-protein by
+             per-compartment score matrices, are mapped onto AnnData's 'obsm'
+             with their column names carried alongside. Note that pRoloc has no
+             exporter of its own, so 'grassp_write_msnset' is useful even
+             without grassp.
+License: BSD_3_clause + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 4.5)
+Imports:
+    anndataR,
+    Biobase,
+    MSnbase,
+    methods
+Suggests:
+    rhdf5,
+    pRoloc,
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+URL: https://github.com/czbiohub-sf/grassp
+BugReports: https://github.com/czbiohub-sf/grassp/issues
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3
