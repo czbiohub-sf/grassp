@@ -66,6 +66,15 @@ CAN_RUN <- tryCatch(
   },
   error = function(e) FALSE, warning = function(w) FALSE
 )
+# Degrading to an empty page is right on an offline laptop and wrong in CI, where it would
+# turn a green build into one that checked nothing. CI sets GRASSPIO_VIGNETTE_STRICT.
+if (!CAN_RUN && nzchar(Sys.getenv("GRASSPIO_VIGNETTE_STRICT"))) {
+  stop(
+    "Could not download ", DATASET, " from the grassp portal, and ",
+    "GRASSPIO_VIGNETTE_STRICT is set, so this is fatal rather than skipped.",
+    call. = FALSE
+  )
+}
 knitr::opts_chunk$set(eval = CAN_RUN)
 ```
 

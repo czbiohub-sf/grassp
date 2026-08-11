@@ -1,0 +1,144 @@
+name: CI (R)
+
+# CI for the grasspio R package at r/grasspio, which bridges pRoloc's MSnSet to the h5ad files
+# grassp writes. The Python matrix in CI.yaml is deliberately R-free, so this runs separately.
+#
+# Two jobs, because there are two things that can break independently:
+#   * check    -- the R package on its own terms (R CMD check + testthat).
+#   * contract -- the R and Python halves still agree. The exchange contract is implemented
+#                 twice, once per language, so nothing but a cross-language test catches drift.
+
+# The path lists below are duplicated rather than shared with a YAML anchor: GitHub Actions'
+# workflow parser does not support anchors, so an alias here would not expand.
+on:
+  push:
+    paths:
+      - 'r/**'
+      - '.github/workflows/CI-R.yaml'
+      # The R writer generates this fixture, and 20 Python tests assert against it.
+      - 'grassp/tests/fixtures/**'
+      - 'grassp/tests/test_proloc_io.py'
+      - 'grassp/tests/test_msnset_mapping.py'
+      # The Python half of the same contract.
+      - 'grassp/io/_msnset.py'
+      - 'grassp/io/proloc.py'
+      - 'docs/knit_r_tutorial.R'
+  pull_request:
+    paths:
+      - 'r/**'
+      - '.github/workflows/CI-R.yaml'
+      - 'grassp/tests/fixtures/**'
+      - 'grassp/tests/test_proloc_io.py'
+      - 'grassp/tests/test_msnset_mapping.py'
+      - 'grassp/io/_msnset.py'
+      - 'grassp/io/proloc.py'
+      - 'docs/knit_r_tutorial.R'
+  # So a maintainer can run it without pushing, and so it can be re-run while being debugged.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: R CMD check (R ${{ matrix.config.r }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # grasspio Depends R (>= 4.5) and anndataR requires R >= 4.5, so there is no older
+          # version worth testing. Bioconductor 3.23 (the current release) pairs with R 4.6.0.
+          - { r: 'release' }
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+      # portal.Rmd downloads a dataset from the grassp portal and, if that fails, renders every
+      # later chunk empty rather than erroring -- good for an offline laptop, useless in CI,
+      # where it would turn a green build into one that tested nothing. This makes it fatal.
+      GRASSPIO_VIGNETTE_STRICT: 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          # Points CRAN at Posit Package Manager, which serves precompiled Linux binaries.
+          # Without it, MSnbase's mzR dependency compiles from source and the job takes tens
+          # of minutes instead of a few.
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          # r/grasspio, not the repo root -- this is where the DESCRIPTION lives.
+          working-directory: r/grasspio
+          # "all" so Suggests come too: pRoloc, rhdf5, testthat, knitr and rmarkdown are all
+          # Suggests, and the vignettes and tests need every one of them.
+          dependencies: '"all"'
+          extra-packages: any::rcmdcheck
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          working-directory: r/grasspio
+          args: 'c("--no-manual")'
+          # The package has two known findings that are not this workflow's business to police:
+          # a WARNING for missing man/*.Rd (roxygen has never been run) and a NOTE that the
+          # LICENSE stub is invalid DCF. Failing on warnings would make this job red on day one
+          # for reasons unrelated to whether the bridge works. Tighten to "warning" once those
+          # are fixed.
+          error-on: '"error"'
+          upload-snapshots: true
+
+  contract:
+    name: Python/R contract
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          working-directory: r/grasspio
+          dependencies: '"all"'
+
+      - name: Install grasspio
+        run: R CMD INSTALL --no-docs r/grasspio
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install HDF5 and grassp
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libhdf5-dev
+          pip install -e '.[dev,proloc]'
+
+      # The real test: have R regenerate the golden fixture from scratch, then run the Python
+      # suite against it. A byte comparison would be flaky (HDF5 writes are not reproducible
+      # byte-for-byte), but the Python tests assert on the *contents* -- column names, matrix
+      # columns, the "unknown" encoding, the layer and varm round trip -- so if either half of
+      # the contract drifts, they fail. That is the whole point of generating the fixture with
+      # the real R writer rather than hand-authoring it in Python.
+      - name: Regenerate the golden fixture with the R writer
+        run: Rscript grassp/tests/fixtures/make_proloc_fixture.R
+
+      - name: Show whether the fixture changed
+        run: git diff --stat -- grassp/tests/fixtures/ || true
+
+      - name: Python tests against the freshly generated fixture
+        run: pytest grassp/tests/test_proloc_io.py grassp/tests/test_msnset_mapping.py -q
+
+      - name: Contract docstring examples
+        run: pytest --doctest-modules grassp/io/_msnset.py -q
