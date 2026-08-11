@@ -653,6 +653,190 @@ class TestReadProlocdata:
 
 
 # ==============================================================================
+# Tests for pRoloc convention handling in read_prolocdata
+# ==============================================================================
+
+
+def make_rdata_mock_with_proloc_results():
+    """A mock MSnSet carrying pRoloc's own conventions.
+
+    Unlike :func:`make_rdata_mock_dict`, the markers here use pRoloc's literal ``"unknown"``
+    string (which is what real pRolocdata files contain) and there is a flattened SVM score
+    group, so the import path's translations are actually exercised.
+    """
+    exprs = np.array(
+        [
+            [1.5, 2.3, 1.8],
+            [0.8, 1.2, 0.9],
+            [3.2, 2.9, 3.5],
+            [1.1, 1.4, 1.2],
+            [2.5, 2.8, 2.6],
+        ],
+        dtype=float,
+    )
+
+    feature_data = pd.DataFrame(
+        {
+            "markers": ["Mito", "ER", "unknown", "unknown", "Mito"],
+            "markers.orig": ["Mito", "ER", "unknown", "unknown", "Mito"],
+            "pd": ["Mito", "ER", "Phenotype 1", "unknown", "Mito"],
+            "svm": ["Mito", "ER", "Golgi", "ER", "Mito"],
+            "svm.scores": [0.9, 0.8, 0.6, 0.7, 0.95],
+            "Mito.svm.scores": [0.9, 0.05, 0.2, 0.1, 0.95],
+            "ER.svm.scores": [0.05, 0.8, 0.2, 0.7, 0.03],
+            "Golgi.svm.scores": [0.05, 0.15, 0.6, 0.2, 0.02],
+            "Gene.names": ["G1", "G2", "G3", "G4", "G5"],
+        },
+        index=["P1", "P2", "P3", "P4", "P5"],
+    )
+
+    pheno_data = pd.DataFrame(
+        {"fraction": ["F1", "F2", "F3"]},
+        index=["S1", "S2", "S3"],
+    )
+
+    msnset = Mock()
+    msnset.assayData = Mock()
+    msnset.assayData.maps = [{"exprs": exprs}]
+    msnset.featureData = Mock()
+    msnset.featureData.data = feature_data
+    msnset.phenoData = Mock()
+    msnset.phenoData.data = pheno_data
+    msnset.experimentData = Mock()
+    msnset.experimentData.name = "pRoloc conventions dataset"
+    msnset.processingData = Mock()
+    msnset.processingData.processing = [
+        "Loaded dunkley2006",
+        "Performed svm prediction (cost=1 sigma=0.1)",
+    ]
+    return {"proloc_dataset": msnset}
+
+
+class TestReadProlocdataConventions:
+    """pRoloc encodes unlabelled features as the string "unknown"; grassp uses NaN.
+
+    This is not cosmetic. Every grassp annotator selects its markers with ``.notna()``
+    (``tagm.py``, ``localization.py``, ``ccompass.py``), so an untranslated ``"unknown"`` is
+    silently treated as a real compartment and trained on as one.
+    """
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_unknown_becomes_nan_by_default(self, mock_convert, mock_parse):
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda")
+
+        assert result.obs["markers"].isna().sum() == 2
+        assert "unknown" not in set(result.obs["markers"].dropna())
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_unknown_can_be_preserved(self, mock_convert, mock_parse):
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda", unknown_to_nan=False)
+
+        assert (result.obs["markers"] == "unknown").sum() == 2
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_every_column_carrying_the_sentinel_is_converted(self, mock_convert, mock_parse):
+        """`markers.orig` and `pd` get the same treatment, with no per-column special case."""
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda")
+
+        assert result.obs["markers.orig"].isna().sum() == 2
+        assert result.obs["pd"].isna().sum() == 1
+        assert "Phenotype 1" in set(result.obs["pd"].dropna())
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_columns_are_left_exactly_as_pRolocdata_had_them(self, mock_convert, mock_parse):
+        """No renaming and no restructuring -- the .rda's own fData layout is preserved.
+
+        pRolocdata stores per-class scores as ordinary columns, and that is how they arrive.
+        Reshaping them into a matrix would be a guess about intent that grassp has no need to
+        make.
+        """
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda")
+
+        for column in ["Mito.svm.scores", "ER.svm.scores", "Golgi.svm.scores", "Gene.names"]:
+            assert column in result.obs.columns, column
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_free_text_columns_are_left_alone(self, mock_convert, mock_parse):
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda")
+
+        assert not isinstance(result.obs["Gene.names"].dtype, pd.CategoricalDtype)
+        assert pd.api.types.is_numeric_dtype(result.obs["svm.scores"])
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_processing_log_is_kept(self, mock_convert, mock_parse):
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda")
+
+        assert "processing" in result.uns
+        assert any("svm" in entry for entry in result.uns["processing"])
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_replace_nan_can_be_disabled(self, mock_convert, mock_parse):
+        """A missing fraction measurement is not a measured zero."""
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_data["proloc_dataset"].assayData.maps[0]["exprs"][0, 0] = np.nan
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda", replace_nan=False)
+
+        assert np.isnan(result.X[0, 0])
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_replace_nan_default_still_zero_fills(self, mock_convert, mock_parse):
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_data["proloc_dataset"].assayData.maps[0]["exprs"][0, 0] = np.nan
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda")
+
+        assert result.X[0, 0] == 0.0
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_colors_are_assigned(self, mock_convert, mock_parse):
+        mock_data = make_rdata_mock_with_proloc_results()
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        result = read.read_prolocdata("proloc.rda")
+
+        assert "markers_colors" in result.uns
+
+
+# ==============================================================================
 # Tests for _preprocess_adata (NaN handling)
 # ==============================================================================
 

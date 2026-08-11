@@ -10,11 +10,11 @@ import protdata
 import scipy.sparse
 
 from ..util import layer_names
+from . import _msnset
 
 # def read_alphastats(
 #     loader: alphastats.BaseLoader,
 #     x_dtype: Union[np.dtype, type, int, float, None] = None,
-#     proteins_as_obs: bool = False,
 # ) -> anndata.AnnData:
 #     """Read proteomics data into an AnnData object.
 
@@ -24,8 +24,6 @@ from ..util import layer_names
 #         A loader object from alphastats that contains the raw proteomics data and metadata
 #     x_dtype
 #         Data type to use for the intensity matrix, by default None
-#     proteins_as_obs
-#         If True, proteins will be stored in obs (rows) rather than var (columns), by default False
 
 
 #     Notes
@@ -82,8 +80,6 @@ from ..util import layer_names
 #     obs.index = obs.index.astype(str)
 
 #     # Proteins could either be in the rows or columns
-#     if proteins_as_obs:
-#         adata = adata.T
 
 #     # Add properties of the experiment to uns
 #     adata.uns["RawInfo"] = {
@@ -91,7 +87,6 @@ from ..util import layer_names
 #         "filter_columns": filter_columns,
 #         "gene_names": gene_names,
 #     }
-#     adata.uns["proteins_as_obs"] = proteins_as_obs
 #     return adata
 
 
@@ -115,28 +110,104 @@ def _preprocess_adata(adata: anndata.AnnData) -> anndata.AnnData:
     return adata
 
 
-def read_prolocdata(file_name: str, allow_nullable_strings: bool = False) -> anndata.AnnData:
-    """Read a prolocdata file and return an AnnData object.
+def _unknown_sentinel_to_nan(
+    adata: anndata.AnnData, *, unknown_label: str = _msnset.UNKNOWN_LABEL, set_colors: bool
+) -> None:
+    """Convert pRoloc's ``"unknown"`` sentinel to ``NaN`` throughout ``.obs``, in place.
+
+    The one pRoloc convention Python has to handle itself. Every other path goes through the
+    companion R package, which converts on its own side of the boundary -- but
+    :func:`read_prolocdata` parses ``.rda`` files with the pure-Python ``rdata`` package, so
+    there is no R here to do it.
+
+    It touches every text column that contains the sentinel, not a nominated marker column: a
+    pRolocdata object routinely carries several (``markers``, ``markers.orig``, ``pd.markers``,
+    ``pd.2013``). That is not cosmetic -- every grassp annotator selects its markers with
+    ``.notna()``, so an untranslated ``"unknown"`` becomes a spurious compartment class and gets
+    trained on. Nothing else is touched: no renaming, no dtype coercion.
+    """
+    touched: list[str] = []
+    for column in adata.obs.columns:
+        values = adata.obs[column]
+        if not _msnset.is_labelish(values):
+            continue
+        if (values.dropna().astype(object).astype(str) == str(unknown_label)).any():
+            adata.obs[column] = _msnset.unknown_to_nan(values, unknown_label)
+            touched.append(column)
+
+    if set_colors and touched:
+        from ..preprocessing.annotation import set_sensible_compartment_colors
+
+        set_sensible_compartment_colors(adata, columns=touched)
+
+
+def _import_rdata():
+    """Import the optional ``rdata`` dependency or raise a helpful error."""
+    try:
+        import rdata
+    except ImportError as exc:  # pragma: no cover - exercised via the install extra
+        raise ImportError(
+            "gr.io.read_prolocdata requires the optional 'rdata' dependency (a pure-Python "
+            "reader for R's .rda/.rds files). Install it with "
+            "`pip install grassp[proloc]`."
+        ) from exc
+    return rdata
+
+
+def read_prolocdata(
+    file_name: str,
+    allow_nullable_strings: bool = False,
+    *,
+    replace_nan: bool = True,
+    unknown_to_nan: bool = True,
+    set_colors: bool = True,
+) -> anndata.AnnData:
+    """Read a pRolocdata ``MSnSet`` file (``.rda``/``.rds``) into an AnnData object.
+
+    Reads R's serialisation format directly with the pure-Python ``rdata`` package, so no R
+    installation is involved. The MSnSet maps onto grassp's layout without a transpose --
+    ``exprs()`` is already features-by-fractions -- with ``featureData`` becoming ``.obs``,
+    ``phenoData`` becoming ``.var``, and ``experimentData`` becoming
+    ``.uns["MIAPE_metadata"]``.
 
     Parameters
     ----------
     file_name : str
-        The path to the prolocdata file or a URL.
+        Path to the file, or a URL (e.g. a raw pRolocdata GitHub link).
     allow_nullable_strings : bool, default False
         If False, convert pandas nullable StringDtype columns in obs/var to
         regular Python object-dtype strings for compatibility with older
         anndata writers (anndata<0.11). If True, keep nullable string dtype.
+    replace_nan : bool, default True
+        Replace ``NaN`` with ``0`` in ``.X`` and every layer. Kept on by default for backward
+        compatibility, but consider ``False``: in fractionation data a missing measurement is
+        not a measured zero, and pRoloc offers ``filterNA`` precisely because the distinction
+        matters.
+    unknown_to_nan : bool, default True
+        Convert pRoloc's literal ``"unknown"`` sentinel to ``NaN``. **Leaving this off is
+        almost never what you want:** every grassp annotator picks its markers with
+        ``.notna()``, so an untranslated ``"unknown"`` is treated as a real compartment and
+        gets trained on as one. This is the only path where grassp does the conversion itself
+        -- the h5ad round trip leaves it to the R side, where the convention belongs.
+    set_colors : bool, default True
+        Assign compartment colours to the label columns.
 
     Returns
     -------
     adata : AnnData
+        Proteins in ``.obs``, fractions in ``.var``.
+
+    See Also
+    --------
+    grassp.io.read_msnset : Read an ``MSnSet`` exported as h5ad by the ``grasspio`` R package.
+    grassp.io.write_msnset : Send a grassp object to pRoloc.
+
+    Examples
+    --------
+    >>> adata = gr.io.read_prolocdata("dunkley2006.rda")   # doctest: +SKIP
+    >>> adata.obs["markers"].isna().sum()                  # unlabelled proteins   doctest: +SKIP
     """
-    try:
-        import rdata
-    except ImportError:
-        raise Exception(
-            "To read prolocdata, please install the `rdata` python package (pip install rdata)."
-        )
+    rdata = _import_rdata()
 
     parsed_url = urllib.parse.urlparse(file_name)
     if parsed_url.scheme != "":
@@ -203,7 +274,18 @@ def read_prolocdata(file_name: str, allow_nullable_strings: bool = False) -> ann
     # Remove class version key if present
     metadata.pop(".__classVersion__", None)
     adata.uns["MIAPE_metadata"] = metadata
-    _preprocess_adata(adata)
+
+    # The MSnSet's processing log is provenance worth keeping. Guarded the same way as the
+    # MIAPE metadata above, since what `rdata` hands back for any given slot varies.
+    processing = getattr(getattr(pdata, "processingData", None), "processing", None)
+    if hasattr(processing, "__len__") and len(processing) > 0:
+        adata.uns["processing"] = [str(entry) for entry in processing]
+
+    if replace_nan:
+        _preprocess_adata(adata)
+
+    if unknown_to_nan:
+        _unknown_sentinel_to_nan(adata, set_colors=set_colors)
 
     return adata
 
