@@ -75,6 +75,14 @@ ccompass = [
     "ccompass",
     "tensorboard",
 ]
+# pRoloc / pRolocdata interoperability. `rdata` is a pure-Python R-data parser, needed only
+# by gr.io.read_prolocdata to read .rda/.rds files; the h5ad round trip
+# (gr.io.write_msnset / gr.io.read_proloc_results) needs nothing beyond anndata.
+# The R half is a separate package in this repo:
+#   remotes::install_github("czbiohub-sf/grassp", subdir = "r/grasspio")
+proloc = [
+    "rdata",
+]
 build = [
     "twine",
     "build",
@@ -99,14 +107,23 @@ repository = "https://github.com/czbiohub/some-package"
 
 
 [tool.setuptools]
-# Use find_namespace_packages to discover all packages
-packages = ["grassp"]
-
 # allow use of __file__ to load data files included in the package
 zip-safe = false
 
 # Don't include LICENSE as a license-file in the metadata
 license-files = []
+
+# Discover subpackages instead of listing only the top level. The previous
+# `packages = ["grassp"]` was a flat list, so which subpackage modules ended up in a wheel
+# depended on a stale egg-info/SOURCES.txt rather than on the config -- newly added modules
+# were silently omitted, making `import grassp.io` fail from a released wheel.
+[tool.setuptools.packages.find]
+include = ["grassp*"]
+
+[tool.setuptools.package-data]
+"grassp.datasets" = ["external/*"]
+# `fixtures/`, not `data/`: .gitignore has a bare `data/` rule that matches at any depth.
+"grassp.tests" = ["fixtures/*"]
 
 
 [tool.black]

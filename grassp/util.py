@@ -1,9 +1,22 @@
+"""Small helpers shared across the package.
+
+Orientation invariant
+---------------------
+Throughout grassp an :class:`~anndata.AnnData` holds **proteins in ``.obs`` (rows) and
+samples/fractions in ``.var`` (columns)**. This is the transpose of scanpy's cells-by-genes
+convention, and it is not optional: the readers establish it on the way in
+(:func:`grassp.io.read_maxquant`, :func:`~grassp.io.read_fragpipe` and
+:func:`~grassp.io.read_diann` transpose what ``protdata`` returns, and
+:func:`~grassp.io.read_prolocdata` and :func:`~grassp.io.read_msnset` build it directly),
+and every tool, plot and IO function assumes it. Where a step genuinely needs the other
+orientation it transposes locally, as :func:`grassp.pp.normalize_total` does.
+"""
+
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anndata import AnnData
-import warnings
 
 
 def layer_names(data: AnnData) -> list[str]:
@@ -16,27 +29,3 @@ def layer_names(data: AnnData) -> list[str]:
     the pair as inconsistent.
     """
     return [name for name in data.layers.keys() if name is not None]
-
-
-def confirm_proteins_as_obs(data: AnnData) -> None:
-    if "proteins_as_obs" in data.uns.keys():
-        if data.uns["proteins_as_obs"]:
-            return
-        else:
-            raise ValueError(
-                "data.uns['proteins_as_obs'] is set to False."
-                "This function assumes that the .obs dimension are proteins."
-            )
-    else:
-        dims = data.shape
-        if dims[0] < dims[1]:
-            # Print a warning that this is likely a mistake
-            warnings.warn(
-                f"It seems like you have less proteins ({dims[0]}) than Samples ({dims[1]})."
-                "This function assumes that the .obs dimension are proteins."
-                "Please check if you have set the correct dimensions."
-            )
-        else:
-            warnings.warn(
-                "Assuming .obs is proteins. To get rid of this warning, please set adata.uns['proteins_as_obs'] = True"
-            )
