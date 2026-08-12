@@ -14,6 +14,8 @@ import scipy.sparse as sp
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.svm import SVC
 
+from ..util import get_matrix, set_matrix
+
 
 def _get_knn_annotation_df(
     data: AnnData, obs_ann_col: str, exclude_category: str | List[str] | None = None
@@ -302,8 +304,10 @@ def competitive_propagation(
         test does not apply to soft seeds).
     seed_categories_uns_key
         Name of the ``data.uns`` entry holding the ordered list of category
-        names matching the columns of the soft seed matrix. Required when
-        ``seed_obsm_key`` is set.
+        names matching the columns of the soft seed matrix. Optional when the
+        seed is a :class:`~pandas.DataFrame`, whose own column names are used
+        instead; required when it is a bare ndarray, as written by grassp
+        before labelled ``obsm`` matrices were introduced.
     unknown_label
         Name of the background/unknown category in the soft seed. Observations
         whose most probable label is this category are reported as unassigned
@@ -329,16 +333,22 @@ def competitive_propagation(
     if seed_obsm_key is not None:
         if seed_obsm_key not in data.obsm:
             raise KeyError(f"seed_obsm_key '{seed_obsm_key}' not found in data.obsm.")
-        seed_matrix = np.asarray(data.obsm[seed_obsm_key], dtype=float)
-        if seed_categories_uns_key is None:
+        seed_matrix, seed_categories = get_matrix(data, seed_obsm_key)
+        seed_matrix = seed_matrix.astype(float)
+        # An explicit uns key still wins, for callers that pass one and for seeds written
+        # as bare ndarrays by older versions. Otherwise the seed's own column names say
+        # what its classes are -- which is the point of storing it as a DataFrame.
+        if seed_categories_uns_key is not None:
+            if seed_categories_uns_key not in data.uns:
+                raise KeyError(
+                    f"seed_categories_uns_key '{seed_categories_uns_key}' not found in data.uns."
+                )
+            seed_categories = list(data.uns[seed_categories_uns_key])
+        elif seed_categories is None:
             raise ValueError(
-                "seed_categories_uns_key must be provided when seed_obsm_key is set."
+                "seed_categories_uns_key must be provided when seed_obsm_key is set and "
+                f"data.obsm['{seed_obsm_key}'] carries no column names."
             )
-        if seed_categories_uns_key not in data.uns:
-            raise KeyError(
-                f"seed_categories_uns_key '{seed_categories_uns_key}' not found in data.uns."
-            )
-        seed_categories = list(data.uns[seed_categories_uns_key])
         if fix_markers:
             warnings.warn(
                 "fix_markers is ignored when seeding competitive_propagation with a soft "
@@ -419,8 +429,8 @@ def competitive_propagation(
         Y[marker_mask] = labels_one_hot[marker_mask].astype(float)
 
     if inplace:
-        data.obsm[f"{key_added}_probabilities"] = Y
-        data.obsm[f"{key_added}_one_hot_labels"] = labels_one_hot
+        set_matrix(data, f"{key_added}_probabilities", Y, labels.cat.categories)
+        set_matrix(data, f"{key_added}_one_hot_labels", labels_one_hot, labels.cat.categories)
         predicted = pd.Categorical(
             labels.cat.categories[Y.argmax(axis=1)],
             categories=labels.cat.categories,
@@ -594,7 +604,7 @@ def soft_cluster_annotation(
         else:
             seed[missing] = 1.0 / seed.shape[1]
 
-    data.obsm[f"{key_added}_seed"] = seed
+    set_matrix(data, f"{key_added}_seed", seed, categories)
     data.uns[f"{key_added}_categories"] = list(categories)
 
     competitive_propagation(
@@ -1348,7 +1358,7 @@ def svm_annotation(
     # Store results
     if inplace:
         # Probabilities matrix
-        data.obsm[f"{key_added}_probabilities"] = probabilities
+        set_matrix(data, f"{key_added}_probabilities", probabilities, categories)
 
         # Predicted labels (categorical)
         data.obs[f"{key_added}"] = pd.Categorical(pred_labels, categories=categories)

@@ -26,6 +26,8 @@ if TYPE_CHECKING:
 import numpy as np
 import pandas as pd
 
+from ..util import set_matrix
+
 #: Name of the compartment/label column that C-COMPASS expects on every profile.
 _CLASS_COL = "class"
 
@@ -381,8 +383,11 @@ def ccompass(
             key = f"{key_added}{suffix}"
             cc = _mean_condition_contributions(class_predictions, condition)
             classnames = list(cc.columns)
-            data.obsm[f"{key}_contributions"] = cc.reindex(data.obs_names).to_numpy(
-                dtype=float
+            set_matrix(
+                data,
+                f"{key}_contributions",
+                cc.reindex(data.obs_names).to_numpy(dtype=float),
+                classnames,
             )
             data.uns[f"{key}_categories"] = classnames
             winner = pd.Series(
@@ -408,10 +413,16 @@ def _write_contributions(
     prefix: str,
     suffix: str,
 ) -> None:
-    """Store a ``{prefix}{class}`` contribution block from ``metrics`` in obsm."""
+    """Store a ``{prefix}{class}`` contribution block from ``metrics`` in obsm.
+
+    The stored columns are the bare ``classnames``, not the ``{prefix}{class}`` names the
+    block is selected by: the prefix only disambiguates the two blocks within ``metrics``,
+    and the obsm key already does that. Dropping it keeps the column names in step with
+    ``uns[f"{key}_categories"]``.
+    """
     cols = [f"{prefix}{name}" for name in classnames]
     block = metrics.reindex(columns=cols).reindex(data.obs_names)
-    data.obsm[f"{key}{suffix}"] = block.to_numpy(dtype=float)
+    set_matrix(data, f"{key}{suffix}", block.to_numpy(dtype=float), classnames)
 
 
 def _write_labels(data: AnnData, col: str, winner: pd.Series) -> None:

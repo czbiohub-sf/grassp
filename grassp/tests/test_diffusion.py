@@ -10,6 +10,8 @@ import scanpy as sc
 
 import grassp as gr
 
+from grassp.util import get_matrix
+
 
 @pytest.fixture
 def blob_adata():
@@ -37,8 +39,9 @@ def blob_adata():
 def test_independent_diffusion_outputs_and_nonsimplex(blob_adata):
     a, gs = blob_adata
     gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", resolve="likelihood")
-    P = a.obsm["ann_diffusion_probabilities"]
+    P, terms = get_matrix(a, "ann_diffusion_probabilities")
     assert P.shape == (a.n_obs, len(gs))
+    assert terms == [str(t) for t in gs]
     assert list(a.uns["ann_diffusion_categories"]) == list(gs)
     assert a.uns["ann_diffusion_alpha"].shape == (len(gs),)
     assert 0.0 <= P.min() and P.max() <= 1.0
@@ -66,7 +69,7 @@ def test_calibration_modes_run(blob_adata, calibration):
     gr.tl.independent_diffusion(
         a, gs, gene_key="gene_symbol", calibration=calibration, resolve=None
     )
-    P = a.obsm["ann_diffusion_probabilities"]
+    P, _ = get_matrix(a, "ann_diffusion_probabilities")
     assert np.isfinite(P).all()
 
 

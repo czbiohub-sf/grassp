@@ -25,7 +25,7 @@ import pandas as pd
 import pytest
 
 from grassp.io import _msnset, proloc
-from grassp.util import layer_names
+from grassp.util import layer_names, set_matrix
 
 FIXTURE = Path(__file__).parent / "fixtures" / "proloc_results.h5ad"
 
@@ -240,6 +240,21 @@ class TestWriteMsnset:
         path = proloc.write_msnset(adata, tmp_path / "vn.h5ad")
         artifact = anndata.read_h5ad(path)
         assert list(artifact.uns["varm_colnames"]["PCs"]) == ["PC1", "PC2"]
+
+    def test_a_dataframe_names_its_own_columns(self, adata, tmp_path):
+        """What grassp's annotators now write: the names ride on the matrix itself."""
+        set_matrix(adata, "scores", np.zeros((adata.n_obs, 2)), ["ER", "Golgi"])
+        path = proloc.write_msnset(adata, tmp_path / "df.h5ad")
+        artifact = anndata.read_h5ad(path)
+        assert list(artifact.uns["obsm_colnames"]["scores"]) == ["ER", "Golgi"]
+
+    def test_carried_columns_outrank_a_stale_declaration(self, adata, tmp_path):
+        """Nothing can contradict the names stored alongside the numbers."""
+        set_matrix(adata, "scores", np.zeros((adata.n_obs, 2)), ["ER", "Golgi"])
+        adata.uns["obsm_colnames"] = {"scores": ["wrong", "alsowrong"]}
+        path = proloc.write_msnset(adata, tmp_path / "df2.h5ad")
+        artifact = anndata.read_h5ad(path)
+        assert list(artifact.uns["obsm_colnames"]["scores"]) == ["ER", "Golgi"]
 
     def test_varm_can_be_restricted(self, adata, tmp_path):
         adata.varm["PCs"] = np.zeros((adata.n_vars, 2))
@@ -576,6 +591,15 @@ class TestMergeFidelity:
         target = adata.copy()
         proloc.read_proloc_results(exported, target, key_prefix="rt_")
         assert list(target.uns["obsm_colnames"]["rt_svm_probabilities"]) == CATEGORIES
+
+    def test_grafted_matrices_carry_their_categories(self, adata, exported):
+        """The uns block is the transport; the landed matrix keeps the names itself."""
+        target = adata.copy()
+        proloc.read_proloc_results(exported, target, key_prefix="rt_")
+        landed = target.obsm["rt_svm_probabilities"]
+        assert isinstance(landed, pd.DataFrame)
+        assert list(landed.columns) == CATEGORIES
+        assert landed.index.equals(target.obs_names)
 
     def test_non_syntactic_column_names_survive(self, adata, exported):
         target = adata.copy()
