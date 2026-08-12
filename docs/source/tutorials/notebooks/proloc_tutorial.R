@@ -41,6 +41,6 @@ x <- minMarkers(x, n = 10, fcol = "markers")
 cat("result columns:", paste(fvarLabels(x), collapse = ", "), "\n")
 
 ## Send everything back. Whatever grassp put in the object that an MSnSet has no slot for was
-## parked on experimentData(x)@other and rides back out with it, so gr.io.read_msnset() on the
+## parked on experimentData(x)@other and rides back out with it, so anndata.read_h5ad() on the
 ## other side gets a complete object rather than just the new columns.
 grassp_write_msnset(x, outfile, overwrite = TRUE)

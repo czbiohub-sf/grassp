@@ -5,8 +5,9 @@ name: CI (R)
 #
 # Two jobs, because there are two things that can break independently:
 #   * check    -- the R package on its own terms (R CMD check + testthat).
-#   * contract -- the R and Python halves still agree. The exchange contract is implemented
-#                 twice, once per language, so nothing but a cross-language test catches drift.
+#   * contract -- what R writes is still what Python expects. There is no exchange format and no
+#                 Python reader to test: the R side writes an ordinary h5ad and anndata opens it,
+#                 so only a cross-language test can catch a drift in dtypes or structure.
 
 # The path lists below are duplicated rather than shared with a YAML anchor: GitHub Actions'
 # workflow parser does not support anchors, so an alias here would not expand.
@@ -17,20 +18,16 @@ on:
       - '.github/workflows/CI-R.yaml'
       # The R writer generates this fixture, and 20 Python tests assert against it.
       - 'grassp/tests/fixtures/**'
-      - 'grassp/tests/test_proloc_io.py'
-      - 'grassp/tests/test_msnset_mapping.py'
-      # The Python half of the same contract.
-      - 'grassp/io/_msnset.py'
-      - 'grassp/io/proloc.py'
+      - 'grassp/tests/test_proloc_interop.py'
+      # The one pRoloc convention Python still handles itself, for .rda files.
+      - 'grassp/io/read.py'
   pull_request:
     paths:
       - 'r/**'
       - '.github/workflows/CI-R.yaml'
       - 'grassp/tests/fixtures/**'
-      - 'grassp/tests/test_proloc_io.py'
-      - 'grassp/tests/test_msnset_mapping.py'
-      - 'grassp/io/_msnset.py'
-      - 'grassp/io/proloc.py'
+      - 'grassp/tests/test_proloc_interop.py'
+      - 'grassp/io/read.py'
   # So a maintainer can run it without pushing, and so it can be re-run while being debugged.
   workflow_dispatch:
 
@@ -108,6 +105,8 @@ jobs:
           # anything. Bioconductor is resolved automatically -- pak adds the Bioc repos for the
           # R version in use, so no BiocManager step and no bioc:: prefixes are needed.
           dependencies: '"all"'
+          # anndataR comes from a fork, pinned in the `Remotes:` field of r/grasspio/DESCRIPTION,
+          # which pak honours -- so there is nothing to pin here. See that field for why.
           extra-packages: any::rcmdcheck
           # 'always', not the default true: with `true` the cache is only written when the job
           # succeeds, so a run that fails anywhere after the install throws away 20+ minutes of
@@ -177,9 +176,10 @@ jobs:
       # The real test: have R regenerate the golden fixture from scratch, then run the Python
       # suite against it. A byte comparison would be flaky (HDF5 writes are not reproducible
       # byte-for-byte), but the Python tests assert on the *contents* -- column names, matrix
-      # columns, the "unknown" encoding, the layer and varm round trip -- so if either half of
-      # the contract drifts, they fail. That is the whole point of generating the fixture with
-      # the real R writer rather than hand-authoring it in Python.
+      # columns as data frames, Categorical level order, missing values on both axes, the
+      # "unknown" encoding, the layer and varm round trip -- so if what R writes drifts from what
+      # Python expects, they fail. That is the whole point of generating the fixture with the real
+      # R writer rather than hand-authoring it in Python.
       - name: Regenerate the golden fixture with the R writer
         run: Rscript grassp/tests/fixtures/make_proloc_fixture.R
 
@@ -187,7 +187,7 @@ jobs:
         run: git diff --stat -- grassp/tests/fixtures/ || true
 
       - name: Python tests against the freshly generated fixture
-        run: pytest grassp/tests/test_proloc_io.py grassp/tests/test_msnset_mapping.py -q
+        run: pytest grassp/tests/test_proloc_interop.py grassp/tests/test_io.py -q
 
-      - name: Contract docstring examples
-        run: pytest --doctest-modules grassp/io/_msnset.py -q
+      - name: Docstring examples for the "unknown" helpers
+        run: pytest --doctest-modules grassp/io/read.py -q

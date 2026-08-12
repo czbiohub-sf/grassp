@@ -10,7 +10,6 @@ import protdata
 import scipy.sparse
 
 from ..util import layer_names
-from . import _msnset
 
 # def read_alphastats(
 #     loader: alphastats.BaseLoader,
@@ -110,12 +109,67 @@ def _preprocess_adata(adata: anndata.AnnData) -> anndata.AnnData:
     return adata
 
 
+#: The literal string pRoloc uses for unlabelled features.
+_UNKNOWN_LABEL = "unknown"
+
+
+def _is_labelish(values: pd.Series) -> bool:
+    """Whether a column can hold a text sentinel at all.
+
+    Only about dtype, never about content: strings and Categoricals can, numbers and booleans
+    cannot. Putting ``"unknown"`` in a float column would corrupt it.
+
+    Examples
+    --------
+    >>> _is_labelish(pd.Series(["Golgi", None]))
+    True
+    >>> _is_labelish(pd.Series([1.0, np.nan]))
+    False
+    """
+    return (
+        isinstance(values.dtype, pd.CategoricalDtype)
+        or pd.api.types.is_object_dtype(values)
+        or pd.api.types.is_string_dtype(values)
+    )
+
+
+def _unknown_to_nan(values: pd.Series, unknown_label: str = _UNKNOWN_LABEL) -> pd.Series:
+    """Replace pRoloc's ``"unknown"`` sentinel with ``NaN`` in one column.
+
+    Needed only by :func:`read_prolocdata`, which parses ``.rda`` files directly with no R
+    involved. On the h5ad path the companion R package ``grasspio`` converts on its own side of
+    the boundary, because the sentinel is pRoloc's convention.
+
+    Without it, every grassp annotator -- which selects markers with ``.notna()`` -- treats
+    ``"unknown"`` as a real compartment and happily trains on it.
+
+    For a Categorical the category is *removed*, not merely blanked. ``rdata`` maps an R factor
+    to a Categorical, so this is the common case for a pRolocdata marker column, and leaving
+    ``"unknown"`` behind as an unused category is not cosmetic: anything that iterates
+    ``.cat.categories`` -- :func:`grassp.pp.set_sensible_compartment_colors`, scanpy's legends --
+    would show a phantom compartment with no members.
+
+    Examples
+    --------
+    >>> out = _unknown_to_nan(pd.Series(pd.Categorical(["Golgi", "unknown"])))
+    >>> list(out.cat.categories)
+    ['Golgi']
+    """
+    if isinstance(values.dtype, pd.CategoricalDtype):
+        if unknown_label not in values.cat.categories:
+            return values.copy()
+        # remove_categories blanks the affected rows to NaN as it goes
+        return values.cat.remove_categories([unknown_label])
+    out = pd.Series(values, copy=True)
+    return out.mask(out.astype(object).astype(str) == str(unknown_label))
+
+
 def _unknown_sentinel_to_nan(
-    adata: anndata.AnnData, *, unknown_label: str = _msnset.UNKNOWN_LABEL, set_colors: bool
+    adata: anndata.AnnData, *, unknown_label: str = _UNKNOWN_LABEL, set_colors: bool
 ) -> None:
     """Convert pRoloc's ``"unknown"`` sentinel to ``NaN`` throughout ``.obs``, in place.
 
-    The one pRoloc convention Python has to handle itself. Every other path goes through the
+    The one pRoloc convention Python has to handle itself. The h5ad path goes through the
     companion R package, which converts on its own side of the boundary -- but
     :func:`read_prolocdata` parses ``.rda`` files with the pure-Python ``rdata`` package, so
     there is no R here to do it.
@@ -129,10 +183,10 @@ def _unknown_sentinel_to_nan(
     touched: list[str] = []
     for column in adata.obs.columns:
         values = adata.obs[column]
-        if not _msnset.is_labelish(values):
+        if not _is_labelish(values):
             continue
         if (values.dropna().astype(object).astype(str) == str(unknown_label)).any():
-            adata.obs[column] = _msnset.unknown_to_nan(values, unknown_label)
+            adata.obs[column] = _unknown_to_nan(values, unknown_label)
             touched.append(column)
 
     if set_colors and touched:
@@ -199,13 +253,13 @@ def read_prolocdata(
 
     See Also
     --------
-    grassp.io.read_msnset : Read an ``MSnSet`` exported as h5ad by the ``grasspio`` R package.
-    grassp.io.write_msnset : Send a grassp object to pRoloc.
+    anndata.read_h5ad : Read an ``MSnSet`` that the ``grasspio`` R package wrote as h5ad. That
+        is an ordinary h5ad, so no grassp function is involved in either direction.
 
     Examples
     --------
     >>> adata = gr.io.read_prolocdata("dunkley2006.rda")   # doctest: +SKIP
-    >>> adata.obs["markers"].isna().sum()                  # unlabelled proteins   doctest: +SKIP
+    >>> adata.obs["markers"].isna().sum()  # unlabelled proteins   # doctest: +SKIP
     """
     rdata = _import_rdata()
 

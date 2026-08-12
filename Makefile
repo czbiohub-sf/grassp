@@ -54,11 +54,12 @@ test:
 	pytest -v
 
 # Most docstring examples in this package need real data and are marked `doctest: +SKIP`,
-# so `make test` does not run doctests. grassp/io/_msnset.py is pure and dependency-light,
-# and its examples document the pRoloc exchange contract, so they are worth executing.
+# so `make test` does not run doctests. The "unknown"-sentinel helpers in grassp/io/read.py are
+# pure and dependency-light, and their examples document the one pRoloc convention Python handles
+# itself, so they are worth executing.
 .PHONY: test-doctest
 test-doctest:
-	pytest --doctest-modules $(PACKAGE_NAME)/io/_msnset.py
+	pytest --doctest-modules $(PACKAGE_NAME)/io/read.py
 
 .PHONY: docs
 docs:

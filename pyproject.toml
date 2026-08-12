@@ -75,8 +75,8 @@ ccompass = [
     "tensorboard",
 ]
 # pRoloc / pRolocdata interoperability. `rdata` is a pure-Python R-data parser, needed only
-# by gr.io.read_prolocdata to read .rda/.rds files; the h5ad round trip
-# (gr.io.write_msnset / gr.io.read_proloc_results) needs nothing beyond anndata.
+# by gr.io.read_prolocdata to read .rda/.rds files; the h5ad round trip needs nothing at all,
+# since it is anndata's own read_h5ad/write_h5ad in both directions.
 # The R half is a separate package in this repo:
 #   remotes::install_github("czbiohub-sf/grassp", subdir = "r/grasspio")
 proloc = [

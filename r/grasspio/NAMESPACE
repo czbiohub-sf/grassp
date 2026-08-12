@@ -1,5 +1,4 @@
 export(grassp_as_msnset)
-export(grassp_msnset_spec)
 export(grassp_write_msnset)
 importFrom(anndataR,AnnData)
 importFrom(anndataR,read_h5ad)

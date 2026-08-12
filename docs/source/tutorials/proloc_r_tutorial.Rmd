@@ -88,10 +88,11 @@ x <- grassp_as_msnset(h5ad_path)
 x
 ```
 
-That is the whole conversion. A portal file is a *plain* h5ad — it carries none of `grasspio`'s
-own exchange-contract metadata — and `grassp_as_msnset()` reads it anyway: the contract check
-tolerates a missing version block, and the `nan_to_unknown` default rewrites `NA` markers to the
-literal `"unknown"` that pRoloc requires, because `markerMSnSet()` fails outright on `NA`.
+That is the whole conversion. There is nothing special about the file: a portal dataset is a plain
+h5ad, and so is anything grassp writes — the objects describe themselves, so there is no version
+block to check and no metadata to be missing. The one thing `grassp_as_msnset()` does change is the
+`nan_to_unknown` default, which rewrites `NA` markers to the literal `"unknown"` that pRoloc
+requires, because `markerMSnSet()` fails outright on `NA`.
 
 ## Getting oriented
 
@@ -353,8 +354,8 @@ out <- file.path(tempdir(), "dunkley2006.h5ad")
 grassp_write_msnset(dunkley2006, out, overwrite = TRUE)
 ```
 
-Scalar `fData` columns become `obs`, matrix-valued ones become `obsm` with their class names in
-`uns$obsm_colnames`, extra `assayData` elements become layers, and `"unknown"` becomes `NA` on
+Scalar `fData` columns become `obs`, matrix-valued ones become `obsm` data frames that carry their
+own class names, extra `assayData` elements become layers, and `"unknown"` becomes `NA` on
 the way out because that is grassp's encoding. Reading it back gives the same object:
 
 ```{r}
@@ -368,9 +369,9 @@ c(
 getMarkerClasses(back, fcol = "markers")
 ```
 
-That file is what a grassp user would open with `gr.io.read_msnset("dunkley2006.h5ad")`. The
-mapping table, and the few things that cannot cross, are in `vignette("grasspio")` and in
-{doc}`../api/io`.
+That file is what a grassp user would open with `anndata.read_h5ad("dunkley2006.h5ad")` — no
+grassp function required, because it is an ordinary h5ad. The mapping table, and the few things
+that cannot cross, are in `vignette("grasspio")` and in {doc}`../api/io`.
 
 ## Session info
 
