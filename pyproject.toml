@@ -94,6 +94,10 @@ docs = [
     "sphinx-book-theme",
     "myst_parser",
     "myst-nb",
+    # The R tutorial is an .Rmd page source; jupytext converts it for myst-nb to execute.
+    # Executing it additionally needs R with IRkernel registered as the `ir` kernelspec, plus
+    # pRoloc, pRolocdata and grasspio -- see docs/source/conf.py.
+    "jupytext",
 ]
 
 [project.scripts]

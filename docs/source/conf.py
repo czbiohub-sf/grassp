@@ -72,7 +72,18 @@ intersphinx_mapping = dict(
 
 # Execute notebooks only when out-of-date and set timeout
 nb_execution_mode = "cache"  # or "force" to always run, "off" to skip
-nb_execution_timeout = 300  # seconds
+nb_execution_timeout = 600  # seconds; the R tutorial downloads a dataset before it can start
 # The C-COMPASS tutorial needs the optional tensorflow-backed extra and takes minutes to
 # train, so it is shipped pre-rendered and excluded from build-time execution.
 nb_execution_excludepatterns = ["**/ccompass_tutorial.ipynb"]
+
+# R Markdown is a notebook format too. jupytext converts .Rmd on the fly, so myst-nb executes
+# it with the `ir` kernel exactly as it executes the .ipynb tutorials -- and because the .Rmd
+# *is* the page source, the theme's download button hands readers the runnable original rather
+# than a rendered copy.
+#
+# Building the R tutorial therefore needs R with IRkernel registered as the `ir` kernelspec,
+# plus pRoloc/pRolocdata/grasspio. Without them that one page fails to execute: myst-nb logs a
+# warning, embeds the traceback, and sphinx-build still exits 0 -- so check the build log rather
+# than trusting the exit status.
+nb_custom_formats = {".Rmd": ["jupytext.reads", {"fmt": "Rmd"}]}

@@ -22,7 +22,6 @@ on:
       # The Python half of the same contract.
       - 'grassp/io/_msnset.py'
       - 'grassp/io/proloc.py'
-      - 'docs/knit_r_tutorial.R'
   pull_request:
     paths:
       - 'r/**'
@@ -32,7 +31,6 @@ on:
       - 'grassp/tests/test_msnset_mapping.py'
       - 'grassp/io/_msnset.py'
       - 'grassp/io/proloc.py'
-      - 'docs/knit_r_tutorial.R'
   # So a maintainer can run it without pushing, and so it can be re-run while being debugged.
   workflow_dispatch:
 
@@ -54,10 +52,6 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      # portal.Rmd downloads a dataset from the grassp portal and, if that fails, renders every
-      # later chunk empty rather than erroring -- good for an offline laptop, useless in CI,
-      # where it would turn a green build into one that tested nothing. This makes it fatal.
-      GRASSPIO_VIGNETTE_STRICT: 'true'
 
     steps:
       - uses: actions/checkout@v4

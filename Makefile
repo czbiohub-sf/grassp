@@ -24,6 +24,17 @@ pre-commit:
 test:
 	pytest -v
 
+# Most docstring examples in this package need real data and are marked `doctest: +SKIP`,
+# so `make test` does not run doctests. grassp/io/_msnset.py is pure and dependency-light,
+# and its examples document the pRoloc exchange contract, so they are worth executing.
+.PHONY: test-doctest
+test-doctest:
+	pytest --doctest-modules $(PACKAGE_NAME)/io/_msnset.py
+
+.PHONY: docs
+docs:
+	sphinx-build -b html docs/source docs/build/html
+
 .PHONY: setup-build
 setup-build:
 	pip install -e .'[build]'

@@ -136,3 +136,11 @@ ENV/
 # mypy
 .mypy_cache/
 .dmypy.json
+
+# Artifacts written or downloaded by the pRoloc tutorial notebook when it executes.
+# proloc_tutorial_results.h5ad is the cached R output; it is 4 MB, so it is published next to
+# the portal datasets and fetched at build time rather than committed. Regenerate it with
+# docs/source/tutorials/notebooks/proloc_tutorial.R and re-upload.
+docs/source/tutorials/notebooks/experiment.h5ad
+docs/source/tutorials/notebooks/experiment_run_proloc.R
+docs/source/tutorials/notebooks/proloc_tutorial_results.h5ad

@@ -30,15 +30,11 @@ pRoloc and MSnbase ship no exporter of their own, so `grassp_write_msnset()` is 
 if you never touch grassp — it is a way to hand a classified `MSnSet` to anything that reads
 h5ad.
 
-Two vignettes:
+See `vignette("grasspio")` for the mapping table, the two conversions it handles for you, and
+the limitations; and `docs/source/api/io.md` in the parent repository for the Python side.
 
-- `vignette("grasspio")` — the exchange format itself: the mapping table, what crosses, and the
-  limitations. Start here if you are moving your own object between R and Python.
-- `vignette("portal")` — download a dataset from the
-  [grassp portal](https://grassp.apps.czbiohub.org/datasets) and analyse it in pRoloc, including
-  reproducing the PCA coordinates the portal ships. No Python involved.
-
-See `docs/source/api/io.md` in the parent repository for the Python side.
+The ~100 curated datasets on the [grassp portal](https://grassp.apps.czbiohub.org/datasets) are
+h5ad files, so `grassp_as_msnset()` reads them directly — no Python needed to use them.
 
 ## A known-good development environment
 

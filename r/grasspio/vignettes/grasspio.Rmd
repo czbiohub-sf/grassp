@@ -27,11 +27,6 @@ That lets you preprocess in one language and classify in the other. It is also u
 own: neither pRoloc nor MSnbase ships an exporter, so `grassp_write_msnset()` is a way to hand
 a classified `MSnSet` to anything that reads h5ad.
 
-This vignette is about moving *your own* object across the boundary. If instead you want to pull
-one of the ~100 curated datasets off the
-[grassp data portal](https://grassp.apps.czbiohub.org/datasets) and analyse it in pRoloc, see
-`vignette("portal", package = "grasspio")` — that needs no Python either.
-
 ## Installation
 
 ```{r install}
@@ -61,6 +56,11 @@ x
 fvarLabels(x)                            # what marker columns are available
 getMarkerClasses(x, fcol = "markers")    # pick one per call
 ```
+
+You do not need a collaborator to get one: the roughly one hundred curated datasets published on
+the [grassp data portal](https://grassp.apps.czbiohub.org/datasets) are h5ad files that
+`grassp_as_msnset()` reads directly, so you can download one and analyse it in pRoloc without
+Python being involved anywhere.
 
 Note that nothing designates a single marker column. `fcol` is a per-call argument, so an
 object can carry `markers`, `markers.orig`, `pd.markers` and more at once, and you point each
