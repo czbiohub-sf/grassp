@@ -51,6 +51,7 @@ if TYPE_CHECKING:
 import numpy as np
 import pandas as pd
 
+from ..util import set_matrix
 from . import _merge, _msnset
 from ._merge import OnMismatch  # noqa: F401  (re-exported; part of the public signatures)
 from ._msnset import SpecVersionError  # noqa: F401  (re-exported for callers catching it)
@@ -253,11 +254,16 @@ def read_proloc_results(
 
     colnames_store = target.uns.setdefault(OBSM_COLNAMES_KEY, {})
     for matrix_key, matrix in matrices.items():
-        target.obsm[_key(matrix_key)] = _merge.reindex_matrix(
-            matrix, obs.index, target.obs_names
-        )
-        if colnames.get(matrix_key):
-            colnames_store[_key(matrix_key)] = list(colnames[matrix_key])
+        aligned = _merge.reindex_matrix(matrix, obs.index, target.obs_names)
+        names = colnames.get(matrix_key)
+        if names and len(names) == aligned.shape[1]:
+            # Land it with its class names attached, so the mapping survives in the object
+            # itself and not only in the uns block.
+            set_matrix(target, _key(matrix_key), aligned, names)
+        else:
+            target.obsm[_key(matrix_key)] = aligned
+        if names:
+            colnames_store[_key(matrix_key)] = list(names)
 
     target.uns[_key("proloc_import")] = {
         "source": source,
@@ -636,14 +642,17 @@ def _select_matrices(
     ``AnnotatedDataFrame`` class -- a matrix column behaves the same way on either.
 
     ``keys=None`` takes every two-dimensional entry; a non-2D one is dropped, since an
-    ``AnnotatedDataFrame`` cannot hold it. Column names are looked for in three places, in
+    ``AnnotatedDataFrame`` cannot hold it. Column names are looked for in four places, in
     order of authority, and fall back to ``V1..Vn``:
 
-    1. ``uns["obsm_colnames"][key]`` / ``uns["varm_colnames"][key]`` -- an explicit declaration.
-    2. ``uns[f"{key}_categories"]``, including after stripping a ``_probabilities`` /
+    1. the entry's own columns, when it is a :class:`~pandas.DataFrame`. Nothing can
+       contradict names carried by the matrix itself, which is why grassp's annotators write
+       them that way -- see :func:`grassp.util.set_matrix`.
+    2. ``uns["obsm_colnames"][key]`` / ``uns["varm_colnames"][key]`` -- an explicit declaration.
+    3. ``uns[f"{key}_categories"]``, including after stripping a ``_probabilities`` /
        ``.probabilities`` / ``_one_hot_labels`` suffix -- the convention grassp's own annotators
        write.
-    3. the categories of the companion label column, ``obs[stem]`` (or ``var[stem]``) -- which
+    4. the categories of the companion label column, ``obs[stem]`` (or ``var[stem]``) -- which
        is where they actually live for a probability matrix whose ``uns`` key was never
        written. Portal datasets are curated this way:
        ``harmonized_annotation_propagated_probabilities`` has no ``_categories`` entry, but
@@ -654,12 +663,19 @@ def _select_matrices(
     uns_key = OBSM_COLNAMES_KEY if axis == "obs" else VARM_COLNAMES_KEY
 
     available = {str(k): _as_array(v) for k, v in mapping.items()}
+    carried = {
+        str(k): [str(c) for c in v.columns]
+        for k, v in mapping.items()
+        if isinstance(v, pd.DataFrame)
+    }
     declared = _msnset.declared_colnames(data.uns.get(uns_key))
 
     def _stems(key: str) -> list[str]:
         return [key] + [key[: -len(s)] for s in _MATRIX_SUFFIXES if key.endswith(s)]
 
     def _names_for(key: str, width: int) -> list[str]:
+        if len(carried.get(key, ())) == width:
+            return carried[key]
         if len(declared.get(key, ())) == width:
             return declared[key]
         for stem in _stems(key):

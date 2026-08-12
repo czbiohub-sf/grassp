@@ -13,6 +13,8 @@ from numpy.linalg import det, eigvals, inv
 from scipy.special import gammaln  # pylint: disable=no-name-in-module
 from scipy.stats import multivariate_normal
 
+from ..util import set_matrix
+
 # ----------------------------
 # Helper functions
 # ----------------------------
@@ -454,7 +456,7 @@ def tagm_map_predict(
             adata.uns["tagm.map.allocation_colors"] = adata.uns[f"{params['gt_col']}_colors"]
         adata.obs["tagm.map.probability"] = prob_all
 
-        adata.obsm["tagm.map.probabilities"] = a
+        set_matrix(adata, "tagm.map.probabilities", a, markers)
         if probJoint:
             # Create joint probability matrix for markers.
             marker_prob = np.zeros((adata_markers.n_obs, K))
