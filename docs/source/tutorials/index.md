@@ -2,12 +2,21 @@
 
 Below you will find hands-on notebooks demonstrating typical `grassp` workflows.
 
+## Basic processing tutorials
+
 ```{toctree}
 :maxdepth: 1
 
 notebooks/DC_tutorial
 notebooks/OrgIP_tutorial
 notebooks/integration_tutorial
+```
+
+
+## Advanced annotation tutorials
+
+```{toctree}
+:maxdepth: 1
 notebooks/ccompass_tutorial
 notebooks/diffusion_tutorial
 ```
@@ -25,14 +34,8 @@ notebooks/proloc_tutorial
 proloc_r_tutorial
 ```
 
-- **[the Python side](notebooks/proloc_tutorial)** — you preprocess and plot in Python, hand the
+- **[for grassp users](notebooks/proloc_tutorial)** — you preprocess and plot in Python, hand the
   object to R for a classifier pRoloc has and grassp does not, and read it back.
-- **[the R side](proloc_r_tutorial)** — you work in R, and want to pull a dataset off the
+- **[for pRoloc users](proloc_r_tutorial)** — you work in R, and want to pull a dataset off the
   [grassp portal](https://grassp.apps.czbiohub.org/datasets) and analyse it with pRoloc. Needs no
   Python at all.
-
-```{note}
-The R page is an R Markdown notebook, executed at build time with the `ir` kernel just like the
-`.ipynb` tutorials — so building the docs needs R with IRkernel, pRoloc, pRolocdata and grasspio.
-Its download button hands you the runnable `.Rmd`.
-```
