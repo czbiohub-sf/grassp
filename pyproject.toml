@@ -49,7 +49,6 @@ dependencies = [
     "seaborn",
     "umap-learn",
 #    "alphastats",
-#    "gseapy",
 ]
 
 
@@ -95,9 +94,14 @@ docs = [
     "myst_parser",
     "myst-nb",
     # The R tutorial is an .Rmd page source; jupytext converts it for myst-nb to execute.
-    # Executing it additionally needs R with IRkernel registered as the `ir` kernelspec, plus
-    # pRoloc, pRolocdata and grasspio -- see docs/source/conf.py.
+    # Executing it additionally needs the conda environment in r-environment.yml, with IRkernel
+    # registered as the `ir` kernelspec -- run `make setup-r`. See docs/source/conf.py.
     "jupytext",
+    # Needed to *execute* the tutorials, not merely to render them: OrgIP_tutorial calls
+    # gr.tl.calculate_cluster_enrichment (gseapy), and the ternary plots need mpltern. Without
+    # them those pages fail to a myst-nb warning and ship with a traceback embedded.
+    "gseapy",
+    "mpltern",
 ]
 
 [project.scripts]

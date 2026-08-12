@@ -36,31 +36,30 @@ the limitations; and `docs/source/api/io.md` in the parent repository for the Py
 The ~100 curated datasets on the [grassp portal](https://grassp.apps.czbiohub.org/datasets) are
 h5ad files, so `grassp_as_msnset()` reads them directly — no Python needed to use them.
 
-## A known-good development environment
+## A development environment
 
-`anndataR` needs R >= 4.5, and `rhdf5` is required at runtime even though `anndataR` does not
-declare it as a hard dependency. On Apple silicon, `bioconductor-msnbase` currently has no
-`osx-arm64` build (its `affyio` dependency is missing), so build the environment for `osx-64`
-and let Rosetta run it:
+The environment is declared in [`r-environment.yml`](../../r-environment.yml) at the repository
+root. From there:
 
 ```sh
-CONDA_SUBDIR=osx-64 conda create -n grassp-r -c conda-forge -c bioconda \
-    bioconductor-msnbase bioconductor-anndatar bioconductor-rhdf5 r-testthat
-
-# pRoloc is not in bioconda; build it from source. It needs a C++ toolchain.
-CONDA_SUBDIR=osx-64 conda install -n grassp-r -c conda-forge \
-    clang_osx-64 clangxx_osx-64 gfortran_osx-64 make
-conda activate grassp-r
-R CMD INSTALL /path/to/pRoloc
-
-R CMD INSTALL r/grasspio
-# test_local() loads only grasspio's own namespace, so it catches a test that passes merely
-# because pRoloc happened to be attached.
-Rscript -e 'setwd("r/grasspio"); library(testthat); test_local()'
+make setup-r    # creates the conda env, installs grasspio, registers the `ir` Jupyter kernel
+make test-r     # runs the testthat suite
 ```
 
-The combination this package was last verified against:
+`make test-r` uses `testthat::test_local()`, which loads only grasspio's own namespace — that
+catches a test which passes merely because `pRoloc` happened to be attached.
+
+Three things the file encodes that are easy to get wrong by hand:
+
+- `anndataR` needs R >= 4.5, which sets the floor for everything else.
+- `rhdf5` is required at runtime even though `anndataR` declares it only in *Suggests*, so
+  nothing else pulls it in.
+- On Apple silicon the environment must be built for `osx-64`: `bioconductor-msnbase` has no
+  `osx-arm64` build, because its `affyio` dependency is missing there. Rosetta runs the x86_64
+  packages without trouble, and `make setup-r` sets `CONDA_SUBDIR` for you. On Linux and Intel
+  macOS that is a no-op.
+
+Both `pRoloc` and `pRolocdata` are in bioconda, so nothing here needs a C++ toolchain or a
+source build. The combination this package was last verified against:
 
     R 4.5.3 | MSnbase 2.36.0 | pRoloc 1.51.1 | anndataR 1.0.2 | rhdf5 2.54.1
-
-On Linux, or on Intel macOS, the `CONDA_SUBDIR` prefix is unnecessary.
