@@ -186,12 +186,18 @@ grassp_as_msnset <- function(path, nan_to_unknown = TRUE) {
   for (nm in colnames(df)[is_matrix_column]) {
     m <- as.matrix(df[[nm]])
     storage.mode(m) <- "double"
-    matrices[[nm]] <- m
     colnames_map[[nm]] <- if (is.null(colnames(m))) {
       paste0("V", seq_len(ncol(m)))
     } else {
       colnames(m)
     }
+    ## Drop the dimnames now that the colnames are safely in colnames_map. obsm/varm arrays
+    ## carry no column names in the AnnData model, which is the whole reason the contract puts
+    ## them in uns -- and anndataR >= 1.2 warns once per matrix if you hand it dimnames it is
+    ## about to discard. Alignment is positional, and the reader restores rownames from
+    ## obs_names/var_names.
+    dimnames(m) <- NULL
+    matrices[[nm]] <- m
   }
   list(
     scalar = as.data.frame(df[, !is_matrix_column, drop = FALSE], stringsAsFactors = FALSE),
@@ -317,6 +323,7 @@ grassp_write_msnset <- function(x,
   for (nm in setdiff(Biobase::assayDataElementNames(x), "exprs")) {
     m <- as.matrix(Biobase::assayDataElement(x, nm))
     storage.mode(m) <- "double"
+    dimnames(m) <- NULL # see .split_matrix_columns; anndataR >= 1.2 warns about these
     layers[[nm]] <- m
   }
 

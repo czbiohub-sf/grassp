@@ -308,6 +308,8 @@ def list_msnset_results(
     >>> gr.io.list_msnset_results("results.h5ad")["matrices"]   # doctest: +SKIP
     {'svm.all.scores': {'shape': [2538, 12], 'categories': ['Cytosol', ...]}}
     """
+    from ..util import layer_names
+
     artifact = read_msnset(path, set_colors=False, strict_spec=strict_spec)
     spec = _msnset.read_spec_block(artifact.uns, strict=False)
 
@@ -331,7 +333,10 @@ def list_msnset_results(
         "var": {str(c): str(artifact.var[c].dtype) for c in artifact.var.columns},
         "matrices": _describe(artifact.obsm, OBSM_COLNAMES_KEY),
         "var_matrices": _describe(artifact.varm, VARM_COLNAMES_KEY),
-        "layers": sorted(str(k) for k in artifact.layers),
+        # layer_names(), not artifact.layers: anndata >= 0.13 backs .X with layers[None], so
+        # iterating .layers directly reports a phantom "None" layer that is really the main
+        # matrix.
+        "layers": sorted(layer_names(artifact)),
         "notes": _msnset.notes_for(list(artifact.obs.columns) + list(artifact.obsm)),
         "dropped": list(spec["dropped"]),
     }

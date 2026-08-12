@@ -25,6 +25,7 @@ import pandas as pd
 import pytest
 
 from grassp.io import _msnset, proloc
+from grassp.util import layer_names
 
 FIXTURE = Path(__file__).parent / "fixtures" / "proloc_results.h5ad"
 
@@ -185,7 +186,8 @@ class TestWriteMsnset:
         `filterNA` and `[`, which is what makes this safe rather than a side table.
         """
         artifact = anndata.read_h5ad(exported)
-        assert set(artifact.layers) == {"pvals"}
+        # layer_names(), not set(artifact.layers): anndata >= 0.13 backs .X with layers[None].
+        assert set(layer_names(artifact)) == {"pvals"}
         assert np.allclose(artifact.layers["pvals"], adata.layers["pvals"])
 
     def test_layers_are_no_longer_reported_as_dropped(self, exported):
@@ -196,13 +198,13 @@ class TestWriteMsnset:
         adata.layers["extra"] = adata.layers["pvals"] * 2
         path = proloc.write_msnset(adata, tmp_path / "sel.h5ad", layers=["extra"])
         artifact = anndata.read_h5ad(path)
-        assert set(artifact.layers) == {"extra"}
+        assert set(layer_names(artifact)) == {"extra"}
         assert "layers:pvals" in artifact.uns["msnset_dropped"]
 
     def test_layers_can_be_suppressed(self, adata, tmp_path):
         path = proloc.write_msnset(adata, tmp_path / "none.h5ad", layers=[])
         artifact = anndata.read_h5ad(path)
-        assert dict(artifact.layers) == {}
+        assert layer_names(artifact) == []
         assert "layers:pvals" in artifact.uns["msnset_dropped"]
 
     def test_unknown_layer_name_raises(self, adata, tmp_path):
@@ -460,8 +462,9 @@ class TestRoundTripIsLossless:
         original, restored = pair
         lost = {
             slot: set(getattr(original, slot)) - set(getattr(restored, slot))
-            for slot in ("obsm", "varm", "layers", "uns", "obsp", "varp")
+            for slot in ("obsm", "varm", "uns", "obsp", "varp")
         }
+        lost["layers"] = set(layer_names(original)) - set(layer_names(restored))
         lost["obs"] = set(original.obs.columns) - set(restored.obs.columns)
         lost["var"] = set(original.var.columns) - set(restored.var.columns)
         assert {slot for slot, missing in lost.items() if missing} == {"obsp"}
@@ -910,7 +913,7 @@ class TestGoldenFixture:
         inventory = proloc.list_msnset_results(FIXTURE)
         assert inventory["n_obs"] == 12
         assert inventory["n_vars"] == 6
-        assert inventory["layers"] == ["pvals"]
+        assert inventory["layers"] == ["pvals"]  # not ["None", "pvals"]
         assert "fraction" in inventory["var"]
         assert inventory["var_matrices"]["PCs"]["shape"] == [6, 2]
         assert inventory["var_matrices"]["PCs"]["categories"] == ["PC1", "PC2"]

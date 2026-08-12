@@ -62,34 +62,77 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Redundant in principle -- setup-r-dependencies installs pandoc when the package Suggests
+      # rmarkdown, which grasspio does -- but it is seconds, and both vignettes are knitr, so
+      # keep it as insurance against that behaviour changing.
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
-          # Points CRAN at Posit Package Manager, which serves precompiled Linux binaries.
-          # Without it, MSnbase's mzR dependency compiles from source and the job takes tens
-          # of minutes instead of a few.
+          # NB this only redirects *CRAN* at Posit Package Manager. It does nothing for the
+          # Bioconductor half of the tree, which is most of the weight here: MSnbase, mzR,
+          # Rhdf5lib, Biostrings and pRoloc are Bioconductor-only and get built from source, so
+          # expect a cold run to take tens of minutes. setup-r-dependencies caches, so it is the
+          # first run on a branch that is slow, not every run.
           use-public-rspm: true
+
+      # Bioconductor is where all the build time goes. use-public-rspm points *CRAN* at Posit
+      # Package Manager, which is why 230 of the ~280 packages arrive prebuilt -- but pak resolves
+      # Bioconductor from bioconductor.posit.co, which serves source, so the remaining ~48 (mzR,
+      # Rhdf5lib, Biostrings, preprocessCore, pRoloc, ...) get compiled.
+      #
+      # pkgcache builds its Bioc URLs as {mirror}/packages/{bioc-version}/{sub-repo} and reads the
+      # mirror from R_BIOC_MIRROR, and P3M deliberately mimics that layout -- so pointing the one
+      # variable at P3M's binary path flips those to downloads. It is the same mechanism already
+      # working for CRAN here, not a new one.
+      #
+      # The codename is read from the runner rather than hardcoded, and the P3M API is asked
+      # whether it actually has binaries for it. If it does not -- a new Ubuntu image, or the API
+      # unreachable -- this says so and leaves the default alone, so the worst case is the slow
+      # build we have now rather than a broken job.
+      - name: Prefer Posit's Bioconductor binaries when they exist
+        run: |
+          codename="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+          if curl -sf --max-time 30 https://packagemanager.posit.co/__api__/status \
+               | jq -e --arg c "$codename" \
+                   '.distros[] | select(.binaryURL == $c and .binaries == true)' >/dev/null; then
+            mirror="https://packagemanager.posit.co/bioconductor/__linux__/$codename"
+            echo "R_BIOC_MIRROR=$mirror" >> "$GITHUB_ENV"
+            echo "Bioconductor binaries: $mirror"
+          else
+            echo "No Posit Bioconductor binaries for '$codename'; building from source."
+          fi
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           # r/grasspio, not the repo root -- this is where the DESCRIPTION lives.
           working-directory: r/grasspio
           # "all" so Suggests come too: pRoloc, rhdf5, testthat, knitr and rmarkdown are all
-          # Suggests, and the vignettes and tests need every one of them.
+          # Suggests, and the vignettes and tests need every one of them. This is also the
+          # default; it is spelled out because dropping to "hard" would silently stop testing
+          # anything. Bioconductor is resolved automatically -- pak adds the Bioc repos for the
+          # R version in use, so no BiocManager step and no bioc:: prefixes are needed.
           dependencies: '"all"'
           extra-packages: any::rcmdcheck
+          # 'always', not the default true: with `true` the cache is only written when the job
+          # succeeds, so a run that fails anywhere after the install throws away 20+ minutes of
+          # compiled Bioconductor and the next attempt starts cold. That is precisely the wrong
+          # behaviour while a workflow is being debugged.
+          cache: 'always'
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           working-directory: r/grasspio
+          # Deliberately narrower than the action's default c("--no-manual", "--as-cran").
+          # --as-cran turns on CRAN-incoming and URL checking, which flags the portal links as
+          # NOTEs because grassp.apps.czbiohub.org answers 401 to an unauthenticated request.
+          # This job is here to answer "does the bridge still work", not to gate a CRAN release.
           args: 'c("--no-manual")'
-          # The package has two known findings that are not this workflow's business to police:
-          # a WARNING for missing man/*.Rd (roxygen has never been run) and a NOTE that the
-          # LICENSE stub is invalid DCF. Failing on warnings would make this job red on day one
-          # for reasons unrelated to whether the bridge works. Tighten to "warning" once those
-          # are fixed.
+          # The action defaults to error-on: "warning", which would fail this package on day one
+          # for two findings unrelated to the bridge: a WARNING for missing man/*.Rd (roxygen has
+          # never been run) and a NOTE that the LICENSE stub is invalid DCF. Tighten to
+          # '"warning"' once those are fixed.
           error-on: '"error"'
           upload-snapshots: true
 
@@ -107,10 +150,22 @@ jobs:
           r-version: 'release'
           use-public-rspm: true
 
+      # Same Bioconductor-binary trick as the check job; see the comment there.
+      - name: Prefer Posit's Bioconductor binaries when they exist
+        run: |
+          codename="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+          if curl -sf --max-time 30 https://packagemanager.posit.co/__api__/status \
+               | jq -e --arg c "$codename" \
+                   '.distros[] | select(.binaryURL == $c and .binaries == true)' >/dev/null; then
+            echo "R_BIOC_MIRROR=https://packagemanager.posit.co/bioconductor/__linux__/$codename" \
+              >> "$GITHUB_ENV"
+          fi
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           working-directory: r/grasspio
           dependencies: '"all"'
+          cache: 'always'
 
       - name: Install grasspio
         run: R CMD INSTALL --no-docs r/grasspio
