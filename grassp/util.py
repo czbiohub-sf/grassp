@@ -23,6 +23,7 @@ ndarrays written by older versions.
 """
 
 from __future__ import annotations
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, Sequence
 
 import numpy as np
@@ -33,6 +34,9 @@ if TYPE_CHECKING:
 
 #: Which axis a labelled matrix is aligned to. ``"obs"`` is ``.obsm``, ``"var"`` is ``.varm``.
 Axis = Literal["obs", "var"]
+
+#: The slots :func:`diff_anndata` walks, in the order :meth:`anndata.AnnData.__repr__` prints them.
+_DIFFABLE_SLOTS = ("obs", "var", "uns", "obsm", "varm", "layers", "obsp", "varp")
 
 
 def layer_names(data: AnnData) -> list[str]:
@@ -45,6 +49,170 @@ def layer_names(data: AnnData) -> list[str]:
     the pair as inconsistent.
     """
     return [name for name in data.layers.keys() if name is not None]
+
+
+def _slot_keys(data: AnnData, slot: str) -> list[str]:
+    """The keys of one slot, as strings, with the main matrix left out of ``layers``."""
+    if slot == "layers":
+        return [str(name) for name in layer_names(data)]
+    if slot == "uns":
+        return list(_flatten_uns(data.uns))
+    elem = getattr(data, slot)
+    keys = elem.columns if slot in ("obs", "var") else elem.keys()
+    return [str(key) for key in keys]
+
+
+def _flatten_uns(mapping: Mapping, prefix: str = "") -> dict[str, Any]:
+    """``.uns`` as a flat ``{dotted.path: leaf}`` mapping.
+
+    ``.uns`` is the one slot that nests, and nesting is where its interesting changes happen: a
+    round trip through another framework leaves the top-level keys alone while turning a scalar
+    two levels down into a one-element array. Reporting only ``neighbors`` would say nothing,
+    so the leaves are addressed by path instead.
+    """
+    flat: dict[str, Any] = {}
+    for key, value in mapping.items():
+        path = f"{prefix}{key}"
+        if isinstance(value, Mapping) and len(value) > 0:
+            flat.update(_flatten_uns(value, f"{path}."))
+        else:
+            flat[path] = value
+    return flat
+
+
+def _describe(value: Any) -> str:
+    """A short, comparable description of how a value is stored.
+
+    Type plus whatever else changes silently: the dtype and shape of an array, the length of a
+    list. Round trips through other frameworks routinely turn a Python ``int`` into a
+    one-element ``int64`` array, or a list into an ndarray, and neither shows up in the type name
+    alone.
+    """
+    if isinstance(value, np.ndarray):
+        return f"ndarray[{value.dtype}]{list(value.shape)}"
+    if isinstance(value, pd.DataFrame):
+        return f"DataFrame{list(value.shape)}"
+    if isinstance(value, pd.Series):
+        return f"Series[{value.dtype}]{list(value.shape)}"
+    if isinstance(value, (list, tuple, Mapping)):
+        return f"{type(value).__name__}[{len(value)}]"
+    return type(value).__name__
+
+
+def diff_anndata(a: AnnData, b: AnnData, *, check_dtypes: bool = True) -> pd.DataFrame:
+    """What differs *structurally* between two :class:`~anndata.AnnData` objects.
+
+    Walks the same slots :meth:`anndata.AnnData.__repr__` prints and reports, per key, whether it
+    was added, removed, or kept but stored differently. Useful for answering "what did that step
+    actually do to my object", and for checking what survived a round trip through another
+    framework.
+
+    What counts as *stored differently* is whatever changes silently in that slot:
+
+    * ``.obs`` / ``.var`` -- the column's dtype, so a Categorical degraded to ``object`` shows up.
+    * ``.obsm`` / ``.varm`` -- the container, so an array that came back as a DataFrame (and
+      therefore now names its own columns) shows up.
+    * ``.uns`` -- the type, dtype, shape or length of each **leaf**, addressed by dotted path.
+      This is the slot that nests, and nesting is where its drift lives: a round trip can leave
+      every top-level key in place while turning a scalar two levels down into a one-element
+      array, which reads back as ``neighbors.params.n_neighbors: int -> ndarray[int64][1]``.
+
+    Values themselves are **not** compared -- the matrices can be dense, sparse or dask, and two
+    objects can hold the same keys with different numbers. Use
+    ``anndata.tests.helpers.assert_equal`` when you need that.
+
+    Parameters
+    ----------
+    a, b
+        The before and after objects. Differences are reported as changes from ``a`` to ``b``.
+    check_dtypes
+        Whether to report the ``"changed"`` rows at all -- the three bullets above, all of which
+        are about *how* a key that exists in both is stored. ``False`` leaves only what was added
+        and removed, which is the question to ask when the two objects are not expected to store
+        things the same way in the first place. The shape row is unaffected.
+
+    Returns
+    -------
+    One row per difference, with columns ``change`` (``"added"``, ``"removed"`` or
+    ``"changed"``), ``slot``, ``key`` and ``detail``. Empty when the two are structurally
+    identical, so ``diff_anndata(a, b).empty`` is the question "did anything move".
+
+    Examples
+    --------
+    >>> import anndata, numpy as np, pandas as pd
+    >>> obs = pd.DataFrame({"markers": ["ER", "Golgi"]}, index=["P1", "P2"])
+    >>> before = anndata.AnnData(np.zeros((2, 3)), obs=obs)
+    >>> before.uns["neighbors"] = {"params": {"n_neighbors": 15}}
+    >>> after = before.copy()
+    >>> after.obs["svm"] = pd.Categorical(["ER", "ER"])
+    >>> del after.obs["markers"]
+    >>> after.uns["neighbors"]["params"]["n_neighbors"] = np.array([15])
+    >>> diff_anndata(before, after)  # doctest: +NORMALIZE_WHITESPACE
+        change slot                           key                   detail
+    0    added  obs                           svm
+    1  removed  obs                       markers
+    2  changed  uns  neighbors.params.n_neighbors  int -> ndarray[int64][1]
+
+    >>> diff_anndata(before, after, check_dtypes=False)  # doctest: +NORMALIZE_WHITESPACE
+        change slot      key detail
+    0    added  obs      svm
+    1  removed  obs  markers
+    """
+    rows: list[dict[str, str]] = []
+
+    if a.shape != b.shape:
+        rows.append(
+            {
+                "change": "changed",
+                "slot": "shape",
+                "key": "",
+                "detail": f"{a.shape} -> {b.shape}",
+            }
+        )
+
+    for slot in _DIFFABLE_SLOTS:
+        keys_a, keys_b = _slot_keys(a, slot), _slot_keys(b, slot)
+        rows.extend(
+            {"change": "added", "slot": slot, "key": key, "detail": ""}
+            for key in keys_b
+            if key not in keys_a
+        )
+        rows.extend(
+            {"change": "removed", "slot": slot, "key": key, "detail": ""}
+            for key in keys_a
+            if key not in keys_b
+        )
+
+        if not check_dtypes:
+            continue
+
+        if slot == "uns":
+            flat_a, flat_b = _flatten_uns(a.uns), _flatten_uns(b.uns)
+
+        shared = [key for key in keys_a if key in keys_b]
+        for key in shared:
+            if slot in ("obs", "var"):
+                before, after = getattr(a, slot)[key].dtype, getattr(b, slot)[key].dtype
+            elif slot in ("obsm", "varm"):
+                # An ndarray that came back as a DataFrame has gained its column names, which is
+                # a real change in what the object tells you about itself.
+                before, after = type(getattr(a, slot)[key]), type(getattr(b, slot)[key])
+                before, after = before.__name__, after.__name__
+            elif slot == "uns":
+                before, after = _describe(flat_a[key]), _describe(flat_b[key])
+            else:
+                continue
+            if str(before) != str(after):
+                rows.append(
+                    {
+                        "change": "changed",
+                        "slot": slot,
+                        "key": key,
+                        "detail": f"{before} -> {after}",
+                    }
+                )
+
+    return pd.DataFrame(rows, columns=["change", "slot", "key", "detail"])
 
 
 def set_matrix(
