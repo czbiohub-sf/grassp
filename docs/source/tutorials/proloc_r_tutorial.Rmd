@@ -201,7 +201,7 @@ c(PC1 = cor(default_pca[, 1], stored[, 1]), PC2 = cor(default_pca[, 2], stored[,
 ```
 
 PC2 correlates at about 0.24. Nothing is broken: `plot2D()` passes `scale = TRUE` to `prcomp`,
-scaling every fraction to unit variance, while grassp centres without scaling. Scaling does not
+scaling every fraction to unit variance, while the PCA in the grassp object was centered but not scaled. Scaling does not
 merely stretch the axes — it changes the eigenvectors *and their order*, so comparing
 component-by-component across the two conventions compares different directions.
 
