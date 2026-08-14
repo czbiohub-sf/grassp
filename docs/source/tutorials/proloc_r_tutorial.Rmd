@@ -94,8 +94,23 @@ assumes, because `markerMSnSet()` fails outright on `NA`.
 
 ## Getting oriented
 
-Everything in the AnnData object has landed somewhere. Per-protein annotations are `fData`,
-per-fraction ones are `pData`, and the extra matrices are additional `assayData` elements:
+Everything in the AnnData object has landed somewhere, slot for slot:
+
+| grassp `AnnData` | pRoloc `MSnSet` |
+| --- | --- |
+| `.X` | `exprs()` which is the first `assayData` slot|
+| `.obs_names` / `.var_names` | `featureNames()` / `sampleNames()` |
+| `.obs` | `fData()` scalar columns |
+| `.obsm[k]`, as a DataFrame | `fData()[[k]]` — a **matrix nested inside one column** |
+| `.var` | `pData()` |
+| `.varm[k]`, as a DataFrame | `pData()[[k]]` — the same thing on the sample axis |
+| `.layers[k]` | extra `assayData` elements |
+| `.uns["processing"]` | `processingData()@processing` |
+| everything else in `.uns` | `experimentData()@other$grassp_uns` |
+| `.obsp` / `.varp` | **nothing** — `eSet` has no pairwise slot |
+
+So per-protein annotations are `fData`, per-fraction ones are `pData`, and the extra matrices are
+additional `assayData` elements:
 
 ```{r}
 dim(x)
@@ -105,7 +120,8 @@ assayDataElementNames(x)
 
 Some `fData` columns are themselves **matrices** — the per-protein × per-compartment arrays that
 came from AnnData's `obsm`. That is pRoloc's own idiom for score matrices, so they arrive in the
-shape pRoloc expects:
+shape pRoloc expects. Note that grassp stores PCA and UMAP coordinates in `fData(x)$X_pca`. This 
+means that plotting can be done cheaply without computing the dimensionality reduction again.
 
 ```{r}
 vapply(
@@ -125,8 +141,11 @@ unlist(uns[c("title", "publication_journal", "publication_doi")])
 
 ### Pick a marker column — there is no single one
 
-The portal maps several published marker sets onto every dataset. pRoloc's `fcol` is a per-call
-argument, so all of them are usable and you choose per analysis:
+The portal maps several published marker sets onto every dataset. They are the marker lists from
+the papers themselves, matched onto each dataset's protein IDs by grassp's
+`pp.add_markers()`, many of them imported from `pRoloc::pRolocmarkers()`
+
+We can check which marker columns are present, how many classes each has, and how many proteins are labelled in each:
 
 ```{r}
 marker_cols <- grep("^marker_|^author_markers", fvarLabels(x), value = TRUE)
@@ -138,7 +157,7 @@ data.frame(
 )
 ```
 
-We will use `marker_lilley`, the set `pRoloc::pRolocmarkers()` also ships:
+We will use `marker_lilley`, the set that grassp imports from `pRoloc::pRolocmarkers()`:
 
 ```{r}
 FCOL <- "marker_lilley"
@@ -147,8 +166,7 @@ dim(markerMSnSet(x, fcol = FCOL))
 c(missing = sum(is.na(exprs(x))), rows_summing_to_1 = sum(abs(rowSums(exprs(x)) - 1) < 1e-6))
 ```
 
-No preprocessing is needed on an enriched object: `filterNA()` and `normalise()` would both be
-no-ops here.
+No preprocessing is needed on an enriched object: `filterNA()` and `normalise()` could be applied here if you load a raw object.
 
 **One trap before you plot.** pRoloc defaults to `fcol = "markers"`, and a portal object has no
 such column — so a bare `plot2D(x)` errors with `fcol %in% fvarLabels(object) is not TRUE`.
@@ -166,9 +184,6 @@ options(repr.plot.height = 4)
 plot2D(x, method = "scree")
 options(repr.plot.height = 6)
 ```
-
-Note the tenth bar is empty. The profiles are normalised to sum to 1, so the centred matrix is
-rank 9 — which is also why the portal stores nine PCA components for ten fractions, not ten.
 
 ## Comparing pRoloc's PCA with the portal's own
 
@@ -198,29 +213,9 @@ colnames(matched)
 vapply(1:2, function(k) cor(matched[, k], stored[, k]), numeric(1))
 ```
 
-The variance-explained figures in the column names are the quickest tell that you have the right
-convention: 39.8% / 32.9% here versus 44.5% / 27.4% for the scaled default.
 
 `cor(PC2) = -1` is not a disagreement either. An eigenvector is only defined up to sign, so some
 components come back negated; that is arithmetic, not a discrepancy. Fix it explicitly:
-
-```{r}
-recomputed <- prcomp(exprs(x), center = TRUE, scale. = FALSE)$x[, 1:ncol(stored)]
-flip <- sign(diag(cor(recomputed, stored)))
-round(flip, 0)
-aligned <- sweep(recomputed, 2, flip, `*`)
-round(diag(cor(aligned, stored)), 6)
-```
-
-Those correlations round to 1, but the coordinates themselves still differ by around `1e-4`: the
-portal ships the embedding its pipeline produced, not a bit-exact function of the matrix
-alongside it. Treat it as a fixed reference embedding — compare with a correlation or a tolerance
-of about `1e-3`, never with `all.equal()`.
-
-```{r}
-c(max_abs_difference = max(abs(aligned - stored)))
-stopifnot(all(abs(diag(cor(recomputed, stored))) > 0.9999))
-```
 
 ### Drawing grassp's embeddings with pRoloc
 
