@@ -46,6 +46,8 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import KFold
 
+from ..util import set_matrix
+
 
 # --------------------------------------------------------------------------- #
 # helpers
@@ -505,7 +507,7 @@ def independent_diffusion(
         seed,
     )
 
-    adata.obsm[f"{key_added}_probabilities"] = Pcal
+    set_matrix(adata, f"{key_added}_probabilities", Pcal, terms)
     adata.uns[f"{key_added}_categories"] = terms
     adata.uns[f"{key_added}_alpha"] = np.array(
         [astar.get(t, np.nan) for t in terms], dtype=float

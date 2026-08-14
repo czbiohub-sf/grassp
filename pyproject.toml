@@ -49,7 +49,6 @@ dependencies = [
     "seaborn",
     "umap-learn",
 #    "alphastats",
-#    "gseapy",
 ]
 
 
@@ -75,6 +74,14 @@ ccompass = [
     "ccompass",
     "tensorboard",
 ]
+# pRoloc / pRolocdata interoperability. `rdata` is a pure-Python R-data parser, needed only
+# by gr.io.read_prolocdata to read .rda/.rds files; the h5ad round trip needs nothing at all,
+# since it is anndata's own read_h5ad/write_h5ad in both directions.
+# The R half is a separate package in this repo:
+#   remotes::install_github("czbiohub-sf/grassp", subdir = "r/grasspio")
+proloc = [
+    "rdata",
+]
 build = [
     "twine",
     "build",
@@ -86,6 +93,17 @@ docs = [
     "sphinx-book-theme",
     "myst_parser",
     "myst-nb",
+    # The R tutorial is an .Rmd page source; jupytext converts it for myst-nb to execute.
+    # Executing it additionally needs the conda environment in r-environment.yml, with IRkernel
+    # registered as the `ir` kernelspec -- run `make setup-r`. See docs/source/conf.py.
+    "jupytext",
+    # Needed to *execute* the tutorials, not merely to render them: OrgIP_tutorial calls
+    # gr.tl.calculate_cluster_enrichment (gseapy), and the ternary plots need mpltern. Without
+    # them those pages fail to a myst-nb warning and ship with a traceback embedded.
+    "gseapy",
+    "mpltern",
+    # The pRoloc tutorial reads a pRolocdata .rda with gr.io.read_prolocdata, which needs this.
+    "rdata",
 ]
 
 [project.scripts]
@@ -99,14 +117,23 @@ repository = "https://github.com/czbiohub/some-package"
 
 
 [tool.setuptools]
-# Use find_namespace_packages to discover all packages
-packages = ["grassp"]
-
 # allow use of __file__ to load data files included in the package
 zip-safe = false
 
 # Don't include LICENSE as a license-file in the metadata
 license-files = []
+
+# Discover subpackages instead of listing only the top level. The previous
+# `packages = ["grassp"]` was a flat list, so which subpackage modules ended up in a wheel
+# depended on a stale egg-info/SOURCES.txt rather than on the config -- newly added modules
+# were silently omitted, making `import grassp.io` fail from a released wheel.
+[tool.setuptools.packages.find]
+include = ["grassp*"]
+
+[tool.setuptools.package-data]
+"grassp.datasets" = ["external/*"]
+# `fixtures/`, not `data/`: .gitignore has a bare `data/` rule that matches at any depth.
+"grassp.tests" = ["fixtures/*"]
 
 
 [tool.black]

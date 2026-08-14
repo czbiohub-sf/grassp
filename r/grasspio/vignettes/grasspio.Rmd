@@ -1,0 +1,212 @@
+---
+title: "Moving spatial proteomics data between pRoloc and grassp"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Moving spatial proteomics data between pRoloc and grassp}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+## Why this package exists
+
+[pRoloc](https://bioconductor.org/packages/pRoloc/) and
+[grassp](https://github.com/czbiohub-sf/grassp) are the R and Python frameworks for the same
+science: inferring protein subcellular localisation from fractionation proteomics. Their data
+models are nearly the same shape — a features-by-fractions quantitation matrix with feature
+and sample metadata — but they share no file format, so an analysis has historically had to
+pick one language and stay there.
+
+`grasspio` supplies both directions of the conversion, using **h5ad** as the exchange format.
+That lets you preprocess in one language and classify in the other. It is also useful on its
+own: neither pRoloc nor MSnbase ships an exporter, so `grassp_write_msnset()` is a way to hand
+a classified `MSnSet` to anything that reads h5ad.
+
+There is no exchange format to learn and no version block to keep in step. The files are
+ordinary h5ad: Python writes one with `adata.write_h5ad()` and reads one with
+`anndata.read_h5ad()`, and everything pRoloc-specific — the `"unknown"` sentinel above all —
+happens here, on pRoloc's side of the boundary.
+
+## Installation
+
+```{r install}
+install.packages("remotes")
+
+# rhdf5 first: anndataR calls it but declares it only in Suggests, so nothing else pulls it in.
+BiocManager::install("rhdf5")
+
+# anndataR itself is a hard dependency of grasspio and arrives with it. It is scverse's native
+# R implementation of the AnnData on-disk spec, so no Python environment is involved. For now it
+# comes from a fork, pinned in grasspio's `Remotes:` field and pulled in automatically: matrix
+# fData columns are written as obsm data frames, and the fix that indexes such a frame by the
+# parent's obs_names is newer than the last anndataR release.
+remotes::install_github("czbiohub-sf/grassp", subdir = "r/grasspio")
+```
+
+grasspio needs R >= 4.5, inherited from anndataR.
+
+## Starting from Python
+
+Someone hands you an `experiment.h5ad` written by grassp. It is an ordinary h5ad, and the
+objects describe themselves, so reading one takes no arguments:
+
+```{r read}
+library(grasspio)
+library(pRoloc)
+
+x <- grassp_as_msnset("experiment.h5ad")
+x
+fvarLabels(x)                            # what marker columns are available
+getMarkerClasses(x, fcol = "markers")    # pick one per call
+```
+
+You do not need a collaborator to get one: the roughly one hundred curated datasets published on
+the [grassp data portal](https://grassp.apps.czbiohub.org/datasets) are h5ad files that
+`grassp_as_msnset()` reads directly, so you can download one and analyse it in pRoloc without
+Python being involved anywhere.
+
+Note that nothing designates a single marker column. `fcol` is a per-call argument, so an
+object can carry `markers`, `markers.orig`, `pd.markers` and more at once, and you point each
+function at whichever you want — the same freedom AnnData gives you.
+
+From here it is an ordinary `MSnSet`, so the whole pRoloc workflow applies:
+
+```{r classify}
+params <- svmOptimisation(x, fcol = "markers", times = 100, xval = 5,
+                          class.weights = classWeights(x, fcol = "markers"))
+x <- svmClassification(x, params, fcol = "markers", scores = "all")
+
+ts <- orgQuants(x, fcol = "svm", scol = "svm.scores", t = 0.75)
+x <- getPredictions(x, fcol = "svm", scol = "svm.scores", t = ts)
+
+x <- tagmMapPredict(x, params = tagmMapTrain(x, fcol = "markers"), probJoint = TRUE)
+
+plot2D(x, fcol = "svm.pred")
+addLegend(x, fcol = "svm.pred", where = "topleft")
+```
+
+And send the results back:
+
+```{r write}
+grassp_write_msnset(x, "results.h5ad")
+```
+
+The Python side reads that straight back into an AnnData, with no grassp function involved:
+
+```python
+annotated = anndata.read_h5ad("results.h5ad")
+```
+
+and gets back everything it sent, plus what pRoloc added. If it would rather keep working on the
+object already in its session, it copies over the columns it wants:
+
+```python
+adata.obs["svm.pred"] = annotated.obs["svm.pred"].reindex(adata.obs_names)
+adata.obsm["svm.all.scores"] = annotated.obsm["svm.all.scores"].reindex(adata.obs_names)
+```
+
+The `reindex` matters because pRoloc shrinks objects routinely — `filterNA()`, `markerMSnSet()`,
+plain `x[i, ]` — so `results.h5ad` may well cover fewer proteins than the object it is going back
+onto.
+
+## Starting from R
+
+The same functions work if R is where your data lives. Export your own `MSnSet` and a
+collaborator can pick it up in Python:
+
+```{r r-first}
+library(pRolocdata)
+data(dunkley2006)
+
+grassp_write_msnset(dunkley2006, "dunkley2006.h5ad")
+```
+
+## What crosses over
+
+| `MSnSet` | AnnData |
+| --- | --- |
+| `exprs()` | `X` — **no transpose**; grassp keeps proteins in `obs`, matching the features-by-fractions orientation |
+| `featureNames()` / `sampleNames()` | `obs_names` / `var_names` |
+| `fData()` scalar columns | `obs` columns |
+| `fData()` **matrix-valued** columns | `obsm` **data frames**, which name their own columns |
+| `pData()` | `var` |
+| `pData()` **matrix-valued** columns | `varm` **data frames** |
+| extra `assayData` elements | `layers` |
+| `processingData()@processing` | `uns$processing` |
+| `experimentData()@other$grassp_uns` | everything else in `uns` |
+| `"unknown"` | `NA` |
+
+The matrix-column row is the one that makes this work. pRoloc stores per-protein by
+per-compartment score matrices *inside a single `fData` column* — `svm.all.scores`,
+`tagm.map.joint`, `tagm.mcmc.joint`, `bandle.joint`, `Markers`, `GOAnnotations` — and that is
+exactly what AnnData's `obsm` is for. They are written as `obsm` **data frames**, so the class
+names travel with the numbers rather than in a side table that could fall out of step with them:
+
+```{r matrix}
+x <- grassp_as_msnset("results.h5ad")
+is.matrix(fData(x)$svm.all.scores)
+colnames(fData(x)$svm.all.scores)
+```
+
+An `obsm` entry that arrives as a plain array instead — grassp's own annotators write those,
+alongside the class names in `uns[["<key>_categories"]]` — is read just as happily; the names are
+looked for in that `uns` key and then in the levels of the companion label column. Failing both,
+the column stays nameless and is written back out as a plain array, which is what you want for an
+embedding: `X_pca` and `X_umap` have no class names to recover, and Python expects them to be
+arrays.
+
+The `experimentData@other` row is what makes a grassp → pRoloc → grassp trip lossless rather
+than merely useful. An `MSnSet` has no slot for arbitrary metadata, so `grassp_as_msnset()` parks
+whatever `uns` entries have no `MSnSet` slot — neighbour parameters, PCA variance ratios, colour
+maps — on `experimentData(x)@other$grassp_uns`, and `grassp_write_msnset()` hands them straight
+back. pRoloc never looks there. It is safe here for the reason it would not be for a graph:
+`uns` is neither row- nor column-aligned, so subsetting has nothing to get wrong.
+
+Two conversions are handled for you, and both are easy to get wrong by hand — which is the
+main argument against rolling your own CSV:
+
+- **`"unknown"` ↔ `NA`.** pRoloc encodes unlabelled features as the literal string
+  `"unknown"`; every classifier picks its training set with
+  `fData(object)[, fcol] != "unknown"`, `markerMSnSet()`/`unknownMSnSet()` fail outright on
+  `NA`, and `plot2D()` colours it as a class of its own. grassp uses `NA` instead. Get this
+  wrong and you quietly train a compartment class called "unknown". Both directions convert
+  every text column, not a nominated one, because `fcol` is a per-call argument.
+- **A missing value in a text column.** anndataR has no nullable-string encoding: it writes a
+  character `NA` as the literal two characters `"NA"`, which arrives in Python as a compartment
+  called "NA". So any `NA`-carrying character column is written as a factor, whose `NA` survives
+  as an h5ad categorical with a `-1` code. Factors are never flattened the other way, which is
+  what keeps their level order — and their `ordered` flag — intact all the way into pandas.
+
+## Limitations
+
+- AnnData `obsp`/`varp` do not cross into R, and are the only slots that do not: `eSet` has no
+  pairwise slot, and pRoloc has no graph structure to map onto. Little is lost — a graph is
+  derived from the quantitation matrix, so the Python side rebuilds one with a single
+  `gr.pp.neighbors()` call, and `plot2D()` recomputes its own projection regardless.
+- Layers arrive as extra `assayData` elements and `varm` as matrix `pData` columns. Both subset
+  correctly with `[`, `markerMSnSet()` and `filterNA()`, and `exprs()` stays the matrix pRoloc's
+  functions use:
+
+  ```{r extra}
+  assayDataElementNames(x)          # "exprs", "pvals", ...
+  assayDataElement(x, "pvals")
+  is.matrix(pData(x)$PCs)           # a varm entry
+  ```
+- Multi-localisation travels as the binary `Markers` matrix, like any other matrix `fData`
+  column. Note that `mrkMatToVec()` collapses any protein with more than one label to
+  `"unknown"`, and that pRoloc's classifiers cannot train on the matrix encoding — it is for
+  inspecting and subsetting marker sets (`getMarkerClasses`, `markerMSnSet`, `unknownMSnSet`).
+- Result objects that live outside `fData()` — `GenRegRes` from `svmOptimisation()`,
+  `MAPParams`, `MCMCParams`, `bandleParams`, `QSep` — do not cross over. Only the summaries
+  pRoloc writes into `fData()` do. Save those separately with `saveRDS()` if you need them;
+  re-running MCMC to recover one is expensive.
+- A class name containing `/` cannot be a data-frame column: HDF5 reads it as a path separator,
+  and rhdf5 will not create the intermediate group. pRoloc does produce such names —
+  hyperLOPIT's classes include `"Endoplasmic reticulum/Golgi apparatus"` — so those matrices are
+  written as plain arrays with their names in `uns[["<key>_categories"]]` instead, and a message
+  says so. Nothing is renamed either way, and the names come back on the way in.

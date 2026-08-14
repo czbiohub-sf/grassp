@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 from anndata import AnnData
 
-from ..util import layer_names
+from ..util import layer_names, set_matrix
 
 
 def filter_samples(
@@ -876,7 +876,7 @@ def calculate_replicate_cv(
 
     if inplace:
         data.obs["mean_replicate_cv"] = cvs_df.mean(axis=1).values
-        data.obsm["replicate_cv"] = cvs_df.values
+        set_matrix(data, "replicate_cv", cvs_df.values, cvs_df.columns)
         data.uns["obsm_replicate_cv_headers"] = cvs_df.columns.tolist()
         return None
     else:

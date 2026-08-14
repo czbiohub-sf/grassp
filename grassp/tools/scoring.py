@@ -13,6 +13,7 @@ import scipy.cluster.hierarchy
 import seaborn as sns
 import sklearn.metrics
 
+from ..util import get_matrix
 from .localization import competitive_propagation
 
 
@@ -340,10 +341,18 @@ def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False,
     if pred_col is None:
         knnres = competitive_propagation(data, gt_col, inplace=False, min_probability=0)
     else:
+        # "labels" must be the g class names in column order, matching what the
+        # inplace=False branch above returns -- both the axis labels and the argmax
+        # lookup below index into it by column. The matrices carry those names now;
+        # matrices written before they did fall back to the companion label column.
+        probabilities, categories = get_matrix(data, f"{pred_col}_probabilities")
+        one_hot_labels, _ = get_matrix(data, f"{pred_col}_one_hot_labels")
+        if categories is None:
+            categories = data.obs[pred_col].astype("category").cat.categories
         knnres = {
-            "probabilities": data.obsm[f"{pred_col}_probabilities"],
-            "labels": data.obs[pred_col],
-            "one_hot_labels": data.obsm[f"{pred_col}_one_hot_labels"],
+            "probabilities": probabilities,
+            "labels": pd.Index(categories),
+            "one_hot_labels": one_hot_labels,
         }
 
     if soft:
