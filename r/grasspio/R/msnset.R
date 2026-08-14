@@ -223,22 +223,19 @@ grassp_as_msnset <- function(path, nan_to_unknown = TRUE) {
   m
 }
 
-## Advisory only: two properties of the quantitation that bite later, on pRoloc's side.
+## Advisory only, and deliberately just the one: missing values stop several pRoloc methods
+## outright, so saying so saves a confusing failure later.
+##
+## There is no normalisation check. Sum-normalised profiles are a convention of the field rather
+## than something pRoloc enforces -- its distance methods and plots run on whatever scale you give
+## them, exactly as grassp's do -- and pRolocdata is full of legitimate objects on other scales
+## (dunkley2006's rows sum to 4). A message on those would be noise dressed as a problem.
 .report_exprs <- function(m) {
   n_na <- sum(is.na(m))
   if (n_na > 0) {
     message(
       "exprs() has ", n_na, " missing values. Several pRoloc methods need complete profiles; ",
       "see filterNA(), or impute in grassp with gr.pp.impute_knn()."
-    )
-  }
-  sums <- rowSums(m, na.rm = TRUE)
-  off <- abs(sums - 1) > 1e-3
-  if (any(off)) {
-    message(
-      sum(off), " of ", length(sums), " profiles do not sum to 1 (observed range ",
-      signif(min(sums), 3), "-", signif(max(sums), 3), "). pRoloc's distance-based methods and ",
-      "its plots assume sum-normalised profiles; see normalise() or gr.pp.normalize_total()."
     )
   }
 }

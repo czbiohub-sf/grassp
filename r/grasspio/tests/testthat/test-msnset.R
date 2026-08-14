@@ -418,13 +418,19 @@ test_that("duplicated or blank feature names are rejected, since R cannot use th
   expect_true(.check_feature_names(c("P01", "P02", "P03")))
 })
 
-test_that("the quantitation gets an advisory when pRoloc will care", {
+test_that("missing values in exprs get an advisory, since pRoloc methods stop on them", {
   skip_without_rhdf5()
   x <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), nrow = 4)
-  expect_message(grassp_as_msnset(write_python_style(x = x)), "do not sum to 1")
-
   x[1, 1] <- NA_real_
   expect_message(grassp_as_msnset(write_python_style(x = x)), "missing values")
+})
+
+test_that("a profile scale other than sum-to-1 is not remarked on", {
+  # Sum normalisation is a convention of the field, not something pRoloc enforces, and
+  # pRolocdata is full of legitimate objects on other scales -- dunkley2006's rows sum to 4.
+  skip_without_rhdf5()
+  x <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), nrow = 4)
+  expect_silent(grassp_as_msnset(write_python_style(x = x)))
 })
 
 test_that("layers round trip as assayData elements and subset with exprs", {
