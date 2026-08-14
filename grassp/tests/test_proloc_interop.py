@@ -19,6 +19,7 @@ import pandas as pd
 import pytest
 
 from grassp.io import read
+from grassp.util import layer_names
 
 FIXTURE = Path(__file__).parent / "fixtures" / "proloc_results.h5ad"
 
@@ -71,7 +72,9 @@ class TestShape:
         assert set(artifact.obs.columns) == EXPECTED_OBS
 
     def test_extra_assay_elements_arrive_as_layers(self, artifact):
-        assert set(artifact.layers) == {"pvals"}
+        # layer_names(), not .layers: anndata >= 0.13 backs .X with layers[None], so iterating
+        # the mapping directly reports a phantom layer that is really the main matrix.
+        assert set(layer_names(artifact)) == {"pvals"}
         assert artifact.layers["pvals"].shape == artifact.shape
 
     def test_the_processing_log_comes_along(self, artifact):

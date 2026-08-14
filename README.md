@@ -1,4 +1,4 @@
-[![PyPI - Version](https://img.shields.io/pypi/v/grassp)](https://img.shields.io/pypi/v/grassp)
+[![PyPI - Version](https://img.shields.io/pypi/v/grassp)](https://pypi.org/project/grassp/)
 [![CI](https://github.com/czbiohub-sf/grassp/actions/workflows/CI.yaml/badge.svg)](https://github.com/czbiohub-sf/grassp/actions/workflows/CI.yaml)
 [![docs online](https://img.shields.io/badge/docs-online-blue)](https://public.czbiohub.org/comp.bio/grassp/)
 
