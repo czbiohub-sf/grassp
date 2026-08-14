@@ -1140,11 +1140,13 @@ def svm_train(
         'gamma': gamma_range,
     }
 
-    # Configure SVM
+    # Configure SVM. No `probability=True` here: the grid search scores with f1_macro, which goes
+    # through predict(), and only the winning *parameters* are kept -- svm_annotation fits its own
+    # estimator. Asking for probabilities would run libsvm's internal 5-fold Platt scaling on every
+    # fit in the grid for nothing.
     svm = SVC(
         kernel='rbf',
         class_weight=class_weight,
-        probability=True,  # Needed for svm_annotation
     )
 
     # Run grid search
