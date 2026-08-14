@@ -102,6 +102,8 @@ docs = [
     # them those pages fail to a myst-nb warning and ship with a traceback embedded.
     "gseapy",
     "mpltern",
+    # The pRoloc tutorial reads a pRolocdata .rda with gr.io.read_prolocdata, which needs this.
+    "rdata",
 ]
 
 [project.scripts]

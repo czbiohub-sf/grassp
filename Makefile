@@ -59,7 +59,7 @@ test:
 # itself, so they are worth executing.
 .PHONY: test-doctest
 test-doctest:
-	pytest --doctest-modules $(PACKAGE_NAME)/io/read.py
+	pytest --doctest-modules $(PACKAGE_NAME)/io/read.py $(PACKAGE_NAME)/util.py
 
 .PHONY: docs
 docs:

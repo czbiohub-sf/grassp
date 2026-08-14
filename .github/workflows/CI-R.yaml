@@ -190,4 +190,4 @@ jobs:
         run: pytest grassp/tests/test_proloc_interop.py grassp/tests/test_io.py -q
 
       - name: Docstring examples for the "unknown" helpers
-        run: pytest --doctest-modules grassp/io/read.py -q
+        run: pytest --doctest-modules grassp/io/read.py grassp/util.py -q

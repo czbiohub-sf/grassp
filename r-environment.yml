@@ -33,6 +33,19 @@ dependencies:
   - bioconductor-rhdf5
   - bioconductor-msnbase
 
+  # Rcpp is pinned only to keep mzR quiet. MSnbase pulls in mzR, whose .onLoad compares the
+  # installed Rcpp against the one it was compiled against — a strict `!=`, on macOS and Windows
+  # only — and warns on any difference, compatible or not. bioconda built mzR 2.44.0 against
+  # r-rcpp 1.1.1 while conda-forge has moved to 1.1.2, so an unpinned environment loads MSnbase
+  # with a five-line warning about linker issues. Nothing here calls mzR (it reads raw MS files;
+  # grasspio and the tutorials only ever handle quantitative MSnSets), so the warning is noise —
+  # but the Sphinx build executes proloc_r_tutorial.Rmd, which means it lands in the published
+  # page's first code cell, where it reads as a broken install.
+  #
+  # Drop this pin once bioconda rebuilds mzR against a newer Rcpp; if it ever becomes
+  # unsatisfiable, `make setup-r` will fail loudly here, which is the point.
+  - r-rcpp ==1.1.1
+
   # --- analysis, and the data the R tutorial reads ---------------------------------------
   # Both are in bioconda, contrary to what this repo's R README used to say, so nothing here
   # needs a C++ toolchain or a source build.

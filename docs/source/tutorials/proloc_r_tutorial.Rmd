@@ -11,23 +11,22 @@ jupyter:
     name: ir
 ---
 
-# Working with grassp portal datasets in pRoloc
+# pRoloc integration: for pRoloc users
 
-The [grassp data portal](https://grassp.apps.czbiohub.org/datasets) publishes around a hundred
+The [grassp data portal](https://grassp.apps.czbiohub.org/datasets) publishes over a hundred
 curated subcellular fractionation datasets, uniformly processed, each with several published
 marker sets already mapped onto it. They are stored as `.h5ad`, which sounds like a Python
-format — but `grasspio` reads it natively in R.
+format, but the `grasspio` R package (uses `anndataR` under the hood) can translate it to an `MSnSet`.
+This means that you can use pRoloc to analyze and visualize a grassp dataset without ever leaving R.
 
 So this tutorial needs **no Python at all**. You download a file, get an
 `MSnSet`, and from there it is ordinary pRoloc. It also goes the other way: the last section
 takes a `pRolocdata` object and writes it out as h5ad.
 
-The companion tutorial, {doc}`notebooks/proloc_tutorial`, is the same bridge seen from Python.
-
 ```{note}
-Every code cell on this page really ran when the docs were built, against the live portal. Use
-the download button at the top right to get this page as a runnable `.Rmd` and step through it
-in RStudio.
+This tutorial is for someone who works primarily in **R** and wants to use grassp's data or a
+grassp method. **If you work primarily in Python, read the companion tutorial instead:**
+{doc}`pRoloc integration: for grassp users <notebooks/proloc_tutorial>`.
 ```
 
 ## Requirements
@@ -52,6 +51,8 @@ suppressPackageStartupMessages({
 })
 # IRkernel decides figure size from these rather than from knitr chunk options.
 options(repr.plot.width = 9, repr.plot.height = 6, width = 100)
+# Print results as an R console would, rather than as IRkernel's rich HTML. 
+options(jupyter.rich_display = FALSE)
 ```
 
 ## Getting a dataset
@@ -70,29 +71,26 @@ protein's profile already normalised to sum to 1. The `datasets_raw/` objects ar
 with replicates preserved — useful, but they need normalising before pRoloc's distance-based
 methods mean anything.
 
-Here we take `Currie_2024_AC16_Control`, a LOPIT-DC experiment on AC16 cardiomyocytes:
+Here we take `Currie_2024_AC16_Control`, a LOPIT-DC experiment on AC16 cardiomyocytes for demonstration.:
 
 ```{r}
-options(timeout = 600) # the default 60 s is not enough for the larger objects
 h5ad_path <- file.path(tempdir(), "Currie_2024_AC16_Control.h5ad")
 download.file(
   "https://public.czbiohub.org/proteinxlocation/datasets/Currie_2024_AC16_Control.h5ad",
   h5ad_path,
   mode = "wb"
 )
-round(file.size(h5ad_path) / 1024^2, 1) # MiB
 ```
 
 ```{r}
-x <- grassp_as_msnset(h5ad_path)
+x <- grassp_as_msnset(h5ad_path, nan_to_unknown = TRUE)
 x
 ```
 
 That is the whole conversion. There is nothing special about the file: a portal dataset is a plain
-h5ad, and so is anything grassp writes — the objects describe themselves, so there is no version
-block to check and no metadata to be missing. The one thing `grassp_as_msnset()` does change is the
+h5ad (see the [AnnData](https://anndata.scverse.org/en/stable/) documentation for more info). The one thing `grassp_as_msnset()` does change is the
 `nan_to_unknown` default, which rewrites `NA` markers to the literal `"unknown"` that pRoloc
-requires, because `markerMSnSet()` fails outright on `NA`.
+assumes, because `markerMSnSet()` fails outright on `NA`.
 
 ## Getting oriented
 
@@ -241,30 +239,17 @@ par(mfrow = c(1, 1))
 
 ## Profiles and marker quality
 
-`plotDist()` is most informative when you give it two things: the proteins *assigned* to a
-compartment, and — via `markers =` — the subset of those that are actually markers for it. The
-markers are drawn in colour over the rest in grey, so you can see at a glance whether the
-assigned population really follows the marker profile.
-
-The portal makes that easy because it carries both an author annotation and several published
-marker sets. One catch: they do **not** share a vocabulary. `marker_lilley` says
-`"Mitochondrion"` where the authors' own column says `"MITOCHONDRION"`, and `"Golgi"` is `"GA"`.
-Nothing in the bridge translates compartment names — that is deliberate, since silently renaming
-someone's labels is worse than a mismatch — so map them yourself:
+`plotDist()` draws one line per protein across the fractions, and `markers =` picks out a subset
+to colour over the rest in grey. Passing the whole object and one compartment's markers therefore
+shows that compartment's profile against the backdrop of everything measured — how distinctive
+the profile is, and how tightly the markers agree with each other:
 
 ```{r}
-to_author <- c(Mitochondrion = "MITOCHONDRION", ER = "ER")
 par(mfrow = c(1, 2))
-for (cl in names(to_author)) {
-  assigned <- featureNames(x)[fData(x)$author_annotation == to_author[[cl]]]
+for (cl in c("Mitochondrion", "ER")) {
   markers <- featureNames(x)[fData(x)[[FCOL]] == cl]
-  # plotDist() subsets the object it is *given* by `markers`, so a marker the authors placed
-  # somewhere else is out of bounds. Pass the intersection; the shortfall is itself worth
-  # seeing, since it counts markers the two annotations disagree about.
-  shown <- intersect(markers, assigned)
-  plotDist(x[assigned, ], markers = shown, pch = 1,
-           main = sprintf("%s\n%d assigned, %d of %d markers",
-                          cl, length(assigned), length(shown), length(markers)))
+  plotDist(x, markers = markers, pch = 1,
+           main = sprintf("%s (%d markers)", cl, length(markers)))
 }
 par(mfrow = c(1, 1))
 ```

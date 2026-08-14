@@ -18,25 +18,29 @@ cat("MSnSet:", paste(dim(x), collapse = " x "), "features x fractions\n")
 cat("classes:", length(getMarkerClasses(x, fcol = "markers")),
     "| markers:", sum(fData(x)$markers != "unknown"), "\n")
 
+## ---- Thin marker classes -------------------------------------------------
+## Two of the twelve classes have fewer than ten markers -- too few to learn from, and with
+## twelve classes libsvm's one-vs-one vote (66 pairwise comparisons) gets unstable. minMarkers()
+## demotes those to "unknown" in a new `markers10` column: 391 markers over 10 classes, the
+## smallest with 13. Cross-validated on this dataset that is worth about +0.05 macro-F1, so both
+## classifiers below train on it rather than on `markers`.
+x <- minMarkers(x, n = 10, fcol = "markers")
+
 ## ---- Support vector machine ----------------------------------------------
 ## `times`/`xval` are small here so this finishes quickly; raise them for real work. The
 ## hyperparameters below came from svmOptimisation() on this dataset.
-x <- svmClassification(x, fcol = "markers", sigma = 0.1, cost = 16,
+x <- svmClassification(x, fcol = "markers10", sigma = 0.1, cost = 16,
                        scores = "all", verbose = FALSE)
-## `scores = "all"` stores the per-class matrix but NOT the scalar winning score, while
-## orgQuants()/getPredictions() look for <fcol>.scores -- so derive it from the matrix.
+## `scores = "all"` stores the per-class matrix but NOT the scalar winning score, which the
+## plots on the Python side use -- so derive it from the matrix.
+##
+## Deliberately no orgQuants()/getPredictions() here: their per-class thresholding is pRoloc
+## teaching material rather than anything the bridge needs, and it lives in the R tutorial
+## instead. `svm` is populated for every protein; threshold it yourself if you want to.
 fData(x)$svm.scores <- apply(fData(x)$svm.all.scores, 1, max)
-ts <- orgQuants(x, fcol = "svm", scol = "svm.scores", t = 0.75, verbose = FALSE)
-ts[is.na(ts)] <- Inf
-x <- getPredictions(x, fcol = "svm", scol = "svm.scores", t = ts, verbose = FALSE)
 
 ## ---- k nearest neighbours ------------------------------------------------
-x <- knnClassification(x, fcol = "markers", k = 5, scores = "prediction")
-
-## ---- Thin marker classes -------------------------------------------------
-## Several classes here have fewer members than there are fractions. minMarkers() demotes
-## them to "unknown" in a new `markers10` column.
-x <- minMarkers(x, n = 10, fcol = "markers")
+x <- knnClassification(x, fcol = "markers10", k = 5, scores = "prediction")
 
 cat("result columns:", paste(fvarLabels(x), collapse = ", "), "\n")
 

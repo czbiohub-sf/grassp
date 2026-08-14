@@ -56,9 +56,9 @@ BiocManager::install(c("pRoloc", "rhdf5"))
 remotes::install_github("czbiohub-sf/grassp", subdir = "r/grasspio")
 ```
 
-There are two tutorials: {doc}`the Python side <../tutorials/notebooks/proloc_tutorial>` (the
-round trip below) and {doc}`the R side <../tutorials/proloc_r_tutorial>` (reading a grassp portal
-dataset in pRoloc, with no Python at all).
+There are two tutorials: {doc}`for grassp users <../tutorials/notebooks/proloc_tutorial>` (the
+round trip below) and {doc}`for pRoloc users <../tutorials/proloc_r_tutorial>` (reading a grassp
+portal dataset in pRoloc, with no Python at all).
 
 A full round trip. In Python:
 
