@@ -17,7 +17,7 @@ name =  "grassp"
 description = "A python package to facilitate Organellar profiling"
 readme = "README.md"
 license = {text = "BSD 3-Clause License"}
-requires-python = ">=3.7, <4.0"
+requires-python = ">=3.11, <4.0"
 
 # the dynamically determined project metadata attributes
 dynamic = ["version"]
@@ -26,9 +26,10 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 # list package dependencies here
@@ -70,6 +71,10 @@ notebook = [
 ]
 # C-COMPASS integration (gr.tl.ccompass). Pulls in tensorflow/keras via ccompass.
 # tensorboard is required by keras-tuner but missing from ccompass's metadata.
+#
+# This is the one extra that does not reach the Python versions the rest of grassp supports:
+# tensorflow publishes no cp314 wheels, so `grassp[ccompass]` needs Python <= 3.13. Everything
+# else, including the docs and test extras, resolves on 3.14.
 ccompass = [
     "ccompass",
     "tensorboard",

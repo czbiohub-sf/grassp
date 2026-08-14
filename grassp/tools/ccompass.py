@@ -13,7 +13,9 @@ they are interchangeable with the native annotators in
 :mod:`grassp.tools.localization`.
 
 C-COMPASS is an *optional* dependency; install it with ``pip install grassp[ccompass]``
-(this pulls in ``tensorflow``/``keras``/``keras-tuner``).
+(this pulls in ``tensorflow``/``keras``/``keras-tuner``). It needs **Python <= 3.13**: tensorflow
+publishes no wheels for 3.14, so the extra cannot be installed there even though the rest of
+grassp supports it.
 """
 
 from __future__ import annotations
@@ -79,7 +81,8 @@ def _import_ccompass():
         raise ImportError(
             "gr.tl.ccompass requires the optional 'ccompass' dependency. "
             "Install it with `pip install grassp[ccompass]` "
-            "(this also installs tensorflow/keras)."
+            "(this also installs tensorflow/keras). Note that it needs Python <= 3.13, since "
+            "tensorflow publishes no wheels for 3.14."
         ) from exc
     return MOP, MOA, core
 
