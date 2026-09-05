@@ -346,12 +346,23 @@ def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False,
         # lookup below index into it by column. The matrices carry those names now;
         # matrices written before they did fall back to the companion label column.
         probabilities, categories = get_matrix(data, f"{pred_col}_probabilities")
-        one_hot_labels, _ = get_matrix(data, f"{pred_col}_one_hot_labels")
         if categories is None:
             categories = data.obs[pred_col].astype("category").cat.categories
+        categories = pd.Index(categories)
+        # The soft matrix below is one_hot(gt).T @ probabilities, so the one-hot has to
+        # encode the *ground truth*, aligned to the probability columns. Deriving it from
+        # gt_col here -- rather than reading a `{pred_col}_one_hot_labels` companion --
+        # is what lets this work for any predictor: competitive_diffusion is the only one
+        # that writes that companion matrix, so the eager read used to raise a KeyError
+        # for svm_annotation, tagm_map_predict and ccompass regardless of `soft`.
+        one_hot_labels = (
+            pd.get_dummies(data.obs[gt_col].astype("category"))
+            .reindex(columns=categories, fill_value=False)
+            .to_numpy(dtype=float)
+        )
         knnres = {
             "probabilities": probabilities,
-            "labels": pd.Index(categories),
+            "labels": categories,
             "one_hot_labels": one_hot_labels,
         }
 

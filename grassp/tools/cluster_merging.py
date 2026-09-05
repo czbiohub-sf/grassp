@@ -234,6 +234,13 @@ def _annotate_clusters(
             enrichment_ranking_metric='Adjusted P-value',
             enrichment_threshold=1.0,  # Always assign a top term
         )
+        # Drop the per-metric scratch column. Its name embeds the metric, which is
+        # hardcoded here and differs from calculate_cluster_enrichment's own default, so
+        # leaving it behind gave the object an undocumented residue whose suffix depended
+        # on which merge_method had run.
+        adata.obs.drop(
+            columns=[f'{compartment_col}_Adjusted P-value'], errors='ignore', inplace=True
+        )
 
 
 def _bf_from_uns(adata: AnnData, compartment_col: str) -> dict[str, float]:

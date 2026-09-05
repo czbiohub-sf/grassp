@@ -10,6 +10,8 @@ from scanpy.plotting._tools.scatterplots import _components_to_dimensions
 from scanpy.tl import Ingest
 from scipy.stats import multivariate_normal
 
+from ..util import get_matrix
+
 
 def sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
     """Return synthetic samples from the TAGM posterior distribution.
@@ -276,8 +278,19 @@ def tagm_map_pca_ellipses(
 
 def knn_marker_df(data: AnnData, gt_col: str, pred_col: str) -> pd.DataFrame:
     labels = data.obs[gt_col].astype("category")
-    labels_one_hot = pd.get_dummies(labels).values
-    probabilities = data.obsm[f"{pred_col}_probabilities"]
+    # Align the ground-truth one-hot to the probability matrix by *column name* rather
+    # than by position. get_dummies emits one column per declared gt_col category, but a
+    # predictor may store only the classes it can predict (svm_annotation) or order them
+    # differently (tagm), so the elementwise product silently paired each protein's
+    # probability with the wrong compartment -- or raised on the width mismatch.
+    probabilities, categories = get_matrix(data, f"{pred_col}_probabilities")
+    if categories is None:
+        categories = data.obs[pred_col].astype("category").cat.categories
+    labels_one_hot = (
+        pd.get_dummies(labels)
+        .reindex(columns=pd.Index(categories), fill_value=False)
+        .to_numpy(dtype=float)
+    )
     true_prob = np.sum(probabilities * labels_one_hot, axis=1)
     marker_df = pd.DataFrame({"gt_col": labels, "pred_prob": true_prob}).dropna()
     return marker_df

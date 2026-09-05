@@ -28,10 +28,37 @@ def _get_knn_annotation_df(
     if isinstance(exclude_category, str):
         exclude_category = [exclude_category]
     if exclude_category is not None:
-        obs_ann.replace(exclude_category, np.nan, inplace=True)
+        # `data.obs[col]` hands back a view onto the caller's frame, so replacing
+        # in place permanently NaN'd the excluded labels in the user's object -- every
+        # annotator run afterwards saw those proteins as unlabelled. Mask a copy
+        # instead; `.where` also keeps the Categorical dtype without tripping pandas'
+        # downcasting FutureWarning that `.replace` emitted here.
+        obs_ann = obs_ann.where(~obs_ann.isin(exclude_category))
 
     df = pd.DataFrame(np.tile(obs_ann, (nrow, 1)))
     return df
+
+
+def _class_weight_by_code(class_weight, categories):
+    """Translate a label-keyed ``class_weight`` dict into the codes the SVM is fitted on.
+
+    Both SVM entry points fit on ``y.cat.codes``, so the dict a user would naturally
+    write (``{"ER": 2.0, ...}``) matched no class and sklearn rejected it outright with
+    "The classes, [0, 1, 2], are not in class_weight". ``"balanced"``, ``None`` and dicts
+    that are already keyed by code pass through untouched.
+    """
+    if not isinstance(class_weight, dict):
+        return class_weight
+    if all(key in range(len(categories)) for key in class_weight):
+        return class_weight
+    lookup = {label: code for code, label in enumerate(categories)}
+    unknown = [key for key in class_weight if key not in lookup]
+    if unknown:
+        raise KeyError(
+            f"class_weight refers to classes that are not categories of the label "
+            f"column: {unknown}. Available: {list(categories)}."
+        )
+    return {lookup[key]: value for key, value in class_weight.items()}
 
 
 def _propagate_soft(
@@ -1212,7 +1239,7 @@ def svm_train(
     # fit in the grid for nothing.
     svm = SVC(
         kernel='rbf',
-        class_weight=class_weight,
+        class_weight=_class_weight_by_code(class_weight, y_train.cat.categories),
     )
 
     # Run grid search
@@ -1247,7 +1274,9 @@ def svm_train(
             "gamma_range": gamma_range.tolist(),
         },
         "class_weight": class_weight,
-        "class_labels": y_train.cat.categories.tolist(),
+        # the vocabulary the tuned model was actually fitted on, i.e. only the classes
+        # with markers -- matching the columns svm_annotation's predict_proba will have
+        "class_labels": y_train.cat.remove_unused_categories().cat.categories.tolist(),
         "n_markers": int(X_train.shape[0]),
         "random_state": random_state,
         "n_jobs": n_jobs,
@@ -1375,13 +1404,17 @@ def svm_annotation(
     if gt_col not in data.obs.columns:
         raise KeyError(f"Column '{gt_col}' not found in data.obs")
 
-    # Extract markers
-    marker_mask = data.obs[gt_col].notna()
+    # Extract markers. Coerce to Categorical first: the code below needs `.cat`, and
+    # competitive_diffusion accepts an object-dtype label column, so requiring one here
+    # made the two predictors disagree about what a valid gt_col is. Coercing the whole
+    # column (not the marker subset) keeps any declared-but-unobserved categories.
+    labels = data.obs[gt_col].astype("category")
+    marker_mask = labels.notna()
     if not marker_mask.any():
         raise ValueError(f"No marker proteins found in '{gt_col}'")
 
     X_train = data.X[marker_mask]
-    y_train = data.obs.loc[marker_mask, gt_col]
+    y_train = labels[marker_mask]
     X_all = data.X
 
     categories = y_train.cat.categories
@@ -1392,18 +1425,29 @@ def svm_annotation(
         C=C,
         gamma=gamma,
         kernel='rbf',
-        class_weight=class_weight,
+        class_weight=_class_weight_by_code(class_weight, categories),
         probability=True,
         random_state=42,
     )
     svm.fit(X_train, y_train_codes)
 
-    # Get probability matrix (n_proteins, n_classes)
+    # The columns of predict_proba follow `svm.classes_`, which holds only the codes
+    # actually *present* among the markers -- not every declared category of `gt_col`. A
+    # Categorical keeps its unused categories (e.g. after subsetting an object to a few
+    # compartments, or when the marker vocabulary is wider than the map), so the two
+    # differ routinely. Indexing an argmax column number into the full `categories`
+    # therefore shifts every label past the first missing class, and labelling the
+    # (n, n_present) matrix with all declared categories fails outright in set_matrix.
+    pred_categories = categories[svm.classes_]
+
+    # Get probability matrix (n_proteins, n_present_classes)
     probabilities = svm.predict_proba(X_all)
 
-    # Get predictions (argmax)
+    # Get predictions (argmax over the columns that exist). object dtype, because the
+    # min_probability cutoff below writes np.nan into this array -- which a numeric
+    # category dtype (cluster ids used as ground truth) cannot hold.
     pred_codes = np.argmax(probabilities, axis=1)
-    pred_labels = categories[pred_codes].to_numpy()
+    pred_labels = pred_categories[pred_codes].to_numpy().astype(object)
 
     # Get max probability
     max_prob = np.max(probabilities, axis=1)
@@ -1413,7 +1457,8 @@ def svm_annotation(
         # Set marker probabilities to 1.0 for their true class
         marker_indices = np.where(marker_mask)[0]
         for idx, label in zip(marker_indices, y_train):
-            label_idx = categories.get_loc(label)
+            # Every marker label is present by construction, so it always has a column.
+            label_idx = pred_categories.get_loc(label)
             probabilities[idx, :] = 0.0
             probabilities[idx, label_idx] = 1.0
             pred_labels[idx] = label
@@ -1425,10 +1470,11 @@ def svm_annotation(
 
     # Store results
     if inplace:
-        # Probabilities matrix
-        set_matrix(data, f"{key_added}_probabilities", probabilities, categories)
+        # Probabilities matrix, labelled with the classes it actually has columns for.
+        set_matrix(data, f"{key_added}_probabilities", probabilities, pred_categories)
 
-        # Predicted labels (categorical)
+        # Predicted labels keep the *full* declared vocabulary so that colour maps and
+        # comparisons against gt_col line up even when a class was never predicted.
         data.obs[f"{key_added}"] = pd.Categorical(pred_labels, categories=categories)
 
         # Max probability
@@ -1454,13 +1500,14 @@ def svm_annotation(
             "probabilities": probabilities,
             "labels": pred_labels,
             "max_probability": max_prob,
-            "categories": categories,
+            # describes the columns of "probabilities", so it is the predicted vocabulary
+            "categories": pred_categories,
         }
 
 
 def prune_markers_knn(
     adata: AnnData, gt_col: str, key_added: str | None = None, min_probability: float = 0.9
-) -> AnnData:
+) -> None:
     """Remove "outliers" from marker proteins whose compartment label is not supported by their k-NN neighbourhood.
 
     Runs :func:`competitive_diffusion` on the existing markers and retains only those
@@ -1496,17 +1543,22 @@ def prune_markers_knn(
     original label; removed markers are set to NaN.
     """
     key_added = key_added or f"{gt_col}_pruned"
-    knnres = competitive_diffusion(
-        adata, gt_col, min_probability=min_probability, inplace=False, fix_markers=False
-    )
+    knnres = competitive_diffusion(adata, gt_col, inplace=False, fix_markers=False)
     labels, Y = knnres["labels"], knnres["probabilities"]
 
+    # as above: accept an object-dtype gt_col rather than requiring `.cat`
+    gt = adata.obs[gt_col].astype("category")
     predicted = pd.Categorical(
         labels[Y.argmax(axis=1)],
-        categories=adata.obs[gt_col].cat.categories,
-        ordered=adata.obs[gt_col].cat.ordered,
+        categories=gt.cat.categories,
+        ordered=gt.cat.ordered,
     )
     adata.obs[key_added] = predicted
+    # competitive_diffusion applies its own min_probability cutoff inside its `inplace`
+    # branch only, so on the inplace=False path used here the threshold never reached the
+    # labels and the parameter had no effect at any setting. Apply it to the propagated
+    # probabilities directly.
+    adata.obs.loc[Y.max(axis=1) < min_probability, key_added] = np.nan
     adata.obs.loc[adata.obs[gt_col].isna(), key_added] = np.nan  # Remove non-markers
     adata.obs.loc[adata.obs[gt_col] != adata.obs[key_added], key_added] = (
         np.nan

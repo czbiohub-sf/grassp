@@ -153,6 +153,12 @@ def tagm_map_train(
     -------
     MAP parameter dictionary when ``inplace`` is ``False``.
     """
+    # `method` is echoed into the .uns provenance record, so accepting an unimplemented
+    # value means a stored record can claim an algorithm that never ran: method="mcmc"
+    # produced bit-identical MAP estimates while reporting itself as MCMC.
+    if method != "MAP":
+        raise NotImplementedError(f"Only method='MAP' is implemented, got {method!r}.")
+
     # Split data into marker (labelled) and unknown (unlabelled) subsets.
     marker_idx = adata.obs[gt_col].notna()
     unknown_idx = adata.obs[gt_col].isna()
@@ -298,7 +304,10 @@ def tagm_map_train(
         "markers": markers,
         "priors": priors,
         "posteriors": posteriors,
-        "datasize": {"data": adata.X.shape},
+        # list, not the raw .shape tuple: anndata has no h5ad writer for tuple, so a
+        # tuple here made every object that had been through tagm_map_train impossible
+        # to write ("No method registered for writing <class 'tuple'>").
+        "datasize": {"data": list(adata.X.shape)},
     }
 
     if inplace:
@@ -358,7 +367,9 @@ def tagm_map_predict(
         is automatically read from the stored parameters.
     probJoint
         If ``True`` also store the joint probability matrix in
-        ``adata.obs['tagm.map.joint']`` (default *False*).
+        ``adata.obsm['tagm.map.joint']`` (default *False*): an
+        ``(n_obs, n_classes)`` matrix carrying the mixture posterior, with marker
+        rows one-hot at their annotated class. Ignored when ``inplace=False``.
     probOutlier
         If ``True`` (default) store the probability of belonging to the outlier
         component in ``adata.obs['tagm.map.outlier']``.
@@ -389,14 +400,30 @@ def tagm_map_predict(
     K = len(markers)
     gt_col = params["gt_col"]  # Always use the gt_col from training
 
-    # Split data.
-    marker_idx = adata.obs[gt_col].notna()
-    unknown_idx = adata.obs[gt_col].isna()
-    adata_markers = adata[marker_idx].copy()
-    adata_unknown = adata[unknown_idx].copy()
+    # The marker column is only needed for the optional joint matrix -- the posteriors
+    # below are computed over the whole of `adata.X`. Requiring it unconditionally made
+    # the fitted model unusable on exactly the objects it exists to be applied to (a
+    # second map with matching var_names raised KeyError on the training column). This
+    # also used to copy the object twice, purely to read the fraction count off a copy.
+    if probJoint and gt_col not in adata.obs:
+        raise KeyError(
+            f"probJoint=True needs the training marker column {gt_col!r} in .obs to mark "
+            "the labelled rows; pass probJoint=False to predict without it."
+        )
+    marker_idx = (
+        adata.obs[gt_col].notna()
+        if gt_col in adata.obs
+        else pd.Series(False, index=adata.obs_names)
+    )
+    D = adata.n_vars
 
-    X = np.asarray(adata_unknown.X)
-    D = X.shape[1]
+    # The model's mu is (K, D_trained), so a target with a different number of fractions
+    # would otherwise produce a confusing error deep inside the density evaluation.
+    if mu.shape[1] != D:
+        raise ValueError(
+            f"The trained model has {mu.shape[1]} fractions but this object has {D}. "
+            "Predicting requires the same variables, in the same order, as training."
+        )
 
     # Global parameters (from entire data)
     all_data = np.asarray(adata.X)
@@ -451,21 +478,47 @@ def tagm_map_predict(
     outlier_all = outlier_all.loc[adata.obs_names]
 
     if inplace:
-        adata.obs["tagm.map.allocation"] = pred_all
-        if f"{params['gt_col']}_colors" in adata.uns:
-            adata.uns["tagm.map.allocation_colors"] = adata.uns[f"{params['gt_col']}_colors"]
+        # Categorical over the *model's* class order, which is also the column order of
+        # tagm.map.probabilities and of the colour list below. This used to be a plain
+        # object Series -- the only grassp predictor that was -- so its category order got
+        # re-derived alphabetically at plot time and no longer matched either.
+        allocation = pd.Categorical(pred_all.astype(str), categories=[str(m) for m in markers])
+        adata.obs["tagm.map.allocation"] = allocation
+
+        gt_colors = adata.uns.get(f"{params['gt_col']}_colors")
+        if gt_colors is not None and gt_col in adata.obs:
+            # Map colour to compartment by *name*. The previous code copied the gt_col
+            # colour list across positionally, but the model's vocabulary is
+            # np.sort(observed labels) while gt_col keeps its own declared order -- so any
+            # marker column that was not already alphabetical (or that declared a class
+            # with no markers) painted every compartment with its neighbour's colour.
+            gt_categories = adata.obs[params["gt_col"]].astype("category").cat.categories
+            lut = dict(zip((str(c) for c in gt_categories), gt_colors))
+            if all(str(m) in lut for m in markers):
+                adata.uns["tagm.map.allocation_colors"] = [lut[str(m)] for m in markers]
         adata.obs["tagm.map.probability"] = prob_all
 
         set_matrix(adata, "tagm.map.probabilities", a, markers)
         if probJoint:
-            # Create joint probability matrix for markers.
-            marker_prob = np.zeros((adata_markers.n_obs, K))
-            for i, lbl in enumerate(adata_markers.obs[gt_col]):
-                j = np.where(markers == lbl)[0][0]
-                marker_prob[i, j] = 1  # vectorized alternative is possible.
-            joint = np.vstack([predictProb, marker_prob])
-            # Store as a list of arrays (one per observation).
-            adata.obs["tagm.map.joint"] = list(joint)
+            # pRoloc's tagm.map.joint is an (n_obs, n_classes) matrix in which marker rows
+            # are one-hot at their known class and every other row carries the mixture
+            # posterior. The previous code *stacked* a marker-only block underneath the
+            # full matrix, giving (n_obs + n_markers, K) values for an n_obs-long obs
+            # column, so probJoint=True raised for every non-empty marker set. Write the
+            # markers into their own rows instead, and store it in obsm -- which is where
+            # the pRoloc bridge reads it from (docs/source/api/io.md, test_proloc_interop).
+            joint = predictProb.copy()
+            col_of = {str(lbl): j for j, lbl in enumerate(markers)}
+            rows = np.asarray(marker_idx)
+            untrained = {str(lbl) for lbl in adata.obs.loc[marker_idx, gt_col]} - set(col_of)
+            if untrained:
+                raise ValueError(
+                    f"{gt_col!r} contains marker classes the model was not trained on: "
+                    f"{sorted(untrained)}. The joint matrix has no column for them."
+                )
+            joint[rows] = 0.0
+            joint[rows, [col_of[str(lbl)] for lbl in adata.obs.loc[marker_idx, gt_col]]] = 1.0
+            set_matrix(adata, "tagm.map.joint", joint, markers)
         if probOutlier:
             adata.obs["tagm.map.outlier"] = outlier_all
     else:
