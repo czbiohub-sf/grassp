@@ -14,8 +14,7 @@ from scipy.stats import fisher_exact
 from .enrichment import _load_gmt, calculate_cluster_enrichment
 from .mgsa import calculate_mgsa, mgsa
 
-__all__ = [  # re-export private helper for callers/tests that imported it here
-    "_load_gmt",
+__all__ = [
     "calculate_cluster_enrichment",
     "dendrogram_cherry_pairs",
     "merge_clusters_go",
