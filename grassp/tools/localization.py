@@ -247,13 +247,22 @@ def competitive_propagation(
         propagated.
     fix_markers
         If ``True`` marker probabilities do not get overwritten by the propagated labels.
+        Effectively required when ``iterative=True``: without it nothing anchors the
+        recursion and the class probabilities collapse (see ``iterative``). Ignored,
+        with a warning, when seeding from ``seed_obsm_key`` (a soft seed has no
+        one-hot marker rows to clamp).
     class_balance
         If ``True`` ground truth compartments with a lot of proteins are downweighted proportional to their size to prevent them from dominating the propagated labels.
     min_probability
-        If the probability of the most probable label is below this threshold, the label is set to ``np.nan``. If ``None`` (default), the threshold is automatically
-        determine by the data. Specifically the threshold is chosen to maximize the F1 score for the given ground truth labels.
+        Confidence cutoff: if the probability of the most probable label is below this
+        threshold, the label is set to ``np.nan``. ``None`` (the default) applies no
+        cutoff, i.e. it is equivalent to ``0.0``, so every protein keeps its most
+        probable label and the full probability matrix in ``.obsm`` carries the
+        confidence. Automatic, F1-optimal selection of the cutoff is not currently
+        implemented.
     plot_optimization
-        If ``True`` a plot is shown showing the F1 score for different minimum probability thresholds.
+        Unused; accepted for backwards compatibility and ignored. It belonged to the
+        automatic threshold selection described above.
     obsp_key
         Name of the neighbour connectivity graph to use (default ``"connectivities"``).
         If ``obsp_key="distances"`` is passed, a Gaussian RBF affinity
@@ -267,16 +276,23 @@ def competitive_propagation(
         Name of the new column that will hold the propagated annotation
         (default ``"competitive_propagation"``).
     iterative
-        If ``True`` perform multi-step label propagation with hard clamping (in the
-        style of :class:`sklearn.semi_supervised.LabelPropagation`). At every step
-        the label distribution is propagated along ``T``, row-normalized, then
-        labeled rows are reset to their initial one-hot encoding. Iteration stops
-        when ``|Y - Y_prev|.sum() < tol`` or when ``max_iter`` is reached.
-        If ``False`` (default) only a single propagation step is performed.
-        Ignored when ``method="spreading"`` (spreading is always iterative).
+        If ``True`` perform multi-step label propagation (in the style of
+        :class:`sklearn.semi_supervised.LabelPropagation`). At every step the label
+        distribution is propagated along ``T`` and row-normalized; if
+        ``fix_markers=True`` the labeled rows are then reset to their initial one-hot
+        encoding. Iteration stops when ``|Y - Y_prev|.sum() < tol`` or when
+        ``max_iter`` is reached. If ``False`` (default) only a single propagation step
+        is performed. Ignored when ``method="spreading"`` (spreading is always
+        iterative, and its soft clamp plays the role of ``fix_markers``).
+
+        Pair this with ``fix_markers=True``. Without the clamp the iteration has a
+        degenerate fixed point — every class column converges to the graph's
+        stationary distribution and the probabilities collapse — and a warning is
+        emitted.
     max_iter
         Maximum number of propagation iterations when ``iterative=True`` or
-        ``method="spreading"`` (default 30).
+        ``method="spreading"`` (default 1000). A warning is emitted if it is reached
+        before ``tol`` is satisfied.
     tol
         Convergence tolerance on the L1 change of the label distribution between
         consecutive iterations (default ``1e-3``).
@@ -292,7 +308,10 @@ def competitive_propagation(
         rule is ``F(t+1) = alpha * S @ F(t) + (1 - alpha) * Y_0``: small
         ``alpha`` keeps predictions close to the initial seeds, ``alpha`` close
         to 1 lets labeled rows drift. Ignored when ``method="propagation"``.
-        Default ``0.8`` (matches :class:`sklearn.semi_supervised.LabelSpreading`).
+        Default ``0.8``. The update rule is the same one
+        :class:`sklearn.semi_supervised.LabelSpreading` uses, but note that its default
+        is ``alpha=0.2``: grassp therefore weights the neighbourhood four times as
+        heavily out of the box.
     seed_obsm_key
         If given, seed the propagation with a *soft* per-observation label
         distribution stored in ``data.obsm[seed_obsm_key]`` (shape
@@ -357,6 +376,26 @@ def competitive_propagation(
             fix_markers = False
     elif gt_col is None:
         raise ValueError("Either gt_col or seed_obsm_key must be provided.")
+
+    # Unclamped iteration has a degenerate fixed point: the seed is overwritten on every
+    # pass, so the only thing driving the recursion is the graph itself and every column
+    # converges toward the same stationary vector. Only the `tol` early stop keeps the
+    # result from being uniform. On held-out markers this roughly halves macro-F1.
+    if iterative and method == "propagation" and not fix_markers:
+        remedy = (
+            "Set fix_markers=True to clamp the markers to their seed labels, or "
+            if seed_matrix is None
+            else "Clamping is not available for soft seeds; "
+        )
+        warnings.warn(
+            "iterative=True without fixed markers leaves the propagation unanchored: "
+            "the seed rows are overwritten at every step, so the label distribution "
+            "drifts toward the graph's stationary distribution and the class "
+            "probabilities collapse (on held-out markers this costs roughly half the "
+            f"macro-F1). {remedy}use method='spreading', which re-injects the seed at "
+            "every step and so needs no clamping.",
+            stacklevel=2,
+        )
 
     if min_probability is None:
         min_probability = 0.0

@@ -307,6 +307,27 @@ class TestClusteringFunctions:
         marker_mask = adata.obs["markers"].notna()
         assert np.allclose(adata.obs.loc[marker_mask, "knn_fixed_probability"], 1.0)
 
+    def test_competitive_propagation_unclamped_iteration_warns(self):
+        """iterative=True without fix_markers has a degenerate fixed point -> warn."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=100, marker_fraction=0.3, add_neighbors=True
+        )
+
+        with pytest.warns(UserWarning, match="leaves the propagation unanchored"):
+            localization.competitive_propagation(
+                adata, gt_col="markers", key_added="cp_free", iterative=True
+            )
+
+        # The two supported ways out must both be silent on this point.
+        for kwargs in (
+            dict(iterative=True, fix_markers=True, key_added="cp_clamped"),
+            dict(method="spreading", iterative=True, key_added="cp_spread"),
+        ):
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                localization.competitive_propagation(adata, gt_col="markers", **kwargs)
+            assert not [w for w in caught if "unanchored" in str(w.message)]
+
     def test_competitive_propagation_spreading_basic(self):
         """Test KNN annotation with method='spreading'."""
         adata = make_enriched_data_with_structure(
