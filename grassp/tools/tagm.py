@@ -20,7 +20,7 @@ from ..util import set_matrix
 # ----------------------------
 
 
-def multivariate_t_logpdf(X, delta, sigma, df):
+def _multivariate_t_logpdf(X, delta, sigma, df):
     """
     Compute the log pdf of a multivariate t-distribution.
 
@@ -43,14 +43,14 @@ def multivariate_t_logpdf(X, delta, sigma, df):
     return log_norm - ((df + d) / 2) * np.log(1 + Q / df)
 
 
-def log_multivariate_gamma(a, d):
+def _log_multivariate_gamma(a, d):
     """Compute the log multivariate gamma function for dimension d."""
     return (d * (d - 1) / 4) * np.log(np.pi) + np.sum(
         [gammaln(a + (1 - j) / 2) for j in range(1, d + 1)]
     )
 
 
-def dinvwishart_logpdf(Sigma, nu, S):
+def _dinvwishart_logpdf(Sigma, nu, S):
     """
     Compute the log pdf of an inverse-Wishart distribution.
 
@@ -65,12 +65,14 @@ def dinvwishart_logpdf(Sigma, nu, S):
     d = Sigma.shape[0]
     sign_S, logdet_S = np.linalg.slogdet(S)
     sign_Sigma, logdet_Sigma = np.linalg.slogdet(Sigma)
-    const = -0.5 * nu * logdet_S - (nu * d / 2) * np.log(2) - log_multivariate_gamma(nu / 2, d)
+    const = (
+        -0.5 * nu * logdet_S - (nu * d / 2) * np.log(2) - _log_multivariate_gamma(nu / 2, d)
+    )
     log_pdf = const - ((nu + d + 1) / 2) * logdet_Sigma - 0.5 * np.trace(inv(Sigma) @ S)
     return log_pdf
 
 
-def dbeta_log(x, a, b):
+def _dbeta_log(x, a, b):
     """Log pdf of the Beta distribution."""
     return (
         (a - 1) * np.log(x)
@@ -79,7 +81,7 @@ def dbeta_log(x, a, b):
     )
 
 
-def ddirichlet_log(x, alpha):
+def _ddirichlet_log(x, alpha):
     """
     Log pdf of a Dirichlet distribution.
 
@@ -233,7 +235,7 @@ def tagm_map_train(
         log_pdf_normal = np.array(
             [multivariate_normal.logpdf(X, mean=muk[k], cov=sigmak[k]) for k in range(K)]
         ).T
-        log_pdf_t = multivariate_t_logpdf(X, M, V, df=4)
+        log_pdf_t = _multivariate_t_logpdf(X, M, V, df=4)
 
         # Compute responsibilities efficiently
         log_a = np.log(pik + 1e-10) + np.log(1 - eps) + log_pdf_normal
@@ -277,15 +279,15 @@ def tagm_map_train(
         ll = (
             np.sum(a * log_pdf_normal)
             + np.sum(w * np.log(pik + 1e-10))
-            + np.sum([dinvwishart_logpdf(sigmak[j], nu0, S0) for j in range(K)])
+            + np.sum([_dinvwishart_logpdf(sigmak[j], nu0, S0) for j in range(K)])
             + np.sum(
                 [multivariate_normal.logpdf(muk[j], mean=mu0, cov=sigmak[j]) for j in range(K)]
             )
             + np.sum(a) * np.log(1 - eps)
             + np.sum(b) * np.log(eps)
             + np.sum(np.sum(b, axis=1) * log_pdf_t)
-            + dbeta_log(eps, u, v)
-            + ddirichlet_log(pik, np.full(K, beta0[0] / K))
+            + _dbeta_log(eps, u, v)
+            + _ddirichlet_log(pik, np.full(K, beta0[0] / K))
         )
 
         loglike[t] = ll
@@ -444,7 +446,7 @@ def tagm_map_predict(
         b[:, j] = (
             np.log(weights[j] + 1e-10)
             + np.log(eps)
-            + multivariate_t_logpdf(adata.X, M, V, df=4)
+            + _multivariate_t_logpdf(adata.X, M, V, df=4)
         )
     ab = np.hstack([a, b])
     c_const = np.max(ab, axis=1, keepdims=True)

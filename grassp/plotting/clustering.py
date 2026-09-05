@@ -13,7 +13,7 @@ from scipy.stats import multivariate_normal
 from ..util import get_matrix
 
 
-def sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
+def _sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
     """Return synthetic samples from the TAGM posterior distribution.
 
     This helper draws *size* samples for each TAGM component using the
@@ -58,7 +58,7 @@ def tagm_map_contours(
     """Plot posterior density contours of TAGM components in embedding space.
 
     The function draws synthetic observations from the TAGM posterior via
-    :func:`sample_tagm_map` and projects them into either UMAP or PCA space
+    :func:`_sample_tagm_map` and projects them into either UMAP or PCA space
     (depending on ``embedding``).  A kernel–density estimate is then computed
     for each component and visualized as contour lines.
 
@@ -101,7 +101,7 @@ def tagm_map_contours(
         )
     else:
         dimensions = dimensions[0]
-    lmv = sample_tagm_map(adata, size=size)
+    lmv = _sample_tagm_map(adata, size=size)
     mv = np.concatenate(lmv, axis=0)  # concatenate for efficency
     ing = Ingest(adata)
     if embedding == "umap":

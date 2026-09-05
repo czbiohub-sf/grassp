@@ -188,7 +188,7 @@ def filter_min_consecutive_fractions(
     """
 
     if replicate_column is None:
-        consecutive_fractions = longest_consecutive_run_per_row(data.X)
+        consecutive_fractions = _longest_consecutive_run_per_row(data.X)
         filtered_subset = consecutive_fractions >= min_consecutive
         if inplace:
             data.obs["consecutive_fractions"] = consecutive_fractions
@@ -279,7 +279,7 @@ def filter_proteins_per_replicate(
     data._inplace_subset_obs(data.obs.index[gene_subset])
 
 
-def longest_consecutive_run_per_row(a1: np.ndarray) -> np.ndarray:
+def _longest_consecutive_run_per_row(a1: np.ndarray) -> np.ndarray:
     """
     Calculates the length of the longest consecutive run of non-zero values in each row of a 2D array.
 
