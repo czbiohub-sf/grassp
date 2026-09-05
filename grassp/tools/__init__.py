@@ -27,9 +27,10 @@ from .localization import (
 )
 from .mgsa import MgsaResult, calculate_mgsa, load_gmt, mgsa, mgsa_to_cluster_distribution
 from .scoring import (
+    annotation_confusion_matrix,
+    annotation_f1_score,
     calinski_habarasz_score,
     class_balance,
-    knn_f1_score,
     qsep_score,
     silhouette_score,
 )

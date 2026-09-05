@@ -446,7 +446,7 @@ class TestSvmParameterHandling:
 
 
 class TestEvaluationWorksAcrossPredictors:
-    """`knn_confusion_matrix` and `knn_marker_df` were specific to one predictor."""
+    """`annotation_confusion_matrix` and `annotation_marker_df` were specific to one predictor."""
 
     @staticmethod
     def _annotated() -> ad.AnnData:
@@ -461,7 +461,7 @@ class TestEvaluationWorksAcrossPredictors:
         from grassp.tools import scoring
 
         data = self._annotated()
-        cm = scoring.knn_confusion_matrix(
+        cm = scoring.annotation_confusion_matrix(
             data, "markers", pred_col=pred_col, soft=soft, plot=False
         )
         assert cm.shape == (3, 3)
@@ -480,7 +480,7 @@ class TestEvaluationWorksAcrossPredictors:
         gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
         assert list(data.obsm["svm_annotation_probabilities"].columns) == ["ER", "MITO", "NUC"]
 
-        frame = plotting_clustering.knn_marker_df(data, "markers", "svm_annotation")
+        frame = plotting_clustering.annotation_marker_df(data, "markers", "svm_annotation")
         assert len(frame) == int(data.obs["markers"].notna().sum())
         # each marker's own compartment should carry most of the mass
         assert frame["pred_prob"].mean() > 0.8

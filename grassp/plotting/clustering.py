@@ -276,7 +276,14 @@ def tagm_map_pca_ellipses(
     return ax
 
 
-def knn_marker_df(data: AnnData, gt_col: str, pred_col: str) -> pd.DataFrame:
+def annotation_marker_df(data: AnnData, gt_col: str, pred_col: str) -> pd.DataFrame:
+    """Per-marker probability of that marker's own compartment.
+
+    One row per annotated protein, with the ground-truth label and the probability
+    the annotator gave to *that* label -- the data behind
+    :func:`annotation_violin`. Works for any annotator, since the ground-truth
+    one-hot is aligned to the probability matrix by column name.
+    """
     labels = data.obs[gt_col].astype("category")
     # Align the ground-truth one-hot to the probability matrix by *column name* rather
     # than by position. get_dummies emits one column per declared gt_col category, but a
@@ -296,10 +303,10 @@ def knn_marker_df(data: AnnData, gt_col: str, pred_col: str) -> pd.DataFrame:
     return marker_df
 
 
-def knn_violin(
+def annotation_violin(
     data: AnnData, gt_col: str, pred_col: str, ax: plt.Axes | None = None, **kwargs
 ) -> plt.Axes:
-    """Violin plot of KNN annotation.
+    """Violin plot of annotation confidence, grouped by ground-truth compartment.
 
     Parameters
     ----------
@@ -308,11 +315,11 @@ def knn_violin(
     gt_col
         Observation column with ground-truth labels.
     pred_col
-        Observation column with predicted labels.
+        Annotation prefix, as for :func:`annotation_marker_df`.
     """
     if ax is None:
         ax = plt.gca()
-    plot_df = knn_marker_df(data, gt_col, pred_col)
+    plot_df = annotation_marker_df(data, gt_col, pred_col)
     sns.violinplot(
         data=plot_df,
         x="gt_col",

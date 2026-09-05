@@ -25,7 +25,8 @@ This module provides various tools for analyzing proteomics data.
    tl.qsep_score
    tl.tagm_map_train
    tl.tagm_map_predict
-   tl.knn_f1_score
+   tl.annotation_f1_score
+   tl.annotation_confusion_matrix
    tl.class_balance
 ```
 

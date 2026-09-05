@@ -231,7 +231,7 @@ class TestConsumers:
         localization.competitive_diffusion(
             data, gt_col="markers", key_added="cp", min_probability=0
         )
-        cm = scoring.knn_confusion_matrix(
+        cm = scoring.annotation_confusion_matrix(
             data, gt_col="markers", pred_col="cp", soft=True, plot=False
         )
         cm = np.asarray(cm)
@@ -244,7 +244,7 @@ class TestConsumers:
             data, gt_col="markers", key_added="cp", min_probability=0
         )
         cm = np.asarray(
-            scoring.knn_confusion_matrix(
+            scoring.annotation_confusion_matrix(
                 data, gt_col="markers", pred_col="cp", soft=False, plot=False
             )
         )
@@ -260,7 +260,7 @@ class TestConsumers:
             data.obsm[key] = data.obsm[key].to_numpy()
 
         cm = np.asarray(
-            scoring.knn_confusion_matrix(
+            scoring.annotation_confusion_matrix(
                 data, gt_col="markers", pred_col="cp", soft=True, plot=False
             )
         )

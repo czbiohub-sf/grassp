@@ -14,7 +14,6 @@ import seaborn as sns
 import sklearn.metrics
 
 from ..util import get_matrix
-from .localization import competitive_diffusion
 
 
 def class_balance(
@@ -257,8 +256,11 @@ def qsep_score(
         return cluster_distances
 
 
-def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
-    """F1 score.
+def annotation_f1_score(data, gt_col, pred_col, weights=None, average="macro"):
+    """F1 score of a predicted annotation against ground-truth labels.
+
+    Works for any annotator: it compares two ``.obs`` columns and has no notion of
+    how the prediction was produced.
 
     Parameters
     ----------
@@ -267,7 +269,8 @@ def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
     gt_col
         Observation column with ground-truth labels.
     pred_col
-        Observation column with predicted labels.
+        Observation column with predicted labels, e.g. ``"competitive_diffusion"`` or
+        ``"svm_annotation"``.
     weights
         Weights for the F1 score.
     average
@@ -277,12 +280,7 @@ def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
     -------
     F1 score.
     """
-    if pred_col is None:
-        knnres = competitive_diffusion(data, gt_col, inplace=False, min_probability=0)
-        pred = knnres["labels"][knnres["probabilities"].argmax(axis=1)]
-    else:
-        pred = data.obs[pred_col]
-
+    pred = data.obs[pred_col]
     gt = data.obs[gt_col]
     mask = gt.notna()
     y_true_raw = gt[mask]
@@ -314,8 +312,11 @@ def knn_f1_score(data, gt_col, pred_col=None, weights=None, average="macro"):
         )
 
 
-def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False, plot=True):
-    """Plot the confusion matrix of KNN-predicted versus ground-truth labels.
+def annotation_confusion_matrix(data, gt_col, pred_col, soft=False, cluster=False, plot=True):
+    """Confusion matrix of a predicted annotation against ground-truth labels.
+
+    Works for any annotator that stores a labelled probability matrix in
+    ``obsm[f"{pred_col}_probabilities"]``.
 
     Parameters
     ----------
@@ -324,7 +325,8 @@ def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False,
     gt_col
         Observation column with ground-truth labels.
     pred_col
-        Observation column with predicted labels. If None, KNN annotation is computed.
+        Annotation prefix: the labels are read from ``obs[pred_col]`` and the
+        probabilities from ``obsm[f"{pred_col}_probabilities"]``.
     soft
         If True, use probabilistic (soft) confusion matrix instead of hard assignments.
     plot=True
@@ -337,44 +339,40 @@ def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False,
     None. Displays a heatmap of the confusion matrix if plot is True, otherwise returns the confusion matrix.
     """
 
-    # Notation: n observations, g ground truth label classes
-    if pred_col is None:
-        knnres = competitive_diffusion(data, gt_col, inplace=False, min_probability=0)
-    else:
-        # "labels" must be the g class names in column order, matching what the
-        # inplace=False branch above returns -- both the axis labels and the argmax
-        # lookup below index into it by column. The matrices carry those names now;
-        # matrices written before they did fall back to the companion label column.
-        probabilities, categories = get_matrix(data, f"{pred_col}_probabilities")
-        if categories is None:
-            categories = data.obs[pred_col].astype("category").cat.categories
-        categories = pd.Index(categories)
-        # The soft matrix below is one_hot(gt).T @ probabilities, so the one-hot has to
-        # encode the *ground truth*, aligned to the probability columns. Deriving it from
-        # gt_col here -- rather than reading a `{pred_col}_one_hot_labels` companion --
-        # is what lets this work for any predictor: competitive_diffusion is the only one
-        # that writes that companion matrix, so the eager read used to raise a KeyError
-        # for svm_annotation, tagm_map_predict and ccompass regardless of `soft`.
-        one_hot_labels = (
-            pd.get_dummies(data.obs[gt_col].astype("category"))
-            .reindex(columns=categories, fill_value=False)
-            .to_numpy(dtype=float)
-        )
-        knnres = {
-            "probabilities": probabilities,
-            "labels": categories,
-            "one_hot_labels": one_hot_labels,
-        }
+    # Notation: n observations, g ground truth label classes.
+    # "labels" must be the g class names in column order -- both the axis labels and
+    # the argmax lookup below index into it by column. The matrices carry those names
+    # now; matrices written before they did fall back to the companion label column.
+    probabilities, categories = get_matrix(data, f"{pred_col}_probabilities")
+    if categories is None:
+        categories = data.obs[pred_col].astype("category").cat.categories
+    categories = pd.Index(categories)
+    # The soft matrix below is one_hot(gt).T @ probabilities, so the one-hot has to
+    # encode the *ground truth*, aligned to the probability columns. Deriving it from
+    # gt_col here -- rather than reading a `{pred_col}_one_hot_labels` companion --
+    # is what lets this work for any predictor: competitive_diffusion is the only one
+    # that writes that companion matrix, so the eager read used to raise a KeyError
+    # for svm_annotation, tagm_map_predict and ccompass regardless of `soft`.
+    one_hot_labels = (
+        pd.get_dummies(data.obs[gt_col].astype("category"))
+        .reindex(columns=categories, fill_value=False)
+        .to_numpy(dtype=float)
+    )
+    annres = {
+        "probabilities": probabilities,
+        "labels": categories,
+        "one_hot_labels": one_hot_labels,
+    }
 
     if soft:
-        M = knnres["one_hot_labels"].T @ knnres["probabilities"]  # shape (g, g)
+        M = annres["one_hot_labels"].T @ annres["probabilities"]  # shape (g, g)
         # Row-normalize to get fractions (each row sums to 1)
         cm = M / M.sum(axis=1, keepdims=True)
         cm = np.nan_to_num(cm, nan=0.0)
-        labels = list(knnres["labels"])  # consistent label order with matrix axes
+        labels = list(annres["labels"])  # consistent label order with matrix axes
     else:
         gt = data.obs[gt_col]
-        pred = knnres["labels"][knnres["probabilities"].argmax(axis=1)]
+        pred = annres["labels"][annres["probabilities"].argmax(axis=1)]
         mask = gt.notna() & pred.notna()
         y_true_raw = gt[mask]
         y_pred_raw = pred[mask]
@@ -417,6 +415,6 @@ def knn_confusion_matrix(data, gt_col, pred_col=None, soft=False, cluster=False,
     )
     plt.xlabel("Predicted label")
     plt.ylabel("True label")
-    plt.title(f"{'Soft' if soft else 'Hard'} confusion matrix from knn annotation")
+    plt.title(f"{'Soft' if soft else 'Hard'} confusion matrix: {pred_col} vs {gt_col}")
     plt.tight_layout()
     plt.show()

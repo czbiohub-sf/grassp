@@ -791,19 +791,22 @@ class TestScoringFunctions:
         assert "distances" in adata.uns["cluster_distances"]
         assert "clusters" in adata.uns["cluster_distances"]
 
-    def test_knn_f1_score_basic(self):
-        """Test KNN F1 score."""
+    def test_annotation_f1_score_basic(self):
+        """F1 of an annotation against its ground truth."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
-        f1 = scoring.knn_f1_score(adata, gt_col="markers", pred_col=None, average="macro")
+        f1 = scoring.annotation_f1_score(
+            adata, gt_col="markers", pred_col="competitive_diffusion", average="macro"
+        )
 
         assert isinstance(f1, (float, np.floating))
         # F1 score should be between 0 and 1
         assert 0 <= f1 <= 1
 
-    def test_knn_f1_score_with_prediction(self):
+    def test_annotation_f1_score_with_prediction(self):
         """Test F1 score with existing predictions."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
@@ -814,7 +817,7 @@ class TestScoringFunctions:
             adata, gt_col="markers", key_added="predictions", min_probability=0
         )
 
-        f1 = scoring.knn_f1_score(
+        f1 = scoring.annotation_f1_score(
             adata,
             gt_col="markers",
             pred_col="predictions",
@@ -824,15 +827,15 @@ class TestScoringFunctions:
         assert isinstance(f1, (float, np.floating))
         assert 0 <= f1 <= 1
 
-    def test_knn_confusion_matrix_hard(self):
+    def test_annotation_confusion_matrix_hard(self):
         """Test hard confusion matrix."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
-        # Use auto mode (pred_col=None) to compute on the fly
-        cm = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=False, plot=False
+        cm = scoring.annotation_confusion_matrix(
+            adata, gt_col="markers", pred_col="competitive_diffusion", soft=False, plot=False
         )
 
         # Check structure
@@ -843,15 +846,15 @@ class TestScoringFunctions:
         row_sums = cm.sum(axis=1)
         assert np.allclose(row_sums, 1.0, atol=0.01)
 
-    def test_knn_confusion_matrix_soft(self):
+    def test_annotation_confusion_matrix_soft(self):
         """Test soft (probabilistic) confusion matrix."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
-        # Use auto mode (pred_col=None)
-        cm = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=True, plot=False
+        cm = scoring.annotation_confusion_matrix(
+            adata, gt_col="markers", pred_col="competitive_diffusion", soft=True, plot=False
         )
 
         # Check structure
@@ -862,44 +865,52 @@ class TestScoringFunctions:
         row_sums = cm.sum(axis=1)
         assert np.allclose(row_sums, 1.0, atol=0.01)
 
-    def test_knn_confusion_matrix_with_clustering(self):
+    def test_annotation_confusion_matrix_with_clustering(self):
         """Test confusion matrix with hierarchical clustering reordering."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
         # Use auto mode
-        cm = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=False, cluster=True, plot=False
+        cm = scoring.annotation_confusion_matrix(
+            adata,
+            gt_col="markers",
+            pred_col="competitive_diffusion",
+            soft=False,
+            cluster=True,
+            plot=False,
         )
 
         # Should still return valid matrix
         assert isinstance(cm, np.ndarray)
         assert cm.ndim == 2
 
-    def test_knn_confusion_matrix_plot(self):
+    def test_annotation_confusion_matrix_plot(self):
         """Test confusion matrix plotting."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
         # Should not raise errors when plotting
-        result = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=False, plot=True
+        result = scoring.annotation_confusion_matrix(
+            adata, gt_col="markers", pred_col="competitive_diffusion", soft=False, plot=True
         )
 
         # When plot=True, returns None
         assert result is None
 
-    def test_knn_confusion_matrix_auto_knn(self):
+    def test_annotation_confusion_matrix_auto_knn(self):
         """Test confusion matrix with automatic KNN annotation."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
         # Don't pre-compute predictions, let function do it
-        cm = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=False, plot=False
+        cm = scoring.annotation_confusion_matrix(
+            adata, gt_col="markers", pred_col="competitive_diffusion", soft=False, plot=False
         )
 
         # Should still work
@@ -1417,7 +1428,9 @@ class TestCompleteWorkflows:
         assert "ch_score" in adata.uns
 
         # Step 4: F1 score
-        f1 = scoring.knn_f1_score(adata, gt_col="markers", pred_col="competitive_diffusion")
+        f1 = scoring.annotation_f1_score(
+            adata, gt_col="markers", pred_col="competitive_diffusion"
+        )
         assert 0 <= f1 <= 1
 
     def test_integration_workflow(self):
