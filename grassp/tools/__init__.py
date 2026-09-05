@@ -13,11 +13,7 @@ from .clustering import (
     to_knn_graph,
 )
 from .diffusion import independent_diffusion, resolve_diffusion
-from .enrichment import (
-    calculate_cluster_enrichment,
-    enrichment_to_cluster_distribution,
-    rank_proteins_groups,
-)
+from .enrichment import calculate_cluster_enrichment, enrichment_to_cluster_distribution
 from .integration import align_adatas, aligned_umap, mr_score, remodeling_score
 from .localization import (
     competitive_diffusion,

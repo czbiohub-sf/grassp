@@ -7,12 +7,6 @@ if TYPE_CHECKING:
 
 import numpy as np
 import pandas as pd
-import scanpy
-
-from scipy import cluster, spatial
-
-rank_proteins_groups = scanpy.tl.rank_genes_groups
-
 
 # Map from species code → filename of the bundled consolidated GMT.
 # Shared between `calculate_cluster_enrichment` and `merge_clusters_go`.
@@ -511,41 +505,3 @@ def enrichment_to_cluster_distribution(
 
     Q = pd.DataFrame(Q_values, index=pv.index, columns=categories)
     return Q, categories
-
-
-# Calculate pairwise distance matrix between samples
-def calculate_distance_matrix(
-    data: AnnData,
-    distance_metric: str = "correlation",
-    linkage_method: str = "average",
-    linkage_metric: str = "cosine",
-) -> pd.DataFrame:
-    """Pairwise sample-to-sample distance matrix.
-
-    Parameters
-    ----------
-    data
-        AnnData object (proteins × samples).
-    distance_metric
-        Metric passed to :func:`scipy.spatial.distance.pdist`.
-    linkage_method, linkage_metric
-        Parameters forwarded to :func:`scipy.cluster.hierarchy.linkage` – used
-        here solely to obtain an ordering of samples for the returned matrix.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Square distance matrix with samples in dendrogram order.
-    """
-
-    distance_matrix = spatial.distance.pdist(data.X, metric=distance_metric)
-    linkage = cluster.hierarchy.linkage(
-        distance_matrix, method=linkage_method, metric=linkage_metric
-    )  # Hierarchical clustering
-    row_order = np.array(
-        cluster.hierarchy.dendrogram(linkage, no_plot=True, orientation="bottom")["leaves"]
-    )
-
-    distance_matrix = spatial.distance.squareform(distance_matrix)
-    distance_matrix = distance_matrix[row_order, :][:, row_order]
-    distance_matrix.shape
