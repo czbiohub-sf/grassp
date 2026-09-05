@@ -55,6 +55,7 @@ classifier on them.
    :nosignatures:
    :toctree: ../generated/
 
+   tl.competitive_diffusion
    tl.competitive_propagation
    tl.knn_annotation
    tl.soft_cluster_annotation

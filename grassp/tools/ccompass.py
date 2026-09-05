@@ -199,7 +199,7 @@ def ccompass(
     ``rounds`` x ``subrounds``), and -- when ``aggregate`` is ``True`` -- runs
     C-COMPASS's :func:`~ccompass.MOA.stats_proteome` to obtain reliability-filtered
     class contributions. Results are written into ``data`` following the same
-    conventions as :func:`~grassp.tools.competitive_propagation`.
+    conventions as :func:`~grassp.tools.competitive_diffusion`.
 
     Parameters
     ----------

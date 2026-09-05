@@ -129,9 +129,9 @@ class TestHelpers:
 
 
 class TestWriters:
-    def test_competitive_propagation(self, annotated):
+    def test_competitive_diffusion(self, annotated):
         data, compartments = annotated
-        localization.competitive_propagation(data, gt_col="markers", key_added="cp")
+        localization.competitive_diffusion(data, gt_col="markers", key_added="cp")
 
         for key in ("cp_probabilities", "cp_one_hot_labels"):
             stored = data.obsm[key]
@@ -144,7 +144,7 @@ class TestWriters:
     def test_probabilities_columns_match_predicted_label(self, annotated):
         """The argmax column name must be the label written to .obs."""
         data, _ = annotated
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             data, gt_col="markers", key_added="cp", min_probability=0
         )
         probabilities = data.obsm["cp_probabilities"]
@@ -194,7 +194,7 @@ class TestWriters:
 class TestRoundTrip:
     def test_h5ad_preserves_labels(self, annotated, tmp_path):
         data, compartments = annotated
-        localization.competitive_propagation(data, gt_col="markers", key_added="cp")
+        localization.competitive_diffusion(data, gt_col="markers", key_added="cp")
 
         path = tmp_path / "labelled.h5ad"
         data.write_h5ad(path)
@@ -213,7 +213,7 @@ class TestRoundTrip:
 
     def test_view_subsetting_keeps_labels(self, annotated):
         data, compartments = annotated
-        localization.competitive_propagation(data, gt_col="markers", key_added="cp")
+        localization.competitive_diffusion(data, gt_col="markers", key_added="cp")
         view = data[data.obs["markers"] == compartments[0]]
         assert list(view.obsm["cp_probabilities"].columns) == compartments
         assert view.obsm["cp_probabilities"].index.equals(view.obs_names)
@@ -228,7 +228,7 @@ class TestConsumers:
     def test_confusion_matrix_soft(self, annotated):
         """Regression: DataFrame obsm used to reach ``DataFrame.sum(keepdims=True)``."""
         data, compartments = annotated
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             data, gt_col="markers", key_added="cp", min_probability=0
         )
         cm = scoring.knn_confusion_matrix(
@@ -240,7 +240,7 @@ class TestConsumers:
 
     def test_confusion_matrix_hard(self, annotated):
         data, compartments = annotated
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             data, gt_col="markers", key_added="cp", min_probability=0
         )
         cm = np.asarray(
@@ -253,7 +253,7 @@ class TestConsumers:
     def test_confusion_matrix_accepts_legacy_ndarray(self, annotated):
         """An object saved before the switch still scores, via the .obs fallback."""
         data, compartments = annotated
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             data, gt_col="markers", key_added="cp", min_probability=0
         )
         for key in ("cp_probabilities", "cp_one_hot_labels"):
@@ -274,7 +274,7 @@ class TestConsumers:
         seed /= seed.sum(axis=1, keepdims=True)
         set_matrix(data, "soft_seed", seed, compartments)
 
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             data, gt_col=None, key_added="soft", seed_obsm_key="soft_seed"
         )
         assert list(data.obsm["soft_probabilities"].columns) == compartments
@@ -283,6 +283,6 @@ class TestConsumers:
         data, compartments = annotated
         data.obsm["bare_seed"] = np.full((data.n_obs, len(compartments)), 0.25)
         with pytest.raises(ValueError, match="carries no column names"):
-            localization.competitive_propagation(
+            localization.competitive_diffusion(
                 data, gt_col=None, key_added="bare", seed_obsm_key="bare_seed"
             )

@@ -1,4 +1,4 @@
-"""Tests for independent (one-vs-rest) label diffusion and the competitive_propagation
+"""Tests for independent (one-vs-rest) label diffusion and the competitive_diffusion
 rename / knn_annotation deprecation."""
 
 import warnings
@@ -88,17 +88,56 @@ def test_copy_does_not_mutate(blob_adata):
     assert "ann_diffusion_probabilities" not in a.obsm
 
 
-def test_knn_annotation_deprecated_alias():
+@pytest.mark.parametrize("alias", ["knn_annotation", "competitive_propagation"])
+def test_deprecated_aliases_warn(alias):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         try:
-            gr.tl.knn_annotation(ad.AnnData(np.zeros((2, 2))))
+            getattr(gr.tl, alias)(ad.AnnData(np.zeros((2, 2))))
         except Exception:
             pass
     assert any(issubclass(x.category, DeprecationWarning) for x in w)
 
 
-def test_competitive_propagation_exported():
+@pytest.mark.parametrize("alias", ["knn_annotation", "competitive_propagation"])
+def test_deprecated_aliases_keep_old_key_added(blob_adata, alias):
+    """The aliases must not silently move a caller's output columns.
+
+    ``competitive_diffusion`` defaults to ``key_added="competitive_diffusion"``, but code
+    written against the old name reads ``obs["competitive_propagation"]``, so both aliases
+    pin the historical default.
+    """
+    a, _ = blob_adata
+    a.obs["markers"] = [f"m{v}" if i % 3 else None for i, v in enumerate(a.obs["_blob"])]
+    a.obs["markers"] = a.obs["markers"].astype("category")
+
+    b = a.copy()
+    gr.tl.competitive_diffusion(a, gt_col="markers", verbose=False)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        getattr(gr.tl, alias)(b, gt_col="markers", verbose=False)
+
+    assert "competitive_diffusion" in a.obs and "competitive_diffusion_probabilities" in a.obsm
+    assert (
+        "competitive_propagation" in b.obs
+        and "competitive_propagation_probabilities" in b.obsm
+    )
+    # only the key differs -- the computation is the same one
+    assert (
+        a.obs["competitive_diffusion"].astype(str)
+        == b.obs["competitive_propagation"].astype(str)
+    ).all()
+
+    # an explicit key_added still wins over the pinned default
+    c = a.copy()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        getattr(gr.tl, alias)(c, gt_col="markers", key_added="explicit", verbose=False)
+    assert "explicit" in c.obs
+
+
+def test_competitive_diffusion_exported():
+    assert callable(gr.tl.competitive_diffusion)
     assert callable(gr.tl.competitive_propagation)
 
 

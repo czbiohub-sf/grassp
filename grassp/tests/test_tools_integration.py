@@ -268,34 +268,34 @@ class TestClusteringFunctions:
         assert "leiden" in adata.uns
         assert "mito_majority_fraction" in adata.uns["leiden"]
 
-    def test_competitive_propagation_basic(self):
+    def test_competitive_diffusion_basic(self):
         """Test KNN annotation propagation."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.3, add_neighbors=True
         )
 
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             adata,
             gt_col="markers",
-            key_added="competitive_propagation",
+            key_added="competitive_diffusion",
             min_probability=0.3,
         )
 
-        assert "competitive_propagation" in adata.obs.columns
-        assert "competitive_propagation_probabilities" in adata.obsm
-        assert "competitive_propagation_probability" in adata.obs.columns
+        assert "competitive_diffusion" in adata.obs.columns
+        assert "competitive_diffusion_probabilities" in adata.obsm
+        assert "competitive_diffusion_probability" in adata.obs.columns
         # Should have annotated proteins
-        assert adata.obs["competitive_propagation"].notna().sum() > 0
+        assert adata.obs["competitive_diffusion"].notna().sum() > 0
         # Probabilities should be within valid range
-        assert (adata.obs["competitive_propagation_probability"] <= 1.0).all()
+        assert (adata.obs["competitive_diffusion_probability"] <= 1.0).all()
 
-    def test_competitive_propagation_fix_markers(self):
+    def test_competitive_diffusion_fix_markers(self):
         """Test KNN annotation with fixed markers."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.3, add_neighbors=True
         )
 
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             adata,
             gt_col="markers",
             key_added="knn_fixed",
@@ -307,14 +307,14 @@ class TestClusteringFunctions:
         marker_mask = adata.obs["markers"].notna()
         assert np.allclose(adata.obs.loc[marker_mask, "knn_fixed_probability"], 1.0)
 
-    def test_competitive_propagation_unclamped_iteration_warns(self):
+    def test_competitive_diffusion_unclamped_iteration_warns(self):
         """iterative=True without fix_markers has a degenerate fixed point -> warn."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.3, add_neighbors=True
         )
 
         with pytest.warns(UserWarning, match="leaves the propagation unanchored"):
-            localization.competitive_propagation(
+            localization.competitive_diffusion(
                 adata, gt_col="markers", key_added="cp_free", iterative=True
             )
 
@@ -325,16 +325,16 @@ class TestClusteringFunctions:
         ):
             with warnings.catch_warnings(record=True) as caught:
                 warnings.simplefilter("always")
-                localization.competitive_propagation(adata, gt_col="markers", **kwargs)
+                localization.competitive_diffusion(adata, gt_col="markers", **kwargs)
             assert not [w for w in caught if "unanchored" in str(w.message)]
 
-    def test_competitive_propagation_spreading_basic(self):
+    def test_competitive_diffusion_spreading_basic(self):
         """Test KNN annotation with method='spreading'."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.3, add_neighbors=True
         )
 
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             adata,
             gt_col="markers",
             key_added="knn_spread",
@@ -349,13 +349,13 @@ class TestClusteringFunctions:
         assert adata.obs["knn_spread"].notna().sum() > 0
         assert (adata.obs["knn_spread_probability"] <= 1.0).all()
 
-    def test_competitive_propagation_spreading_alpha_extremes(self):
+    def test_competitive_diffusion_spreading_alpha_extremes(self):
         """Small alpha anchors predictions to seeds; large alpha lets them drift."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.3, add_neighbors=True
         )
 
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             adata,
             gt_col="markers",
             key_added="spread_low",
@@ -364,7 +364,7 @@ class TestClusteringFunctions:
             min_probability=0.0,
             verbose=False,
         )
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             adata,
             gt_col="markers",
             key_added="spread_high",
@@ -385,14 +385,14 @@ class TestClusteringFunctions:
         ).mean()
         assert agree_low >= agree_high
 
-    def test_competitive_propagation_spreading_invalid_alpha(self):
+    def test_competitive_diffusion_spreading_invalid_alpha(self):
         """alpha outside [0, 1] raises ValueError."""
         adata = make_enriched_data_with_structure(
             n_proteins=50, marker_fraction=0.3, add_neighbors=True
         )
 
         with pytest.raises(ValueError):
-            localization.competitive_propagation(
+            localization.competitive_diffusion(
                 adata,
                 gt_col="markers",
                 method="spreading",
@@ -400,7 +400,7 @@ class TestClusteringFunctions:
                 verbose=False,
             )
         with pytest.raises(ValueError):
-            localization.competitive_propagation(
+            localization.competitive_diffusion(
                 adata,
                 gt_col="markers",
                 method="spreading",
@@ -810,7 +810,7 @@ class TestScoringFunctions:
         )
 
         # First create predictions (use min_probability=0 to get all predictions)
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             adata, gt_col="markers", key_added="predictions", min_probability=0
         )
 
@@ -1401,13 +1401,13 @@ class TestCompleteWorkflows:
         assert "mc_cluster" in adata.obs.columns
 
         # Step 2: KNN annotation
-        localization.competitive_propagation(
+        localization.competitive_diffusion(
             adata,
             gt_col="markers",
-            key_added="competitive_propagation",
+            key_added="competitive_diffusion",
             min_probability=0.5,
         )
-        assert "competitive_propagation" in adata.obs.columns
+        assert "competitive_diffusion" in adata.obs.columns
 
         # Step 3: Calculate scores
         scoring.silhouette_score(adata, gt_col="markers", use_rep="X_umap")
@@ -1417,7 +1417,7 @@ class TestCompleteWorkflows:
         assert "ch_score" in adata.uns
 
         # Step 4: F1 score
-        f1 = scoring.knn_f1_score(adata, gt_col="markers", pred_col="competitive_propagation")
+        f1 = scoring.knn_f1_score(adata, gt_col="markers", pred_col="competitive_diffusion")
         assert 0 <= f1 <= 1
 
     def test_integration_workflow(self):
@@ -1481,12 +1481,12 @@ class TestCompleteWorkflows:
 class TestErrorHandling:
     """Test error handling across tools functions."""
 
-    def test_competitive_propagation_missing_column(self):
+    def test_competitive_diffusion_missing_column(self):
         """Test error when annotation column missing."""
         adata = make_enriched_data_with_structure(n_proteins=50, add_neighbors=True)
 
         with pytest.raises(KeyError):
-            localization.competitive_propagation(adata, gt_col="nonexistent_column")
+            localization.competitive_diffusion(adata, gt_col="nonexistent_column")
 
     def test_silhouette_score_missing_embedding(self):
         """Test error when embedding not found."""

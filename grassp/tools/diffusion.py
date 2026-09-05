@@ -2,7 +2,7 @@
 
 This is the second of grassp's two graph-annotation families:
 
-* :func:`~grassp.tools.competitive_propagation` — mutually-exclusive labels that
+* :func:`~grassp.tools.competitive_diffusion` — mutually-exclusive labels that
   **compete** on the kNN graph. Each protein carries a single label; the propagated
   probabilities are cross-class normalized to a **simplex** (rows sum to 1). Use it with
   markers or any single-label, non-overlapping annotation.
@@ -64,7 +64,7 @@ def _resolve_gene_sets(gene_sets, species: str) -> dict[str, list[str]]:
 def _symmetric_normalized(W) -> sp.csr_matrix:
     """Symmetric-normalized affinity ``S = D^{-1/2} W D^{-1/2}`` (Zhou et al. 2003).
 
-    Shared graph operator with :func:`~grassp.tools.competitive_propagation`; the two
+    Shared graph operator with :func:`~grassp.tools.competitive_diffusion`; the two
     methods differ only in what happens *after* diffusion (competitive row-normalizes to
     a simplex, independent does not).
     """
@@ -380,7 +380,7 @@ def independent_diffusion(
     Each term in ``gene_sets`` is diffused independently over the kNN graph (no cross-term
     competition), giving a **non-simplex** per-term membership probability. See the module
     docstring for the full pipeline. For mutually-exclusive single labels (e.g. markers),
-    use :func:`~grassp.tools.competitive_propagation` instead.
+    use :func:`~grassp.tools.competitive_diffusion` instead.
 
     Parameters
     ----------

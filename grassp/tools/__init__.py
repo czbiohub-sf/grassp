@@ -20,6 +20,7 @@ from .enrichment import (
 )
 from .integration import align_adatas, aligned_umap, mr_score, remodeling_score
 from .localization import (
+    competitive_diffusion,
     competitive_propagation,
     knn_annotation,
     knn_annotation_old,

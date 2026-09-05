@@ -211,7 +211,7 @@ class TestClusteringPlots:
         )
 
         # Run KNN annotation to get predictions
-        tl_localization.competitive_propagation(
+        tl_localization.competitive_diffusion(
             adata, gt_col="markers", key_added="knn_pred", min_probability=0
         )
 

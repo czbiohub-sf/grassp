@@ -48,7 +48,7 @@ def _propagate_soft(
 ):
     """Propagate a (n_obs, n_categories) seed matrix over the affinity operator ``T``.
 
-    This is the shared propagation core used by :func:`_competitive_propagation` and by the
+    This is the shared propagation core used by :func:`_competitive_diffusion` and by the
     permutation null in :func:`resolve_soft_labels`. It is agnostic to whether ``seed``
     is a one-hot encoding or an arbitrary non-negative soft-label matrix, so the null
     re-propagation is byte-identical to production.
@@ -83,7 +83,7 @@ def _propagate_soft(
                 break
         else:
             warnings.warn(
-                f"competitive_propagation: max_iter={max_iter} reached without convergence "
+                f"competitive_diffusion: max_iter={max_iter} reached without convergence "
                 f"(tol={tol})."
             )
     elif iterative:
@@ -110,7 +110,7 @@ def _propagate_soft(
                 print(f"Diff: {diff:.3f}, Iteration {_} completed")
         else:
             warnings.warn(
-                f"competitive_propagation: max_iter={max_iter} reached without convergence "
+                f"competitive_diffusion: max_iter={max_iter} reached without convergence "
                 f"(tol={tol})."
             )
     else:
@@ -137,7 +137,7 @@ def _propagate_soft(
     return Y
 
 
-def _competitive_propagation(
+def _competitive_diffusion(
     data: AnnData,
     gt_col: str | None,
     class_balance: bool = True,
@@ -211,7 +211,7 @@ def _competitive_propagation(
     return Y, labels, labels_one_hot
 
 
-def competitive_propagation(
+def competitive_diffusion(
     data: AnnData,
     gt_col: str | None = None,
     fix_markers: bool = False,
@@ -220,7 +220,7 @@ def competitive_propagation(
     plot_optimization: bool = True,
     inplace: bool = True,
     obsp_key="connectivities",
-    key_added: str = "competitive_propagation",
+    key_added: str = "competitive_diffusion",
     iterative: bool = False,
     max_iter: int = 1000,
     tol: float = 1e-3,
@@ -271,10 +271,10 @@ def competitive_propagation(
         operator. The resulting matrix is cached at ``adata.obsp["W_spreading"]``
         for inspection. This typically gives a narrower effective kernel than
         UMAP's fuzzy-union ``connectivities``, which is useful when you want
-        boundary-localized uncertainty in :func:`label spreading <competitive_propagation>`.
+        boundary-localized uncertainty with ``method="spreading"``.
     key_added
         Name of the new column that will hold the propagated annotation
-        (default ``"competitive_propagation"``).
+        (default ``"competitive_diffusion"``).
     iterative
         If ``True`` perform multi-step label propagation (in the style of
         :class:`sklearn.semi_supervised.LabelPropagation`). At every step the label
@@ -370,7 +370,7 @@ def competitive_propagation(
             )
         if fix_markers:
             warnings.warn(
-                "fix_markers is ignored when seeding competitive_propagation with a soft "
+                "fix_markers is ignored when seeding competitive_diffusion with a soft "
                 "seed_matrix (its one-hot marker test does not apply to soft seeds)."
             )
             fix_markers = False
@@ -402,7 +402,7 @@ def competitive_propagation(
     #     min_probabilities = np.linspace(0.5, 1, 100)
     #     f1 = []
     #     for prob in min_probabilities:
-    #         Y, labels, labels_one_hot = _competitive_propagation(
+    #         Y, labels, labels_one_hot = _competitive_diffusion(
     #             data,
     #             gt_col=gt_col,
     #             class_balance=class_balance,
@@ -443,7 +443,7 @@ def competitive_propagation(
     #     plt.legend()
     #     plt.show()
 
-    Y, labels, labels_one_hot = _competitive_propagation(
+    Y, labels, labels_one_hot = _competitive_diffusion(
         data,
         gt_col=gt_col,
         class_balance=class_balance,
@@ -498,20 +498,47 @@ def competitive_propagation(
         }
 
 
-def knn_annotation(*args, **kwargs):
-    """Deprecated alias for :func:`competitive_propagation`.
+def competitive_propagation(*args, **kwargs):
+    """Deprecated alias for :func:`competitive_diffusion`.
 
-    Renamed to pair with :func:`~grassp.tools.independent_diffusion`: the two graph
-    annotation families are *competitive* propagation (mutually-exclusive labels, simplex
-    output) and *independent* diffusion (overlapping/ontology labels, per-term output).
+    Renamed so the two graph annotation families differ in exactly one word — the label
+    semantics — rather than in the name of the graph operator, which they share:
+    *competitive* diffusion (mutually-exclusive labels, simplex output) vs
+    :func:`independent diffusion <grassp.tools.independent_diffusion>` (overlapping /
+    ontology labels, per-term output). "propagation" was also the name of one of the two
+    ``method`` choices, so ``competitive_propagation(method="spreading")`` read as a
+    contradiction.
+
+    ``key_added`` keeps its old default (``"competitive_propagation"``) when called
+    through this alias, so existing code that relied on the default output column name
+    is unaffected.
     """
     warnings.warn(
-        "knn_annotation is deprecated and will be removed in a future release; "
-        "use competitive_propagation instead.",
+        "competitive_propagation is deprecated and will be removed in a future release; "
+        "use competitive_diffusion instead. Note that competitive_diffusion defaults to "
+        "key_added='competitive_diffusion'.",
         DeprecationWarning,
         stacklevel=2,
     )
-    return competitive_propagation(*args, **kwargs)
+    kwargs.setdefault("key_added", "competitive_propagation")
+    return competitive_diffusion(*args, **kwargs)
+
+
+def knn_annotation(*args, **kwargs):
+    """Deprecated alias for :func:`competitive_diffusion`.
+
+    See :func:`competitive_propagation` for the renaming rationale. Like that alias, this
+    one pins ``key_added`` to the historical ``"competitive_propagation"`` default.
+    """
+    warnings.warn(
+        "knn_annotation is deprecated and will be removed in a future release; "
+        "use competitive_diffusion instead. Note that competitive_diffusion defaults to "
+        "key_added='competitive_diffusion'.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    kwargs.setdefault("key_added", "competitive_propagation")
+    return competitive_diffusion(*args, **kwargs)
 
 
 def soft_cluster_annotation(
@@ -566,7 +593,7 @@ def soft_cluster_annotation(
        soft seed matrix stored in ``data.obsm[f"{key_added}_seed"]`` with the
        category order in ``data.uns[f"{key_added}_categories"]``.
     3. Propagate the soft seed over the neighbour graph with
-       :func:`~grassp.tl.competitive_propagation`, writing the propagated distribution to
+       :func:`~grassp.tl.competitive_diffusion`, writing the propagated distribution to
        ``data.obsm[f"{key_added}_probabilities"]`` and the argmax label (with
        ``unknown`` mapped to ``NaN``) to ``data.obs[key_added]``.
 
@@ -596,9 +623,9 @@ def soft_cluster_annotation(
         Forwarded to :func:`~grassp.tl.enrichment_to_cluster_distribution` (unused
         when ``cluster_distribution`` is supplied).
     class_balance, min_probability, obsp_key, method, iterative, alpha
-        Forwarded to :func:`~grassp.tl.competitive_propagation`.
+        Forwarded to :func:`~grassp.tl.competitive_diffusion`.
     verbose
-        Passed through to :func:`~grassp.tl.competitive_propagation`.
+        Passed through to :func:`~grassp.tl.competitive_diffusion`.
 
     Returns
     -------
@@ -646,7 +673,7 @@ def soft_cluster_annotation(
     set_matrix(data, f"{key_added}_seed", seed, categories)
     data.uns[f"{key_added}_categories"] = list(categories)
 
-    competitive_propagation(
+    competitive_diffusion(
         data,
         gt_col=None,
         key_added=key_added,
@@ -1254,7 +1281,7 @@ def svm_annotation(
     and predicts localization for all proteins. Hyperparameters can be provided
     manually or loaded from prior :func:`svm_train` call.
 
-    Similar to :func:`competitive_propagation` but uses SVM instead of graph propagation.
+    Similar to :func:`competitive_diffusion` but uses SVM instead of graph propagation.
 
     Parameters
     ----------
@@ -1436,7 +1463,7 @@ def prune_markers_knn(
 ) -> AnnData:
     """Remove "outliers" from marker proteins whose compartment label is not supported by their k-NN neighbourhood.
 
-    Runs :func:`competitive_propagation` on the existing markers and retains only those
+    Runs :func:`competitive_diffusion` on the existing markers and retains only those
     whose neighbours confidently predict the same compartment label. Markers
     whose predicted label disagrees with their annotated label, or whose
     neighbourhood confidence falls below ``min_probability``, are set to NaN in
@@ -1469,7 +1496,7 @@ def prune_markers_knn(
     original label; removed markers are set to NaN.
     """
     key_added = key_added or f"{gt_col}_pruned"
-    knnres = competitive_propagation(
+    knnres = competitive_diffusion(
         adata, gt_col, min_probability=min_probability, inplace=False, fix_markers=False
     )
     labels, Y = knnres["labels"], knnres["probabilities"]
