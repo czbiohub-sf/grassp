@@ -140,8 +140,8 @@ onto matrix-valued `pData` columns by the same route, and `.layers` onto the ext
 Those come back as **DataFrames**, which is what lets the objects describe themselves instead of
 needing a side table of column names: `annotated.obsm["svm.all.scores"].columns` is pRoloc's own
 list of classes. An `.obsm` entry that goes *out* as a plain array is read just as happily — the
-class names are looked for in `.uns[f"{key}_categories"]`, the convention grassp's own annotators
-write, and then in the categories of the companion label column. Failing both it stays nameless,
+class names are looked for in `.uns[f"{key}_categories"]`, the convention the R writer falls
+back on, and then in the categories of the companion label column. Failing both it stays nameless,
 which is the right answer for an embedding: `X_pca` and `X_umap` have no class names to recover,
 and they come back as the arrays they left as rather than as frames of invented ones.
 
@@ -225,11 +225,20 @@ conversion itself.
   holds. Send less by writing a subset yourself: `adata[:, keep].write_h5ad(...)`, or
   `del adata.obsm["X_pca"]` on a copy. Only `.X` becomes `exprs()`, so if the matrix pRoloc should
   operate on is a layer, make it `.X` before writing.
-- **A class name containing `/` cannot be a DataFrame column.** HDF5 reads it as a path separator
-  and `rhdf5` will not create the intermediate group, so such a matrix is written as a plain array
-  with its names in `.uns[f"{key}_categories"]` instead, and a message says so. This is not
-  hypothetical: hyperLOPIT's classes include `"Endoplasmic reticulum/Golgi apparatus"`. Nothing is
-  renamed either way, and `grassp_as_msnset` reads the names back.
+- **A class name containing `/` cannot be a DataFrame column.** HDF5 reads it as a path separator.
+  This is not hypothetical: hyperLOPIT's classes include
+  `"Endoplasmic reticulum/Golgi apparatus"`. The two sides handle it differently, and both
+  round-trip:
+  - Going *out* of R, `rhdf5` will not create the intermediate group, so such a matrix is written
+    as a plain array with its names in `.uns[f"{key}_categories"]` and a message says so. Nothing
+    is renamed, and `grassp_as_msnset` reads the names back.
+  - Going *out* of Python, `grassp.util.set_matrix` rewrites each `/` to `; ` and warns, so the
+    matrix keeps its column names and the file stays a well-formed data frame. grassp's own
+    annotators never emit such a name, so this only fires on labels that came from pRoloc.
+
+  grassp no longer *writes* `.uns[f"{key}_categories"]` — every matrix it produces names its own
+  columns — but it still reads the entry, so R-written artifacts and files saved by older versions
+  keep working.
 - Multi-localisation has no dedicated support, because it needs none. pRoloc represents it as a
   binary `Markers` matrix in `fData`, which is just a matrix-valued column — so one-hot the labels
   into `.obsm` as a DataFrame and it arrives as one:

@@ -335,8 +335,9 @@ def resolve_diffusion(
     ``min_term_size`` without re-diffusing.
     """
     gmt = _resolve_gene_sets(gene_sets, species)
-    # The term names are columns of the stored matrix; the uns entry is only a fallback
-    # for matrices written before they were labelled.
+    # The term names are columns of the stored matrix. The uns entry is only a fallback
+    # for matrices that carry no column names: those written before grassp labelled them,
+    # and those the R bridge demotes when a class name contains "/".
     P, columns = get_matrix(data, f"{key_added}_probabilities")
     P = np.asarray(P, dtype=float)
     cats = list(columns) if columns is not None else list(data.uns[f"{key_added}_categories"])
@@ -435,8 +436,8 @@ def independent_diffusion(
 
     Returns
     -------
-    Writes ``obsm[{key_added}_probabilities]`` (per-term calibrated membership, non-simplex),
-    ``uns[{key_added}_categories]``, ``uns[{key_added}_alpha]`` (per-term ``a*``),
+    Writes ``obsm[{key_added}_probabilities]`` (per-term calibrated membership, non-simplex,
+    with the term names as its columns), ``uns[{key_added}_alpha]`` (per-term ``a*``),
     ``obs[{key_added}_maxp]`` (top-call confidence), and — when ``resolve`` is set —
     ``obs[{key_added}_resolved]`` and ``obs[{key_added}_resolved_label_compact]``.
     Returns the AnnData if ``copy=True``, else ``None``.
@@ -511,7 +512,6 @@ def independent_diffusion(
     )
 
     set_matrix(adata, f"{key_added}_probabilities", Pcal, terms)
-    adata.uns[f"{key_added}_categories"] = terms
     adata.uns[f"{key_added}_alpha"] = np.array(
         [astar.get(t, np.nan) for t in terms], dtype=float
     )

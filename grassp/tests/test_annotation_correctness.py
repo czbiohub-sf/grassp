@@ -635,7 +635,7 @@ class TestResolversAcceptAnyLabelledMatrix:
         )
         inline = data.obs["ann_diffusion_resolved"].astype(str).copy()
 
-        del data.uns["ann_diffusion_categories"]
+        assert "ann_diffusion_categories" not in data.uns
         gr.tl.resolve_diffusion(data, gene_sets, mode="likelihood", out_key="again")
         assert (inline == data.obs["again"].astype(str)).all()
 

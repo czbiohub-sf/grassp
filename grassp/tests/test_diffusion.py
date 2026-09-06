@@ -42,7 +42,7 @@ def test_independent_diffusion_outputs_and_nonsimplex(blob_adata):
     P, terms = get_matrix(a, "ann_diffusion_probabilities")
     assert P.shape == (a.n_obs, len(gs))
     assert terms == [str(t) for t in gs]
-    assert list(a.uns["ann_diffusion_categories"]) == list(gs)
+    assert terms == list(gs)  # the matrix names itself; no uns side-channel
     assert a.uns["ann_diffusion_alpha"].shape == (len(gs),)
     assert 0.0 <= P.min() and P.max() <= 1.0
     # per-term (one-vs-rest), NOT a simplex: some rows carry mass on >1 term (blob + AorB)

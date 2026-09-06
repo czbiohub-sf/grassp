@@ -262,7 +262,6 @@ def ccompass(
 
     - ``.obsm[f"{key_added}{suffix}_contributions"]`` -- proteins x compartments
       class-contribution matrix (rows sum to ~1).
-    - ``.uns[f"{key_added}{suffix}_categories"]`` -- ordered compartment names.
     - ``.obs[f"{key_added}{suffix}"]`` -- winning compartment (argmax, ``NN_winner``).
     - When ``aggregate``: ``.obsm[f"{key_added}{suffix}_fcontributions"]`` and
       ``.obs[f"{key_added}{suffix}_fwinner"]`` -- reliability-filtered outputs.
@@ -376,7 +375,6 @@ def ccompass(
 
             _write_contributions(data, key, metrics, classnames, "CC_", "_contributions")
             _write_contributions(data, key, metrics, classnames, "fCC_", "_fcontributions")
-            data.uns[f"{key}_categories"] = classnames
             _write_labels(data, key, metrics["NN_winner"])
             _write_labels(data, f"{key}_fwinner", metrics["fNN_winner"])
             label_columns += [key, f"{key}_fwinner"]
@@ -392,7 +390,6 @@ def ccompass(
                 cc.reindex(data.obs_names).to_numpy(dtype=float),
                 classnames,
             )
-            data.uns[f"{key}_categories"] = classnames
             winner = pd.Series(
                 np.array(classnames)[cc.to_numpy().argmax(axis=1)],
                 index=cc.index,
@@ -420,8 +417,7 @@ def _write_contributions(
 
     The stored columns are the bare ``classnames``, not the ``{prefix}{class}`` names the
     block is selected by: the prefix only disambiguates the two blocks within ``metrics``,
-    and the obsm key already does that. Dropping it keeps the column names in step with
-    ``uns[f"{key}_categories"]``.
+    and the obsm key already does that.
     """
     cols = [f"{prefix}{name}" for name in classnames]
     block = metrics.reindex(columns=cols).reindex(data.obs_names)

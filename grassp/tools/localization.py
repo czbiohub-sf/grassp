@@ -619,8 +619,8 @@ def soft_cluster_annotation(
        (plus an explicit ``unknown`` class) via
        :func:`~grassp.tl.enrichment_to_cluster_distribution`.
     2. Broadcast each cluster's distribution to its member proteins, producing a
-       soft seed matrix stored in ``data.obsm[f"{key_added}_seed"]`` with the
-       category order in ``data.uns[f"{key_added}_categories"]``.
+       soft seed matrix stored in ``data.obsm[f"{key_added}_seed"]``, whose columns
+       are the compartment names.
     3. Propagate the soft seed over the neighbour graph with
        :func:`~grassp.tl.competitive_diffusion`, writing the propagated distribution to
        ``data.obsm[f"{key_added}_probabilities"]`` and the argmax label (with
@@ -700,7 +700,6 @@ def soft_cluster_annotation(
             seed[missing] = 1.0 / seed.shape[1]
 
     set_matrix(data, f"{key_added}_seed", seed, categories)
-    data.uns[f"{key_added}_categories"] = list(categories)
 
     competitive_diffusion(
         data,
@@ -714,7 +713,6 @@ def soft_cluster_annotation(
         alpha=alpha,
         verbose=verbose,
         seed_obsm_key=f"{key_added}_seed",
-        seed_categories_uns_key=f"{key_added}_categories",
         unknown_label=unknown_label,
     )
 
@@ -738,7 +736,6 @@ def soft_cluster_annotation(
         resolve_soft_labels(
             data,
             prob_key=f"{key_added}_probabilities",
-            categories_key=f"{key_added}_categories",
             seed_key=f"{key_added}_seed",
             obsp_key=obsp_key,
             unknown_label=unknown_label,
