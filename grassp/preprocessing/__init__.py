@@ -1,4 +1,5 @@
 from .annotation import (
+    MARKER_COLORS,
     add_external_validation_markers,
     add_markers,
     annotate_uniprot_cc,

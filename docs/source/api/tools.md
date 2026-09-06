@@ -57,8 +57,6 @@ classifier on them.
    :toctree: ../generated/
 
    tl.competitive_diffusion
-   tl.competitive_propagation
-   tl.knn_annotation
    tl.soft_cluster_annotation
    tl.resolve_soft_labels
    tl.svm_tune_hyperparameters
@@ -145,4 +143,18 @@ Neural-network compartment prediction, provided by the optional ``ccompass`` ext
 
    tl.to_knn_graph
    tl.get_n_nearest_neighbors
+```
+
+## Deprecated
+
+Kept for one release each so existing code keeps running; both emit a
+``DeprecationWarning`` and forward to :func:`~grassp.tl.competitive_diffusion`.
+
+```{eval-rst}
+.. autosummary::
+   :nosignatures:
+   :toctree: ../generated/
+
+   tl.competitive_propagation
+   tl.knn_annotation
 ```

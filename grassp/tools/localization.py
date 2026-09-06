@@ -524,6 +524,9 @@ def competitive_diffusion(
 def competitive_propagation(*args, **kwargs):
     """Deprecated alias for :func:`competitive_diffusion`.
 
+    .. deprecated:: 0.5.0
+       Use :func:`competitive_diffusion`. This alias will be removed in 0.7.0.
+
     Renamed so the two graph annotation families differ in exactly one word — the label
     semantics — rather than in the name of the graph operator, which they share:
     *competitive* diffusion (mutually-exclusive labels, simplex output) vs
@@ -549,6 +552,9 @@ def competitive_propagation(*args, **kwargs):
 
 def knn_annotation(*args, **kwargs):
     """Deprecated alias for :func:`competitive_diffusion`.
+
+    .. deprecated:: 0.4.0
+       Use :func:`competitive_diffusion`. This alias will be removed in 0.6.0.
 
     See :func:`competitive_propagation` for the renaming rationale. Like that alias, this
     one pins ``key_added`` to the historical ``"competitive_propagation"`` default.
