@@ -73,7 +73,7 @@ def _class_weight_by_code(class_weight, categories):
 def _propagate_soft(
     T,
     seed: np.ndarray,
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     method: Literal["propagation", "spreading"] = "propagation",
     iterative: bool = False,
     alpha: float = 0.8,
@@ -137,11 +137,13 @@ def _propagate_soft(
         Y = np.asarray(T @ seed)
     Y[Y.sum(axis=1) == 0] = 1 / Y.shape[1]
 
-    # Class balance: down-weight large seed classes so they don't dominate simply by
-    # being numerous in neighbourhoods. Guard against categories with zero total
+    # Rescale each class column so its propagated mass equals its *seed* mass, i.e.
+    # restore the seed prior that diffusion smeared out. Note this is not
+    # inverse-frequency weighting -- a large class is not penalised for being large, it
+    # is returned to the share it started with. Guard against categories with zero total
     # propagated mass (e.g. an all-zero `unknown` column when every cluster is
-    # confidently annotated) — those columns must stay zero, not become NaN.
-    if class_balance:
+    # confidently annotated) -- those columns must stay zero, not become NaN.
+    if renormalize_class_mass:
         col_mass = np.nansum(Y, axis=0)
         scale = np.divide(
             seed.sum(axis=0),
@@ -159,7 +161,7 @@ def _propagate_soft(
 def _competitive_diffusion(
     data: AnnData,
     gt_col: str | None,
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     obsp_key="connectivities",
     iterative: bool = False,
     max_iter: int = 30,
@@ -203,7 +205,7 @@ def _competitive_diffusion(
     Y = _propagate_soft(
         T,
         labels_one_hot,
-        class_balance=class_balance,
+        renormalize_class_mass=renormalize_class_mass,
         method=method,
         iterative=iterative,
         alpha=alpha,
@@ -220,7 +222,7 @@ def competitive_diffusion(
     data: AnnData,
     gt_col: str | None = None,
     fix_markers: bool = False,
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     min_probability: float | None = None,
     plot_optimization: bool = True,
     inplace: bool = True,
@@ -256,8 +258,13 @@ def competitive_diffusion(
         recursion and the class probabilities collapse (see ``iterative``). Ignored,
         with a warning, when seeding from ``seed_obsm_key`` (a soft seed has no
         one-hot marker rows to clamp).
-    class_balance
-        If ``True`` ground truth compartments with a lot of proteins are downweighted proportional to their size to prevent them from dominating the propagated labels.
+    renormalize_class_mass
+        If ``True`` (default) each compartment's propagated mass is rescaled back to the
+        mass it had in the seed, undoing the redistribution diffusion causes. This is
+        *not* inverse-frequency weighting: a large compartment is not penalised for its
+        size, it is returned to the share it started with. Named for what it does --
+        ``tl.class_balance`` is an unrelated function that subsamples classes to equal
+        size, and the two used to share a name.
     min_probability
         Confidence cutoff: if the probability of the most probable label is below this
         threshold, the label is set to ``np.nan``. ``None`` (the default) applies no
@@ -410,7 +417,7 @@ def competitive_diffusion(
     #         Y, labels, labels_one_hot = _competitive_diffusion(
     #             data,
     #             gt_col=gt_col,
-    #             class_balance=class_balance,
+    #             renormalize_class_mass=renormalize_class_mass,
     #             obsp_key=obsp_key,
     #             iterative=iterative,
     #             max_iter=max_iter,
@@ -451,7 +458,7 @@ def competitive_diffusion(
     Y, labels, labels_one_hot = _competitive_diffusion(
         data,
         gt_col=gt_col,
-        class_balance=class_balance,
+        renormalize_class_mass=renormalize_class_mass,
         obsp_key=obsp_key,
         iterative=iterative,
         max_iter=max_iter,
@@ -498,7 +505,7 @@ def competitive_diffusion(
                 "iterative": bool(iterative),
                 "alpha": float(alpha) if method == "spreading" else None,
                 "obsp_key": obsp_key,
-                "renormalize_class_mass": bool(class_balance),
+                "renormalize_class_mass": bool(renormalize_class_mass),
                 "fix_markers": bool(fix_markers),
             },
         )
@@ -574,7 +581,7 @@ def soft_cluster_annotation(
     s_max: float = 300.0,
     unknown_label: str | None = "unknown",
     weight_by: Literal["evidence", "odds_ratio"] = "evidence",
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     min_probability: float | None = None,
     obsp_key: str = "connectivities",
     method: Literal["propagation", "spreading"] = "propagation",
@@ -638,7 +645,7 @@ def soft_cluster_annotation(
     ranking_metric, threshold, temperature, s0, s_max, unknown_label
         Forwarded to :func:`~grassp.tl.enrichment_to_cluster_distribution` (unused
         when ``cluster_distribution`` is supplied).
-    class_balance, min_probability, obsp_key, method, iterative, alpha
+    renormalize_class_mass, min_probability, obsp_key, method, iterative, alpha
         Forwarded to :func:`~grassp.tl.competitive_diffusion`.
     verbose
         Passed through to :func:`~grassp.tl.competitive_diffusion`.
@@ -692,7 +699,7 @@ def soft_cluster_annotation(
         data,
         gt_col=None,
         key_added=key_added,
-        class_balance=class_balance,
+        renormalize_class_mass=renormalize_class_mass,
         min_probability=min_probability,
         obsp_key=obsp_key,
         method=method,
@@ -730,7 +737,7 @@ def soft_cluster_annotation(
             null=null,
             n_permutations=n_permutations,
             alpha_fdr=alpha_fdr,
-            class_balance=class_balance,
+            renormalize_class_mass=renormalize_class_mass,
             multi_label_cum=multi_label_cum,
             single_eff_k=single_eff_k,
             max_labels=max_labels,
@@ -782,7 +789,7 @@ def resolve_soft_labels(
     null: Literal["permutation", "analytic"] | None = "permutation",
     n_permutations: int = 1000,
     alpha_fdr: float = 0.05,
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     multi_label_cum: float = 0.8,
     single_eff_k: float = 1.5,
     eff_k_max: float = 3.0,
@@ -848,9 +855,9 @@ def resolve_soft_labels(
         Proteins with ``unknown`` mass at or above this are called unresolved outright.
     null, n_permutations, alpha_fdr
         Null model, number of permutations, and FDR level (see above).
-    class_balance
+    renormalize_class_mass
         Must match the setting used to produce ``prob_key`` so the null re-propagation is
-        faithful.
+        faithful. It is recorded in ``uns[f"{key}_params"]`` by the annotators.
     multi_label_cum
         Cumulative probability mass used to select how many compartments to emit for the
         *detailed* ``multiloc_label``.
@@ -947,7 +954,9 @@ def resolve_soft_labels(
         rng = np.random.default_rng(random_state)
         Hnull = np.empty((N, n_permutations))
         for b in range(n_permutations):
-            Yb = _propagate_soft(T, S[rng.permutation(N)], class_balance=class_balance)
+            Yb = _propagate_soft(
+                T, S[rng.permutation(N)], renormalize_class_mass=renormalize_class_mass
+            )
             Hnull[:, b] = _entropy_rows(_real_renorm(Yb, real_idx))
         Hmean = Hnull.mean(axis=1)
         Hsd = Hnull.std(axis=1) + 1e-9
