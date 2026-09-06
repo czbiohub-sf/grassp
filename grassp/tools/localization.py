@@ -14,6 +14,13 @@ from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.svm import SVC
 
 from ..util import MULTILOC_SEP, get_matrix, set_matrix
+from ._annotation import (
+    clamp_marker_rows,
+    marker_labels,
+    require_kind,
+    resolve_simplex,
+    write_annotation,
+)
 from ._graph import affinity, neff_kish, spread, symmetric_normalized
 
 
@@ -458,41 +465,52 @@ def competitive_diffusion(
     )
 
     if fix_markers:
-        # Pin marker rows to their original one-hot encoding after the
-        # propagation/spreading + class_balance + row-normalize pipeline.
-        # This guarantees marker probabilities are 1.0 for their seed class
-        # regardless of method ("propagation"/"spreading") or iterative mode.
-        marker_mask = labels_one_hot.sum(axis=1) == 1
-        Y[marker_mask] = labels_one_hot[marker_mask].astype(float)
+        # Pin marker rows to their seed one-hot after the propagation + class-balance +
+        # row-normalize pipeline, so marker probabilities are 1.0 for their own class
+        # regardless of `method` or `iterative`.
+        Y = clamp_marker_rows(Y, labels_one_hot.astype(float), labels_one_hot.sum(axis=1) == 1)
+
+    # Resolve before the inplace fork: doing it inside the `if inplace:` branch is what
+    # made min_probability inert for every caller that asked for the dict instead.
+    # An explicit unknown class only exists on the soft-seed path.
+    predicted, probability = resolve_simplex(
+        Y,
+        labels.cat.categories,
+        min_probability=min_probability if min_probability else None,
+        unknown_label=unknown_label if seed_matrix is not None else None,
+    )
 
     if inplace:
-        set_matrix(data, f"{key_added}_probabilities", Y, labels.cat.categories)
-        set_matrix(data, f"{key_added}_one_hot_labels", labels_one_hot, labels.cat.categories)
-        predicted = pd.Categorical(
-            labels.cat.categories[Y.argmax(axis=1)],
-            categories=labels.cat.categories,
-            ordered=labels.cat.ordered,
+        write_annotation(
+            data,
+            key_added,
+            Y,
+            labels.cat.categories,
+            kind="simplex",
+            method="graph-diffusion",
+            labels=predicted,
+            probability=probability,
+            gt_col=gt_col,
+            min_probability=min_probability if min_probability else None,
+            unknown_label=unknown_label if seed_matrix is not None else None,
+            extra_params={
+                "propagation": method,
+                "iterative": bool(iterative),
+                "alpha": float(alpha) if method == "spreading" else None,
+                "obsp_key": obsp_key,
+                "renormalize_class_mass": bool(class_balance),
+                "fix_markers": bool(fix_markers),
+            },
         )
-        data.obs[f"{key_added}"] = predicted
-        data.obs[f"{key_added}_probability"] = np.max(Y, axis=1)
-        data.obs.loc[
-            data.obs[f"{key_added}_probability"] < min_probability, f"{key_added}"
-        ] = np.nan
-        # When seeding with a soft distribution that carries an explicit
-        # background/unknown class, treat proteins whose most probable label is
-        # that class as unassigned (NaN) while keeping the full probability
-        # matrix (including the unknown column) in obsm.
-        if seed_matrix is not None and unknown_label is not None:
-            data.obs.loc[data.obs[f"{key_added}"] == unknown_label, f"{key_added}"] = np.nan
-            data.obs[f"{key_added}"] = data.obs[f"{key_added}"].astype("category")
-        if gt_col is not None and f"{gt_col}_colors" in data.uns:
-            data.uns[f"{key_added}_colors"] = data.uns[f"{gt_col}_colors"]
-
+        set_matrix(data, f"{key_added}_one_hot_labels", labels_one_hot, labels.cat.categories)
     else:
         return {
             "probabilities": Y,
             "labels": labels.cat.categories,
             "one_hot_labels": labels_one_hot,
+            "predicted": predicted,
+            "probability": probability,
+            "kind": "simplex",
         }
 
 
@@ -875,6 +893,12 @@ def resolve_soft_labels(
         ``_qvalue``, ``_unknown_mass``; a null summary in ``uns[key+"_null"]``.
     """
     key = key_added or f"{prob_key}_resolved"
+    # The entropy-vs-null statistic assumes the classes competed for one unit of mass.
+    # Renormalizing a per-term matrix into a simplex and running it through here yields
+    # confident-looking calls from a statistic that does not apply, so refuse it when the
+    # object says which kind it holds.
+    if prob_key.endswith("_probabilities"):
+        require_kind(data, prob_key[: -len("_probabilities")], "simplex")
     # The compartment names travel with the matrix: util.set_matrix stores it as a
     # labelled DataFrame. Requiring a separate uns entry meant this resolver could only
     # consume soft_cluster_annotation's output -- competitive_diffusion and
@@ -1340,24 +1364,12 @@ def svm_annotation(
         if class_weight is None:
             class_weight = stored_params["class_weight"]
 
-    # Validate gt_col
-    if gt_col not in data.obs.columns:
-        raise KeyError(f"Column '{gt_col}' not found in data.obs")
-
-    # Extract markers. Coerce to Categorical first: the code below needs `.cat`, and
-    # competitive_diffusion accepts an object-dtype label column, so requiring one here
-    # made the two predictors disagree about what a valid gt_col is. Coercing the whole
-    # column (not the marker subset) keeps any declared-but-unobserved categories.
-    labels = data.obs[gt_col].astype("category")
-    marker_mask = labels.notna()
-    if not marker_mask.any():
-        raise ValueError(f"No marker proteins found in '{gt_col}'")
-
-    X_train = data.X[marker_mask]
-    y_train = labels[marker_mask]
+    markers = marker_labels(data, gt_col)
+    X_train = data.X[markers.mask]
+    y_train = markers.labels[markers.mask]
     X_all = data.X
 
-    categories = y_train.cat.categories
+    categories = markers.categories
     y_train_codes = y_train.cat.codes
 
     # Train SVM
@@ -1380,68 +1392,51 @@ def svm_annotation(
     # (n, n_present) matrix with all declared categories fails outright in set_matrix.
     pred_categories = categories[svm.classes_]
 
-    # Get probability matrix (n_proteins, n_present_classes)
+    # (n_proteins, n_present_classes) -- resolve_simplex below turns it into a call
     probabilities = svm.predict_proba(X_all)
 
-    # Get predictions (argmax over the columns that exist). object dtype, because the
-    # min_probability cutoff below writes np.nan into this array -- which a numeric
-    # category dtype (cluster ids used as ground truth) cannot hold.
-    pred_codes = np.argmax(probabilities, axis=1)
-    pred_labels = pred_categories[pred_codes].to_numpy().astype(object)
-
-    # Get max probability
-    max_prob = np.max(probabilities, axis=1)
-
-    # Handle fix_markers
     if fix_markers:
-        # Set marker probabilities to 1.0 for their true class
-        marker_indices = np.where(marker_mask)[0]
-        for idx, label in zip(marker_indices, y_train):
-            # Every marker label is present by construction, so it always has a column.
-            label_idx = pred_categories.get_loc(label)
-            probabilities[idx, :] = 0.0
-            probabilities[idx, label_idx] = 1.0
-            pred_labels[idx] = label
-            max_prob[idx] = 1.0
+        # The predicted vocabulary always contains every marker label, by construction.
+        marker_one_hot = (
+            pd.get_dummies(markers.labels)
+            .reindex(columns=pred_categories, fill_value=False)
+            .to_numpy(dtype=float)
+        )
+        probabilities = clamp_marker_rows(probabilities, marker_one_hot, markers.mask)
 
-    # Apply probability threshold
-    low_conf_mask = max_prob < min_probability
-    pred_labels[low_conf_mask] = np.nan
+    # Resolved before the inplace fork, so the cutoff applies on both paths. The label
+    # column keeps the *full* declared vocabulary even though the matrix has columns only
+    # for the classes the SVM saw, so colours and comparisons against gt_col line up.
+    predicted, probability = resolve_simplex(
+        probabilities,
+        pred_categories,
+        min_probability=min_probability,
+        declared_categories=categories,
+    )
 
-    # Store results
     if inplace:
-        # Probabilities matrix, labelled with the classes it actually has columns for.
-        set_matrix(data, f"{key_added}_probabilities", probabilities, pred_categories)
-
-        # Predicted labels keep the *full* declared vocabulary so that colour maps and
-        # comparisons against gt_col line up even when a class was never predicted.
-        data.obs[f"{key_added}"] = pd.Categorical(pred_labels, categories=categories)
-
-        # Max probability
-        data.obs[f"{key_added}_probability"] = max_prob
-
-        # Copy colors if available
-        if f"{gt_col}_colors" in data.uns:
-            data.uns[f"{key_added}_colors"] = data.uns[f"{gt_col}_colors"]
-
-        # Store metadata
-        data.uns[f"{key_added}_params"] = {
-            "method": "SVM-RBF",
-            "C": C,
-            "gamma": gamma,
-            "gt_col": gt_col,
-            "fix_markers": fix_markers,
-            "min_probability": min_probability,
-        }
-
+        write_annotation(
+            data,
+            key_added,
+            probabilities,
+            pred_categories,
+            kind="simplex",
+            method="SVM-RBF",
+            labels=predicted,
+            probability=probability,
+            gt_col=gt_col,
+            min_probability=min_probability,
+            declared_categories=categories,
+            extra_params={"C": C, "gamma": gamma, "fix_markers": bool(fix_markers)},
+        )
         return None
     else:
         return {
             "probabilities": probabilities,
-            "labels": pred_labels,
-            "max_probability": max_prob,
-            # describes the columns of "probabilities", so it is the predicted vocabulary
+            "labels": predicted,
+            "probability": probability,
             "categories": pred_categories,
+            "kind": "simplex",
         }
 
 

@@ -47,7 +47,7 @@ def test_independent_diffusion_outputs_and_nonsimplex(blob_adata):
     assert 0.0 <= P.min() and P.max() <= 1.0
     # per-term (one-vs-rest), NOT a simplex: some rows carry mass on >1 term (blob + AorB)
     assert (P.sum(axis=1) > 1.5).any()
-    assert "ann_diffusion_maxp" in a.obs
+    assert "ann_diffusion_probability" in a.obs
     assert "ann_diffusion_resolved" in a.obs
 
 

@@ -46,7 +46,8 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import KFold
 
-from ..util import MULTILOC_SEP, get_matrix, set_matrix
+from ..util import MULTILOC_SEP, get_matrix
+from ._annotation import require_kind, write_annotation
 from ._graph import make_diffuser, neff_hutchinson, symmetric_normalized
 
 
@@ -299,6 +300,7 @@ def resolve_diffusion(
     Lets you obtain several resolutions (e.g. likelihood *and* specific) or sweep
     ``min_term_size`` without re-diffusing.
     """
+    require_kind(data, key_added, "per_term")
     gmt = _resolve_gene_sets(gene_sets, species)
     # The term names are columns of the stored matrix. The uns entry is only a fallback
     # for matrices that carry no column names: those written before grassp labelled them,
@@ -403,7 +405,8 @@ def independent_diffusion(
     -------
     Writes ``obsm[{key_added}_probabilities]`` (per-term calibrated membership, non-simplex,
     with the term names as its columns), ``uns[{key_added}_alpha]`` (per-term ``a*``),
-    ``obs[{key_added}_maxp]`` (top-call confidence), and — when ``resolve`` is set —
+    ``obs[{key_added}_probability]`` (top membership), ``uns[{key_added}_params]``
+    (provenance, including ``kind="per_term"``), and — when ``resolve`` is set —
     ``obs[{key_added}_resolved]`` and ``obs[{key_added}_resolved_label_compact]``.
     Returns the AnnData if ``copy=True``, else ``None``.
     """
@@ -476,12 +479,32 @@ def independent_diffusion(
         seed,
     )
 
-    set_matrix(adata, f"{key_added}_probabilities", Pcal, terms)
+    # derive_labels=False: an argmax over per-term memberships is not a call, because
+    # the terms did not compete for one unit of mass. The resolver below decides, and
+    # writes obs[key_added] itself.
+    write_annotation(
+        adata,
+        key_added,
+        Pcal,
+        terms,
+        kind="per_term",
+        method="one-vs-rest-diffusion",
+        derive_labels=False,
+        gt_col=gene_key,
+        min_probability=min_probability,
+        extra_params={
+            "calibration": calibration,
+            "resolve": resolve,
+            "min_term_size": int(min_term_size),
+            "obsp_key": obsp_key,
+            "kappa": float(kappa),
+            "random_state": int(seed),
+        },
+    )
     adata.uns[f"{key_added}_alpha"] = np.array(
         [astar.get(t, np.nan) for t in terms], dtype=float
     )
-    maxp = Pcal.max(axis=1)
-    adata.obs[f"{key_added}_maxp"] = maxp.astype(np.float32)
+    maxp = np.asarray(adata.obs[f"{key_added}_probability"], dtype=float)
 
     sizes = Y01.sum(axis=0)  # per-term members present in the map
     if resolve is not None:
