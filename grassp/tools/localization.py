@@ -797,7 +797,12 @@ def resolve_soft_labels(
     prob_key: str,
     categories_key: str | None = None,
     seed_key: str | None = None,
-    obsp_key: str = "connectivities",
+    obsp_key: str | None = None,
+    method: Literal["propagation", "spreading"] | None = None,
+    iterative: bool | None = None,
+    alpha: float | None = None,
+    max_iter: int = 30,
+    tol: float = 1e-3,
     unknown_label: str | None = "unknown",
     unknown_gate: float = 0.5,
     null: Literal["permutation", "analytic"] | None = "permutation",
@@ -861,7 +866,13 @@ def resolve_soft_labels(
     seed_key
         ``obsm`` key with the soft seed matrix; required when ``null="permutation"``.
     obsp_key
-        Affinity graph used for (re-)propagation (default ``"connectivities"``).
+        Affinity graph used for re-propagating the null. ``None`` (default) takes it from
+        the annotation's own ``uns[f"{key}_params"]``, so the null sees the graph the
+        annotator saw.
+    method, iterative, alpha, max_iter, tol
+        Propagation settings for the null. ``None`` takes each from the annotation's
+        recorded parameters, which is what makes the null test the same math that
+        produced the probabilities. Give them explicitly to override.
     unknown_label
         Name of the background/unknown category in the vocabulary, or ``None`` if there
         is no such class. Used both to exclude it from the entropy and as a gate.
@@ -918,8 +929,11 @@ def resolve_soft_labels(
     # Renormalizing a per-term matrix into a simplex and running it through here yields
     # confident-looking calls from a statistic that does not apply, so refuse it when the
     # object says which kind it holds.
-    if prob_key.endswith("_probabilities"):
-        require_kind(data, prob_key[: -len("_probabilities")], "simplex")
+    annotation_key = (
+        prob_key[: -len("_probabilities")] if prob_key.endswith("_probabilities") else None
+    )
+    if annotation_key:
+        require_kind(data, annotation_key, "simplex")
     # The compartment names travel with the matrix: util.set_matrix stores it as a
     # labelled DataFrame. Requiring a separate uns entry meant this resolver could only
     # consume soft_cluster_annotation's output -- competitive_diffusion and
@@ -957,7 +971,25 @@ def resolve_soft_labels(
     H = _entropy_rows(R)
     eff_k = np.exp(H)
 
-    T = data.obsp[obsp_key]
+    # The null has to be propagated the same way the thing it calibrates was. The
+    # annotator records how in uns[f"{key}_params"], so read it rather than assuming the
+    # defaults -- a production run with method="spreading" was previously tested against
+    # a single-step propagation null, i.e. against different math.
+    recorded = dict(data.uns.get(f"{annotation_key}_params", {})) if annotation_key else {}
+    propagation = {
+        "method": method if method is not None else recorded.get("propagation", "propagation"),
+        "iterative": (
+            iterative if iterative is not None else bool(recorded.get("iterative", False))
+        ),
+        "alpha": alpha if alpha is not None else (recorded.get("alpha") or 0.8),
+        "max_iter": max_iter,
+        "tol": tol,
+    }
+    if obsp_key is None:
+        obsp_key = recorded.get("obsp_key", "connectivities")
+    # affinity(), not obsp[...] -- otherwise obsp_key="distances" skips the RBF kernel the
+    # annotator actually diffused over.
+    T = affinity(data, obsp_key)
     n_eff = neff_kish(T)
 
     Hmean = Hsd = None
@@ -969,7 +1001,10 @@ def resolve_soft_labels(
         Hnull = np.empty((N, n_permutations))
         for b in range(n_permutations):
             Yb = _propagate_soft(
-                T, S[rng.permutation(N)], renormalize_class_mass=renormalize_class_mass
+                T,
+                S[rng.permutation(N)],
+                renormalize_class_mass=renormalize_class_mass,
+                **propagation,
             )
             Hnull[:, b] = _entropy_rows(_real_renorm(Yb, real_idx))
         Hmean = Hnull.mean(axis=1)

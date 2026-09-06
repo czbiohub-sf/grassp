@@ -339,3 +339,71 @@ class TestSvmHyperparameterSearch:
     def test_the_old_name_is_gone(self):
         assert not hasattr(gr.tl, "svm_train")
         assert callable(gr.tl.svm_tune_hyperparameters)
+
+
+class TestNullMatchesTheProduction:
+    """The entropy null must be propagated the way the probabilities were.
+
+    resolve_soft_labels re-propagates permuted seeds to build a per-protein null entropy,
+    but it hard-coded _propagate_soft's defaults -- single-step propagation over
+    obsp["connectivities"] -- so a run made with method="spreading" was tested against a
+    null from different math. The annotator records its settings in uns[f"{key}_params"],
+    so the null can now read them.
+    """
+
+    @staticmethod
+    def _spread(data):
+        gr.tl.competitive_diffusion(data, gt_col="markers", method="spreading", alpha=0.8)
+        return data
+
+    def test_the_recorded_propagation_is_used(self, annotated):
+        self._spread(annotated)
+        assert annotated.uns["competitive_diffusion_params"]["propagation"] == "spreading"
+        gr.tl.resolve_soft_labels(
+            annotated,
+            prob_key="competitive_diffusion_probabilities",
+            seed_key="competitive_diffusion_one_hot_labels",
+            unknown_label=None,
+            n_permutations=40,
+            random_state=0,
+        )
+        key = "competitive_diffusion_probabilities_resolved"
+        assert annotated.uns[f"{key}_null"]["method"] == "permutation"
+        assert annotated.obs[f"{key}_type"].notna().all()
+
+    def test_a_mismatched_null_gives_a_different_answer(self, annotated):
+        """Pinning the difference: this is what the old behaviour computed."""
+        faithful = self._spread(annotated.copy())
+        mismatched = self._spread(annotated.copy())
+        common = dict(
+            prob_key="competitive_diffusion_probabilities",
+            seed_key="competitive_diffusion_one_hot_labels",
+            unknown_label=None,
+            n_permutations=40,
+            random_state=0,
+        )
+        gr.tl.resolve_soft_labels(faithful, **common)
+        gr.tl.resolve_soft_labels(mismatched, method="propagation", iterative=False, **common)
+
+        key = "competitive_diffusion_probabilities_resolved"
+        assert not np.allclose(
+            faithful.obs[f"{key}_zscore"].to_numpy(dtype=float),
+            mismatched.obs[f"{key}_zscore"].to_numpy(dtype=float),
+        )
+
+    def test_the_rbf_graph_is_reproduced(self, annotated):
+        """obsp_key="distances" means an RBF kernel, not the raw distance matrix; the
+        null read data.obsp[obsp_key] directly and so skipped the kernel entirely."""
+        gr.tl.competitive_diffusion(
+            annotated, gt_col="markers", obsp_key="distances", method="spreading"
+        )
+        assert annotated.uns["competitive_diffusion_params"]["obsp_key"] == "distances"
+        gr.tl.resolve_soft_labels(
+            annotated,
+            prob_key="competitive_diffusion_probabilities",
+            seed_key="competitive_diffusion_one_hot_labels",
+            unknown_label=None,
+            n_permutations=20,
+            random_state=0,
+        )
+        assert "W_spreading" in annotated.obsp
