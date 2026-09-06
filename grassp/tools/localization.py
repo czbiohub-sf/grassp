@@ -9,12 +9,12 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import scipy.sparse as sp
 
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.svm import SVC
 
 from ..util import MULTILOC_SEP, get_matrix, set_matrix
+from ._graph import affinity, neff_kish, spread, symmetric_normalized
 
 
 def _neighbor_label_matrix(
@@ -88,33 +88,16 @@ def _propagate_soft(
     """
     seed = np.asarray(seed, dtype=float)
     if method == "spreading":
-        # Label spreading (Zhou et al., 2003): S = D^(-1/2) W D^(-1/2), then iterate
-        # F(t+1) = alpha * S @ F(t) + (1 - alpha) * Y_0.
-        if not 0 <= alpha <= 1:
-            raise ValueError(f"alpha must be in [0, 1), got {alpha}")
-        d = np.asarray(T.sum(axis=1)).ravel()
-        d_inv_sqrt = np.zeros_like(d, dtype=float)
-        nz = d > 0
-        d_inv_sqrt[nz] = 1.0 / np.sqrt(d[nz])
-        D_inv_sqrt = sp.diags(d_inv_sqrt)
-        S = D_inv_sqrt @ T @ D_inv_sqrt
-        Y_0 = seed
-        Y = Y_0.copy()
-        for i in range(max_iter):
-            Y_new = alpha * np.asarray(S @ Y) + (1 - alpha) * Y_0
-            diff = np.abs(Y_new - Y).sum()
-            Y = Y_new
-            if verbose:
-                print(f"Diff: {diff:.3f}, Iteration {i} completed")
-            if diff < tol:
-                if verbose:
-                    print(f"Diff: {diff:.3f}, Converged")
-                break
-        else:
-            warnings.warn(
-                f"competitive_diffusion: max_iter={max_iter} reached without convergence "
-                f"(tol={tol})."
-            )
+        # Label spreading (Zhou et al., 2003), over the shared operator in _graph.
+        Y = spread(
+            symmetric_normalized(T),
+            seed,
+            alpha=alpha,
+            max_iter=max_iter,
+            tol=tol,
+            verbose=verbose,
+            warn_context="competitive_diffusion",
+        )
     elif iterative:
         # Iterative propagation with hard clamping, mirroring
         # sklearn.semi_supervised.LabelPropagation.
@@ -208,21 +191,7 @@ def _competitive_diffusion(
     else:
         labels = data.obs[gt_col].astype("category")
         labels_one_hot = pd.get_dummies(labels).values
-    if obsp_key == "distances":
-        # Build a Gaussian RBF affinity W from the kNN distance graph, restricted
-        # to the existing sparsity pattern. sigma defaults to the median nonzero
-        # distance, which gives a data-driven kernel width that's narrower than
-        # UMAP's fuzzy-union "connectivities" and thus produces more
-        # boundary-localized smoothing in label spreading. The result is cached
-        # at adata.obsp["W_spreading"].
-        D = data.obsp[obsp_key]
-        sigma = float(np.median(D.data)) if D.nnz > 0 else 1.0
-        W = D.copy()
-        W.data = np.exp(-(D.data**2) / (2.0 * sigma**2))
-        data.obsp["W_spreading"] = W
-        T = W
-    else:
-        T = data.obsp[obsp_key]
+    T = affinity(data, obsp_key)
 
     Y = _propagate_soft(
         T,
@@ -944,9 +913,7 @@ def resolve_soft_labels(
     eff_k = np.exp(H)
 
     T = data.obsp[obsp_key]
-    w = np.asarray(T.sum(axis=1)).ravel()
-    w2 = np.asarray(T.multiply(T).sum(axis=1)).ravel()
-    n_eff = np.where(w2 > 0, w**2 / w2, 0.0)
+    n_eff = neff_kish(T)
 
     Hmean = Hsd = None
     if null == "permutation":

@@ -47,6 +47,7 @@ from sklearn.metrics import average_precision_score
 from sklearn.model_selection import KFold
 
 from ..util import MULTILOC_SEP, get_matrix, set_matrix
+from ._graph import make_diffuser, neff_hutchinson, symmetric_normalized
 
 
 # --------------------------------------------------------------------------- #
@@ -59,39 +60,6 @@ def _resolve_gene_sets(gene_sets, species: str) -> dict[str, list[str]]:
     from .enrichment import _load_gmt
 
     return _load_gmt(gene_sets, species=species)
-
-
-def _symmetric_normalized(W) -> sp.csr_matrix:
-    """Symmetric-normalized affinity ``S = D^{-1/2} W D^{-1/2}`` (Zhou et al. 2003).
-
-    Shared graph operator with :func:`~grassp.tools.competitive_diffusion`; the two
-    methods differ only in what happens *after* diffusion (competitive row-normalizes to
-    a simplex, independent does not).
-    """
-    d = np.asarray(W.sum(axis=1)).ravel()
-    dis = np.zeros_like(d, dtype=float)
-    nz = d > 0
-    dis[nz] = 1.0 / np.sqrt(d[nz])
-    Dis = sp.diags(dis)
-    return (Dis @ W @ Dis).tocsr()
-
-
-def _make_diffuser(S, n):
-    """Return a ``diffuse(Y, alpha)`` closure computing the label-spreading fixed point."""
-
-    def diffuse(Y, alpha, max_iter=60, tol=1e-4):
-        Y = np.asarray(Y, dtype=float)
-        F = Y.copy()
-        width = Y.shape[1] if Y.ndim > 1 else 1
-        for _ in range(max_iter):
-            Fn = alpha * (S @ F) + (1 - alpha) * Y
-            if np.abs(Fn - F).sum() < tol * width:
-                F = Fn
-                break
-            F = Fn
-        return F
-
-    return diffuse
 
 
 def _containment(cats, gene_sets) -> np.ndarray:
@@ -147,13 +115,10 @@ def _calibrate(
         # Hutchinson estimates of diag(M_a) and diag(M_a^2); M_a symmetric so
         # mean_g (M_a g)_i^2 -> sum_j M_ij^2 and mean_g g_i (M_a g)_i -> M_ii.
         rng = np.random.RandomState(seed)
-        neff_by_a = {}
-        for a in sorted(set(astar.values())):
-            G = rng.choice([-1.0, 1.0], size=(n, n_probe))
-            Mg = diffuse(G, a)
-            off_sum = np.maximum(denom_by_a[a] - (G * Mg).mean(axis=1), 1e-9)
-            off_sq = np.maximum((Mg**2).mean(axis=1) - (G * Mg).mean(axis=1) ** 2, 1e-12)
-            neff_by_a[a] = off_sum**2 / off_sq
+        neff_by_a = {
+            a: neff_hutchinson(diffuse, a, denom_by_a[a], n_probe=n_probe, rng=rng)
+            for a in sorted(set(astar.values()))
+        }
         Z = np.zeros((n, len(terms)))
         for j, t in enumerate(terms):
             if not valid[j]:
@@ -464,8 +429,8 @@ def independent_diffusion(
         Y0[np.isin(gsym, list(seeds[t])), j] = 1.0
     Y01 = (Y0 > 0).astype(int)
 
-    S = _symmetric_normalized(adata.obsp[obsp_key])
-    diffuse = _make_diffuser(S, n)
+    S = symmetric_normalized(adata.obsp[obsp_key])
+    diffuse = make_diffuser(S)
     ones = np.ones(n)
     denom_by_a = {a: diffuse(ones, a) for a in alphas}
 
