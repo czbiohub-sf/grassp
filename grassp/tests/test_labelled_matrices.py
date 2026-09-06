@@ -12,16 +12,18 @@ import matplotlib
 
 matplotlib.use('Agg')  # Use non-interactive backend for testing
 
+import warnings  # noqa: E402
+
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import pytest  # noqa: E402
 import scanpy as sc  # noqa: E402
 
-from anndata import AnnData  # noqa: E402
+from anndata import AnnData, read_h5ad  # noqa: E402
 
 from grassp.preprocessing import simple  # noqa: E402
 from grassp.tools import localization, scoring, tagm  # noqa: E402
-from grassp.util import get_matrix, set_matrix  # noqa: E402
+from grassp.util import get_matrix, sanitize_class_labels, set_matrix  # noqa: E402
 
 
 def make_annotated_data(n_proteins=60, n_samples=6, n_compartments=4):
@@ -286,3 +288,85 @@ class TestConsumers:
             localization.competitive_diffusion(
                 data, gt_col=None, key_added="bare", seed_obsm_key="bare_seed"
             )
+
+
+class TestClassLabelSanitizing:
+    """A ``"/"`` in a class name cannot be an h5ad column name.
+
+    anndata stores a labelled matrix as an HDF5 group with one dataset per column, so a
+    ``"/"`` is read as a path separator and the column silently becomes a nested
+    subgroup. Two shapes wrote a file that could not be read back at all, with no error
+    at write time -- and the names are real: hyperLOPIT's compartments include
+    "Endoplasmic reticulum/Golgi apparatus".
+    """
+
+    @staticmethod
+    def _write_read(columns, tmp_path):
+        import h5py
+
+        data = AnnData(np.zeros((4, 2)))
+        data.obs_names = [f"P{i}" for i in range(4)]
+        values = np.arange(4 * len(columns), dtype=float).reshape(4, len(columns))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            set_matrix(data, "probs", values, columns)
+        path = tmp_path / "t.h5ad"
+        data.write_h5ad(path)
+        reloaded = read_h5ad(path)
+        with h5py.File(path) as handle:
+            datasets = sorted(handle["obsm/probs"].keys())
+        return reloaded, values, datasets
+
+    def test_plain_labels_are_untouched(self, tmp_path):
+        reloaded, values, datasets = self._write_read(["ER", "NUC"], tmp_path)
+        assert list(reloaded.obsm["probs"].columns) == ["ER", "NUC"]
+        assert np.allclose(np.asarray(reloaded.obsm["probs"]), values)
+        assert datasets == ["ER", "NUC", "_index"]
+
+    @pytest.mark.parametrize(
+        "columns,expected",
+        [
+            # hyperLOPIT really has this compartment; it used to write a nested subgroup
+            (
+                ["ER", "Endoplasmic reticulum/Golgi apparatus", "NUC"],
+                ["ER", "Endoplasmic reticulum; Golgi apparatus", "NUC"],
+            ),
+            # the subgroup "A" collided with the dataset "A" -> KeyError on read
+            (["A/B", "A"], ["A; B", "A"]),
+            # a leading "/" is an absolute HDF5 path -> written at the file root, over X
+            (["/X", "Y"], ["; X", "Y"]),
+        ],
+    )
+    def test_slashes_are_rewritten_and_the_file_stays_readable(
+        self, columns, expected, tmp_path
+    ):
+        reloaded, values, datasets = self._write_read(columns, tmp_path)
+        assert list(reloaded.obsm["probs"].columns) == expected
+        assert np.allclose(np.asarray(reloaded.obsm["probs"]), values)
+        # flat: one dataset per column, no nesting
+        assert datasets == sorted([*expected, "_index"])
+
+    def test_a_warning_names_the_rewritten_labels(self):
+        data = AnnData(np.zeros((4, 2)))
+        data.obs_names = [f"P{i}" for i in range(4)]
+        with pytest.warns(UserWarning, match="Endoplasmic reticulum/Golgi apparatus"):
+            set_matrix(
+                data,
+                "probs",
+                np.zeros((4, 2)),
+                ["Endoplasmic reticulum/Golgi apparatus", "NUC"],
+            )
+
+    def test_a_collision_created_by_rewriting_is_rejected(self):
+        """Sanitizing runs before the duplicate check, so it cannot smuggle one in."""
+        data = AnnData(np.zeros((4, 2)))
+        data.obs_names = [f"P{i}" for i in range(4)]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            with pytest.raises(ValueError, match="Duplicate column labels"):
+                set_matrix(data, "probs", np.zeros((4, 2)), ["A; B", "A/B"])
+
+    def test_sanitizer_is_idempotent(self):
+        once = sanitize_class_labels(["A/B", "plain"])
+        assert once == ["A; B", "plain"]
+        assert sanitize_class_labels(once) == once

@@ -23,6 +23,9 @@ ndarrays written by older versions.
 """
 
 from __future__ import annotations
+import re
+import warnings
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, Sequence
 
@@ -34,6 +37,10 @@ if TYPE_CHECKING:
 
 #: Which axis a labelled matrix is aligned to. ``"obs"`` is ``.obsm``, ``"var"`` is ``.varm``.
 Axis = Literal["obs", "var"]
+
+#: Separator for a composite multi-compartment label, e.g. ``"ER; Golgi apparatus"``.
+#: Deliberately not ``"/"`` -- see :func:`sanitize_class_labels`.
+MULTILOC_SEP = "; "
 
 #: The slots :func:`diff_anndata` walks, in the order :meth:`anndata.AnnData.__repr__` prints them.
 _DIFFABLE_SLOTS = ("obs", "var", "uns", "obsm", "varm", "layers", "obsp", "varp")
@@ -215,6 +222,39 @@ def diff_anndata(a: AnnData, b: AnnData, *, check_dtypes: bool = True) -> pd.Dat
     return pd.DataFrame(rows, columns=["change", "slot", "key", "detail"])
 
 
+def sanitize_class_labels(labels: Sequence[Any]) -> list[str]:
+    """Coerce class labels to strings that can survive an h5ad round trip.
+
+    anndata stores a labelled ``.obsm``/``.varm`` matrix as an HDF5 group with one
+    dataset per column, so a ``"/"`` in a class name is read as a path separator and the
+    column silently becomes a nested subgroup. The value usually reappears -- HDF5 path
+    resolution reassembles it -- but the file is malformed, and two shapes produce a file
+    that cannot be read back at all, with no error at write time::
+
+        ["A/B", "A"]  ->  KeyError on read; the subgroup and the dataset collide
+        ["/X", "Y"]   ->  a leading "/" is an absolute path, so the column is written at
+                          the file root, on top of X
+
+    These names are not hypothetical: hyperLOPIT's compartments include "Endoplasmic
+    reticulum/Golgi apparatus", so they arrive from real pRoloc data as well as from
+    grassp's own composite multi-compartment labels. Each ``"/"`` (with any surrounding
+    whitespace) becomes :data:`MULTILOC_SEP`, which reads the same and stores cleanly.
+    """
+    cleaned = [re.sub(r"\s*/\s*", MULTILOC_SEP, str(label)) for label in labels]
+    changed = [
+        (str(before), after) for before, after in zip(labels, cleaned) if str(before) != after
+    ]
+    if changed:
+        shown = ", ".join(f"{before!r} -> {after!r}" for before, after in changed[:4])
+        more = f" (and {len(changed) - 4} more)" if len(changed) > 4 else ""
+        warnings.warn(
+            f'Class labels containing "/" cannot be stored as h5ad column names and '
+            f"were rewritten: {shown}{more}.",
+            stacklevel=3,
+        )
+    return cleaned
+
+
 def set_matrix(
     data: AnnData,
     key: str,
@@ -236,8 +276,9 @@ def set_matrix(
         accepted and taken positionally -- its own index and columns are discarded, because
         the caller has already aligned it.
     columns
-        One label per column, in column order. Coerced to :class:`str`: on the way to h5ad
-        these become HDF5 dataset names, which cannot be anything else.
+        One label per column, in column order. Coerced to :class:`str` and passed through
+        :func:`sanitize_class_labels`: on the way to h5ad these become HDF5 dataset
+        names, so a ``"/"`` is rewritten and a warning names the affected labels.
     axis
         ``"obs"`` writes ``.obsm``, ``"var"`` writes ``.varm``.
 
@@ -249,7 +290,8 @@ def set_matrix(
         collision surfaces as a failed ``write_h5ad`` a long way from the call that caused
         it. Failing here names the key and the offending labels instead.
     """
-    labels = [str(c) for c in columns]
+    # sanitize before the duplicate check: rewriting "/" can itself create a collision
+    labels = sanitize_class_labels(columns)
     duplicates = sorted({name for name in labels if labels.count(name) > 1})
     if duplicates:
         raise ValueError(
