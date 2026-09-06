@@ -294,3 +294,48 @@ class TestParameterNamesAreConsistent:
         # while the abstention cutoff keeps the shared name
         assert "min_probability" in self._params("competitive_diffusion")
         assert "min_probability" in self._params("svm_annotation")
+
+
+class TestSvmHyperparameterSearch:
+    def test_the_search_does_not_fit_a_throwaway_estimator(self, annotated):
+        """GridSearchCV defaults to refit=True, so a full SVC was fitted on every marker
+        and discarded, because only the winning parameters are kept."""
+        gr.tl.svm_tune_hyperparameters(
+            annotated,
+            gt_col="markers",
+            cv_splits=2,
+            cv_repeats=1,
+            C_range=np.array([1.0]),
+            gamma_range=np.array([0.1]),
+            inplace=False,
+        )
+        search, params = gr.tl.svm_tune_hyperparameters(
+            annotated,
+            gt_col="markers",
+            cv_splits=2,
+            cv_repeats=1,
+            C_range=np.array([1.0]),
+            gamma_range=np.array([0.1]),
+            inplace=False,
+        )
+        assert not hasattr(search, "best_estimator_")
+        assert params["best_params"]["C"] == 1.0
+
+    def test_params_key_follows_the_shared_convention(self, annotated):
+        gr.tl.svm_tune_hyperparameters(
+            annotated,
+            gt_col="markers",
+            cv_splits=2,
+            cv_repeats=1,
+            C_range=np.array([1.0]),
+            gamma_range=np.array([0.1]),
+        )
+        assert "svm_params" in annotated.uns
+        assert "svm.params" not in annotated.uns
+        # and svm_annotation picks it up without being told where
+        gr.tl.svm_annotation(annotated, gt_col="markers")
+        assert "svm_annotation" in annotated.obs
+
+    def test_the_old_name_is_gone(self):
+        assert not hasattr(gr.tl, "svm_train")
+        assert callable(gr.tl.svm_tune_hyperparameters)

@@ -371,7 +371,7 @@ class TestSvmParameterHandling:
         gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1, class_weight=weights)
         assert "svm_annotation" in data.obs
 
-        gr.tl.svm_train(
+        gr.tl.svm_tune_hyperparameters(
             data,
             gt_col="markers",
             cv_splits=2,
@@ -380,7 +380,7 @@ class TestSvmParameterHandling:
             gamma_range=np.array([0.1]),
             class_weight=weights,
         )
-        assert data.uns["svm.params"]["best_params"]["C"] == 1.0
+        assert data.uns["svm_params"]["best_params"]["C"] == 1.0
 
     def test_class_weight_keyed_by_code_still_works(self):
         data = _blobs()
@@ -401,7 +401,7 @@ class TestSvmParameterHandling:
         data.obs["markers"] = pd.Categorical(
             data.obs["markers"].astype(object), categories=["ER", "GOLGI", "MITO", "NUC"]
         )
-        gr.tl.svm_train(
+        gr.tl.svm_tune_hyperparameters(
             data,
             gt_col="markers",
             cv_splits=2,
@@ -409,7 +409,7 @@ class TestSvmParameterHandling:
             C_range=np.array([1.0]),
             gamma_range=np.array([0.1]),
         )
-        assert data.uns["svm.params"]["class_labels"] == ["ER", "MITO", "NUC"]
+        assert data.uns["svm_params"]["class_labels"] == ["ER", "MITO", "NUC"]
 
     @pytest.mark.parametrize(
         "call",

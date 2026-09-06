@@ -23,7 +23,7 @@ from .localization import (
     resolve_soft_labels,
     soft_cluster_annotation,
     svm_annotation,
-    svm_train,
+    svm_tune_hyperparameters,
 )
 from .mgsa import MgsaResult, calculate_mgsa, load_gmt, mgsa, mgsa_to_cluster_distribution
 from .scoring import (

@@ -61,7 +61,7 @@ classifier on them.
    tl.knn_annotation
    tl.soft_cluster_annotation
    tl.resolve_soft_labels
-   tl.svm_train
+   tl.svm_tune_hyperparameters
    tl.svm_annotation
    tl.prune_markers
 ```

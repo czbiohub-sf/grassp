@@ -1113,7 +1113,7 @@ def resolve_soft_labels(
     return None
 
 
-def svm_train(
+def svm_tune_hyperparameters(
     data: AnnData,
     gt_col: str,
     C_range: np.ndarray = np.array([0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]),
@@ -1125,12 +1125,15 @@ def svm_train(
     random_state: int | None = None,
     key_added: str = "svm",
     inplace: bool = True,
-) -> dict | None:
-    """Train SVM classifier with hyperparameter tuning using marker proteins.
+) -> tuple[GridSearchCV, dict] | None:
+    """Grid-search the SVM's C and gamma over marker proteins.
 
-    Performs grid search over C and gamma parameters using repeated stratified
-    cross-validation. Best hyperparameters are stored in ``.uns`` for later use
-    with :func:`svm_annotation`.
+    Despite the name it replaces, this does not train a reusable model: it scores a
+    grid of ``(C, gamma)`` by repeated stratified cross-validation and stores the winning
+    pair in ``.uns`` for :func:`svm_annotation`, which fits its own estimator from
+    scratch. Nothing about the fitted classifier survives the call, so calling it
+    "training" promised a model you could apply elsewhere -- unlike
+    :func:`tagm_map_train`, which genuinely persists one.
 
     Parameters
     ----------
@@ -1153,18 +1156,17 @@ def svm_train(
     random_state
         Random seed for reproducibility.
     key_added
-        Key prefix for storing results in ``.uns`` (default ``"svm"``).
+        Key prefix for storing results in ``.uns`` (default ``"svm"``), so the winning
+        parameters land in ``uns[f"{key_added}_params"]``.
     inplace
-        If ``True`` store results in ``.uns``; if ``False`` return grid search
-        object and dictionary with best parameters and CV results. This can be
-        useful if you want to inspect the grid search object or use the best
-        parameters for other tasks.
+        If ``True`` store results in ``.uns``; if ``False`` return the grid-search object
+        and the parameter dictionary, which is useful for inspecting the full CV grid.
 
     Returns
     -------
-    None or dict
-        If ``inplace=False``, returns dictionary with best parameters and CV
-        results. Otherwise modifies ``data.uns[f"{key_added}.params"]`` in place.
+    None or tuple
+        If ``inplace=False``, returns ``(grid_search, params)``. Otherwise writes
+        ``data.uns[f"{key_added}_params"]`` and returns ``None``.
 
     Examples
     --------
@@ -1173,9 +1175,9 @@ def svm_train(
 
     # When actually training, increase cv_repeats and cv_splits
     # We recommend >20 repeats with 5 splits
-    >>> gr.tl.svm_train(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
+    >>> gr.tl.svm_tune_hyperparameters(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
     Fitting 4 folds for each of 54 candidates, totalling 216 fits
-    >>> adata.uns["svm.params"]["best_params"]
+    >>> adata.uns["svm_params"]["best_params"]
     {'C': 2.0, 'gamma': 0.01}
     """
     # Validate gt_col exists
@@ -1223,13 +1225,16 @@ def svm_train(
         class_weight=_class_weight_by_code(class_weight, y_train.cat.categories),
     )
 
-    # Run grid search
+    # refit=False: only the winning parameters are kept, so sklearn's default of fitting
+    # a final estimator on all the markers built a classifier that was thrown away on
+    # every call.
     grid_search = GridSearchCV(
         estimator=svm,
         param_grid=param_grid,
         cv=cv,
         scoring='f1_macro',  # Balanced metric for multiclass
         n_jobs=n_jobs,
+        refit=False,
         verbose=1,
     )
 
@@ -1255,19 +1260,17 @@ def svm_train(
             "gamma_range": gamma_range.tolist(),
         },
         "class_weight": class_weight,
-        # the vocabulary the tuned model was actually fitted on, i.e. only the classes
-        # with markers -- matching the columns svm_annotation's predict_proba will have
+        # the vocabulary the search scored on, i.e. only the classes with markers --
+        # matching the columns svm_annotation's predict_proba will have
         "class_labels": y_train.cat.remove_unused_categories().cat.categories.tolist(),
         "n_markers": int(X_train.shape[0]),
         "random_state": random_state,
         "n_jobs": n_jobs,
         "kernel": "rbf",
-        "cv_splits": cv_splits,
-        "cv_repeats": cv_repeats,
     }
 
     if inplace:
-        data.uns[f"{key_added}.params"] = params
+        data.uns[f"{key_added}_params"] = params
         return None
     else:
         return grid_search, params
@@ -1289,7 +1292,7 @@ def svm_annotation(
 
     Trains an SVM classifier on marker proteins (non-NaN values in ``gt_col``)
     and predicts localization for all proteins. Hyperparameters can be provided
-    manually or loaded from prior :func:`svm_train` call.
+    manually or loaded from prior :func:`svm_tune_hyperparameters` call.
 
     Similar to :func:`competitive_diffusion` but uses SVM instead of graph propagation.
 
@@ -1313,7 +1316,7 @@ def svm_annotation(
     key_added
         Base name for results (default ``"svm_annotation"``).
     params_key
-        Key to load hyperparameters from ``.uns`` (default ``"svm.params"``).
+        Key to load hyperparameters from ``.uns`` (default ``"svm_params"``).
 
     Returns
     -------
@@ -1353,9 +1356,9 @@ def svm_annotation(
     ##### Option 2: Train SVM hyperparameters, then annotate #####
     # When actually training, increase cv_repeats and cv_splits
     # We recommend >20 repeats with 5 splits
-    >>> gr.tl.svm_train(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
+    >>> gr.tl.svm_tune_hyperparameters(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
     Fitting 4 folds for each of 54 candidates, totalling 216 fits
-    >>> adata.uns["svm.params"]["best_params"]
+    >>> adata.uns["svm_params"]["best_params"]
     {'C': 2.0, 'gamma': 0.01}
     >>> gr.tl.svm_annotation(adata, gt_col="hein2024_gt_component", min_probability=0.5)
     >>> sc.pl.umap(adata, color="svm_annotation") # doctest: +SKIP
@@ -1363,13 +1366,13 @@ def svm_annotation(
     # If hyperparameters not provided, try loading from .uns
     if C is None or gamma is None:
         if params_key is None:
-            params_key = "svm.params"
+            params_key = "svm_params"
 
         if params_key not in data.uns:
             raise ValueError(
                 f"No hyperparameters found in data.uns['{params_key}']. "
                 "Either:\n"
-                "  1) Run svm_train() first to tune hyperparameters, or\n"
+                "  1) Run svm_tune_hyperparameters() first to tune hyperparameters, or\n"
                 "  2) Provide C and gamma explicitly (e.g., C=1.0, gamma=0.1)"
             )
 
