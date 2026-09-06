@@ -146,7 +146,7 @@ class TestPruneMarkersThreshold:
 
 
 class TestInterfacialnessDoesNotMutateInput:
-    """`_get_knn_annotation_df` NaN'd the excluded labels in the *caller's* object.
+    """`_neighbor_label_matrix` NaN'd the excluded labels in the *caller's* object.
 
     It took ``data.obs[col]`` (a view) and called ``.replace(..., inplace=True)``, so
     every annotator run afterwards saw those proteins as unlabelled.
