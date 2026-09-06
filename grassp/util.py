@@ -235,10 +235,17 @@ def sanitize_class_labels(labels: Sequence[Any]) -> list[str]:
         ["/X", "Y"]   ->  a leading "/" is an absolute path, so the column is written at
                           the file root, on top of X
 
-    These names are not hypothetical: hyperLOPIT's compartments include "Endoplasmic
-    reticulum/Golgi apparatus", so they arrive from real pRoloc data as well as from
-    grassp's own composite multi-compartment labels. Each ``"/"`` (with any surrounding
-    whitespace) becomes :data:`MULTILOC_SEP`, which reads the same and stores cleanly.
+    These names are not hypothetical, and they are not only other people's. grassp's own
+    bundled marker sets use them for compartments that were not resolved apart:
+    ``pp.add_markers(species="hsap")`` writes ``marker_christopher`` with a
+    ``"Ribosome/Complexes"`` class, and ``species="tryp"`` writes ``marker_moloney`` with
+    ``"Secretory/Endocytic 1"`` through ``"3"``. Annotating on either column therefore
+    hits this path. pRolocdata objects do too -- ``tan2009r1`` labels a class ``"ER/Golgi"``
+    -- as do the composite multi-compartment labels the resolvers emit, which is why they
+    now join with :data:`MULTILOC_SEP` in the first place.
+
+    Each ``"/"`` (with any surrounding whitespace) becomes :data:`MULTILOC_SEP`, which
+    reads the same and stores cleanly.
     """
     cleaned = [re.sub(r"\s*/\s*", MULTILOC_SEP, str(label)) for label in labels]
     changed = [

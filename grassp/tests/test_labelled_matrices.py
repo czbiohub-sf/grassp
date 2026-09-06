@@ -296,8 +296,9 @@ class TestClassLabelSanitizing:
     anndata stores a labelled matrix as an HDF5 group with one dataset per column, so a
     ``"/"`` is read as a path separator and the column silently becomes a nested
     subgroup. Two shapes wrote a file that could not be read back at all, with no error
-    at write time -- and the names are real: hyperLOPIT's compartments include
-    "Endoplasmic reticulum/Golgi apparatus".
+    at write time -- and the names are real: grassp's own bundled marker sets carry
+    "Ribosome/Complexes" (marker_christopher) and "Secretory/Endocytic 1" through "3"
+    (marker_moloney), so annotating on either column reaches this path.
     """
 
     @staticmethod
@@ -326,10 +327,11 @@ class TestClassLabelSanitizing:
     @pytest.mark.parametrize(
         "columns,expected",
         [
-            # hyperLOPIT really has this compartment; it used to write a nested subgroup
+            # a class grassp itself ships, in hsap_markers.tsv's marker_christopher;
+            # it used to write a nested subgroup
             (
-                ["ER", "Endoplasmic reticulum/Golgi apparatus", "NUC"],
-                ["ER", "Endoplasmic reticulum; Golgi apparatus", "NUC"],
+                ["ER", "Ribosome/Complexes", "NUC"],
+                ["ER", "Ribosome; Complexes", "NUC"],
             ),
             # the subgroup "A" collided with the dataset "A" -> KeyError on read
             (["A/B", "A"], ["A; B", "A"]),
@@ -349,13 +351,8 @@ class TestClassLabelSanitizing:
     def test_a_warning_names_the_rewritten_labels(self):
         data = AnnData(np.zeros((4, 2)))
         data.obs_names = [f"P{i}" for i in range(4)]
-        with pytest.warns(UserWarning, match="Endoplasmic reticulum/Golgi apparatus"):
-            set_matrix(
-                data,
-                "probs",
-                np.zeros((4, 2)),
-                ["Endoplasmic reticulum/Golgi apparatus", "NUC"],
-            )
+        with pytest.warns(UserWarning, match="Ribosome/Complexes"):
+            set_matrix(data, "probs", np.zeros((4, 2)), ["Ribosome/Complexes", "NUC"])
 
     def test_a_collision_created_by_rewriting_is_rejected(self):
         """Sanitizing runs before the duplicate check, so it cannot smuggle one in."""

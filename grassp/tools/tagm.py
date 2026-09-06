@@ -111,6 +111,21 @@ def tagm_model(adata: AnnData, key_added: str = "tagm_map") -> dict:
     annotation provenance every annotator writes, and TAGM is the only one of them with a
     fitted model to persist as well. Sharing the key would have the prediction overwrite
     the thing it was predicting from.
+
+    Relation to pRoloc
+    ------------------
+    pRoloc's ``tagmMapTrain`` returns a standalone ``MAPParams`` S4 object and writes
+    nothing to the ``MSnSet`` -- the model lives in the R session and is handed to
+    ``tagmMapPredict`` as an argument. So there is no pRoloc convention for storing it in
+    the data object, and the two ``uns`` slots are grassp's own choice; keeping the model
+    on the object is what lets ``tagm_map_predict(adata)`` work without threading it
+    through, and what lets it survive an h5ad round trip.
+
+    The dictionary mirrors ``MAPParams``' five slots so the two stay comparable --
+    ``method``, ``priors``, ``posteriors``, ``datasize``, and ``seed`` under grassp's name
+    ``random_state`` -- plus ``gt_col`` and ``markers``, which grassp needs because it
+    reads the marker column from the stored model where pRoloc takes ``fcol`` at predict
+    time.
     """
     for key in (f"{key_added}_model", f"{TAGM_LEGACY_PREFIX}.params"):
         if key in adata.uns:
