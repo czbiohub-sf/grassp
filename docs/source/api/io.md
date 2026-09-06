@@ -90,6 +90,16 @@ annotated = anndata.read_h5ad("results.h5ad")
 
 annotated.obs["tagm.map.allocation"]           # pRoloc's own column names, verbatim
 annotated.obsm["tagm.map.joint"]               # per-compartment probabilities, a DataFrame
+```
+
+These are pRoloc's field names, kept verbatim so a round trip is lossless. grassp's *own*
+TAGM (`gr.tl.tagm_map_train` / `gr.tl.tagm_map_predict`) writes under `key_added` like every
+other annotator — `obs["tagm_map"]`, `obsm["tagm_map_probabilities"]`,
+`uns["tagm_map_model"]` — and still reads the dotted `uns["tagm.map.params"]`, so results
+grafted on from pRoloc can be predicted from directly. The two vocabularies coexist by
+provenance: dotted means it came from pRoloc, underscored means grassp produced it.
+
+```python
                                                # whose columns are the compartment names
 annotated.uns["neighbors"]                     # and everything you had before you left
 ```

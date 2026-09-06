@@ -14,6 +14,7 @@ from scipy.special import gammaln  # pylint: disable=no-name-in-module
 from scipy.stats import multivariate_normal
 
 from ..util import set_matrix
+from ._annotation import write_annotation
 
 # ----------------------------
 # Helper functions
@@ -93,6 +94,33 @@ def _ddirichlet_log(x, alpha):
     return gammaln(np.sum(alpha)) - np.sum(gammaln(alpha)) + np.sum((alpha - 1) * np.log(x))
 
 
+#: The prefix grassp used to write TAGM output under, and the one pRoloc uses for its own
+#: fields. Still read, so objects saved before the rename and results grafted on from
+#: pRoloc both keep working.
+TAGM_LEGACY_PREFIX = "tagm.map"
+
+
+def tagm_model(adata: AnnData, key_added: str = "tagm_map") -> dict:
+    """Fetch the stored TAGM model, preferring the current key.
+
+    ``uns[f"{key_added}_model"]`` is where :func:`tagm_map_train` writes the fitted
+    posteriors; the dotted ``uns["tagm.map.params"]`` is where it used to, and where a
+    pRoloc round trip puts its own, so both are accepted.
+
+    The model is deliberately *not* in ``uns[f"{key_added}_params"]``: that slot holds the
+    annotation provenance every annotator writes, and TAGM is the only one of them with a
+    fitted model to persist as well. Sharing the key would have the prediction overwrite
+    the thing it was predicting from.
+    """
+    for key in (f"{key_added}_model", f"{TAGM_LEGACY_PREFIX}.params"):
+        if key in adata.uns:
+            return adata.uns[key]
+    raise KeyError(
+        f"No parameters found in uns[{key_added + '_model'!r}]. "
+        "Run grassp.tl.tagm_map_train first, or pass `params` explicitly."
+    )
+
+
 # ----------------------------
 # TAGM MAP training
 # ----------------------------
@@ -111,6 +139,7 @@ def tagm_map_train(
     u: int = 2,
     v: int = 10,
     seed: int | None = None,
+    key_added: str = "tagm_map",
     inplace: bool = True,
 ) -> dict | None:
     """Train a *TAGM-MAP* (T-Augmented Gaussian Mixture, MAP variant) model.
@@ -126,7 +155,7 @@ def tagm_map_train(
     2. Compute empirical hyper-priors if not supplied.
     3. Run an EM algorithm to obtain maximum-a-posteriori (MAP) estimates of
        component means, covariances and mixing proportions.
-    4. Store the fitted parameters in ``adata.uns['tagm.map.params']`` when
+    4. Store the fitted parameters in ``adata.uns[f'{key_added}_model']`` when
        ``inplace`` is ``True``.
 
     Parameters
@@ -147,6 +176,11 @@ def tagm_map_train(
         Beta prior parameters for the outlier mixing proportion.
     seed
         Random seed for reproducibility.
+    key_added
+        Prefix for the stored model (default ``"tagm_map"``), matching the prefix
+        :func:`tagm_map_predict` writes its output under. The fitted posteriors land in
+        ``uns[f"{key_added}_model"]``, kept apart from the ``_params`` provenance slot
+        that every annotator writes.
     inplace
         If ``True`` (default) write parameters to ``adata`` and return
         ``None``; otherwise return the parameter dictionary.
@@ -313,7 +347,7 @@ def tagm_map_train(
     }
 
     if inplace:
-        adata.uns["tagm.map.params"] = params
+        adata.uns[f"{key_added}_model"] = params
     else:
         return params
 
@@ -326,6 +360,7 @@ def tagm_map_train(
 def tagm_map_predict(
     adata: AnnData,
     params: dict | None = None,
+    key_added: str = "tagm_map",
     probJoint: bool = False,
     probOutlier: bool = True,
     inplace: bool = True,
@@ -345,7 +380,7 @@ def tagm_map_predict(
     Workflow
     --------
     1. Retrieve MAP parameters from *params* or
-       ``adata.uns['tagm.map.params']``. This includes the marker column name
+       ``adata.uns[f'{key_added}_model']``. This includes the marker column name
        (``gt_col``) used during training.
     2. Split observations into *labelled* (marker) and *unlabelled* sets via
        ``adata.obs[gt_col]``.
@@ -365,16 +400,22 @@ def tagm_map_predict(
     params
         Parameter dictionary as returned by :func:`tagm_map_train`.  If
         ``None`` (default) the parameters are read from
-        ``adata.uns['tagm.map.params']``. The marker column name (``gt_col``)
-        is automatically read from the stored parameters.
+        ``adata.uns[f'{key_added}_model']``, falling back to the dotted
+        ``adata.uns['tagm.map.params']``. The marker column name (``gt_col``) is
+        automatically read from the stored parameters.
+    key_added
+        Prefix for the outputs (default ``"tagm_map"``), so the allocation lands in
+        ``obs[key_added]`` and the probabilities in
+        ``obsm[f"{key_added}_probabilities"]`` -- the same convention as every other
+        annotator.
     probJoint
         If ``True`` also store the joint probability matrix in
-        ``adata.obsm['tagm.map.joint']`` (default *False*): an
+        ``adata.obsm[f'{key_added}_joint']`` (default *False*): an
         ``(n_obs, n_classes)`` matrix carrying the mixture posterior, with marker
         rows one-hot at their annotated class. Ignored when ``inplace=False``.
     probOutlier
         If ``True`` (default) store the probability of belonging to the outlier
-        component in ``adata.obs['tagm.map.outlier']``.
+        component in ``adata.obs[f'{key_added}_outlier']``.
     inplace
         If ``True`` (default) modify *adata* in place and return *None*;
         otherwise return a :class:`~pandas.DataFrame` with the predictions.
@@ -388,7 +429,7 @@ def tagm_map_predict(
 
     if params is None:
         try:
-            params = adata.uns["tagm.map.params"]
+            params = tagm_model(adata, key_added)
         except KeyError:
             raise ValueError(
                 "No parameters found. Please provide either 'params' or run tagm_map_train first."
@@ -481,28 +522,40 @@ def tagm_map_predict(
 
     if inplace:
         # Categorical over the *model's* class order, which is also the column order of
-        # tagm.map.probabilities and of the colour list below. This used to be a plain
-        # object Series -- the only grassp predictor that was -- so its category order got
-        # re-derived alphabetically at plot time and no longer matched either.
+        # the probability matrix and of the colour list. This used to be a plain object
+        # Series -- the only grassp predictor that was -- so its category order got
+        # re-derived alphabetically at plot time and matched neither.
         allocation = pd.Categorical(pred_all.astype(str), categories=[str(m) for m in markers])
-        adata.obs["tagm.map.allocation"] = allocation
 
+        # The allocation comes from the Gaussian part `a` alone, not from an argmax of
+        # what is stored, so it is passed in rather than derived.
+        write_annotation(
+            adata,
+            key_added,
+            a,
+            markers,
+            kind="simplex",
+            method="TAGM-MAP",
+            labels=allocation,
+            probability=np.asarray(prob_all, dtype=float),
+            gt_col=gt_col,
+            extra_params={"numIter": len(posteriors["logposterior"]), "epsilon": float(eps)},
+        )
+
+        # write_annotation has already assigned canonical compartment colours, so the
+        # key always exists. When gt_col carries its own palette, prefer that so the
+        # allocation renders identically to the marker column it was trained on.
         gt_colors = adata.uns.get(f"{params['gt_col']}_colors")
         if gt_colors is not None and gt_col in adata.obs:
-            # Map colour to compartment by *name*. The previous code copied the gt_col
-            # colour list across positionally, but the model's vocabulary is
-            # np.sort(observed labels) while gt_col keeps its own declared order -- so any
-            # marker column that was not already alphabetical (or that declared a class
-            # with no markers) painted every compartment with its neighbour's colour.
+            # Map colour to compartment by *name*. Copying the gt_col colour list across
+            # positionally painted every compartment with its neighbour's colour whenever
+            # gt_col's declared order differed from the model's np.sort(observed) order.
             gt_categories = adata.obs[params["gt_col"]].astype("category").cat.categories
             lut = dict(zip((str(c) for c in gt_categories), gt_colors))
             if all(str(m) in lut for m in markers):
-                adata.uns["tagm.map.allocation_colors"] = [lut[str(m)] for m in markers]
-        adata.obs["tagm.map.probability"] = prob_all
-
-        set_matrix(adata, "tagm.map.probabilities", a, markers)
+                adata.uns[f"{key_added}_colors"] = [lut[str(m)] for m in markers]
         if probJoint:
-            # pRoloc's tagm.map.joint is an (n_obs, n_classes) matrix in which marker rows
+            # pRoloc's joint matrix is (n_obs, n_classes) in which marker rows
             # are one-hot at their known class and every other row carries the mixture
             # posterior. The previous code *stacked* a marker-only block underneath the
             # full matrix, giving (n_obs + n_markers, K) values for an n_obs-long obs
@@ -520,9 +573,9 @@ def tagm_map_predict(
                 )
             joint[rows] = 0.0
             joint[rows, [col_of[str(lbl)] for lbl in adata.obs.loc[marker_idx, gt_col]]] = 1.0
-            set_matrix(adata, "tagm.map.joint", joint, markers)
+            set_matrix(adata, f"{key_added}_joint", joint, markers)
         if probOutlier:
-            adata.obs["tagm.map.outlier"] = outlier_all
+            adata.obs[f"{key_added}_outlier"] = outlier_all
     else:
         return pd.DataFrame(
             {

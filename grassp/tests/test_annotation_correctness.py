@@ -193,7 +193,7 @@ class TestTagmJointAndPersistence:
 
     ``probJoint=True`` stacked a marker-only block underneath the full posterior matrix
     and assigned the result to an ``.obs`` column, so it raised for every non-empty
-    marker set. Separately, ``uns["tagm.map.params"]`` held a raw ``.shape`` tuple, which
+    marker set. Separately, ``uns["tagm_map_model"]`` held a raw ``.shape`` tuple, which
     anndata has no h5ad writer for -- so a trained object could not be saved at all.
     """
 
@@ -207,15 +207,15 @@ class TestTagmJointAndPersistence:
         data = self._trained()
         gr.tl.tagm_map_predict(data, probJoint=True)
 
-        assert "tagm.map.joint" in data.obsm
-        joint = data.obsm["tagm.map.joint"]
+        assert "tagm_map_joint" in data.obsm
+        joint = data.obsm["tagm_map_joint"]
         assert joint.shape == (data.n_obs, 3)
         assert list(joint.columns) == ["ER", "MITO", "NUC"]
 
     def test_marker_rows_are_one_hot_at_their_annotated_class(self):
         data = self._trained()
         gr.tl.tagm_map_predict(data, probJoint=True)
-        joint = data.obsm["tagm.map.joint"]
+        joint = data.obsm["tagm_map_joint"]
         values = np.asarray(joint)
 
         is_marker = data.obs["markers"].notna().to_numpy()
@@ -232,7 +232,7 @@ class TestTagmJointAndPersistence:
     def test_prob_joint_false_writes_nothing(self):
         data = self._trained()
         gr.tl.tagm_map_predict(data, probJoint=False)
-        assert "tagm.map.joint" not in data.obsm
+        assert "tagm_map_joint" not in data.obsm
 
     def test_trained_object_round_trips_through_h5ad(self):
         data = self._trained()
@@ -244,10 +244,10 @@ class TestTagmJointAndPersistence:
             reloaded = ad.read_h5ad(path)
 
         assert np.allclose(
-            np.asarray(reloaded.obsm["tagm.map.joint"]),
-            np.asarray(data.obsm["tagm.map.joint"]),
+            np.asarray(reloaded.obsm["tagm_map_joint"]),
+            np.asarray(data.obsm["tagm_map_joint"]),
         )
-        assert list(reloaded.uns["tagm.map.params"]["datasize"]["data"]) == list(data.shape)
+        assert list(reloaded.uns["tagm_map_model"]["datasize"]["data"]) == list(data.shape)
 
     def test_reloaded_params_still_predict(self):
         """The saved parameters are the only reusable fitted model in the package."""
@@ -257,15 +257,12 @@ class TestTagmJointAndPersistence:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "trained.h5ad"
             data.write_h5ad(path)
-            params = ad.read_h5ad(path).uns["tagm.map.params"]
+            params = ad.read_h5ad(path).uns["tagm_map_model"]
 
         target = _blobs()
         target.obs["markers"] = data.obs["markers"].to_numpy()
         gr.tl.tagm_map_predict(target, params=params)
-        assert (
-            target.obs["tagm.map.allocation"].astype(str)
-            == data.obs["tagm.map.allocation"].astype(str)
-        ).all()
+        assert (target.obs["tagm_map"].astype(str) == data.obs["tagm_map"].astype(str)).all()
 
 
 @pytest.mark.parametrize("gt_col", ["markers"])
@@ -291,7 +288,7 @@ def test_tagm_predict_rejects_a_mismatched_variable_count():
 
     narrower = data[:, :4].copy()
     with pytest.raises(ValueError, match="fractions"):
-        gr.tl.tagm_map_predict(narrower, params=data.uns["tagm.map.params"])
+        gr.tl.tagm_map_predict(narrower, params=data.uns["tagm_map_model"])
 
 
 class TestTagmColoursAndProvenance:
@@ -319,26 +316,26 @@ class TestTagmColoursAndProvenance:
         gr.tl.tagm_map_predict(data)
 
         intended = dict(zip(self.DECLARED, self.COLORS))
-        vocabulary = [str(m) for m in data.uns["tagm.map.params"]["markers"]]
-        assigned = dict(zip(vocabulary, data.uns["tagm.map.allocation_colors"]))
+        vocabulary = [str(m) for m in data.uns["tagm_map_model"]["markers"]]
+        assigned = dict(zip(vocabulary, data.uns["tagm_map_colors"]))
         assert assigned == {k: intended[k] for k in vocabulary}
 
     def test_allocation_is_categorical_in_the_model_order(self):
         data = self._trained()
         gr.tl.tagm_map_predict(data)
 
-        allocation = data.obs["tagm.map.allocation"]
+        allocation = data.obs["tagm_map"]
         assert isinstance(allocation.dtype, pd.CategoricalDtype)
-        vocabulary = [str(m) for m in data.uns["tagm.map.params"]["markers"]]
+        vocabulary = [str(m) for m in data.uns["tagm_map_model"]["markers"]]
         # same order as the probability columns and the colour list
         assert list(allocation.cat.categories) == vocabulary
-        assert list(data.obsm["tagm.map.probabilities"].columns) == vocabulary
+        assert list(data.obsm["tagm_map_probabilities"].columns) == vocabulary
 
     def test_unimplemented_method_is_rejected(self):
         data = _blobs()
         with pytest.raises(NotImplementedError, match="MAP"):
             gr.tl.tagm_map_train(data, gt_col="markers", method="mcmc", numIter=3)
-        assert "tagm.map.params" not in data.uns
+        assert "tagm_map_model" not in data.uns
 
     def test_predicts_on_an_object_without_the_marker_column(self):
         """The fitted model exists to be applied elsewhere; the marker column is only
@@ -347,14 +344,14 @@ class TestTagmColoursAndProvenance:
         target = _blobs()
         del target.obs["markers"]
 
-        gr.tl.tagm_map_predict(target, params=trained.uns["tagm.map.params"])
+        gr.tl.tagm_map_predict(target, params=trained.uns["tagm_map_model"])
         assert (
-            target.obs["tagm.map.allocation"].astype(str) == target.obs["truth"].astype(str)
+            target.obs["tagm_map"].astype(str) == target.obs["truth"].astype(str)
         ).mean() > 0.95
 
         with pytest.raises(KeyError, match="probJoint"):
             gr.tl.tagm_map_predict(
-                target, params=trained.uns["tagm.map.params"], probJoint=True
+                target, params=trained.uns["tagm_map_model"], probJoint=True
             )
 
     def test_untrained_marker_class_is_named(self):

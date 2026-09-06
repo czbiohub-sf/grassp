@@ -10,15 +10,18 @@ from scanpy.plotting._tools.scatterplots import _components_to_dimensions
 from scanpy.tl import Ingest
 from scipy.stats import multivariate_normal
 
+from ..tools.tagm import tagm_model
 from ..util import get_matrix
 
 
-def _sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
+def _sample_tagm_map(
+    adata: AnnData, size: int = 100, key_added: str = "tagm_map"
+) -> list[np.ndarray]:
     """Return synthetic samples from the TAGM posterior distribution.
 
     This helper draws *size* samples for each TAGM component using the
     multivariate normal parameters stored in
-    ``adata.uns["tagm.map.params"]["posteriors"]``.
+    ``adata.uns[f"{key_added}_model"]["posteriors"]``.
 
     Parameters
     ----------
@@ -26,7 +29,7 @@ def _sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
         Annotated data matrix produced by :func`grassp.tl.tagm_map_train`.
         The function expects that posterior means (``mu``) and covariances
         (``sigma``) are stored under
-        ``adata.uns["tagm.map.params"]["posteriors"]``.
+        ``adata.uns[f"{key_added}_model"]["posteriors"]``.
     size
         Number of samples to draw *per component* (cluster).
 
@@ -38,7 +41,7 @@ def _sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
     or enriched samples).
     """
 
-    params = adata.uns["tagm.map.params"]
+    params = tagm_model(adata, key_added)
     mu = params["posteriors"]["mu"]
     sigma = params["posteriors"]["sigma"]
     mv = [multivariate_normal.rvs(mu[i], sigma[i], size=size) for i in range(mu.shape[0])]
@@ -52,6 +55,7 @@ def tagm_map_contours(
     components: str | Sequence[str] | None = None,
     dimensions: tuple[int, int] | Sequence[tuple[int, int]] | None = None,
     levels: int = 4,
+    key_added: str = "tagm_map",
     ax: plt.Axes | None = None,
     **kwargs,
 ) -> plt.Axes:
@@ -66,7 +70,7 @@ def tagm_map_contours(
     ----------
     adata
         Annotated data matrix that already contains TAGM posterior parameters
-        in ``adata.uns["tagm.map.params"]`` **and** an embedding (UMAP or PCA)
+        in ``adata.uns[f"{key_added}_model"]`` **and** an embedding (UMAP or PCA)
         fitted by :func:`~scanpy.tl.umap` or :func:`scanpy.pp.pca`.
     embedding
         Target space for the contours, either ``"umap"`` or ``"pca"``.
@@ -101,7 +105,7 @@ def tagm_map_contours(
         )
     else:
         dimensions = dimensions[0]
-    lmv = _sample_tagm_map(adata, size=size)
+    lmv = _sample_tagm_map(adata, size=size, key_added=key_added)
     mv = np.concatenate(lmv, axis=0)  # concatenate for efficency
     ing = Ingest(adata)
     if embedding == "umap":
@@ -124,13 +128,12 @@ def tagm_map_contours(
     else:
         raise ValueError(f"Invalid embedding: {embedding}")
     idx = 0
-    # Check if adata.uns has color key
-    if "tagm.map.allocation_colors" not in adata.uns:
-        adata.uns["tagm.map.allocation_colors"] = sns.color_palette(
-            "husl", adata.obs[adata.uns["tagm.map.params"]["gt_col"]].nunique()
+    if f"{key_added}_colors" not in adata.uns:
+        adata.uns[f"{key_added}_colors"] = sns.color_palette(
+            "husl", adata.obs[tagm_model(adata, key_added)["gt_col"]].nunique()
         )
 
-    for v, c in zip(lmv, adata.uns["tagm.map.allocation_colors"]):
+    for v, c in zip(lmv, adata.uns[f"{key_added}_colors"]):
         x = emb[idx : idx + v.shape[0], dimensions[0]]
         y = emb[idx : idx + v.shape[0], dimensions[1]]
         sns.kdeplot(x=x, y=y, levels=levels, ax=ax, color=c, **kwargs)
@@ -188,6 +191,7 @@ def tagm_map_pca_ellipses(
     stds: List[int] = [1, 2, 3],
     dimensions: tuple[int, int] | None = None,
     components: str | Sequence[str] | None = None,
+    key_added: str = "tagm_map",
     ax: plt.Axes | None = None,
     scatter_kwargs: dict | None = {},
     **kwargs,
@@ -203,7 +207,7 @@ def tagm_map_pca_ellipses(
     adata
         Annotated data matrix that contains
         ``adata.varm["PCs"]`` (loadings) and TAGM posterior parameters under
-        ``adata.uns["tagm.map.params"]``.
+        ``adata.uns[f"{key_added}_model"]``.
     stds
         Radii of the ellipses in standard deviations.  Typical choices are
         ``[1, 2, 3]`` which correspond to the 68 %, 95 % and 99.7 %
@@ -238,7 +242,7 @@ def tagm_map_pca_ellipses(
 
     if "PCs" not in adata.varm:
         raise ValueError("PCA must be computed before plotting the TAGM map PCA ellipses.")
-    if "tagm.map.params" not in adata.uns:
+    if f"{key_added}_model" not in adata.uns and "tagm.map.params" not in adata.uns:
         raise ValueError(
             "TAGM map must be computed before plotting the TAGM map PCA ellipses."
         )
@@ -246,13 +250,14 @@ def tagm_map_pca_ellipses(
         ax = plt.gca()
 
     pcs = adata.varm["PCs"][:, dimensions]
-    mu_pca = (adata.uns["tagm.map.params"]["posteriors"]["mu"] - adata.X.mean(axis=0)) @ pcs
+    tagm = tagm_model(adata, key_added)
+    mu_pca = (tagm["posteriors"]["mu"] - adata.X.mean(axis=0)) @ pcs
 
-    temp = np.matmul(adata.uns["tagm.map.params"]["posteriors"]["sigma"], pcs)
+    temp = np.matmul(tagm["posteriors"]["sigma"], pcs)
     Sigma_pca = np.matmul(pcs.T[None, :, :], temp)
 
     for i in range(Sigma_pca.shape[0]):
-        color = adata.uns["tagm.map.allocation_colors"][i]
+        color = adata.uns[f"{key_added}_colors"][i]
 
         ax.scatter(
             mu_pca[i][0],

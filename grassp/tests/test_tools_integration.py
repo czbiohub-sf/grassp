@@ -530,8 +530,8 @@ class TestClusteringFunctions:
         tagm.tagm_map_train(adata, gt_col="markers", numIter=20, seed=42)
 
         # Check that parameters were stored
-        assert "tagm.map.params" in adata.uns
-        params = adata.uns["tagm.map.params"]
+        assert "tagm_map_model" in adata.uns
+        params = adata.uns["tagm_map_model"]
 
         # Validate structure
         assert "method" in params
@@ -568,7 +568,7 @@ class TestClusteringFunctions:
 
         tagm.tagm_map_train(adata, gt_col="markers", numIter=100, seed=42)
 
-        logposterior = adata.uns["tagm.map.params"]["posteriors"]["logposterior"]
+        logposterior = adata.uns["tagm_map_model"]["posteriors"]["logposterior"]
 
         # Check that log posterior generally increases or plateaus
         # (allowing for some small fluctuations)
@@ -597,7 +597,7 @@ class TestClusteringFunctions:
             seed=42,
         )
 
-        priors = adata.uns["tagm.map.params"]["priors"]
+        priors = adata.uns["tagm_map_model"]["priors"]
         assert np.allclose(priors["mu0"], custom_mu0)
         assert np.allclose(priors["S0"], custom_S0)
         assert priors["lambda0"] == custom_lambda0
@@ -614,7 +614,7 @@ class TestClusteringFunctions:
         assert isinstance(params, dict)
         assert "posteriors" in params
         # Should NOT modify adata
-        assert "tagm.map.params" not in adata.uns
+        assert "tagm_map_model" not in adata.uns
 
     def test_tagm_map_train_no_markers_error(self):
         """Test TAGM behavior with no markers."""
@@ -634,26 +634,26 @@ class TestClusteringFunctions:
         tagm.tagm_map_predict(adata)
 
         # Check prediction outputs
-        assert "tagm.map.allocation" in adata.obs
-        assert "tagm.map.probability" in adata.obs
-        assert "tagm.map.outlier" in adata.obs
-        assert "tagm.map.probabilities" in adata.obsm
+        assert "tagm_map" in adata.obs
+        assert "tagm_map_probability" in adata.obs
+        assert "tagm_map_outlier" in adata.obs
+        assert "tagm_map_probabilities" in adata.obsm
 
         # Check types and ranges
         # pandas < 3 infers "object" for label columns, pandas >= 3 infers "str"
-        allocation_dtype = adata.obs["tagm.map.allocation"].dtype
+        allocation_dtype = adata.obs["tagm_map"].dtype
         assert isinstance(
             allocation_dtype, pd.CategoricalDtype
         ) or pd.api.types.is_string_dtype(allocation_dtype)
-        assert (adata.obs["tagm.map.probability"] >= 0).all()
-        assert (adata.obs["tagm.map.probability"] <= 1).all()
-        assert (adata.obs["tagm.map.outlier"] >= 0).all()
-        assert (adata.obs["tagm.map.outlier"] <= 1).all()
+        assert (adata.obs["tagm_map_probability"] >= 0).all()
+        assert (adata.obs["tagm_map_probability"] <= 1).all()
+        assert (adata.obs["tagm_map_outlier"] >= 0).all()
+        assert (adata.obs["tagm_map_outlier"] <= 1).all()
 
         # Check probability matrix shape
         marker_cats = adata.obs["markers"].cat.categories
         K = len(marker_cats)
-        assert adata.obsm["tagm.map.probabilities"].shape == (adata.n_obs, K)
+        assert adata.obsm["tagm_map_probabilities"].shape == (adata.n_obs, K)
 
     def test_tagm_map_predict_external_params(self):
         """Test TAGM prediction with external parameters."""
@@ -669,8 +669,8 @@ class TestClusteringFunctions:
         tagm.tagm_map_predict(dataset2, params=params)
 
         # Should have predictions
-        assert "tagm.map.allocation" in dataset2.obs
-        assert "tagm.map.probability" in dataset2.obs
+        assert "tagm_map" in dataset2.obs
+        assert "tagm_map_probability" in dataset2.obs
 
     def test_tagm_map_predict_prob_joint(self):
         """Test TAGM prediction with joint probability."""
@@ -683,8 +683,8 @@ class TestClusteringFunctions:
         tagm.tagm_map_predict(adata, probJoint=False, probOutlier=True)
 
         # Should have standard outputs
-        assert "tagm.map.allocation" in adata.obs
-        assert "tagm.map.outlier" in adata.obs
+        assert "tagm_map" in adata.obs
+        assert "tagm_map_outlier" in adata.obs
 
     def test_tagm_map_predict_inplace_false(self):
         """Test TAGM prediction with inplace=False."""
@@ -699,7 +699,7 @@ class TestClusteringFunctions:
         assert "prob" in df.columns
         assert "outlier" in df.columns
         # Should NOT modify adata
-        assert "tagm.map.allocation" not in adata.obs
+        assert "tagm_map" not in adata.obs
 
 
 # ==============================================================================

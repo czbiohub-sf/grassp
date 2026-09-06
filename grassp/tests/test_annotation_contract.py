@@ -180,3 +180,53 @@ class TestReadAnnotation:
         annotated.obsm["nameless_probabilities"] = np.zeros((annotated.n_obs, 2))
         with pytest.raises(ValueError, match="cannot be recovered"):
             _annotation.read_annotation(annotated, "nameless")
+
+
+class TestTagmJoinsTheContract:
+    """TAGM was the one predictor no generic consumer could address."""
+
+    @staticmethod
+    def _predicted(data):
+        gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, seed=0)
+        gr.tl.tagm_map_predict(data, probJoint=True)
+        return data
+
+    def test_keys_follow_the_key_added_convention(self, annotated):
+        self._predicted(annotated)
+        assert "tagm_map" in annotated.obs
+        assert "tagm_map_probability" in annotated.obs
+        assert "tagm_map_outlier" in annotated.obs
+        assert "tagm_map_probabilities" in annotated.obsm
+        assert "tagm_map_joint" in annotated.obsm
+        assert "tagm_map_colors" in annotated.uns
+        assert not [k for k in annotated.obs if k.startswith("tagm.map")]
+        assert not [k for k in annotated.obsm if k.startswith("tagm.map")]
+
+    def test_the_model_does_not_collide_with_the_provenance(self, annotated):
+        """Both wanted uns[f"{key}_params"]; the prediction would overwrite the model."""
+        self._predicted(annotated)
+        assert annotated.uns["tagm_map_params"]["kind"] == "simplex"
+        assert "posteriors" in annotated.uns["tagm_map_model"]
+
+    def test_generic_consumers_now_accept_it(self, annotated):
+        from grassp.tools import scoring
+
+        self._predicted(annotated)
+        cm = scoring.annotation_confusion_matrix(
+            annotated, "markers", pred_col="tagm_map", plot=False
+        )
+        assert cm.shape[0] == cm.shape[1]
+        f1 = scoring.annotation_f1_score(annotated, "markers", pred_col="tagm_map")
+        assert 0.0 <= f1 <= 1.0
+
+    def test_the_legacy_dotted_model_key_is_still_read(self, annotated):
+        gr.tl.tagm_map_train(annotated, gt_col="markers", numIter=8, seed=0)
+        annotated.uns["tagm.map.params"] = annotated.uns.pop("tagm_map_model")
+        gr.tl.tagm_map_predict(annotated)
+        assert annotated.obs["tagm_map"].notna().any()
+
+    def test_key_added_is_honoured(self, annotated):
+        gr.tl.tagm_map_train(annotated, gt_col="markers", numIter=8, seed=0, key_added="mine")
+        gr.tl.tagm_map_predict(annotated, key_added="mine")
+        assert "mine" in annotated.obs and "mine_probabilities" in annotated.obsm
+        assert "mine_model" in annotated.uns

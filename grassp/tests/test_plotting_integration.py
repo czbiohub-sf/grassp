@@ -233,14 +233,14 @@ class TestClusteringPlots:
         # Add mock TAGM parameters
         n_components = 3
         n_features = adata.shape[1]
-        adata.uns["tagm.map.params"] = {
+        adata.uns["tagm_map_model"] = {
             "posteriors": {
                 "mu": np.random.randn(n_components, n_features),
                 "sigma": np.array([np.eye(n_features) for _ in range(n_components)]),
             },
             "gt_col": "markers",
         }
-        adata.uns["tagm.map.allocation_colors"] = ["red", "blue", "green"]
+        adata.uns["tagm_map_colors"] = ["red", "blue", "green"]
 
         # Plot
         with warnings.catch_warnings():
@@ -261,13 +261,13 @@ class TestClusteringPlots:
         # Add mock TAGM parameters
         n_components = 3
         n_features = adata.shape[1]
-        adata.uns["tagm.map.params"] = {
+        adata.uns["tagm_map_model"] = {
             "posteriors": {
                 "mu": np.random.randn(n_components, n_features),
                 "sigma": np.array([np.eye(n_features) * 0.5 for _ in range(n_components)]),
             }
         }
-        adata.uns["tagm.map.allocation_colors"] = ["red", "blue", "green"]
+        adata.uns["tagm_map_colors"] = ["red", "blue", "green"]
 
         # Plot
         with warnings.catch_warnings():
