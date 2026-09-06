@@ -34,7 +34,7 @@ from .scoring import (
     qsep_score,
     silhouette_score,
 )
-from .tagm import tagm_map_predict, tagm_map_train
+from .tagm import tagm_map_predict, tagm_map_train, tagm_model
 
 #: The public tool surface. Without it the eight submodules this package imports
 #: from (localization, diffusion, tagm, ...) show up as members of ``grassp.tl``,
@@ -79,5 +79,6 @@ __all__ = [
     "svm_tune_hyperparameters",
     "tagm_map_predict",
     "tagm_map_train",
+    "tagm_model",
     "to_knn_graph",
 ]
