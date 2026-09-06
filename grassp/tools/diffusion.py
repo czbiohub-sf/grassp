@@ -47,7 +47,7 @@ from sklearn.metrics import average_precision_score
 from sklearn.model_selection import KFold
 
 from ..util import MULTILOC_SEP, get_matrix
-from ._annotation import require_kind, write_annotation
+from ._annotation import assign_compartment_colors, require_kind, write_annotation
 from ._graph import make_diffuser, neff_hutchinson, symmetric_normalized
 
 
@@ -295,9 +295,10 @@ def resolve_diffusion(
     """(Re)resolve stored diffusion probabilities into a per-protein label, in place.
 
     Reads ``obsm[{key_added}_probabilities]`` (written by
-    :func:`independent_diffusion`) and writes ``obs[out_key]`` (default
-    ``f"{key_added}_resolved"`` for likelihood/argmax, ``f"{key_added}_resolved_specific"``
-    for specific). ``mode`` and ``min_term_size`` are as in :func:`independent_diffusion`.
+    :func:`independent_diffusion`) and writes ``obs[out_key]``, which defaults to
+    ``key_added`` for likelihood/argmax -- overwriting the primary call, since that is
+    what re-resolving means -- and to ``f"{key_added}_specific"`` for specific, so an
+    alternative resolution sits beside the default rather than replacing it. ``mode`` and ``min_term_size`` are as in :func:`independent_diffusion`.
     Lets you obtain several resolutions (e.g. likelihood *and* specific) or sweep
     ``min_term_size`` without re-diffusing. With ``inplace=False`` the labels are written
     to a copy, which is returned.
@@ -318,9 +319,7 @@ def resolve_diffusion(
         P, cats, gmt, sizes, mode, term_threshold, eta, tau, maxk, cap, min_term_size
     )
     if out_key is None:
-        out_key = (
-            f"{key_added}_resolved_specific" if mode == "specific" else f"{key_added}_resolved"
-        )
+        out_key = f"{key_added}_specific" if mode == "specific" else key_added
     data.obs[out_key] = pd.Categorical(labels)
     return None if inplace else data
 
@@ -381,7 +380,7 @@ def independent_diffusion(
     kappa
         Support-weight prior for ``"size_aware"``/``"shrunk"`` blending (``w = m/(m+kappa)``).
     resolve
-        How to turn the probability vector into ``obs[{key_added}_resolved]``:
+        How to turn the probability vector into ``obs[{key_added}]``:
         ``"likelihood"`` (default; containment-link active set), ``"specific"``
         (most-specific term with ``P >= term_threshold``), ``"argmax"``, or ``None`` to
         skip and only write probabilities.
@@ -418,7 +417,7 @@ def independent_diffusion(
     with the term names as its columns), ``uns[{key_added}_alpha]`` (per-term ``a*``),
     ``obs[{key_added}_probability]`` (top membership), ``uns[{key_added}_params]``
     (provenance, including ``kind="per_term"``), and — when ``resolve`` is set —
-    ``obs[{key_added}_resolved]`` and ``obs[{key_added}_resolved_label_compact]``.
+    ``obs[{key_added}]`` (the resolved call) and ``obs[{key_added}_label_compact]``.
     Returns the AnnData if ``inplace=False``, else ``None``.
     """
     adata = data if inplace else data.copy()
@@ -532,7 +531,9 @@ def independent_diffusion(
             cap,
             min_term_size,
         )
-        adata.obs[f"{key_added}_resolved"] = pd.Categorical(labels)
+        # the contract slot: the call goes where every other annotator puts it, so
+        # annotation_f1_score(pred_col=key_added) works here too
+        adata.obs[key_added] = pd.Categorical(labels)
         elig = sizes >= max(int(min_term_size), 1)
         compact = []
         for i in range(n):
@@ -542,7 +543,8 @@ def independent_diffusion(
             compact.append(
                 MULTILOC_SEP.join(hi) if hi else (labels[i] if labels[i] is not None else None)
             )
-        adata.obs[f"{key_added}_resolved_label_compact"] = compact
+        adata.obs[f"{key_added}_label_compact"] = compact
+        assign_compartment_colors(adata, [key_added])
 
     if verbose:
         av = [a for a in astar.values()]

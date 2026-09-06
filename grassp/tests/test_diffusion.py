@@ -48,14 +48,14 @@ def test_independent_diffusion_outputs_and_nonsimplex(blob_adata):
     # per-term (one-vs-rest), NOT a simplex: some rows carry mass on >1 term (blob + AorB)
     assert (P.sum(axis=1) > 1.5).any()
     assert "ann_diffusion_probability" in a.obs
-    assert "ann_diffusion_resolved" in a.obs
+    assert "ann_diffusion" in a.obs
 
 
 def test_likelihood_resolver_prefers_specific_over_broad(blob_adata):
     # the broad AorB should be explained away by the specific blobA/blobB
     a, gs = blob_adata
     gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", resolve="likelihood")
-    resolved = a.obs["ann_diffusion_resolved"].astype(object)
+    resolved = a.obs["ann_diffusion"].astype(object)
     assert (resolved == "AorB").sum() == 0
     # each blob's proteins resolve mostly to their own specific term
     for b, name in [(0, "blobA"), (1, "blobB"), (2, "blobC")]:
@@ -77,7 +77,7 @@ def test_calibration_modes_run(blob_adata, calibration):
 def test_resolve_modes_produce_labels(blob_adata, resolve):
     a, gs = blob_adata
     gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", resolve=resolve)
-    assert a.obs["ann_diffusion_resolved"].notna().any()
+    assert a.obs["ann_diffusion"].notna().any()
 
 
 def test_copy_does_not_mutate(blob_adata):
@@ -154,9 +154,9 @@ def test_min_term_size_floor(blob_adata):
     gr.tl.independent_diffusion(
         a, gs, gene_key="gene_symbol", resolve="likelihood", min_term_size=10_000
     )
-    assert a.obs["ann_diffusion_resolved"].notna().sum() == 0
+    assert a.obs["ann_diffusion"].notna().sum() == 0
     # a modest floor still annotates most proteins (fallback to larger ancestor terms)
     gr.tl.independent_diffusion(
         a, gs, gene_key="gene_symbol", resolve="likelihood", min_term_size=5
     )
-    assert a.obs["ann_diffusion_resolved"].notna().mean() > 0.8
+    assert a.obs["ann_diffusion"].notna().mean() > 0.8

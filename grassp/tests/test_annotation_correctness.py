@@ -630,7 +630,7 @@ class TestResolversAcceptAnyLabelledMatrix:
         gr.tl.independent_diffusion(
             data, gene_sets, gene_key="gene_symbol", resolve="likelihood"
         )
-        inline = data.obs["ann_diffusion_resolved"].astype(str).copy()
+        inline = data.obs["ann_diffusion"].astype(str).copy()
 
         assert "ann_diffusion_categories" not in data.uns
         gr.tl.resolve_diffusion(data, gene_sets, mode="likelihood", out_key="again")
@@ -686,7 +686,7 @@ class TestCompositeLabelSeparator:
         gr.tl.independent_diffusion(
             data, gene_sets, gene_key="gene_symbol", resolve="likelihood"
         )
-        emitted = [str(v) for v in data.obs["ann_diffusion_resolved_label_compact"].dropna()]
+        emitted = [str(v) for v in data.obs["ann_diffusion_label_compact"].dropna()]
         assert any(MULTILOC_SEP in v for v in emitted)
         assert not any("/" in v for v in emitted)
 

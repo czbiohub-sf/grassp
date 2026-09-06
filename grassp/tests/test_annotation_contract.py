@@ -407,3 +407,90 @@ class TestNullMatchesTheProduction:
             random_state=0,
         )
         assert "W_spreading" in annotated.obsp
+
+
+ALL_ANNOTATORS = [
+    "competitive_diffusion",
+    "svm_annotation",
+    "tagm_map",
+    "ann_diffusion",
+    "soft_annotation",
+]
+
+
+@pytest.fixture
+def every_annotation():
+    """One object carrying the output of all five annotators."""
+    rng = np.random.default_rng(5)
+    X = np.vstack([rng.normal(m, 0.7, (40, 8)) for m in (0.0, 2.5, 5.0, 7.5)])
+    data = ad.AnnData(X)
+    data.obs_names = [f"P{i}" for i in range(data.n_obs)]
+    truth = np.repeat(["ER", "MITO", "NUC", "GOLGI"], 40).astype(object)
+    markers = truth.copy()
+    markers[::3] = None
+    data.obs["truth"] = pd.Categorical(truth)
+    data.obs["markers"] = pd.Categorical(markers)
+    data.obs["gene_symbol"] = [f"G{i}" for i in range(data.n_obs)]
+    data.obs["leiden"] = pd.Categorical(np.repeat(list("0123"), 40))
+    sc.pp.neighbors(data, n_neighbors=12, use_rep="X")
+
+    gr.tl.competitive_diffusion(data, gt_col="markers")
+    gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
+    gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, random_state=0)
+    gr.tl.tagm_map_predict(data)
+    gene_sets = {
+        "ER": [f"G{i}" for i in range(40)],
+        "MITO": [f"G{i}" for i in range(40, 80)],
+        "NUC": [f"G{i}" for i in range(80, 120)],
+        "GOLGI": [f"G{i}" for i in range(120, 160)],
+    }
+    gr.tl.independent_diffusion(data, gene_sets, gene_key="gene_symbol")
+    distribution = pd.DataFrame(
+        np.eye(4) * 0.7 + 0.1, index=list("0123"), columns=["ER", "MITO", "NUC", "GOLGI"]
+    )
+    gr.tl.soft_cluster_annotation(
+        data,
+        cluster_key="leiden",
+        cluster_distribution=(distribution, list(distribution.columns)),
+        unknown_label=None,
+    )
+    return data
+
+
+@pytest.mark.parametrize("key", ALL_ANNOTATORS)
+class TestEveryAnnotatorIsInterchangeable:
+    """The whole point: a consumer works on any annotator without knowing which."""
+
+    def test_all_five_slots_are_present(self, every_annotation, key):
+        assert f"{key}_probabilities" in every_annotation.obsm
+        assert key in every_annotation.obs
+        assert f"{key}_probability" in every_annotation.obs
+        assert f"{key}_params" in every_annotation.uns
+        assert f"{key}_colors" in every_annotation.uns
+
+    def test_read_annotation_works_blind(self, every_annotation, key):
+        P, categories, params = _annotation.read_annotation(every_annotation, key)
+        assert P.shape == (every_annotation.n_obs, len(categories))
+        assert params["kind"] in ("simplex", "per_term")
+        assert params["method"]
+
+    def test_the_evaluation_helpers_accept_it(self, every_annotation, key):
+        from grassp.tools import scoring
+
+        f1 = scoring.annotation_f1_score(every_annotation, "truth", pred_col=key)
+        assert 0.0 <= f1 <= 1.0
+        cm = scoring.annotation_confusion_matrix(
+            every_annotation, "truth", pred_col=key, plot=False
+        )
+        assert cm.shape[0] == cm.shape[1]
+
+    def test_the_qc_plot_accepts_it(self, every_annotation, key):
+        gr.pl.annotation_violin(every_annotation, "truth", key)
+
+    def test_simplex_rows_sum_to_one(self, every_annotation, key):
+        P, _, params = _annotation.read_annotation(every_annotation, key)
+        if params["kind"] == "simplex":
+            # TAGM holds back outlier mass, so it is the one that sums to <= 1
+            assert (P.sum(axis=1) <= 1.0 + 1e-9).all()
+        else:
+            assert params["kind"] == "per_term"
