@@ -166,7 +166,7 @@ def _competitive_diffusion(
     iterative: bool = False,
     max_iter: int = 30,
     tol: float = 1e-3,
-    verbose: bool = True,
+    verbose: bool = False,
     fix_markers: bool = False,
     method: Literal["propagation", "spreading"] = "propagation",
     alpha: float = 0.8,
@@ -231,7 +231,7 @@ def competitive_diffusion(
     iterative: bool = False,
     max_iter: int = 1000,
     tol: float = 1e-3,
-    verbose: bool = True,
+    verbose: bool = False,
     method: Literal["propagation", "spreading"] = "propagation",
     alpha: float = 0.8,
     seed_obsm_key: str | None = None,
@@ -601,8 +601,9 @@ def soft_cluster_annotation(
     canonical_order: bool = False,
     random_state: int = 0,
     set_colors: bool = True,
-    verbose: bool = True,
-) -> None:
+    verbose: bool = False,
+    inplace: bool = True,
+) -> AnnData | None:
     """Soft, uncertainty-aware version of the cluster-annotation pipeline.
 
     Ties together the three steps needed to propagate enrichment *uncertainty*
@@ -649,11 +650,16 @@ def soft_cluster_annotation(
         Forwarded to :func:`~grassp.tl.competitive_diffusion`.
     verbose
         Passed through to :func:`~grassp.tl.competitive_diffusion`.
+    inplace
+        If ``True`` (default) annotate ``data`` and return ``None``; otherwise operate on
+        and return a copy.
 
     Returns
     -------
-    None. ``data`` is modified in place.
+    ``None``, or the annotated copy when ``inplace=False``.
     """
+    if not inplace:
+        data = data.copy()
     # The per-cluster distribution over compartments (+ optional unknown) can come
     # from the p-value/odds-ratio enrichment (default) or be supplied directly
     # (e.g. an MGSA posterior via `mgsa_to_cluster_distribution`). Either way it is
@@ -747,6 +753,8 @@ def soft_cluster_annotation(
             random_state=random_state,
             set_colors=set_colors,
         )
+
+    return None if inplace else data
 
 
 def _entropy_rows(P: np.ndarray) -> np.ndarray:
@@ -1267,7 +1275,7 @@ def svm_train(
 
 def svm_annotation(
     data: AnnData,
-    gt_col: str = "markers",
+    gt_col: str,
     C: float | None = None,
     gamma: float | str | None = None,
     fix_markers: bool = False,

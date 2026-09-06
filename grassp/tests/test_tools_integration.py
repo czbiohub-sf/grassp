@@ -527,7 +527,7 @@ class TestClusteringFunctions:
         """Test TAGM training basic functionality."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=20, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=20, random_state=42)
 
         # Check that parameters were stored
         assert "tagm_map_model" in adata.uns
@@ -536,7 +536,7 @@ class TestClusteringFunctions:
         # Validate structure
         assert "method" in params
         assert "gt_col" in params
-        assert "seed" in params
+        assert "random_state" in params
         assert "priors" in params
         assert "posteriors" in params
 
@@ -566,7 +566,7 @@ class TestClusteringFunctions:
         """Test TAGM convergence behavior."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=100, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=100, random_state=42)
 
         logposterior = adata.uns["tagm_map_model"]["posteriors"]["logposterior"]
 
@@ -594,7 +594,7 @@ class TestClusteringFunctions:
             mu0=custom_mu0,
             S0=custom_S0,
             lambda0=custom_lambda0,
-            seed=42,
+            random_state=42,
         )
 
         priors = adata.uns["tagm_map_model"]["priors"]
@@ -607,7 +607,7 @@ class TestClusteringFunctions:
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
         params = tagm.tagm_map_train(
-            adata, gt_col="markers", numIter=20, seed=42, inplace=False
+            adata, gt_col="markers", numIter=20, random_state=42, inplace=False
         )
 
         # Should return dict
@@ -623,14 +623,14 @@ class TestClusteringFunctions:
         # Should handle gracefully - there are no markers so this should fail
         # or produce empty results
         with pytest.raises((ValueError, IndexError)):
-            tagm.tagm_map_train(adata, gt_col="markers", numIter=20, seed=42)
+            tagm.tagm_map_train(adata, gt_col="markers", numIter=20, random_state=42)
 
     def test_tagm_map_predict_basic_pipeline(self):
         """Test TAGM prediction after training."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
         # Train then predict
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, random_state=42)
         tagm.tagm_map_predict(adata)
 
         # Check prediction outputs
@@ -662,7 +662,7 @@ class TestClusteringFunctions:
 
         # Train on dataset1
         params = tagm.tagm_map_train(
-            dataset1, gt_col="markers", numIter=30, seed=42, inplace=False
+            dataset1, gt_col="markers", numIter=30, random_state=42, inplace=False
         )
 
         # Predict on dataset2 using external params
@@ -676,7 +676,7 @@ class TestClusteringFunctions:
         """Test TAGM prediction with joint probability."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, random_state=42)
 
         # Note: probJoint feature may have issues with certain data structures
         # For now, test that predict works without probJoint
@@ -690,7 +690,7 @@ class TestClusteringFunctions:
         """Test TAGM prediction with inplace=False."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, random_state=42)
         df = tagm.tagm_map_predict(adata, inplace=False)
 
         # Should return DataFrame

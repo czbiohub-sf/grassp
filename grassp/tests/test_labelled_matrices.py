@@ -162,7 +162,7 @@ class TestWriters:
 
     def test_tagm_map(self, annotated):
         data, compartments = annotated
-        params = tagm.tagm_map_train(data, gt_col="markers", numIter=2, seed=0)
+        params = tagm.tagm_map_train(data, gt_col="markers", numIter=2, random_state=0)
         tagm.tagm_map_predict(data, params=params)
         stored = data.obsm["tagm_map_probabilities"]
         assert isinstance(stored, pd.DataFrame)

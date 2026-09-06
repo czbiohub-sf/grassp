@@ -187,7 +187,7 @@ class TestTagmJoinsTheContract:
 
     @staticmethod
     def _predicted(data):
-        gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, seed=0)
+        gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, random_state=0)
         gr.tl.tagm_map_predict(data, probJoint=True)
         return data
 
@@ -220,13 +220,77 @@ class TestTagmJoinsTheContract:
         assert 0.0 <= f1 <= 1.0
 
     def test_the_legacy_dotted_model_key_is_still_read(self, annotated):
-        gr.tl.tagm_map_train(annotated, gt_col="markers", numIter=8, seed=0)
+        gr.tl.tagm_map_train(annotated, gt_col="markers", numIter=8, random_state=0)
         annotated.uns["tagm.map.params"] = annotated.uns.pop("tagm_map_model")
         gr.tl.tagm_map_predict(annotated)
         assert annotated.obs["tagm_map"].notna().any()
 
     def test_key_added_is_honoured(self, annotated):
-        gr.tl.tagm_map_train(annotated, gt_col="markers", numIter=8, seed=0, key_added="mine")
+        gr.tl.tagm_map_train(
+            annotated, gt_col="markers", numIter=8, random_state=0, key_added="mine"
+        )
         gr.tl.tagm_map_predict(annotated, key_added="mine")
         assert "mine" in annotated.obs and "mine_probabilities" in annotated.obsm
         assert "mine_model" in annotated.uns
+
+
+class TestParameterNamesAreConsistent:
+    """One name per concept across the annotation surface."""
+
+    ANNOTATORS = [
+        "competitive_diffusion",
+        "independent_diffusion",
+        "svm_annotation",
+        "tagm_map_train",
+        "tagm_map_predict",
+        "soft_cluster_annotation",
+        "resolve_soft_labels",
+    ]
+
+    def _params(self, name):
+        import inspect
+
+        return inspect.signature(getattr(gr.tl, name)).parameters
+
+    @pytest.mark.parametrize("name", ANNOTATORS)
+    def test_no_legacy_parameter_names_survive(self, name):
+        params = self._params(name)
+        for retired, replacement in [
+            ("seed", "random_state"),
+            ("copy", "inplace"),
+            ("marker_key", "gt_col"),
+            ("obs_key_added", "key_added"),
+            ("class_balance", "renormalize_class_mass"),
+        ]:
+            assert (
+                retired not in params
+            ), f"{name} still takes {retired!r}, not {replacement!r}"
+
+    @pytest.mark.parametrize("name", ANNOTATORS)
+    def test_verbose_defaults_to_quiet(self, name):
+        params = self._params(name)
+        if "verbose" in params:
+            assert params["verbose"].default is False
+
+    @pytest.mark.parametrize("name", ANNOTATORS)
+    def test_every_annotator_offers_inplace(self, name):
+        assert "inplace" in self._params(name)
+
+    @pytest.mark.parametrize("name", ["svm_annotation", "tagm_map_train", "ccompass"])
+    def test_the_markers_default_is_gone(self, name):
+        """`gt_col="markers"` was the pRolocdata convention and wrong for any object
+        prepared with pp.add_markers, which writes author-named columns. The label column
+        is now required, so a missing one fails at the call rather than as a KeyError."""
+        import inspect
+
+        assert self._params(name)["gt_col"].default is inspect.Parameter.empty
+
+    def test_diffusion_uses_term_threshold_not_min_probability(self):
+        """min_probability means "abstain below this" everywhere; the per-term membership
+        cutoff is a different question and now has its own name."""
+        assert "term_threshold" in self._params("independent_diffusion")
+        assert "min_probability" not in self._params("independent_diffusion")
+        assert "term_threshold" in self._params("resolve_diffusion")
+        # while the abstention cutoff keeps the shared name
+        assert "min_probability" in self._params("competitive_diffusion")
+        assert "min_probability" in self._params("svm_annotation")

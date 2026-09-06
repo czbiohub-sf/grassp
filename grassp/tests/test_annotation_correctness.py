@@ -200,7 +200,7 @@ class TestTagmJointAndPersistence:
     @staticmethod
     def _trained() -> ad.AnnData:
         data = _blobs()
-        gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, seed=0)
+        gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, random_state=0)
         return data
 
     def test_prob_joint_writes_an_obsm_matrix(self):
@@ -284,7 +284,7 @@ def test_competitive_diffusion_tolerates_unobserved_categories(gt_col):
 def test_tagm_predict_rejects_a_mismatched_variable_count():
     """`D` was read off the target object, so a wrong-width map ran on garbage."""
     data = _blobs()
-    gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, seed=0)
+    gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, random_state=0)
 
     narrower = data[:, :4].copy()
     with pytest.raises(ValueError, match="fractions"):
@@ -308,7 +308,7 @@ class TestTagmColoursAndProvenance:
             data.obs["markers"].astype(object), categories=cls.DECLARED
         )
         data.uns["markers_colors"] = list(cls.COLORS)
-        gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, seed=0)
+        gr.tl.tagm_map_train(data, gt_col="markers", numIter=8, random_state=0)
         return data
 
     def test_colours_follow_the_compartment_not_the_position(self):

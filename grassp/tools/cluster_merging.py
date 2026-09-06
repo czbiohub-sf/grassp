@@ -214,7 +214,7 @@ def _annotate_clusters(
             cluster_key=cluster_col,
             gene_name_key=gene_name_key,
             gene_sets=gene_sets,
-            obs_key_added=compartment_col,
+            key_added=compartment_col,
             max_active=max_active,
             min_posterior=0.0,  # always assign a top compartment (like ORA threshold=1.0)
             n_steps=n_steps,
@@ -229,7 +229,7 @@ def _annotate_clusters(
             cluster_key=cluster_col,
             gene_name_key=gene_name_key,
             gene_sets=gene_sets,
-            obs_key_added=compartment_col,
+            key_added=compartment_col,
             enrichment_ranking_metric='Adjusted P-value',
             enrichment_threshold=1.0,  # Always assign a top term
         )
@@ -909,7 +909,7 @@ def merge_small_clusters(
     cluster_key: str = 'leiden',
     min_n: int = 3,
     key_added: str | None = None,
-    verbose: bool = True,
+    verbose: bool = False,
 ) -> None:
     """Iteratively merge small clusters into their most-connected neighbor.
 
@@ -1029,7 +1029,7 @@ def merge_clusters_go(
     compartment_col: str = 'Cell_compartment',
     key_added: str = 'leiden_merged',
     linkage_method: str = 'average',
-    verbose: bool = True,
+    verbose: bool = False,
     plot_iterations: bool = False,
     plot_dendrogram: bool = False,
     merge_method: Literal['ora', 'mgsa_evidence'] = 'ora',

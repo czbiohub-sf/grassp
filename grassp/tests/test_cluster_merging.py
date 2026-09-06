@@ -351,18 +351,18 @@ def test_paga_dendrogram_key_added():
 # ── merge_clusters_go ─────────────────────────────────────────────────────────
 
 
-def _mock_enrichment(adata, cluster_key, gene_name_key, gene_sets, obs_key_added, **kwargs):
+def _mock_enrichment(adata, cluster_key, gene_name_key, gene_sets, key_added, **kwargs):
     """Simulate calculate_cluster_enrichment by assigning each cluster a fixed term."""
     cluster_to_term = {c: f'Term_{c}' for c in adata.obs[cluster_key].cat.categories}
-    adata.obs[obs_key_added] = adata.obs[cluster_key].map(cluster_to_term).astype('category')
+    adata.obs[key_added] = adata.obs[cluster_key].map(cluster_to_term).astype('category')
     return None
 
 
 def _mock_enrichment_all_same(
-    adata, cluster_key, gene_name_key, gene_sets, obs_key_added, **kwargs
+    adata, cluster_key, gene_name_key, gene_sets, key_added, **kwargs
 ):
     """Assign the same compartment term to all clusters → all pairs should merge."""
-    adata.obs[obs_key_added] = pd.Categorical(
+    adata.obs[key_added] = pd.Categorical(
         ['Mitochondrion'] * len(adata), categories=['Mitochondrion']
     )
     return None

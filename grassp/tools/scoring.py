@@ -17,7 +17,7 @@ from ..util import get_matrix
 
 
 def class_balance(
-    data: AnnData, label_key: str, min_class_size: int = 10, seed: int = 42
+    data: AnnData, label_key: str, min_class_size: int = 10, random_state: int = 42
 ) -> AnnData:
     """Return a balanced subset with equally sized clusters.
 
@@ -33,7 +33,7 @@ def class_balance(
     min_class_size
         Raise an error if the smallest class contains fewer than this
         number of observations (default ``10``).
-    seed
+    random_state
         Random seed for reproducible sampling.
 
     Returns
@@ -61,7 +61,7 @@ def class_balance(
     for label in data_sub.obs[label_key].unique():
         obs_names.extend(
             data_sub.obs[data_sub.obs[label_key] == label]
-            .sample(min_class_s, replace=False, random_state=seed)
+            .sample(min_class_s, replace=False, random_state=random_state)
             .index.values
         )
     data_sub = data_sub[obs_names, :]
@@ -125,7 +125,7 @@ def calinski_habarasz_score(
     key_added="ch_score",
     class_balance=False,
     inplace=True,
-    seed=42,
+    random_state=42,
 ) -> None | float:
     """Calinski–Harabasz score of cluster compactness vs separation.
 
@@ -142,7 +142,7 @@ def calinski_habarasz_score(
     class_balance
         If ``True`` subsample each cluster to equal size before computing the
         score (calls ``class_balance`` internally).
-    inplace, seed
+    inplace, random_state
         Standard behaviour flags.
 
     Returns
@@ -165,7 +165,7 @@ def calinski_habarasz_score(
         for label in data_sub.obs[gt_col].unique():
             obs_names.extend(
                 data_sub.obs[data_sub.obs[gt_col] == label]
-                .sample(min_class_size, replace=False, random_state=seed)
+                .sample(min_class_size, replace=False, random_state=random_state)
                 .index.values
             )
         data_sub = data_sub[obs_names, :]

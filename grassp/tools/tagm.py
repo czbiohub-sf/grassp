@@ -128,7 +128,7 @@ def tagm_model(adata: AnnData, key_added: str = "tagm_map") -> dict:
 
 def tagm_map_train(
     adata: AnnData,
-    gt_col: str = "markers",
+    gt_col: str,
     method: str = "MAP",
     numIter: int = 100,
     mu0: np.ndarray | None = None,
@@ -138,7 +138,7 @@ def tagm_map_train(
     beta0: np.ndarray | None = None,
     u: int = 2,
     v: int = 10,
-    seed: int | None = None,
+    random_state: int | None = None,
     key_added: str = "tagm_map",
     inplace: bool = True,
 ) -> dict | None:
@@ -174,7 +174,7 @@ def tagm_map_train(
         ``None`` sensible empirical defaults are inferred.
     u, v
         Beta prior parameters for the outlier mixing proportion.
-    seed
+    random_state
         Random seed for reproducibility.
     key_added
         Prefix for the stored model (default ``"tagm_map"``), matching the prefix
@@ -211,8 +211,8 @@ def tagm_map_train(
     N, D = mydata.shape
 
     # Set random seed
-    if seed is not None:
-        np.random.seed(seed)
+    if random_state is not None:
+        np.random.seed(random_state)
 
     # Set empirical priors
     if nu0 is None:
@@ -336,7 +336,7 @@ def tagm_map_train(
     params = {
         "method": method,
         "gt_col": gt_col,
-        "seed": seed,
+        "random_state": random_state,
         "markers": markers,
         "priors": priors,
         "posteriors": posteriors,

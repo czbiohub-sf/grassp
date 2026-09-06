@@ -99,7 +99,7 @@ def ccompass_default_params(as_dict: bool = False, path: str | None = None):
 
         gr.tl.ccompass_default_params()  # every field + default
         gr.tl.ccompass_default_params(path="params.yaml")  # editable template
-        gr.tl.ccompass(adata, marker_key="marker", nn_params="params.yaml")
+        gr.tl.ccompass(adata, gt_col="marker", nn_params="params.yaml")
 
     These are C-COMPASS's :class:`~ccompass.core.NeuralNetworkParametersModel` defaults
     with grassp's one override, ``NN_optimization="short"`` (the C-COMPASS-paper setting;
@@ -178,7 +178,7 @@ def _build_subcon_frames(
 
 def ccompass(
     data: AnnData,
-    marker_key: str = "markers",
+    gt_col: str,
     *,
     condition_key: str | None = None,
     replicate_key: str | None = None,
@@ -206,7 +206,7 @@ def ccompass(
     data
         :class:`~anndata.AnnData` with proteins in ``.obs`` and fractions in
         ``.var``. ``.X`` (or ``layers[layer]``) holds the fractionation profiles.
-    marker_key
+    gt_col
         ``.obs`` column with known compartment labels (e.g. added by
         :func:`grassp.pp.add_markers`). ``NaN`` entries are treated as unlabeled
         proteins to be predicted.
@@ -295,9 +295,9 @@ def ccompass(
     # ------------------------------------------------------------------
     # 3. Attach marker classes and split marker / test / full profiles.
     # ------------------------------------------------------------------
-    if marker_key not in data.obs:
-        raise KeyError(f"marker_key '{marker_key}' not found in data.obs.")
-    marker_series = data.obs[marker_key].astype("object")
+    if gt_col not in data.obs:
+        raise KeyError(f"gt_col '{gt_col}' not found in data.obs.")
+    marker_series = data.obs[gt_col].astype("object")
 
     fract_marker: dict[str, pd.DataFrame] = {}
     fract_test: dict[str, pd.DataFrame] = {}
@@ -308,7 +308,7 @@ def ccompass(
         fract_test[subcon] = frame[frame[_CLASS_COL].isna()]
         if fract_marker[subcon].empty:
             raise ValueError(
-                f"No markers found for '{subcon}'. Check that '{marker_key}' "
+                f"No markers found for '{subcon}'. Check that '{gt_col}' "
                 "has labels overlapping the fractionation data."
             )
     fract_full = core.create_fullprofiles(fract_marker, fract_test)

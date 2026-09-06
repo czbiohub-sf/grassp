@@ -82,7 +82,7 @@ def test_resolve_modes_produce_labels(blob_adata, resolve):
 
 def test_copy_does_not_mutate(blob_adata):
     a, gs = blob_adata
-    out = gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", copy=True)
+    out = gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", inplace=False)
     assert out is not None
     assert "ann_diffusion_probabilities" in out.obsm
     assert "ann_diffusion_probabilities" not in a.obsm
