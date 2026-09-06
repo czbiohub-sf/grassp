@@ -46,7 +46,7 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import KFold
 
-from ..util import get_matrix, set_matrix
+from ..util import MULTILOC_SEP, get_matrix, set_matrix
 
 
 # --------------------------------------------------------------------------- #
@@ -543,7 +543,7 @@ def independent_diffusion(
                 if Pcal[i, j] >= min_probability and elig[j]
             ]
             compact.append(
-                "/".join(hi) if hi else (labels[i] if labels[i] is not None else None)
+                MULTILOC_SEP.join(hi) if hi else (labels[i] if labels[i] is not None else None)
             )
         adata.obs[f"{key_added}_resolved_label_compact"] = compact
 

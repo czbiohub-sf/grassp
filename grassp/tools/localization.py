@@ -14,7 +14,7 @@ import scipy.sparse as sp
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.svm import SVC
 
-from ..util import get_matrix, set_matrix
+from ..util import MULTILOC_SEP, get_matrix, set_matrix
 
 
 def _neighbor_label_matrix(
@@ -883,7 +883,7 @@ def resolve_soft_labels(
         compact labels small.
     canonical_order
         If ``True``, sort the compartments in ``label_compact`` alphabetically so that
-        ``"A / B"`` and ``"B / A"`` collapse into one plot category (drops primary
+        ``"A; B"`` and ``"B; A"`` collapse into one plot category (drops primary
         ordering). Default ``False`` keeps the primary compartment first.
     key_added
         Output prefix in ``.obs``. Defaults to ``f"{prob_key}_resolved"``.
@@ -901,7 +901,7 @@ def resolve_soft_labels(
     -------
     None or dict
         Writes ``obs[key]`` (primary label / NaN), ``obs[key+"_multiloc"]`` (bool),
-        ``obs[key+"_multiloc_label"]`` (detailed ``"A / B"`` string from the
+        ``obs[key+"_multiloc_label"]`` (detailed ``"A; B"`` string from the
         cumulative-mass rule), ``obs[key+"_label_compact"]`` (plot-friendly label:
         primary + secondaries above ``min_secondary_mass``, capped at ``max_labels``)
         and ``obs[key+"_multiloc_compact"]`` (bool), ``obs[key+"_secondary"]``,
@@ -1011,7 +1011,7 @@ def resolve_soft_labels(
     #    NOT compact (diffuse-but-resolved proteins have large eff_k); the mass floor
     #    and the hard `max_labels` cap are what collapse the number of combinations.
     #    With `canonical_order=True` the compartments are sorted alphabetically so
-    #    "A / B" and "B / A" merge into one plot category (loses primary ordering).
+    #    "A; B" and "B; A" merge into one plot category (loses primary ordering).
     order = np.argsort(-R, axis=1)
     primary = np.full(N, np.nan, dtype=object)
     secondary = np.full(N, np.nan, dtype=object)
@@ -1025,7 +1025,7 @@ def resolve_soft_labels(
         k = min(int(np.searchsorted(cum, multi_label_cum)) + 1, len(oi))
         labs = [real_cats[j] for j in oi[:k]]
         primary[i] = labs[0]
-        combined[i] = " / ".join(labs)
+        combined[i] = MULTILOC_SEP.join(labs)
         if k > 1:
             secondary[i] = labs[1]
             multiloc[i] = True
@@ -1039,7 +1039,7 @@ def resolve_soft_labels(
                 break
         if canonical_order and len(labs_c) > 1:
             labs_c = sorted(labs_c)
-        combined_compact[i] = " / ".join(labs_c)
+        combined_compact[i] = MULTILOC_SEP.join(labs_c)
         multiloc_compact[i] = len(labs_c) > 1
 
     out = {

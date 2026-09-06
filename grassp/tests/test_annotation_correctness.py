@@ -5,6 +5,7 @@ about the *specific* wrong behaviour rather than about general happy-path output
 """
 
 import tempfile
+import warnings
 
 from pathlib import Path
 
@@ -637,3 +638,71 @@ class TestResolversAcceptAnyLabelledMatrix:
         del data.uns["ann_diffusion_categories"]
         gr.tl.resolve_diffusion(data, gene_sets, mode="likelihood", out_key="again")
         assert (inline == data.obs["again"].astype(str)).all()
+
+
+class TestCompositeLabelSeparator:
+    """Both resolvers emit multi-compartment labels; they used to disagree on how.
+
+    ``resolve_soft_labels`` joined with ``" / "`` and ``independent_diffusion`` with
+    ``"/"``, so the same concept had two spellings -- and either one becomes an
+    unstorable ``.obsm`` column name if such a column is later used as a ``gt_col``.
+    """
+
+    def test_entropy_resolver_uses_the_shared_separator(self):
+        from grassp.util import MULTILOC_SEP
+
+        data = _blobs()
+        data.obs["leiden"] = pd.Categorical([str(i // 40) for i in range(data.n_obs)])
+        distribution = pd.DataFrame(
+            [[0.8, 0.1, 0.1], [0.1, 0.8, 0.1], [0.1, 0.1, 0.8]],
+            index=["0", "1", "2"],
+            columns=["ER", "MITO", "NUC"],
+        )
+        gr.tl.soft_cluster_annotation(
+            data,
+            cluster_key="leiden",
+            cluster_distribution=(distribution, list(distribution.columns)),
+            unknown_label=None,
+            verbose=False,
+            resolve="entropy_null",
+            n_permutations=30,
+        )
+        composite = [
+            v
+            for v in data.obs["soft_annotation_resolved_multiloc_label"].dropna().astype(str)
+            if MULTILOC_SEP in v
+        ]
+        assert composite, "expected at least one multi-compartment call"
+        assert not any("/" in v for v in composite)
+
+    def test_diffusion_resolver_uses_the_shared_separator(self):
+        from grassp.util import MULTILOC_SEP
+
+        data = _blobs()
+        data.obs["gene_symbol"] = [f"G{i}" for i in range(data.n_obs)]
+        gene_sets = {
+            "ER": [f"G{i}" for i in range(40)],
+            "MITO": [f"G{i}" for i in range(40, 80)],
+            "NUC": [f"G{i}" for i in range(80, 120)],
+            "ER_or_MITO": [f"G{i}" for i in range(80)],
+        }
+        gr.tl.independent_diffusion(
+            data, gene_sets, gene_key="gene_symbol", resolve="likelihood"
+        )
+        emitted = [str(v) for v in data.obs["ann_diffusion_resolved_label_compact"].dropna()]
+        assert any(MULTILOC_SEP in v for v in emitted)
+        assert not any("/" in v for v in emitted)
+
+    def test_a_composite_label_can_be_reused_as_a_gt_col(self):
+        """The point of the change: these labels become .obsm column names downstream."""
+        data = _blobs()
+        data.obs["composite"] = pd.Categorical(
+            ["ER; MITO" if i % 2 else "NUC" for i in range(data.n_obs)]
+        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", UserWarning)  # no sanitizing should be needed
+            gr.tl.competitive_diffusion(data, gt_col="composite", verbose=False)
+        assert list(data.obsm["competitive_diffusion_probabilities"].columns) == [
+            "ER; MITO",
+            "NUC",
+        ]
