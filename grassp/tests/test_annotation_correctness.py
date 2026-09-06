@@ -110,7 +110,7 @@ class TestSvmUnobservedCategory:
 
 
 class TestPruneMarkersThreshold:
-    """`prune_markers_knn`'s min_probability had no effect at any setting.
+    """`prune_markers`'s min_probability had no effect at any setting.
 
     It forwarded the cutoff to ``competitive_diffusion(inplace=False)``, but that applies
     its threshold only on the inplace path, so nothing was ever removed for low
@@ -122,9 +122,7 @@ class TestPruneMarkersThreshold:
         kept = []
         for min_probability in (0.0, 0.6, 0.8, 0.9, 0.99):
             data = _blobs(separation=1.6, spread=1.4, seed=1)
-            localization.prune_markers_knn(
-                data, gt_col="markers", min_probability=min_probability
-            )
+            localization.prune_markers(data, gt_col="markers", min_probability=min_probability)
             kept.append(int(data.obs["markers_pruned"].notna().sum()))
 
         assert kept == sorted(kept, reverse=True), kept
@@ -132,7 +130,7 @@ class TestPruneMarkersThreshold:
 
     def test_retained_markers_keep_their_original_label(self):
         data = _blobs(separation=1.6, spread=1.4, seed=1)
-        localization.prune_markers_knn(data, gt_col="markers", min_probability=0.8)
+        localization.prune_markers(data, gt_col="markers", min_probability=0.8)
         retained = data.obs["markers_pruned"].notna()
         assert retained.any()
         assert (
@@ -144,7 +142,7 @@ class TestPruneMarkersThreshold:
 
     def test_returns_none(self):
         data = _blobs()
-        assert localization.prune_markers_knn(data, gt_col="markers") is None
+        assert localization.prune_markers(data, gt_col="markers") is None
 
 
 class TestInterfacialnessDoesNotMutateInput:
@@ -420,9 +418,9 @@ class TestSvmParameterHandling:
         [
             lambda d: gr.tl.competitive_diffusion(d, gt_col="markers", verbose=False),
             lambda d: gr.tl.svm_annotation(d, gt_col="markers", C=1.0, gamma=0.1),
-            lambda d: localization.prune_markers_knn(d, gt_col="markers"),
+            lambda d: localization.prune_markers(d, gt_col="markers"),
         ],
-        ids=["competitive_diffusion", "svm_annotation", "prune_markers_knn"],
+        ids=["competitive_diffusion", "svm_annotation", "prune_markers"],
     )
     def test_object_dtype_label_column_is_accepted(self, call):
         """competitive_diffusion always accepted one, so requiring a Categorical made the

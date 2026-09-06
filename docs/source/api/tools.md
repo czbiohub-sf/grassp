@@ -63,6 +63,7 @@ classifier on them.
    tl.resolve_soft_labels
    tl.svm_train
    tl.svm_annotation
+   tl.prune_markers
 ```
 
 ## Ontology-aware Annotation

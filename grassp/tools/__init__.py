@@ -20,6 +20,7 @@ from .localization import (
     competitive_propagation,
     knn_annotation,
     knn_annotation_old,
+    prune_markers,
     resolve_soft_labels,
     soft_cluster_annotation,
     svm_annotation,

@@ -1505,7 +1505,7 @@ def svm_annotation(
         }
 
 
-def prune_markers_knn(
+def prune_markers(
     adata: AnnData, gt_col: str, key_added: str | None = None, min_probability: float = 0.9
 ) -> None:
     """Remove "outliers" from marker proteins whose compartment label is not supported by their k-NN neighbourhood.
@@ -1543,8 +1543,8 @@ def prune_markers_knn(
     original label; removed markers are set to NaN.
     """
     key_added = key_added or f"{gt_col}_pruned"
-    knnres = competitive_diffusion(adata, gt_col, inplace=False, fix_markers=False)
-    labels, Y = knnres["labels"], knnres["probabilities"]
+    propagated = competitive_diffusion(adata, gt_col, inplace=False, fix_markers=False)
+    labels, Y = propagated["labels"], propagated["probabilities"]
 
     # as above: accept an object-dtype gt_col rather than requiring `.cat`
     gt = adata.obs[gt_col].astype("category")
