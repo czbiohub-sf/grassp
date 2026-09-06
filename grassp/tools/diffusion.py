@@ -46,7 +46,7 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import KFold
 
-from ..util import set_matrix
+from ..util import get_matrix, set_matrix
 
 
 # --------------------------------------------------------------------------- #
@@ -327,7 +327,7 @@ def resolve_diffusion(
 ) -> None:
     """(Re)resolve stored diffusion probabilities into a per-protein label, in place.
 
-    Reads ``obsm[{key_added}_probabilities]`` / ``uns[{key_added}_categories]`` (written by
+    Reads ``obsm[{key_added}_probabilities]`` (written by
     :func:`independent_diffusion`) and writes ``obs[out_key]`` (default
     ``f"{key_added}_resolved"`` for likelihood/argmax, ``f"{key_added}_resolved_specific"``
     for specific). ``mode`` and ``min_term_size`` are as in :func:`independent_diffusion`.
@@ -335,8 +335,11 @@ def resolve_diffusion(
     ``min_term_size`` without re-diffusing.
     """
     gmt = _resolve_gene_sets(gene_sets, species)
-    cats = list(data.uns[f"{key_added}_categories"])
-    P = np.asarray(data.obsm[f"{key_added}_probabilities"], dtype=float)
+    # The term names are columns of the stored matrix; the uns entry is only a fallback
+    # for matrices written before they were labelled.
+    P, columns = get_matrix(data, f"{key_added}_probabilities")
+    P = np.asarray(P, dtype=float)
+    cats = list(columns) if columns is not None else list(data.uns[f"{key_added}_categories"])
     pop = set(data.obs[gene_key].astype(str))
     sizes = _map_sizes(cats, gmt, pop)
     labels = _resolve(

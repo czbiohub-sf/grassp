@@ -790,7 +790,7 @@ def _bh_fdr(p: np.ndarray) -> np.ndarray:
 def resolve_soft_labels(
     data: AnnData,
     prob_key: str,
-    categories_key: str,
+    categories_key: str | None = None,
     seed_key: str | None = None,
     obsp_key: str = "connectivities",
     unknown_label: str | None = "unknown",
@@ -850,6 +850,9 @@ def resolve_soft_labels(
         (e.g. ``"ann_soft_probabilities"``).
     categories_key
         ``uns`` key with the ordered category names for the columns of ``prob_key``.
+        Optional: when ``prob_key`` is a labelled DataFrame (everything grassp writes
+        via :func:`~grassp.util.set_matrix`) its own column names are used, and this is
+        only needed for bare arrays written by older versions.
     seed_key
         ``obsm`` key with the soft seed matrix; required when ``null="permutation"``.
     obsp_key
@@ -906,8 +909,28 @@ def resolve_soft_labels(
         ``_qvalue``, ``_unknown_mass``; a null summary in ``uns[key+"_null"]``.
     """
     key = key_added or f"{prob_key}_resolved"
-    P = np.asarray(data.obsm[prob_key], dtype=float)
-    cats = list(data.uns[categories_key])
+    # The compartment names travel with the matrix: util.set_matrix stores it as a
+    # labelled DataFrame. Requiring a separate uns entry meant this resolver could only
+    # consume soft_cluster_annotation's output -- competitive_diffusion and
+    # svm_annotation write no uns categories, so pointing it at them raised KeyError.
+    P, columns = get_matrix(data, prob_key)
+    P = np.asarray(P, dtype=float)
+    if categories_key is not None:
+        cats = list(data.uns[categories_key])
+    elif columns is not None:
+        cats = list(columns)
+    else:
+        raise ValueError(
+            f"obsm['{prob_key}'] carries no column names, so the compartment vocabulary "
+            "cannot be recovered. Pass `categories_key` naming a uns entry with the "
+            "class names in column order (matrices written by older grassp versions are "
+            "bare arrays)."
+        )
+    if len(cats) != P.shape[1]:
+        raise ValueError(
+            f"obsm['{prob_key}'] has {P.shape[1]} columns but {len(cats)} category names "
+            "were resolved; they must describe the same matrix."
+        )
     N = P.shape[0]
 
     uk = (
@@ -932,7 +955,7 @@ def resolve_soft_labels(
     if null == "permutation":
         if seed_key is None:
             raise ValueError("seed_key is required when null='permutation'.")
-        S = np.asarray(data.obsm[seed_key], dtype=float)
+        S = np.asarray(get_matrix(data, seed_key)[0], dtype=float)
         rng = np.random.default_rng(random_state)
         Hnull = np.empty((N, n_permutations))
         for b in range(n_permutations):
@@ -946,7 +969,7 @@ def resolve_soft_labels(
     elif null == "analytic":
         if seed_key is None:
             raise ValueError("seed_key is required when null='analytic'.")
-        S = np.asarray(data.obsm[seed_key], dtype=float)
+        S = np.asarray(get_matrix(data, seed_key)[0], dtype=float)
         pi = _real_renorm(S.mean(axis=0, keepdims=True), real_idx).ravel()
         pic = np.clip(pi, 1e-12, 1.0)
         H_pi = -(pic * np.log(pic)).sum()

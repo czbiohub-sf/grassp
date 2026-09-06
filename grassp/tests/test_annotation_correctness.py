@@ -549,3 +549,91 @@ class TestClusterEnrichmentWrites:
         gr.tl.enrichment_to_cluster_distribution(
             enrichment, cluster_key="leiden", unknown_label=None, threshold=1.0
         )
+
+
+class TestResolversAcceptAnyLabelledMatrix:
+    """The compartment names travel with the matrix, so a resolver should not need a
+    separate ``uns`` entry.
+
+    ``resolve_soft_labels`` required ``categories_key``, which only
+    ``soft_cluster_annotation`` writes -- so pointing it at ``competitive_diffusion``
+    (from the same module) raised ``KeyError``.
+    """
+
+    @staticmethod
+    def _annotated() -> ad.AnnData:
+        data = _blobs(separation=1.8, spread=1.2, seed=0)
+        gr.tl.competitive_diffusion(data, gt_col="markers", verbose=False)
+        return data
+
+    def test_competitive_diffusion_output_resolves(self):
+        data = self._annotated()
+        assert not [k for k in data.uns if k.endswith("_categories")]
+
+        gr.tl.resolve_soft_labels(
+            data,
+            prob_key="competitive_diffusion_probabilities",
+            seed_key="competitive_diffusion_one_hot_labels",
+            unknown_label=None,
+            n_permutations=30,
+        )
+        key = "competitive_diffusion_probabilities_resolved"
+        assert set(data.obs[f"{key}_type"].dropna()) <= {"single", "multi", "unresolved"}
+        assert data.obs[key].notna().any()
+        # the vocabulary came from the matrix columns
+        assert set(data.obs[key].dropna().astype(str)) <= {"ER", "MITO", "NUC"}
+
+    def test_svm_output_resolves_under_the_analytic_null(self):
+        data = _blobs(separation=1.8, spread=1.2, seed=0)
+        gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
+        gr.tl.resolve_soft_labels(
+            data,
+            prob_key="svm_annotation_probabilities",
+            seed_key="svm_annotation_probabilities",
+            unknown_label=None,
+            null="analytic",
+        )
+        assert data.obs["svm_annotation_probabilities_resolved"].notna().any()
+
+    def test_bare_array_still_needs_categories_key_and_says_so(self):
+        """Matrices written before they were labelled remain readable."""
+        data = self._annotated()
+        data.obsm["bare"] = np.asarray(data.obsm["competitive_diffusion_probabilities"])
+
+        with pytest.raises(ValueError, match="no column names"):
+            gr.tl.resolve_soft_labels(data, prob_key="bare", null=None, unknown_label=None)
+
+        data.uns["cats"] = ["ER", "MITO", "NUC"]
+        gr.tl.resolve_soft_labels(
+            data, prob_key="bare", categories_key="cats", null=None, unknown_label=None
+        )
+        assert data.obs["bare_resolved"].notna().any()
+
+    def test_mismatched_category_count_is_rejected(self):
+        data = self._annotated()
+        data.uns["too_few"] = ["ER", "MITO"]
+        with pytest.raises(ValueError, match="columns but 2 category names"):
+            gr.tl.resolve_soft_labels(
+                data,
+                prob_key="competitive_diffusion_probabilities",
+                categories_key="too_few",
+                null=None,
+                unknown_label=None,
+            )
+
+    def test_resolve_diffusion_does_not_need_the_uns_entry(self):
+        data = _blobs()
+        data.obs["gene_symbol"] = [f"G{i}" for i in range(data.n_obs)]
+        gene_sets = {
+            "ER": [f"G{i}" for i in range(40)],
+            "MITO": [f"G{i}" for i in range(40, 80)],
+            "NUC": [f"G{i}" for i in range(80, 120)],
+        }
+        gr.tl.independent_diffusion(
+            data, gene_sets, gene_key="gene_symbol", resolve="likelihood"
+        )
+        inline = data.obs["ann_diffusion_resolved"].astype(str).copy()
+
+        del data.uns["ann_diffusion_categories"]
+        gr.tl.resolve_diffusion(data, gene_sets, mode="likelihood", out_key="again")
+        assert (inline == data.obs["again"].astype(str)).all()
