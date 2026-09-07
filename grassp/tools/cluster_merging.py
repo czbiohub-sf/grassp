@@ -12,7 +12,7 @@ from scipy.spatial.distance import squareform
 from scipy.stats import fisher_exact
 
 from .enrichment import _load_gmt, calculate_cluster_enrichment
-from .mgsa import calculate_mgsa, mgsa
+from .mgsa_model import calculate_mgsa, mgsa
 
 __all__ = [
     "calculate_cluster_enrichment",

@@ -1,4 +1,4 @@
-"""Tests for the MGSA module integrated into grassp (``grassp.tools.mgsa``).
+"""Tests for the MGSA module integrated into grassp (``grassp.tools.mgsa_model``).
 
 Covers the core sampler (synthetic recovery, determinism, default grids, the
 numba-free fallback, gene-set loading) and the grassp integration layer
@@ -10,7 +10,6 @@ part of the grassp suite.
 """
 
 from __future__ import annotations
-import importlib
 
 import anndata as ad
 import numpy as np
@@ -20,10 +19,7 @@ import scipy.sparse as sp
 
 import grassp as gp
 
-# `grassp.tools.mgsa` is re-exported as the *function* in grassp/tools/__init__.py,
-# which shadows the submodule attribute. Use importlib to get the actual module so
-# module-level helpers (`_chain_core`, `load_gmt`, ...) are reachable.
-mgsa_mod = importlib.import_module("grassp.tools.mgsa")
+from grassp.tools import mgsa_model as mgsa_mod
 
 
 # --------------------------------------------------------------------------- #

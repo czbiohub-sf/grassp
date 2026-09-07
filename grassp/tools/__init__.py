@@ -1,4 +1,4 @@
-from .ccompass import ccompass, ccompass_default_params
+from .ccompass_nn import ccompass, ccompass_default_params
 from .cluster_merging import (
     dendrogram_cherry_pairs,
     merge_clusters_go,
@@ -25,7 +25,13 @@ from .localization import (
     svm_annotation,
     svm_tune_hyperparameters,
 )
-from .mgsa import MgsaResult, calculate_mgsa, load_gmt, mgsa, mgsa_to_cluster_distribution
+from .mgsa_model import (
+    MgsaResult,
+    calculate_mgsa,
+    load_gmt,
+    mgsa,
+    mgsa_to_cluster_distribution,
+)
 from .scoring import (
     annotation_confusion_matrix,
     annotation_f1_score,

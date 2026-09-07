@@ -59,17 +59,44 @@ class TestToolsNamespace:
             assert hasattr(tools, name), f"__all__ names {name!r}, which is absent"
             assert not inspect.ismodule(getattr(tools, name)), f"{name!r} is a module"
 
+    def test_no_re_export_shadows_a_submodule(self):
+        """A submodule and a re-exported function cannot share a name.
+
+        ``from .mgsa import mgsa`` rebinds the ``grassp.tools.mgsa`` attribute from the
+        module to the function, so ``grassp.tools.mgsa.calculate_mgsa`` raises
+        AttributeError while the same pattern works for every other submodule. Import,
+        pickling and ``inspect`` all keep working, because they resolve through
+        ``sys.modules`` -- which is what makes it easy to miss. Renaming the two files to
+        mgsa_model.py and ccompass_nn.py resolved it; this keeps it resolved.
+        """
+        import importlib
+        from pathlib import Path
+
+        from grassp import tools
+
+        shadowed = []
+        for path in sorted(Path(tools.__file__).parent.glob("*.py")):
+            if path.stem.startswith("_"):
+                continue
+            importlib.import_module(f"grassp.tools.{path.stem}")
+            if not inspect.ismodule(getattr(tools, path.stem, None)):
+                shadowed.append(path.stem)
+        assert not shadowed, (
+            f"a re-exported name shadows these submodules: {shadowed}. Rename the module "
+            "file, or the function."
+        )
+
     def test_no_public_callable_is_unreachable(self):
         """The failure mode this refactor started from: prune_markers and
         annotation_confusion_matrix were defined, fully documented and in no namespace.
 
-        Every submodule is walked, found from the package directory rather than by
-        ``getattr(tools, name)``. That matters: ``grassp/tools/mgsa.py`` defines a
-        function ``mgsa`` and ``__init__`` re-exports it, which rebinds the
-        ``grassp.tools.mgsa`` *attribute* from the module to the function -- so an
-        attribute-based walk cannot see inside those two files at all, and would have
-        skipped them silently. ``importlib`` reads ``sys.modules``, which the shadowing
-        does not touch.
+        Every submodule is walked, found from the package directory rather than from a
+        hand-written list, so a new module is covered the moment it exists rather than
+        when someone remembers to add it. ``importlib`` rather than
+        ``getattr(tools, name)`` because a re-exported name can shadow a submodule
+        attribute -- ``mgsa.py``/``mgsa()`` and ``ccompass.py``/``ccompass()`` did
+        exactly that until the modules were renamed, and an attribute walk silently
+        skipped both. ``sys.modules`` cannot be shadowed that way.
         """
         import importlib
         from pathlib import Path
