@@ -615,3 +615,26 @@ def test_add_external_validation_markers_gene_names_all_columns():
     assert "has_transmem" in adata.obs.columns
     # gene_name should NOT be added as a column (it was the merge key)
     assert "gene_name" not in adata.obs.columns
+
+
+def test_no_bundled_marker_set_needs_the_h5ad_escape_hatch():
+    """A "/" in a class name cannot be an h5ad column name, so such a matrix has to be
+    demoted to a plain array plus a side table (grassp.util.set_matrix). The bundled sets
+    are curated to avoid it -- fetch_proloc_markers.R normalises the four that would
+    otherwise arrive slashed -- so annotating on any of them keeps a labelled frame."""
+    import glob
+
+    from grassp.util import unwritable_labels
+
+    offenders = {}
+    for path in sorted(glob.glob("grassp/datasets/external/*markers*.tsv")):
+        table = pd.read_csv(path, sep="\t", dtype=str)
+        # the compartment vocabularies, by the naming convention pp.add_markers uses.
+        # The other columns in external_markers_*.tsv are raw UniProt/MitoCarta
+        # annotation -- free text like "Name=A/M1; Name=B/M2", not a class vocabulary --
+        # and are not usable as a gt_col.
+        for column in [c for c in table.columns if c.startswith("marker")]:
+            bad = unwritable_labels([str(v) for v in table[column].dropna().unique()])
+            if bad:
+                offenders[f"{path.split('/')[-1]}:{column}"] = bad
+    assert offenders == {}, f"bundled marker sets carry unwritable class names: {offenders}"

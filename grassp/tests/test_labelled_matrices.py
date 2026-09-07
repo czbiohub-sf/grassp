@@ -354,8 +354,8 @@ class TestUnwritableClassNames:
     def test_a_warning_names_the_demoted_labels(self):
         data = AnnData(np.zeros((4, 2)))
         data.obs_names = [f"P{i}" for i in range(4)]
-        with pytest.warns(UserWarning, match="Ribosome/Complexes"):
-            set_matrix(data, "probs", np.zeros((4, 2)), ["Ribosome/Complexes", "NUC"])
+        with pytest.warns(UserWarning, match="ER/Golgi"):
+            set_matrix(data, "probs", np.zeros((4, 2)), ["ER/Golgi", "NUC"])
 
     def test_unwritable_labels_reports_only_the_offenders(self):
         assert unwritable_labels(["A/B", "plain", "C/D"]) == ["A/B", "C/D"]

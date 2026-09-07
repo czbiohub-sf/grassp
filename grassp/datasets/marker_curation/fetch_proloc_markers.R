@@ -73,6 +73,14 @@ normalize_compartment_name <- function(name) {
   # 5. Actin Binding Proteins -> Actin Cytoskeleton
   name <- gsub("^Actin Binding Proteins$", "Actin Cytoskeleton", name)
 
+  # 6. A "/" cannot be an HDF5 dataset name, so a class named with one has to be stored
+  #    as a plain array plus a side table of names (see grassp.util.set_matrix). These
+  #    two are the only slashed classes grassp would otherwise ship, so normalise them
+  #    here and the bundled marker sets never need the escape hatch. Same " - " form as
+  #    "Nucleus - Chromatin" above.
+  name <- gsub("^Ribosome/Complexes$", "Ribosome - Complexes", name)
+  name <- gsub("^Secretory/Endocytic ([123])$", "Secretory - Endocytic \\1", name)
+
   return(name)
 }
 

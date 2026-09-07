@@ -227,13 +227,14 @@ conversion itself.
   from `.X` anyway, so `gr.pp.neighbors` rebuilds it in one call. Nothing warns about it,
   because a warning would fire on every real dataset.
 - **A class name containing `/` cannot be a DataFrame column,** because HDF5 reads it as a path
-  separator. Both sides handle it, differently, and both round-trip: going *out* of R the matrix
-  is written as a plain array with its class names in `.uns[f"{key}_categories"]`, and a message
-  says so; going *out* of Python, {func}`grassp.util.set_matrix` rewrites each `/` to `; ` and
-  warns. Either way nothing is silently lost. These names are common enough to plan for —
-  `pp.add_markers` ships `Ribosome/Complexes` (human, `marker_christopher`) and
-  `Secretory/Endocytic 1`–`3` (trypanosome, `marker_moloney`), and pRolocdata's `tan2009r1`
-  labels a class `ER/Golgi`.
+  separator. Both sides do the same thing about it: the matrix is stored as a plain array with
+  its class names in `.uns[f"{key}_categories"]`, and a message says so. Nothing is renamed —
+  a class name is the user's, and rewriting it would leave the stored annotation spelling a
+  compartment differently from the label column it was built from. Read such a matrix with
+  {func}`grassp.util.get_matrix`, which handles both shapes. These names are real:
+  pRolocdata's `hyperLOPIT2015` has an `"Endoplasmic reticulum/Golgi apparatus"` class and
+  `tan2009r1` an `"ER/Golgi"`. grassp's own bundled marker sets deliberately carry none, so
+  `pp.add_markers` never triggers this.
 - **pRoloc does not write every result back to the object.** Optimisation and MCMC side objects
   — `GenRegRes` from `svmOptimisation` and friends, `MAPParams` from `tagmMapTrain`,
   `bandleParams` — are *returned* rather than added to the `MSnSet`, so they never reach the

@@ -102,7 +102,7 @@ MARKER_COLORS = {
     # Ribosomal compartments (blue shades)
     "Ribosome": "#E7298A",
     "Translation": "#E7298A",
-    "Ribosome/Complexes": "#DB1D7E",
+    "Ribosome - Complexes": "#DB1D7E",
     "37S Ribosome": "#CF1172",
     "40S Ribosome": "#C30566",
     "54S Ribosome": "#B7005A",
@@ -120,9 +120,9 @@ MARKER_COLORS = {
     "Actin-binding protein": "#F4A6C1",
     "Tubulin Cytoskeleton": "#0F8E8E",
     # Endocytic/secretory system (mixed)
-    "Secretory/Endocytic 1": "#8DD3C7",
-    "Secretory/Endocytic 2": "#7DC3B7",
-    "Secretory/Endocytic 3": "#6DB3A7",
+    "Secretory - Endocytic 1": "#8DD3C7",
+    "Secretory - Endocytic 2": "#7DC3B7",
+    "Secretory - Endocytic 3": "#6DB3A7",
     "Endomembrane Vesicles": "#FFFFB3",
     "trans-Golgi network": "#2F2F2F",
     "trans-Golgi": "#2F2F2F",
