@@ -23,7 +23,7 @@ from anndata import AnnData, read_h5ad  # noqa: E402
 
 from grassp.preprocessing import simple  # noqa: E402
 from grassp.tools import localization, scoring, tagm  # noqa: E402
-from grassp.util import get_matrix, sanitize_class_labels, set_matrix  # noqa: E402
+from grassp.util import get_matrix, set_matrix, unwritable_labels  # noqa: E402
 
 
 def make_annotated_data(n_proteins=60, n_samples=6, n_compartments=4):
@@ -290,15 +290,17 @@ class TestConsumers:
             )
 
 
-class TestClassLabelSanitizing:
+class TestUnwritableClassNames:
     """A ``"/"`` in a class name cannot be an h5ad column name.
 
     anndata stores a labelled matrix as an HDF5 group with one dataset per column, so a
     ``"/"`` is read as a path separator and the column silently becomes a nested
     subgroup. Two shapes wrote a file that could not be read back at all, with no error
-    at write time -- and the names are real: grassp's own bundled marker sets carry
-    "Ribosome/Complexes" (marker_christopher) and "Secretory/Endocytic 1" through "3"
-    (marker_moloney), so annotating on either column reaches this path.
+    at write time. The names are real -- pRolocdata's ``hyperLOPIT2015`` has an
+    "Endoplasmic reticulum/Golgi apparatus" class -- so such a matrix is demoted to a
+    plain array plus ``uns[f"{key}_categories"]``, exactly as the R writer does, rather
+    than renamed: renaming would leave the annotation spelling a compartment differently
+    from the ``gt_col`` it was built from.
     """
 
     @staticmethod
@@ -315,55 +317,53 @@ class TestClassLabelSanitizing:
         data.write_h5ad(path)
         reloaded = read_h5ad(path)
         with h5py.File(path) as handle:
-            datasets = sorted(handle["obsm/probs"].keys())
-        return reloaded, values, datasets
+            node = handle["obsm/probs"]
+            layout = sorted(node.keys()) if hasattr(node, "keys") else "dataset"
+        return reloaded, values, layout
 
-    def test_plain_labels_are_untouched(self, tmp_path):
-        reloaded, values, datasets = self._write_read(["ER", "NUC"], tmp_path)
+    def test_plain_labels_stay_a_labelled_frame(self, tmp_path):
+        reloaded, values, layout = self._write_read(["ER", "NUC"], tmp_path)
         assert list(reloaded.obsm["probs"].columns) == ["ER", "NUC"]
         assert np.allclose(np.asarray(reloaded.obsm["probs"]), values)
-        assert datasets == ["ER", "NUC", "_index"]
+        assert layout == ["ER", "NUC", "_index"]
 
     @pytest.mark.parametrize(
-        "columns,expected",
+        "columns",
         [
-            # a class grassp itself ships, in hsap_markers.tsv's marker_christopher;
-            # it used to write a nested subgroup
-            (
-                ["ER", "Ribosome/Complexes", "NUC"],
-                ["ER", "Ribosome; Complexes", "NUC"],
-            ),
-            # the subgroup "A" collided with the dataset "A" -> KeyError on read
-            (["A/B", "A"], ["A; B", "A"]),
-            # a leading "/" is an absolute HDF5 path -> written at the file root, over X
-            (["/X", "Y"], ["; X", "Y"]),
+            # a real pRolocdata class name
+            ["ER", "Endoplasmic reticulum/Golgi apparatus", "NUC"],
+            # the subgroup "A" used to collide with the dataset "A" -> KeyError on read
+            ["A/B", "A"],
+            # a leading "/" used to be an absolute path -> written at the file root
+            ["/X", "Y"],
         ],
     )
-    def test_slashes_are_rewritten_and_the_file_stays_readable(
-        self, columns, expected, tmp_path
-    ):
-        reloaded, values, datasets = self._write_read(columns, tmp_path)
-        assert list(reloaded.obsm["probs"].columns) == expected
-        assert np.allclose(np.asarray(reloaded.obsm["probs"]), values)
-        # flat: one dataset per column, no nesting
-        assert datasets == sorted([*expected, "_index"])
+    def test_unwritable_names_are_demoted_not_renamed(self, columns, tmp_path):
+        reloaded, values, layout = self._write_read(columns, tmp_path)
+        stored = reloaded.obsm["probs"]
+        assert not isinstance(stored, pd.DataFrame)  # a plain array
+        assert layout == "dataset"  # flat, no nested group
+        assert np.allclose(np.asarray(stored), values)
+        # the names survive untouched, next door
+        assert [str(c) for c in reloaded.uns["probs_categories"]] == columns
+        # and get_matrix puts them back together
+        recovered, recovered_columns = get_matrix(reloaded, "probs")
+        assert recovered_columns == columns
+        assert np.allclose(recovered, values)
 
-    def test_a_warning_names_the_rewritten_labels(self):
+    def test_a_warning_names_the_demoted_labels(self):
         data = AnnData(np.zeros((4, 2)))
         data.obs_names = [f"P{i}" for i in range(4)]
         with pytest.warns(UserWarning, match="Ribosome/Complexes"):
             set_matrix(data, "probs", np.zeros((4, 2)), ["Ribosome/Complexes", "NUC"])
 
-    def test_a_collision_created_by_rewriting_is_rejected(self):
-        """Sanitizing runs before the duplicate check, so it cannot smuggle one in."""
+    def test_unwritable_labels_reports_only_the_offenders(self):
+        assert unwritable_labels(["A/B", "plain", "C/D"]) == ["A/B", "C/D"]
+        assert unwritable_labels(["plain", "also plain"]) == []
+
+    def test_a_nameless_array_still_reads_as_nameless(self):
+        """Bare matrices written before grassp labelled them carry no names at all."""
         data = AnnData(np.zeros((4, 2)))
         data.obs_names = [f"P{i}" for i in range(4)]
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            with pytest.raises(ValueError, match="Duplicate column labels"):
-                set_matrix(data, "probs", np.zeros((4, 2)), ["A; B", "A/B"])
-
-    def test_sanitizer_is_idempotent(self):
-        once = sanitize_class_labels(["A/B", "plain"])
-        assert once == ["A; B", "plain"]
-        assert sanitize_class_labels(once) == once
+        data.obsm["legacy"] = np.zeros((4, 3))
+        assert get_matrix(data, "legacy")[1] is None

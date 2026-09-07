@@ -216,7 +216,7 @@ class TestMatrixColumns:
 
     def test_a_slashed_class_name_falls_back_to_uns_categories(self, artifact):
         """HDF5 reads "/" as a path separator, so such a name cannot be a data-frame column,
-        and pRolocdata objects carry them -- ``tan2009r1`` labels a class ``"ER/Golgi"``.
+        and pRolocdata objects carry them -- ``hyperLOPIT2015`` has the class asserted below.
         The R writer therefore demotes the matrix to a plain array and moves the names to
         ``<key>_categories``. (Python takes the other route and rewrites the "/"; see
         ``grassp.util.sanitize_class_labels``.)

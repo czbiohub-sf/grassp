@@ -21,7 +21,7 @@
 ##   * `condition` does the same on the pData axis, which is the half that used to be skipped.
 ##   * `svm.all.scores` is a matrix-valued fData column whose colnames carry pRoloc's
 ##     `<class>.svm.scores` decoration; it becomes an obsm data frame that names itself.
-##   * `tagm.map.joint` has a class name containing "/", as pRolocdata's do, which cannot be an
+##   * `tagm.map.joint` has a class name containing "/", from pRolocdata's hyperLOPIT2015, which cannot be an
 ##     HDF5 dataset name -- so it falls back to a plain array plus uns$tagm.map.joint_categories.
 ##   * `X_umap` is a matrix column with no colnames, standing in for an embedding: it must come
 ##     back as a plain array, not a data frame of invented names.
@@ -107,8 +107,8 @@ svm_all <- row_stochastic(length(proteins), length(classes))
 dimnames(svm_all) <- list(proteins, paste0(classes, ".svm.scores"))
 fdata$`svm.all.scores` <- svm_all
 
-## One of TAGM's classes has a "/" in it, as pRolocdata's do (tan2009r1 labels a class
-## "ER/Golgi"). HDF5 reads that as a path, so this matrix cannot be written as a data frame.
+## One of TAGM's classes has a "/" in it, as pRolocdata's do -- this is hyperLOPIT2015's own
+## class name. HDF5 reads that as a path, so this matrix cannot be written as a data frame.
 tagm_classes <- c(classes[-2], "Endoplasmic reticulum/Golgi apparatus")
 tagm_joint <- row_stochastic(length(proteins), length(tagm_classes))
 dimnames(tagm_joint) <- list(proteins, tagm_classes)

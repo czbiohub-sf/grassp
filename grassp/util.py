@@ -23,7 +23,6 @@ ndarrays written by older versions.
 """
 
 from __future__ import annotations
-import re
 import warnings
 
 from collections.abc import Mapping
@@ -39,7 +38,8 @@ if TYPE_CHECKING:
 Axis = Literal["obs", "var"]
 
 #: Separator for a composite multi-compartment label, e.g. ``"ER; Golgi apparatus"``.
-#: Deliberately not ``"/"`` -- see :func:`sanitize_class_labels`.
+#: Deliberately not ``"/"``, which cannot be an h5ad column name -- see
+#: :func:`unwritable_labels`.
 MULTILOC_SEP = "; "
 
 #: The slots :func:`diff_anndata` walks, in the order :meth:`anndata.AnnData.__repr__` prints them.
@@ -222,8 +222,8 @@ def diff_anndata(a: AnnData, b: AnnData, *, check_dtypes: bool = True) -> pd.Dat
     return pd.DataFrame(rows, columns=["change", "slot", "key", "detail"])
 
 
-def sanitize_class_labels(labels: Sequence[Any]) -> list[str]:
-    """Coerce class labels to strings that can survive an h5ad round trip.
+def unwritable_labels(labels: Sequence[str]) -> list[str]:
+    """The labels in ``labels`` that cannot be h5ad column names.
 
     anndata stores a labelled ``.obsm``/``.varm`` matrix as an HDF5 group with one
     dataset per column, so a ``"/"`` in a class name is read as a path separator and the
@@ -235,31 +235,18 @@ def sanitize_class_labels(labels: Sequence[Any]) -> list[str]:
         ["/X", "Y"]   ->  a leading "/" is an absolute path, so the column is written at
                           the file root, on top of X
 
-    These names are not hypothetical, and they are not only other people's. grassp's own
-    bundled marker sets use them for compartments that were not resolved apart:
-    ``pp.add_markers(species="hsap")`` writes ``marker_christopher`` with a
-    ``"Ribosome/Complexes"`` class, and ``species="tryp"`` writes ``marker_moloney`` with
-    ``"Secretory/Endocytic 1"`` through ``"3"``. Annotating on either column therefore
-    hits this path. pRolocdata objects do too -- ``tan2009r1`` labels a class ``"ER/Golgi"``
-    -- as do the composite multi-compartment labels the resolvers emit, which is why they
-    now join with :data:`MULTILOC_SEP` in the first place.
+    Real marker sets carry such names. pRolocdata's ``hyperLOPIT2015`` has an
+    ``"Endoplasmic reticulum/Golgi apparatus"`` class and ``tan2009r1`` an ``"ER/Golgi"``,
+    and grassp's own bundled sets used to as well.
 
-    Each ``"/"`` (with any surrounding whitespace) becomes :data:`MULTILOC_SEP`, which
-    reads the same and stores cleanly.
+    :func:`set_matrix` does not rewrite them, because a class name is the user's, not
+    ours: renaming it would leave the stored annotation spelling a compartment one way
+    while the ``gt_col`` it came from spells it another, and every comparison between the
+    two would silently fail. It demotes the matrix instead -- see :func:`set_matrix`.
+    Labels grassp *composes* are a different matter and do avoid ``"/"``: the resolvers
+    join multi-compartment labels with :data:`MULTILOC_SEP`.
     """
-    cleaned = [re.sub(r"\s*/\s*", MULTILOC_SEP, str(label)) for label in labels]
-    changed = [
-        (str(before), after) for before, after in zip(labels, cleaned) if str(before) != after
-    ]
-    if changed:
-        shown = ", ".join(f"{before!r} -> {after!r}" for before, after in changed[:4])
-        more = f" (and {len(changed) - 4} more)" if len(changed) > 4 else ""
-        warnings.warn(
-            f'Class labels containing "/" cannot be stored as h5ad column names and '
-            f"were rewritten: {shown}{more}.",
-            stacklevel=3,
-        )
-    return cleaned
+    return [label for label in labels if "/" in label]
 
 
 def set_matrix(
@@ -283,9 +270,11 @@ def set_matrix(
         accepted and taken positionally -- its own index and columns are discarded, because
         the caller has already aligned it.
     columns
-        One label per column, in column order. Coerced to :class:`str` and passed through
-        :func:`sanitize_class_labels`: on the way to h5ad these become HDF5 dataset
-        names, so a ``"/"`` is rewritten and a warning names the affected labels.
+        One label per column, in column order, coerced to :class:`str`. On the way to
+        h5ad these become HDF5 dataset names, so a label containing ``"/"`` cannot be
+        one; such a matrix is stored as a plain array with its names in
+        ``uns[f"{key}_categories"]`` and a warning says so. Nothing is renamed --
+        see :func:`unwritable_labels`.
     axis
         ``"obs"`` writes ``.obsm``, ``"var"`` writes ``.varm``.
 
@@ -297,18 +286,31 @@ def set_matrix(
         collision surfaces as a failed ``write_h5ad`` a long way from the call that caused
         it. Failing here names the key and the offending labels instead.
     """
-    # sanitize before the duplicate check: rewriting "/" can itself create a collision
-    labels = sanitize_class_labels(columns)
+    labels = [str(c) for c in columns]
     duplicates = sorted({name for name in labels if labels.count(name) > 1})
     if duplicates:
         raise ValueError(
             f"Duplicate column labels for {axis}m[{key!r}]: {duplicates}. "
             "Column labels must be unique."
         )
-    index = data.obs_names if axis == "obs" else data.var_names
-    frame = pd.DataFrame(np.asarray(values), index=index, columns=labels)
     mapping = data.obsm if axis == "obs" else data.varm
-    mapping[key] = frame
+    unwritable = unwritable_labels(labels)
+    if unwritable:
+        # Store as a bare array and put the names beside it, which is what the R writer
+        # does for the same reason (grasspio's .demote_unwritable). Rewriting the label
+        # instead would desynchronise the stored annotation from the label column it was
+        # built from. get_matrix reads this shape back transparently.
+        warnings.warn(
+            f'{axis}m[{key!r}] has class names containing "/", which cannot be h5ad '
+            f"column names: {sorted(unwritable)[:4]}. Storing it as a plain array with "
+            f'its names in uns[{key + "_categories"!r}] instead.',
+            stacklevel=3,
+        )
+        mapping[key] = np.asarray(values)
+        data.uns[f"{key}_categories"] = labels
+        return
+    index = data.obs_names if axis == "obs" else data.var_names
+    mapping[key] = pd.DataFrame(np.asarray(values), index=index, columns=labels)
 
 
 def get_matrix(
@@ -316,8 +318,9 @@ def get_matrix(
 ) -> tuple[np.ndarray, list[str] | None]:
     """Read a labelled matrix back as ``(values, columns)``.
 
-    Accepts both what :func:`set_matrix` writes and the bare ndarrays written by older
-    versions of grassp, so objects saved before the switch keep working.
+    Accepts what :func:`set_matrix` writes in either shape -- a labelled DataFrame, or a
+    plain array plus ``uns[f"{key}_categories"]`` for class names HDF5 cannot take -- and
+    the bare, nameless ndarrays written by older versions of grassp.
 
     Parameters
     ----------
@@ -335,11 +338,16 @@ def get_matrix(
         ``DataFrame.sum(axis=1)`` returns a Series and ``keepdims`` is unsupported, which
         silently changes the meaning of arithmetic written against arrays.
     columns
-        Column labels, or ``None`` when the stored entry is a bare ndarray and therefore
-        carries none.
+        Column labels, or ``None`` when the stored entry carries none.
     """
     mapping = data.obsm if axis == "obs" else data.varm
     stored = mapping[key]
     if isinstance(stored, pd.DataFrame):
         return stored.to_numpy(), [str(c) for c in stored.columns]
-    return np.asarray(stored), None
+    values = np.asarray(stored)
+    # A demoted matrix keeps its names next door, keyed on the matrix key. This is also
+    # the convention grasspio writes, so an R-written artifact reads back the same way.
+    declared = data.uns.get(f"{key}_categories")
+    if declared is not None and len(declared) == values.shape[1]:
+        return values, [str(c) for c in declared]
+    return values, None

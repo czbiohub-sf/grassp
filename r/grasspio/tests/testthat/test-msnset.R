@@ -273,8 +273,8 @@ test_that("matrix fData columns survive the round trip", {
 test_that("class names containing '/' fall back to a plain array plus uns categories", {
   skip_without_rhdf5()
   # HDF5 reads "/" as a path separator and rhdf5 will not create the intermediate group, so such
-  # a name cannot be a data-frame column. pRoloc produces them: hyperLOPIT's marker classes
-  # include "Endoplasmic reticulum/Golgi apparatus".
+  # a name cannot be a data-frame column. Real marker sets use them: pRolocdata's hyperLOPIT2015
+  # has a class "Endoplasmic reticulum/Golgi apparatus", which is the name used below.
   x <- make_msnset()
   fd <- Biobase::fData(x)
   classes <- c("Endoplasmic reticulum/Golgi apparatus", "Cytosol")
