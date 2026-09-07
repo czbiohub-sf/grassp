@@ -61,12 +61,30 @@ class TestToolsNamespace:
 
     def test_no_public_callable_is_unreachable(self):
         """The failure mode this refactor started from: prune_markers and
-        annotation_confusion_matrix were defined, fully documented and in no namespace."""
+        annotation_confusion_matrix were defined, fully documented and in no namespace.
+
+        Every submodule is walked, found from the package directory rather than by
+        ``getattr(tools, name)``. That matters: ``grassp/tools/mgsa.py`` defines a
+        function ``mgsa`` and ``__init__`` re-exports it, which rebinds the
+        ``grassp.tools.mgsa`` *attribute* from the module to the function -- so an
+        attribute-based walk cannot see inside those two files at all, and would have
+        skipped them silently. ``importlib`` reads ``sys.modules``, which the shadowing
+        does not touch.
+        """
+        import importlib
+        from pathlib import Path
+
         from grassp import tools
 
+        package = Path(tools.__file__).parent
+        module_names = sorted(
+            p.stem for p in package.glob("*.py") if not p.stem.startswith("_")
+        )
+        assert len(module_names) >= 10, f"expected the full tools package, got {module_names}"
+
         unreachable = []
-        for module_name in ("localization", "diffusion", "scoring", "tagm", "clustering"):
-            module = getattr(tools, module_name)
+        for module_name in module_names:
+            module = importlib.import_module(f"grassp.tools.{module_name}")
             for name, obj in vars(module).items():
                 if name.startswith("_") or not callable(obj):
                     continue
