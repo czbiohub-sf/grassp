@@ -19,7 +19,7 @@ from matplotlib import patheffects
 from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm, to_rgba
 from matplotlib.lines import Line2D
 from matplotlib.patheffects import withStroke
-from scipy.spatial import ConvexHull, KDTree
+from scipy.spatial import ConvexHull, KDTree  # pylint: disable=no-name-in-module
 
 # Module-level constants for numerical stability and algorithmic parameters
 _NUMERICAL_EPSILON = 1e-12  # Small value to prevent division by zero
