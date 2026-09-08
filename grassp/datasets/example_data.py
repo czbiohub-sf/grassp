@@ -14,6 +14,54 @@ from scanpy._settings import settings
 
 from .. import io
 
+#: Base URL of the grassp data portal.
+PORTAL_BASE = "https://public.czbiohub.org/proteinxlocation"
+
+
+def load_dataset(
+    name: str,
+    enrichment: Literal["enriched", "raw"] = "enriched",
+    **kwargs,
+) -> AnnData:
+    """Download a curated dataset from the grassp data portal by name.
+
+    Datasets are hosted at ``https://public.czbiohub.org/proteinxlocation``: the
+    processed/enriched objects live under ``datasets/`` and the pre-enrichment ``raw``
+    objects (raw fractionation profiles, with replicates preserved where available) under
+    ``datasets_raw/``.
+
+    Parameters
+    ----------
+    name
+        Dataset identifier, without the ``_raw`` suffix or ``.h5ad`` extension, e.g.
+        ``"Haas_2025_HumanizedLiver_Chow"``.
+    enrichment
+        ``"enriched"`` (default) downloads the processed object from ``datasets/``;
+        ``"raw"`` downloads the raw object from ``datasets_raw/``.
+    **kwargs
+        Forwarded to :func:`scanpy.read`.
+
+    Returns
+    -------
+    AnnData
+        The requested dataset.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> adata = gr.ds.load_dataset("Haas_2025_HumanizedLiver_Chow")               # enriched
+    >>> raw = gr.ds.load_dataset("Haas_2025_HumanizedLiver_Chow", enrichment="raw")  # replicates
+    """
+    if enrichment == "enriched":
+        bucket, suffix = "datasets", ""
+    elif enrichment == "raw":
+        bucket, suffix = "datasets_raw", "_raw"
+    else:
+        raise ValueError("Enrichment argument must be either 'enriched' or 'raw'")
+    filename = settings.datasetdir / f"{name}{suffix}.h5ad"
+    url = f"{PORTAL_BASE}/{bucket}/{name}.h5ad"
+    return scanpy.read(filename, backup_url=url, **kwargs)
+
 
 def hein_2024(
     enrichment: Literal["raw", "enriched"] = "raw",

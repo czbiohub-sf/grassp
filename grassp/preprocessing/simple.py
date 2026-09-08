@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 
 from anndata import AnnData
 
+from ..util import layer_names, set_matrix
+
 
 def filter_samples(
     data: AnnData | spmatrix | np.ndarray | DaskArray,
@@ -186,7 +188,7 @@ def filter_min_consecutive_fractions(
     """
 
     if replicate_column is None:
-        consecutive_fractions = longest_consecutive_run_per_row(data.X)
+        consecutive_fractions = _longest_consecutive_run_per_row(data.X)
         filtered_subset = consecutive_fractions >= min_consecutive
         if inplace:
             data.obs["consecutive_fractions"] = consecutive_fractions
@@ -277,7 +279,7 @@ def filter_proteins_per_replicate(
     data._inplace_subset_obs(data.obs.index[gene_subset])
 
 
-def longest_consecutive_run_per_row(a1: np.ndarray) -> np.ndarray:
+def _longest_consecutive_run_per_row(a1: np.ndarray) -> np.ndarray:
     """
     Calculates the length of the longest consecutive run of non-zero values in each row of a 2D array.
 
@@ -360,7 +362,7 @@ def aggregate_proteins(
     # obs_list = []
     obs = pd.DataFrame(index=groups.groups.keys(), columns=data.obs.columns)
     obs["n_merged_proteins"] = 1
-    layers_dict = {layer: X.copy() for layer in data.layers.keys()}
+    layers_dict = {layer: X.copy() for layer in layer_names(data)}
 
     individual_indices, obs_indices = [], []
     for i, (_, ind) in enumerate(groups.indices.items()):
@@ -382,15 +384,15 @@ def aggregate_proteins(
             X[i, :] = X_sub
             # obs_list.append(obs_sub)
             # Aggregate layers
-            for layer_name, layer_data in data.layers.items():
-                layer_sub = layer_data[ind, :]
+            for layer_name in layers_dict:
+                layer_sub = data.layers[layer_name][ind, :]
                 layer_sub = agg_func(layer_sub, axis=0)
                 layers_dict[layer_name][i, :] = layer_sub
 
     obs.iloc[individual_indices, :-1] = data.obs.iloc[obs_indices].copy()
     X[individual_indices] = data.X[obs_indices]
-    for layer_name, layer_data in data.layers.items():
-        layers_dict[layer_name][individual_indices] = layer_data[obs_indices]
+    for layer_name in layers_dict:
+        layers_dict[layer_name][individual_indices] = data.layers[layer_name][obs_indices]
 
     # obs = pd.concat(obs_list, axis=0)
     # X = np.vstack(X_list)
@@ -459,7 +461,7 @@ def aggregate_samples(
     groups = data.var.groupby(grouping_columns, observed=True)
     X_list = []
     var_list = []
-    layers_dict = {layer: [] for layer in data.layers.keys()}
+    layers_dict = {layer: [] for layer in layer_names(data)}
     # Determine obs columns to keep
     # g = groups.get_group((list(groups.groups)[0],))
     g0 = next(iter(groups))[1]
@@ -478,8 +480,8 @@ def aggregate_samples(
         var_list.append(var_sub)
 
         # Aggregate layers
-        for layer_name, layer_data in data.layers.items():
-            layer_sub = layer_data[:, ind]
+        for layer_name in layers_dict:
+            layer_sub = data.layers[layer_name][:, ind]
             layer_sub = agg_func(layer_sub, axis=1)
             layers_dict[layer_name].append(layer_sub)
 
@@ -874,7 +876,7 @@ def calculate_replicate_cv(
 
     if inplace:
         data.obs["mean_replicate_cv"] = cvs_df.mean(axis=1).values
-        data.obsm["replicate_cv"] = cvs_df.values
+        set_matrix(data, "replicate_cv", cvs_df.values, cvs_df.columns)
         data.uns["obsm_replicate_cv_headers"] = cvs_df.columns.tolist()
         return None
     else:

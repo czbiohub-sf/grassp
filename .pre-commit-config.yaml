@@ -1,4 +1,7 @@
-exclude: ^(docs/(?!source/tutorials/notebooks)|notebooks|ignore|/tests/artifacts)/
+# Each branch carries its own trailing slash: with a single `/` after the group the
+# `docs/` branch could only ever match the literal path `docs//`, so nothing under
+# docs/ (nor tests/artifacts/) was actually excluded.
+exclude: ^(docs/(?!source/tutorials/notebooks)|notebooks/|ignore/|tests/artifacts/)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
@@ -46,3 +49,6 @@ repos:
     hooks:
       - id: nbstripout
         files: ^docs/source/tutorials/notebooks/.*\.ipynb$
+        # The C-COMPASS tutorial is excluded from build-time execution in
+        # docs/source/conf.py, so it has to ship with its outputs intact.
+        exclude: ^docs/source/tutorials/notebooks/ccompass_tutorial\.ipynb$

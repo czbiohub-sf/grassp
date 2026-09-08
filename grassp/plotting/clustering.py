@@ -10,13 +10,18 @@ from scanpy.plotting._tools.scatterplots import _components_to_dimensions
 from scanpy.tl import Ingest
 from scipy.stats import multivariate_normal
 
+from ..tools.tagm import tagm_model
+from ..util import get_matrix
 
-def sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
+
+def _sample_tagm_map(
+    adata: AnnData, size: int = 100, key_added: str = "tagm_map"
+) -> list[np.ndarray]:
     """Return synthetic samples from the TAGM posterior distribution.
 
     This helper draws *size* samples for each TAGM component using the
     multivariate normal parameters stored in
-    ``adata.uns["tagm.map.params"]["posteriors"]``.
+    ``adata.uns[f"{key_added}_model"]["posteriors"]``.
 
     Parameters
     ----------
@@ -24,7 +29,7 @@ def sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
         Annotated data matrix produced by :func`grassp.tl.tagm_map_train`.
         The function expects that posterior means (``mu``) and covariances
         (``sigma``) are stored under
-        ``adata.uns["tagm.map.params"]["posteriors"]``.
+        ``adata.uns[f"{key_added}_model"]["posteriors"]``.
     size
         Number of samples to draw *per component* (cluster).
 
@@ -36,7 +41,7 @@ def sample_tagm_map(adata: AnnData, size: int = 100) -> list[np.ndarray]:
     or enriched samples).
     """
 
-    params = adata.uns["tagm.map.params"]
+    params = tagm_model(adata, key_added)
     mu = params["posteriors"]["mu"]
     sigma = params["posteriors"]["sigma"]
     mv = [multivariate_normal.rvs(mu[i], sigma[i], size=size) for i in range(mu.shape[0])]
@@ -50,13 +55,14 @@ def tagm_map_contours(
     components: str | Sequence[str] | None = None,
     dimensions: tuple[int, int] | Sequence[tuple[int, int]] | None = None,
     levels: int = 4,
+    key_added: str = "tagm_map",
     ax: plt.Axes | None = None,
     **kwargs,
 ) -> plt.Axes:
     """Plot posterior density contours of TAGM components in embedding space.
 
     The function draws synthetic observations from the TAGM posterior via
-    :func:`sample_tagm_map` and projects them into either UMAP or PCA space
+    :func:`_sample_tagm_map` and projects them into either UMAP or PCA space
     (depending on ``embedding``).  A kernel–density estimate is then computed
     for each component and visualized as contour lines.
 
@@ -64,7 +70,7 @@ def tagm_map_contours(
     ----------
     adata
         Annotated data matrix that already contains TAGM posterior parameters
-        in ``adata.uns["tagm.map.params"]`` **and** an embedding (UMAP or PCA)
+        in ``adata.uns[f"{key_added}_model"]`` **and** an embedding (UMAP or PCA)
         fitted by :func:`~scanpy.tl.umap` or :func:`scanpy.pp.pca`.
     embedding
         Target space for the contours, either ``"umap"`` or ``"pca"``.
@@ -99,7 +105,7 @@ def tagm_map_contours(
         )
     else:
         dimensions = dimensions[0]
-    lmv = sample_tagm_map(adata, size=size)
+    lmv = _sample_tagm_map(adata, size=size, key_added=key_added)
     mv = np.concatenate(lmv, axis=0)  # concatenate for efficency
     ing = Ingest(adata)
     if embedding == "umap":
@@ -122,13 +128,12 @@ def tagm_map_contours(
     else:
         raise ValueError(f"Invalid embedding: {embedding}")
     idx = 0
-    # Check if adata.uns has color key
-    if "tagm.map.allocation_colors" not in adata.uns:
-        adata.uns["tagm.map.allocation_colors"] = sns.color_palette(
-            "husl", adata.obs[adata.uns["tagm.map.params"]["gt_col"]].nunique()
+    if f"{key_added}_colors" not in adata.uns:
+        adata.uns[f"{key_added}_colors"] = sns.color_palette(
+            "husl", adata.obs[tagm_model(adata, key_added)["gt_col"]].nunique()
         )
 
-    for v, c in zip(lmv, adata.uns["tagm.map.allocation_colors"]):
+    for v, c in zip(lmv, adata.uns[f"{key_added}_colors"]):
         x = emb[idx : idx + v.shape[0], dimensions[0]]
         y = emb[idx : idx + v.shape[0], dimensions[1]]
         sns.kdeplot(x=x, y=y, levels=levels, ax=ax, color=c, **kwargs)
@@ -186,6 +191,7 @@ def tagm_map_pca_ellipses(
     stds: List[int] = [1, 2, 3],
     dimensions: tuple[int, int] | None = None,
     components: str | Sequence[str] | None = None,
+    key_added: str = "tagm_map",
     ax: plt.Axes | None = None,
     scatter_kwargs: dict | None = {},
     **kwargs,
@@ -201,7 +207,7 @@ def tagm_map_pca_ellipses(
     adata
         Annotated data matrix that contains
         ``adata.varm["PCs"]`` (loadings) and TAGM posterior parameters under
-        ``adata.uns["tagm.map.params"]``.
+        ``adata.uns[f"{key_added}_model"]``.
     stds
         Radii of the ellipses in standard deviations.  Typical choices are
         ``[1, 2, 3]`` which correspond to the 68 %, 95 % and 99.7 %
@@ -236,7 +242,7 @@ def tagm_map_pca_ellipses(
 
     if "PCs" not in adata.varm:
         raise ValueError("PCA must be computed before plotting the TAGM map PCA ellipses.")
-    if "tagm.map.params" not in adata.uns:
+    if f"{key_added}_model" not in adata.uns and "tagm.map.params" not in adata.uns:
         raise ValueError(
             "TAGM map must be computed before plotting the TAGM map PCA ellipses."
         )
@@ -244,13 +250,14 @@ def tagm_map_pca_ellipses(
         ax = plt.gca()
 
     pcs = adata.varm["PCs"][:, dimensions]
-    mu_pca = (adata.uns["tagm.map.params"]["posteriors"]["mu"] - adata.X.mean(axis=0)) @ pcs
+    tagm = tagm_model(adata, key_added)
+    mu_pca = (tagm["posteriors"]["mu"] - adata.X.mean(axis=0)) @ pcs
 
-    temp = np.matmul(adata.uns["tagm.map.params"]["posteriors"]["sigma"], pcs)
+    temp = np.matmul(tagm["posteriors"]["sigma"], pcs)
     Sigma_pca = np.matmul(pcs.T[None, :, :], temp)
 
     for i in range(Sigma_pca.shape[0]):
-        color = adata.uns["tagm.map.allocation_colors"][i]
+        color = adata.uns[f"{key_added}_colors"][i]
 
         ax.scatter(
             mu_pca[i][0],
@@ -274,19 +281,37 @@ def tagm_map_pca_ellipses(
     return ax
 
 
-def knn_marker_df(data: AnnData, gt_col: str, pred_col: str) -> pd.DataFrame:
+def annotation_marker_df(data: AnnData, gt_col: str, pred_col: str) -> pd.DataFrame:
+    """Per-marker probability of that marker's own compartment.
+
+    One row per annotated protein, with the ground-truth label and the probability
+    the annotator gave to *that* label -- the data behind
+    :func:`annotation_violin`. Works for any annotator, since the ground-truth
+    one-hot is aligned to the probability matrix by column name.
+    """
     labels = data.obs[gt_col].astype("category")
-    labels_one_hot = pd.get_dummies(labels).values
-    probabilities = data.obsm[f"{pred_col}_probabilities"]
+    # Align the ground-truth one-hot to the probability matrix by *column name* rather
+    # than by position. get_dummies emits one column per declared gt_col category, but a
+    # predictor may store only the classes it can predict (svm_annotation) or order them
+    # differently (tagm), so the elementwise product silently paired each protein's
+    # probability with the wrong compartment -- or raised on the width mismatch.
+    probabilities, categories = get_matrix(data, f"{pred_col}_probabilities")
+    if categories is None:
+        categories = data.obs[pred_col].astype("category").cat.categories
+    labels_one_hot = (
+        pd.get_dummies(labels)
+        .reindex(columns=pd.Index(categories), fill_value=False)
+        .to_numpy(dtype=float)
+    )
     true_prob = np.sum(probabilities * labels_one_hot, axis=1)
     marker_df = pd.DataFrame({"gt_col": labels, "pred_prob": true_prob}).dropna()
     return marker_df
 
 
-def knn_violin(
+def annotation_violin(
     data: AnnData, gt_col: str, pred_col: str, ax: plt.Axes | None = None, **kwargs
 ) -> plt.Axes:
-    """Violin plot of KNN annotation.
+    """Violin plot of annotation confidence, grouped by ground-truth compartment.
 
     Parameters
     ----------
@@ -295,11 +320,11 @@ def knn_violin(
     gt_col
         Observation column with ground-truth labels.
     pred_col
-        Observation column with predicted labels.
+        Annotation prefix, as for :func:`annotation_marker_df`.
     """
     if ax is None:
         ax = plt.gca()
-    plot_df = knn_marker_df(data, gt_col, pred_col)
+    plot_df = annotation_marker_df(data, gt_col, pred_col)
     sns.violinplot(
         data=plot_df,
         x="gt_col",

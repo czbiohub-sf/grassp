@@ -66,7 +66,8 @@ Many of [Scanpy's plotting](https://scanpy.readthedocs.io/en/stable/api/plotting
    pl.qsep_boxplot
    pl.tagm_map_contours
    pl.tagm_map_pca_ellipses
-   pl.knn_violin
+   pl.annotation_violin
+   pl.annotation_marker_df
 ```
 
 ## Ternary

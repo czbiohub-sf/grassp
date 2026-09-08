@@ -17,7 +17,7 @@ name =  "grassp"
 description = "A python package to facilitate Organellar profiling"
 readme = "README.md"
 license = {text = "BSD 3-Clause License"}
-requires-python = ">=3.7, <4.0"
+requires-python = ">=3.11, <4.0"
 
 # the dynamically determined project metadata attributes
 dynamic = ["version"]
@@ -26,9 +26,10 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 # list package dependencies here
@@ -38,6 +39,7 @@ dependencies = [
     "markov_clustering",
     "matplotlib",
     "networkx",
+    "numba",
     "numpy",
     "pandas",
     "protdata",
@@ -49,7 +51,6 @@ dependencies = [
     "seaborn",
     "umap-learn",
 #    "alphastats",
-#    "gseapy",
 ]
 
 
@@ -63,11 +64,30 @@ dev = [
     "pylint~=3.0",
     "pytest~=8.0",
     "xlrd",
+    "gseapy",
 ]
 notebook = [
     "jupyter",
     "matplotlib",
     "jupytext",
+]
+# C-COMPASS integration (gr.tl.ccompass). Pulls in tensorflow/keras via ccompass.
+# tensorboard is required by keras-tuner but missing from ccompass's metadata.
+#
+# This is the one extra that does not reach the Python versions the rest of grassp supports:
+# tensorflow publishes no cp314 wheels, so `grassp[ccompass]` needs Python <= 3.13. Everything
+# else, including the docs and test extras, resolves on 3.14.
+ccompass = [
+    "ccompass",
+    "tensorboard",
+]
+# pRoloc / pRolocdata interoperability. `rdata` is a pure-Python R-data parser, needed only
+# by gr.io.read_prolocdata to read .rda/.rds files; the h5ad round trip needs nothing at all,
+# since it is anndata's own read_h5ad/write_h5ad in both directions.
+# The R half is a separate package in this repo:
+#   remotes::install_github("czbiohub-sf/grassp", subdir = "r/grasspio")
+proloc = [
+    "rdata",
 ]
 build = [
     "twine",
@@ -80,6 +100,17 @@ docs = [
     "sphinx-book-theme",
     "myst_parser",
     "myst-nb",
+    # The R tutorial is an .Rmd page source; jupytext converts it for myst-nb to execute.
+    # Executing it additionally needs the conda environment in r-environment.yml, with IRkernel
+    # registered as the `ir` kernelspec -- run `make setup-r`. See docs/source/conf.py.
+    "jupytext",
+    # Needed to *execute* the tutorials, not merely to render them: OrgIP_tutorial calls
+    # gr.tl.calculate_cluster_enrichment (gseapy), and the ternary plots need mpltern. Without
+    # them those pages fail to a myst-nb warning and ship with a traceback embedded.
+    "gseapy",
+    "mpltern",
+    # The pRoloc tutorial reads a pRolocdata .rda with gr.io.read_prolocdata, which needs this.
+    "rdata",
 ]
 
 [project.scripts]
@@ -93,14 +124,23 @@ repository = "https://github.com/czbiohub/some-package"
 
 
 [tool.setuptools]
-# Use find_namespace_packages to discover all packages
-packages = ["grassp"]
-
 # allow use of __file__ to load data files included in the package
 zip-safe = false
 
 # Don't include LICENSE as a license-file in the metadata
 license-files = []
+
+# Discover subpackages instead of listing only the top level. The previous
+# `packages = ["grassp"]` was a flat list, so which subpackage modules ended up in a wheel
+# depended on a stale egg-info/SOURCES.txt rather than on the config -- newly added modules
+# were silently omitted, making `import grassp.io` fail from a released wheel.
+[tool.setuptools.packages.find]
+include = ["grassp*"]
+
+[tool.setuptools.package-data]
+"grassp.datasets" = ["external/*"]
+# `fixtures/`, not `data/`: .gitignore has a bare `data/` rule that matches at any depth.
+"grassp.tests" = ["fixtures/*"]
 
 
 [tool.black]
@@ -116,7 +156,7 @@ exclude = '''
     | \.hg
     | \.mypy_cache
     | \.tox
-    | \.venv
+    | \.venv[^/]*
     | _build
     | build
     | dist
@@ -142,13 +182,12 @@ ensure_newline_before_comments = true
 # E0401: unable-to-import (since it is possible that no one environment has all required packages)
 # E1136: unsubscriptable-object (anecdotal false positives for numpy objects)
 disable = ["C", "R", "W", "unsubscriptable-object", "import-error"]
+# numpy's C extensions are opaque to static inference, which makes pylint report
+# e.g. numpy.random.RandomState as a missing member. Letting it import numpy
+# resolves those without suppressing no-member everywhere.
+extension-pkg-allow-list = ["numpy"]
 msg-template = "{line},{column},{category},{symbol}:{msg}"
 reports = "n"
-# scipy re-exports names (e.g. ConvexHull) from compiled C extensions via
-# `from ._qhull import *`. pylint parses source statically and can't see into
-# .so files, so it flags those names as no-name-in-module. Allow-listing scipy
-# lets pylint import the extensions and introspect them for real.
-extension-pkg-allow-list = ["scipy"]
 
 
 [tool.pytest.ini_options]

@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        # 3.11 is the floor (see requires-python); 3.14 is the newest the `dev` extra resolves
+        # on. The `ccompass` extra does not reach 3.14 -- tensorflow publishes no cp314 wheels --
+        # but CI does not install it.
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2

@@ -24,4 +24,33 @@
 /* Optional: Adjust the navigation elements if needed */
 .bd-sidebar .nav {
     padding-right: 1rem;
-} 
+}
+
+/* Content column ~15% wider.
+ *
+ * The middle panel gets whatever the page has left over after both sidebars: sphinx-book-theme
+ * sizes .bd-article-container as calc(100% - var(--pst-sidebar-secondary)) inside .bd-main, which
+ * flex-grows within a page that pydata-sphinx-theme caps at 88rem. With the 400px primary sidebar
+ * set above and the stock 17rem secondary sidebar, that leaves 1408 - 400 - 272 = 736px of content.
+ * Raising the page cap by 110px (6.875rem) leaves the same subtraction 846px -- 15% more -- without
+ * having to narrow either sidebar. Only takes full effect on displays wider than the new cap.
+ */
+@media (min-width: 960px) {
+    .bd-page-width {
+        max-width: 94.875rem;
+    }
+}
+/* Notebook output images in dark mode.
+ *
+ * pydata-sphinx-theme paints a light backdrop behind every image in a cell output when the dark
+ * theme is active, because a plot with a transparent background would otherwise draw black axes
+ * and labels onto a near-black page. Keep that, but make the backdrop plain white rather than
+ * --pst-color-text-base (a light blue-grey): R plots really are transparent -- `repr` hardcodes
+ * `canvas = "transparent"` when Cairo is installed, whatever `repr.plot.bg` says, so ~80% of an
+ * R figure shows the backdrop through -- and that grey clashes with the grey panel pRoloc's
+ * plot2D draws inside it. On white, an R plot in dark mode looks exactly as it does in light
+ * mode. matplotlib output is opaque white already and is unaffected either way.
+ */
+html[data-theme="dark"] .bd-content div.cell_output img {
+    background-color: #fff;
+}

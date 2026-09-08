@@ -3,21 +3,6 @@ from pathlib import Path
 import pandas as pd
 
 
-def subcellular_annotations() -> pd.DataFrame:
-    """Load the subcellular annotations.
-
-    Returns
-    -------
-    pd.DataFrame
-        The subcellular annotations.
-    """
-    return pd.read_csv(
-        Path(__file__).parent / "external/subcellular_annotations.tsv",
-        sep="\t",
-        index_col=0,
-    )
-
-
 def _read_gmt(path: Path) -> pd.DataFrame:
     """Read a gmt file.
 
