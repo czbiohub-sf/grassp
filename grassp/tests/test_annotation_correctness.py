@@ -500,6 +500,7 @@ class TestClusterEnrichmentWrites:
     def test_not_inplace_returns_an_annotated_copy(self):
         """The writes sat inside `if inplace:`, so inplace=False returned an object with
         none of the documented columns."""
+        pytest.importorskip("gseapy")
         data = self._data()
         out = gr.tl.calculate_cluster_enrichment(
             data,
@@ -519,6 +520,7 @@ class TestClusterEnrichmentWrites:
 
     def test_accepts_a_view(self):
         """`obs_df = data.obs` went stale the moment anndata materialised the view."""
+        pytest.importorskip("gseapy")
         data = self._data()
         gr.tl.calculate_cluster_enrichment(
             data[data.obs_names[:40]],
