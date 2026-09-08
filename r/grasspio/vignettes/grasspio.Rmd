@@ -206,7 +206,9 @@ main argument against rolling your own CSV:
   pRoloc writes into `fData()` do. Save those separately with `saveRDS()` if you need them;
   re-running MCMC to recover one is expensive.
 - A class name containing `/` cannot be a data-frame column: HDF5 reads it as a path separator,
-  and rhdf5 will not create the intermediate group. pRoloc does produce such names —
-  hyperLOPIT's classes include `"Endoplasmic reticulum/Golgi apparatus"` — so those matrices are
-  written as plain arrays with their names in `uns[["<key>_categories"]]` instead, and a message
-  says so. Nothing is renamed either way, and the names come back on the way in.
+  and rhdf5 will not create the intermediate group. Real marker sets do use such names —
+  pRolocdata's `hyperLOPIT2015` has a class `"Endoplasmic reticulum/Golgi apparatus"` and
+  `tan2009r1` has `"ER/Golgi"` — so those matrices are written as plain arrays with their names
+  in `uns[["<key>_categories"]]` instead, and a message says so. Nothing is renamed either way,
+  and the names come back on the way in. (Python takes the other route for the same problem:
+  `grassp.util.set_matrix` rewrites each `/` to `; `, so an h5ad grassp wrote never carries one.)

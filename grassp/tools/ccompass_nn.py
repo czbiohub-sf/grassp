@@ -99,7 +99,7 @@ def ccompass_default_params(as_dict: bool = False, path: str | None = None):
 
         gr.tl.ccompass_default_params()  # every field + default
         gr.tl.ccompass_default_params(path="params.yaml")  # editable template
-        gr.tl.ccompass(adata, marker_key="marker", nn_params="params.yaml")
+        gr.tl.ccompass(adata, gt_col="marker", nn_params="params.yaml")
 
     These are C-COMPASS's :class:`~ccompass.core.NeuralNetworkParametersModel` defaults
     with grassp's one override, ``NN_optimization="short"`` (the C-COMPASS-paper setting;
@@ -178,7 +178,7 @@ def _build_subcon_frames(
 
 def ccompass(
     data: AnnData,
-    marker_key: str = "markers",
+    gt_col: str,
     *,
     condition_key: str | None = None,
     replicate_key: str | None = None,
@@ -206,7 +206,7 @@ def ccompass(
     data
         :class:`~anndata.AnnData` with proteins in ``.obs`` and fractions in
         ``.var``. ``.X`` (or ``layers[layer]``) holds the fractionation profiles.
-    marker_key
+    gt_col
         ``.obs`` column with known compartment labels (e.g. added by
         :func:`grassp.pp.add_markers`). ``NaN`` entries are treated as unlabeled
         proteins to be predicted.
@@ -262,7 +262,6 @@ def ccompass(
 
     - ``.obsm[f"{key_added}{suffix}_contributions"]`` -- proteins x compartments
       class-contribution matrix (rows sum to ~1).
-    - ``.uns[f"{key_added}{suffix}_categories"]`` -- ordered compartment names.
     - ``.obs[f"{key_added}{suffix}"]`` -- winning compartment (argmax, ``NN_winner``).
     - When ``aggregate``: ``.obsm[f"{key_added}{suffix}_fcontributions"]`` and
       ``.obs[f"{key_added}{suffix}_fwinner"]`` -- reliability-filtered outputs.
@@ -296,9 +295,9 @@ def ccompass(
     # ------------------------------------------------------------------
     # 3. Attach marker classes and split marker / test / full profiles.
     # ------------------------------------------------------------------
-    if marker_key not in data.obs:
-        raise KeyError(f"marker_key '{marker_key}' not found in data.obs.")
-    marker_series = data.obs[marker_key].astype("object")
+    if gt_col not in data.obs:
+        raise KeyError(f"gt_col '{gt_col}' not found in data.obs.")
+    marker_series = data.obs[gt_col].astype("object")
 
     fract_marker: dict[str, pd.DataFrame] = {}
     fract_test: dict[str, pd.DataFrame] = {}
@@ -309,7 +308,7 @@ def ccompass(
         fract_test[subcon] = frame[frame[_CLASS_COL].isna()]
         if fract_marker[subcon].empty:
             raise ValueError(
-                f"No markers found for '{subcon}'. Check that '{marker_key}' "
+                f"No markers found for '{subcon}'. Check that '{gt_col}' "
                 "has labels overlapping the fractionation data."
             )
     fract_full = core.create_fullprofiles(fract_marker, fract_test)
@@ -376,7 +375,6 @@ def ccompass(
 
             _write_contributions(data, key, metrics, classnames, "CC_", "_contributions")
             _write_contributions(data, key, metrics, classnames, "fCC_", "_fcontributions")
-            data.uns[f"{key}_categories"] = classnames
             _write_labels(data, key, metrics["NN_winner"])
             _write_labels(data, f"{key}_fwinner", metrics["fNN_winner"])
             label_columns += [key, f"{key}_fwinner"]
@@ -392,7 +390,6 @@ def ccompass(
                 cc.reindex(data.obs_names).to_numpy(dtype=float),
                 classnames,
             )
-            data.uns[f"{key}_categories"] = classnames
             winner = pd.Series(
                 np.array(classnames)[cc.to_numpy().argmax(axis=1)],
                 index=cc.index,
@@ -420,8 +417,7 @@ def _write_contributions(
 
     The stored columns are the bare ``classnames``, not the ``{prefix}{class}`` names the
     block is selected by: the prefix only disambiguates the two blocks within ``metrics``,
-    and the obsm key already does that. Dropping it keeps the column names in step with
-    ``uns[f"{key}_categories"]``.
+    and the obsm key already does that.
     """
     cols = [f"{prefix}{name}" for name in classnames]
     block = metrics.reindex(columns=cols).reindex(data.obs_names)

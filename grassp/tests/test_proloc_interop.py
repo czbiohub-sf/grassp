@@ -215,9 +215,11 @@ class TestMatrixColumns:
         assert artifact.obsm["X_umap"].shape == (12, 2)
 
     def test_a_slashed_class_name_falls_back_to_uns_categories(self, artifact):
-        """HDF5 reads "/" as a path separator, so such a name cannot be a data-frame column --
-        and pRoloc produces them: hyperLOPIT's classes include "Endoplasmic reticulum/Golgi
-        apparatus". The names move to grassp's own ``<key>_categories`` convention instead.
+        """HDF5 reads "/" as a path separator, so such a name cannot be a data-frame column,
+        and pRolocdata objects carry them -- ``hyperLOPIT2015`` has the class asserted below.
+        The R writer therefore demotes the matrix to a plain array and moves the names to
+        ``<key>_categories``. (Python takes the other route and rewrites the "/"; see
+        ``grassp.util.sanitize_class_labels``.)
         """
         assert isinstance(artifact.obsm["tagm.map.joint"], np.ndarray)
         categories = list(artifact.uns["tagm.map.joint_categories"])

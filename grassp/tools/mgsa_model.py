@@ -1089,7 +1089,7 @@ def calculate_mgsa(
     gene_name_key: str = "Gene_name_canonical",
     gene_sets: str | Mapping[str, Sequence[str]] | None = None,
     species: Literal["hsap", "mmus", "scer"] = "hsap",
-    obs_key_added: str = "Cell_compartment_mgsa",
+    key_added: str = "Cell_compartment_mgsa",
     method: str = "auto",
     max_active: int = 4,
     alpha_prior: Optional[callable] = None,
@@ -1102,7 +1102,7 @@ def calculate_mgsa(
     posterior_uns_key: Optional[str] = None,
     return_result: bool = True,
     inplace: bool = True,
-    verbose: bool = True,
+    verbose: bool = False,
     **mgsa_kwargs,
 ) -> Optional[pd.DataFrame]:
     """Model-based gene-set analysis (MGSA) per cluster.
@@ -1128,7 +1128,7 @@ def calculate_mgsa(
         consolidated UniProt compartment sets for ``species``.
     species
         Species code for the bundled gene sets when ``gene_sets is None``.
-    obs_key_added
+    key_added
         Column to write the top active compartment per cluster to (``NaN`` if the
         top posterior is below ``min_posterior``).
     method, max_active
@@ -1149,7 +1149,7 @@ def calculate_mgsa(
         ``method="mcmc"`` (ignored for the exact path).
     posterior_uns_key
         ``uns`` key for the full (cluster x compartment) posterior activity matrix.
-        Defaults to ``f"{obs_key_added}_posterior"``.
+        Defaults to ``f"{key_added}_posterior"``.
     return_result
         If ``True`` return the posterior DataFrame.
     inplace
@@ -1164,9 +1164,9 @@ def calculate_mgsa(
     Optional[pandas.DataFrame]
         The (cluster x compartment) posterior activity matrix if
         ``return_result`` else ``None``. When ``inplace`` the top-compartment
-        labels are written to ``data.obs[obs_key_added]``, the marginal posterior
+        labels are written to ``data.obs[key_added]``, the marginal posterior
         matrix to ``data.uns[posterior_uns_key]``, and the per-cluster MAP
-        active-set indicator (0/1) to ``data.uns[f"{obs_key_added}_map"]``. The MAP
+        active-set indicator (0/1) to ``data.uns[f"{key_added}_map"]``. The MAP
         matrix is the recommended input to
         :func:`mgsa_to_cluster_distribution` (``use_map=True``).
     """
@@ -1224,10 +1224,10 @@ def calculate_mgsa(
 
     if inplace:
         obs_df = data.obs
-        obs_df[obs_key_added] = groups[cluster_key].transform(lambda x: top_terms[x.name])
-        data.uns[posterior_uns_key or f"{obs_key_added}_posterior"] = posterior
-        data.uns[f"{obs_key_added}_map"] = map_matrix
-        data.uns[f"{obs_key_added}_evidence"] = evidence
+        obs_df[key_added] = groups[cluster_key].transform(lambda x: top_terms[x.name])
+        data.uns[posterior_uns_key or f"{key_added}_posterior"] = posterior
+        data.uns[f"{key_added}_map"] = map_matrix
+        data.uns[f"{key_added}_evidence"] = evidence
 
     if return_result:
         return posterior
@@ -1301,7 +1301,7 @@ def mgsa_to_cluster_distribution(
     if use_map:
         if map_matrix is None:
             raise ValueError(
-                "use_map=True requires map_matrix (data.uns[f'{obs_key_added}_map'] "
+                "use_map=True requires map_matrix (data.uns[f'{key_added}_map'] "
                 "from calculate_mgsa)."
             )
         mask = map_matrix.reindex(index=q.index, columns=q.columns).fillna(0).astype(float) > 0

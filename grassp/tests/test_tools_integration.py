@@ -412,13 +412,15 @@ class TestClusteringFunctions:
         """Test SVM training with default parameters."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        localization.svm_train(adata, gt_col="markers", cv_repeats=2)  # Faster for testing
+        localization.svm_tune_hyperparameters(
+            adata, gt_col="markers", cv_repeats=2
+        )  # Faster for testing
 
         # Check params stored
-        assert "svm.params" in adata.uns
-        assert "best_params" in adata.uns["svm.params"]
-        assert "C" in adata.uns["svm.params"]["best_params"]
-        assert "gamma" in adata.uns["svm.params"]["best_params"]
+        assert "svm_params" in adata.uns
+        assert "best_params" in adata.uns["svm_params"]
+        assert "C" in adata.uns["svm_params"]["best_params"]
+        assert "gamma" in adata.uns["svm_params"]["best_params"]
 
     def test_svm_train_custom_ranges(self):
         """Test SVM training with custom parameter ranges."""
@@ -427,7 +429,7 @@ class TestClusteringFunctions:
         C_range = np.array([0.1, 1.0, 10.0])
         gamma_range = np.array([0.01, 0.1])
 
-        localization.svm_train(
+        localization.svm_tune_hyperparameters(
             adata,
             gt_col="markers",
             C_range=C_range,
@@ -435,14 +437,14 @@ class TestClusteringFunctions:
             cv_repeats=1,
         )
 
-        assert adata.uns["svm.params"]["search_space"]["C_range"] == C_range.tolist()
+        assert adata.uns["svm_params"]["search_space"]["C_range"] == C_range.tolist()
 
     def test_svm_annotation_basic(self):
         """Test SVM annotation after training."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
         # Train then annotate
-        localization.svm_train(adata, gt_col="markers", cv_repeats=1)
+        localization.svm_tune_hyperparameters(adata, gt_col="markers", cv_repeats=1)
         localization.svm_annotation(adata, gt_col="markers")
 
         # Check outputs
@@ -475,7 +477,7 @@ class TestClusteringFunctions:
         """Test with manually specified hyperparameters."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        # Should work without svm_train()
+        # Should work without svm_tune_hyperparameters()
         localization.svm_annotation(adata, gt_col="markers", C=1.0, gamma=0.1)
 
         assert "svm_annotation" in adata.obs.columns
@@ -527,16 +529,16 @@ class TestClusteringFunctions:
         """Test TAGM training basic functionality."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=20, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=20, random_state=42)
 
         # Check that parameters were stored
-        assert "tagm.map.params" in adata.uns
-        params = adata.uns["tagm.map.params"]
+        assert "tagm_map_model" in adata.uns
+        params = adata.uns["tagm_map_model"]
 
         # Validate structure
         assert "method" in params
         assert "gt_col" in params
-        assert "seed" in params
+        assert "random_state" in params
         assert "priors" in params
         assert "posteriors" in params
 
@@ -566,9 +568,9 @@ class TestClusteringFunctions:
         """Test TAGM convergence behavior."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=100, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=100, random_state=42)
 
-        logposterior = adata.uns["tagm.map.params"]["posteriors"]["logposterior"]
+        logposterior = adata.uns["tagm_map_model"]["posteriors"]["logposterior"]
 
         # Check that log posterior generally increases or plateaus
         # (allowing for some small fluctuations)
@@ -594,10 +596,10 @@ class TestClusteringFunctions:
             mu0=custom_mu0,
             S0=custom_S0,
             lambda0=custom_lambda0,
-            seed=42,
+            random_state=42,
         )
 
-        priors = adata.uns["tagm.map.params"]["priors"]
+        priors = adata.uns["tagm_map_model"]["priors"]
         assert np.allclose(priors["mu0"], custom_mu0)
         assert np.allclose(priors["S0"], custom_S0)
         assert priors["lambda0"] == custom_lambda0
@@ -607,14 +609,14 @@ class TestClusteringFunctions:
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
         params = tagm.tagm_map_train(
-            adata, gt_col="markers", numIter=20, seed=42, inplace=False
+            adata, gt_col="markers", numIter=20, random_state=42, inplace=False
         )
 
         # Should return dict
         assert isinstance(params, dict)
         assert "posteriors" in params
         # Should NOT modify adata
-        assert "tagm.map.params" not in adata.uns
+        assert "tagm_map_model" not in adata.uns
 
     def test_tagm_map_train_no_markers_error(self):
         """Test TAGM behavior with no markers."""
@@ -623,37 +625,37 @@ class TestClusteringFunctions:
         # Should handle gracefully - there are no markers so this should fail
         # or produce empty results
         with pytest.raises((ValueError, IndexError)):
-            tagm.tagm_map_train(adata, gt_col="markers", numIter=20, seed=42)
+            tagm.tagm_map_train(adata, gt_col="markers", numIter=20, random_state=42)
 
     def test_tagm_map_predict_basic_pipeline(self):
         """Test TAGM prediction after training."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
         # Train then predict
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, random_state=42)
         tagm.tagm_map_predict(adata)
 
         # Check prediction outputs
-        assert "tagm.map.allocation" in adata.obs
-        assert "tagm.map.probability" in adata.obs
-        assert "tagm.map.outlier" in adata.obs
-        assert "tagm.map.probabilities" in adata.obsm
+        assert "tagm_map" in adata.obs
+        assert "tagm_map_probability" in adata.obs
+        assert "tagm_map_outlier" in adata.obs
+        assert "tagm_map_probabilities" in adata.obsm
 
         # Check types and ranges
         # pandas < 3 infers "object" for label columns, pandas >= 3 infers "str"
-        allocation_dtype = adata.obs["tagm.map.allocation"].dtype
+        allocation_dtype = adata.obs["tagm_map"].dtype
         assert isinstance(
             allocation_dtype, pd.CategoricalDtype
         ) or pd.api.types.is_string_dtype(allocation_dtype)
-        assert (adata.obs["tagm.map.probability"] >= 0).all()
-        assert (adata.obs["tagm.map.probability"] <= 1).all()
-        assert (adata.obs["tagm.map.outlier"] >= 0).all()
-        assert (adata.obs["tagm.map.outlier"] <= 1).all()
+        assert (adata.obs["tagm_map_probability"] >= 0).all()
+        assert (adata.obs["tagm_map_probability"] <= 1).all()
+        assert (adata.obs["tagm_map_outlier"] >= 0).all()
+        assert (adata.obs["tagm_map_outlier"] <= 1).all()
 
         # Check probability matrix shape
         marker_cats = adata.obs["markers"].cat.categories
         K = len(marker_cats)
-        assert adata.obsm["tagm.map.probabilities"].shape == (adata.n_obs, K)
+        assert adata.obsm["tagm_map_probabilities"].shape == (adata.n_obs, K)
 
     def test_tagm_map_predict_external_params(self):
         """Test TAGM prediction with external parameters."""
@@ -662,35 +664,35 @@ class TestClusteringFunctions:
 
         # Train on dataset1
         params = tagm.tagm_map_train(
-            dataset1, gt_col="markers", numIter=30, seed=42, inplace=False
+            dataset1, gt_col="markers", numIter=30, random_state=42, inplace=False
         )
 
         # Predict on dataset2 using external params
         tagm.tagm_map_predict(dataset2, params=params)
 
         # Should have predictions
-        assert "tagm.map.allocation" in dataset2.obs
-        assert "tagm.map.probability" in dataset2.obs
+        assert "tagm_map" in dataset2.obs
+        assert "tagm_map_probability" in dataset2.obs
 
     def test_tagm_map_predict_prob_joint(self):
         """Test TAGM prediction with joint probability."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, random_state=42)
 
         # Note: probJoint feature may have issues with certain data structures
         # For now, test that predict works without probJoint
         tagm.tagm_map_predict(adata, probJoint=False, probOutlier=True)
 
         # Should have standard outputs
-        assert "tagm.map.allocation" in adata.obs
-        assert "tagm.map.outlier" in adata.obs
+        assert "tagm_map" in adata.obs
+        assert "tagm_map_outlier" in adata.obs
 
     def test_tagm_map_predict_inplace_false(self):
         """Test TAGM prediction with inplace=False."""
         adata = make_enriched_data_with_structure(n_proteins=100, marker_fraction=0.3)
 
-        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, seed=42)
+        tagm.tagm_map_train(adata, gt_col="markers", numIter=30, random_state=42)
         df = tagm.tagm_map_predict(adata, inplace=False)
 
         # Should return DataFrame
@@ -699,7 +701,7 @@ class TestClusteringFunctions:
         assert "prob" in df.columns
         assert "outlier" in df.columns
         # Should NOT modify adata
-        assert "tagm.map.allocation" not in adata.obs
+        assert "tagm_map" not in adata.obs
 
 
 # ==============================================================================
@@ -791,19 +793,22 @@ class TestScoringFunctions:
         assert "distances" in adata.uns["cluster_distances"]
         assert "clusters" in adata.uns["cluster_distances"]
 
-    def test_knn_f1_score_basic(self):
-        """Test KNN F1 score."""
+    def test_annotation_f1_score_basic(self):
+        """F1 of an annotation against its ground truth."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
-        f1 = scoring.knn_f1_score(adata, gt_col="markers", pred_col=None, average="macro")
+        f1 = scoring.annotation_f1_score(
+            adata, gt_col="markers", pred_col="competitive_diffusion", average="macro"
+        )
 
         assert isinstance(f1, (float, np.floating))
         # F1 score should be between 0 and 1
         assert 0 <= f1 <= 1
 
-    def test_knn_f1_score_with_prediction(self):
+    def test_annotation_f1_score_with_prediction(self):
         """Test F1 score with existing predictions."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
@@ -814,7 +819,7 @@ class TestScoringFunctions:
             adata, gt_col="markers", key_added="predictions", min_probability=0
         )
 
-        f1 = scoring.knn_f1_score(
+        f1 = scoring.annotation_f1_score(
             adata,
             gt_col="markers",
             pred_col="predictions",
@@ -824,15 +829,15 @@ class TestScoringFunctions:
         assert isinstance(f1, (float, np.floating))
         assert 0 <= f1 <= 1
 
-    def test_knn_confusion_matrix_hard(self):
+    def test_annotation_confusion_matrix_hard(self):
         """Test hard confusion matrix."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
-        # Use auto mode (pred_col=None) to compute on the fly
-        cm = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=False, plot=False
+        cm = scoring.annotation_confusion_matrix(
+            adata, gt_col="markers", pred_col="competitive_diffusion", soft=False, plot=False
         )
 
         # Check structure
@@ -843,15 +848,15 @@ class TestScoringFunctions:
         row_sums = cm.sum(axis=1)
         assert np.allclose(row_sums, 1.0, atol=0.01)
 
-    def test_knn_confusion_matrix_soft(self):
+    def test_annotation_confusion_matrix_soft(self):
         """Test soft (probabilistic) confusion matrix."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
-        # Use auto mode (pred_col=None)
-        cm = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=True, plot=False
+        cm = scoring.annotation_confusion_matrix(
+            adata, gt_col="markers", pred_col="competitive_diffusion", soft=True, plot=False
         )
 
         # Check structure
@@ -862,44 +867,52 @@ class TestScoringFunctions:
         row_sums = cm.sum(axis=1)
         assert np.allclose(row_sums, 1.0, atol=0.01)
 
-    def test_knn_confusion_matrix_with_clustering(self):
+    def test_annotation_confusion_matrix_with_clustering(self):
         """Test confusion matrix with hierarchical clustering reordering."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
         # Use auto mode
-        cm = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=False, cluster=True, plot=False
+        cm = scoring.annotation_confusion_matrix(
+            adata,
+            gt_col="markers",
+            pred_col="competitive_diffusion",
+            soft=False,
+            cluster=True,
+            plot=False,
         )
 
         # Should still return valid matrix
         assert isinstance(cm, np.ndarray)
         assert cm.ndim == 2
 
-    def test_knn_confusion_matrix_plot(self):
+    def test_annotation_confusion_matrix_plot(self):
         """Test confusion matrix plotting."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
         # Should not raise errors when plotting
-        result = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=False, plot=True
+        result = scoring.annotation_confusion_matrix(
+            adata, gt_col="markers", pred_col="competitive_diffusion", soft=False, plot=True
         )
 
         # When plot=True, returns None
         assert result is None
 
-    def test_knn_confusion_matrix_auto_knn(self):
+    def test_annotation_confusion_matrix_auto_knn(self):
         """Test confusion matrix with automatic KNN annotation."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.4, add_neighbors=True
         )
+        localization.competitive_diffusion(adata, gt_col="markers", verbose=False)
 
         # Don't pre-compute predictions, let function do it
-        cm = scoring.knn_confusion_matrix(
-            adata, gt_col="markers", pred_col=None, soft=False, plot=False
+        cm = scoring.annotation_confusion_matrix(
+            adata, gt_col="markers", pred_col="competitive_diffusion", soft=False, plot=False
         )
 
         # Should still work
@@ -1417,7 +1430,9 @@ class TestCompleteWorkflows:
         assert "ch_score" in adata.uns
 
         # Step 4: F1 score
-        f1 = scoring.knn_f1_score(adata, gt_col="markers", pred_col="competitive_diffusion")
+        f1 = scoring.annotation_f1_score(
+            adata, gt_col="markers", pred_col="competitive_diffusion"
+        )
         assert 0 <= f1 <= 1
 
     def test_integration_workflow(self):

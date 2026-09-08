@@ -46,7 +46,9 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import KFold
 
-from ..util import set_matrix
+from ..util import MULTILOC_SEP, get_matrix
+from ._annotation import assign_compartment_colors, require_kind, write_annotation
+from ._graph import make_diffuser, neff_hutchinson, symmetric_normalized
 
 
 # --------------------------------------------------------------------------- #
@@ -59,39 +61,6 @@ def _resolve_gene_sets(gene_sets, species: str) -> dict[str, list[str]]:
     from .enrichment import _load_gmt
 
     return _load_gmt(gene_sets, species=species)
-
-
-def _symmetric_normalized(W) -> sp.csr_matrix:
-    """Symmetric-normalized affinity ``S = D^{-1/2} W D^{-1/2}`` (Zhou et al. 2003).
-
-    Shared graph operator with :func:`~grassp.tools.competitive_diffusion`; the two
-    methods differ only in what happens *after* diffusion (competitive row-normalizes to
-    a simplex, independent does not).
-    """
-    d = np.asarray(W.sum(axis=1)).ravel()
-    dis = np.zeros_like(d, dtype=float)
-    nz = d > 0
-    dis[nz] = 1.0 / np.sqrt(d[nz])
-    Dis = sp.diags(dis)
-    return (Dis @ W @ Dis).tocsr()
-
-
-def _make_diffuser(S, n):
-    """Return a ``diffuse(Y, alpha)`` closure computing the label-spreading fixed point."""
-
-    def diffuse(Y, alpha, max_iter=60, tol=1e-4):
-        Y = np.asarray(Y, dtype=float)
-        F = Y.copy()
-        width = Y.shape[1] if Y.ndim > 1 else 1
-        for _ in range(max_iter):
-            Fn = alpha * (S @ F) + (1 - alpha) * Y
-            if np.abs(Fn - F).sum() < tol * width:
-                F = Fn
-                break
-            F = Fn
-        return F
-
-    return diffuse
 
 
 def _containment(cats, gene_sets) -> np.ndarray:
@@ -125,11 +94,11 @@ def _calibrate(
     kappa,
     n_probe,
     cv_splits,
-    seed,
+    random_state,
 ):
     """Map honest scores ``OOF`` to calibrated per-term probabilities. See module docstring."""
     Pcal = np.zeros((n, len(terms)))
-    kf = KFold(n_splits=cv_splits, shuffle=True, random_state=seed)
+    kf = KFold(n_splits=cv_splits, shuffle=True, random_state=random_state)
 
     def _per_term():
         P = np.zeros((n, len(terms)))
@@ -146,14 +115,11 @@ def _calibrate(
         # per-alpha effective neighbourhood size n_eff_i (Kish, excluding self) via
         # Hutchinson estimates of diag(M_a) and diag(M_a^2); M_a symmetric so
         # mean_g (M_a g)_i^2 -> sum_j M_ij^2 and mean_g g_i (M_a g)_i -> M_ii.
-        rng = np.random.RandomState(seed)
-        neff_by_a = {}
-        for a in sorted(set(astar.values())):
-            G = rng.choice([-1.0, 1.0], size=(n, n_probe))
-            Mg = diffuse(G, a)
-            off_sum = np.maximum(denom_by_a[a] - (G * Mg).mean(axis=1), 1e-9)
-            off_sq = np.maximum((Mg**2).mean(axis=1) - (G * Mg).mean(axis=1) ** 2, 1e-12)
-            neff_by_a[a] = off_sum**2 / off_sq
+        rng = np.random.RandomState(random_state)
+        neff_by_a = {
+            a: neff_hutchinson(diffuse, a, denom_by_a[a], n_probe=n_probe, rng=rng)
+            for a in sorted(set(astar.values()))
+        }
         Z = np.zeros((n, len(terms)))
         for j, t in enumerate(terms):
             if not valid[j]:
@@ -244,7 +210,7 @@ def _calibrate(
 # resolution
 # --------------------------------------------------------------------------- #
 def _resolve(
-    P, cats, gene_sets, sizes, mode, min_probability, eta, tau, maxk, cap, min_term_size
+    P, cats, gene_sets, sizes, mode, term_threshold, eta, tau, maxk, cap, min_term_size
 ):
     """Turn the per-term probability matrix into a per-protein call. Returns a label array.
 
@@ -267,7 +233,7 @@ def _resolve(
     if mode == "specific":
         out = np.empty(n, dtype=object)
         for i in range(n):
-            cand = np.where((P[i] >= min_probability) & eligible)[0]
+            cand = np.where((P[i] >= term_threshold) & eligible)[0]
             out[i] = cats[cand[np.argmin(sizes[cand])]] if len(cand) else None
         return out
     if mode == "likelihood":
@@ -316,7 +282,7 @@ def resolve_diffusion(
     key_added: str = "ann_diffusion",
     mode: Literal["likelihood", "specific", "argmax"] = "likelihood",
     min_term_size: int = 0,
-    min_probability: float = 0.5,
+    term_threshold: float = 0.5,
     eta: float = 1.0,
     tau: float = 0.4,
     maxk: int = 3,
@@ -324,29 +290,38 @@ def resolve_diffusion(
     gene_key: str = "gene_symbol",
     species: str = "hsap",
     out_key: str | None = None,
-) -> None:
+    inplace: bool = True,
+) -> AnnData | None:
     """(Re)resolve stored diffusion probabilities into a per-protein label, in place.
 
-    Reads ``obsm[{key_added}_probabilities]`` / ``uns[{key_added}_categories]`` (written by
-    :func:`independent_diffusion`) and writes ``obs[out_key]`` (default
-    ``f"{key_added}_resolved"`` for likelihood/argmax, ``f"{key_added}_resolved_specific"``
-    for specific). ``mode`` and ``min_term_size`` are as in :func:`independent_diffusion`.
+    Reads ``obsm[{key_added}_probabilities]`` (written by
+    :func:`independent_diffusion`) and writes ``obs[out_key]``, which defaults to
+    ``key_added`` for likelihood/argmax -- overwriting the primary call, since that is
+    what re-resolving means -- and to ``f"{key_added}_specific"`` for specific, so an
+    alternative resolution sits beside the default rather than replacing it. ``mode`` and ``min_term_size`` are as in :func:`independent_diffusion`.
     Lets you obtain several resolutions (e.g. likelihood *and* specific) or sweep
-    ``min_term_size`` without re-diffusing.
+    ``min_term_size`` without re-diffusing. With ``inplace=False`` the labels are written
+    to a copy, which is returned.
     """
+    require_kind(data, key_added, "per_term")
+    if not inplace:
+        data = data.copy()
     gmt = _resolve_gene_sets(gene_sets, species)
-    cats = list(data.uns[f"{key_added}_categories"])
-    P = np.asarray(data.obsm[f"{key_added}_probabilities"], dtype=float)
+    # The term names are columns of the stored matrix. The uns entry is only a fallback
+    # for matrices that carry no column names: those written before grassp labelled them,
+    # and those the R bridge demotes when a class name contains "/".
+    P, columns = get_matrix(data, f"{key_added}_probabilities")
+    P = np.asarray(P, dtype=float)
+    cats = list(columns) if columns is not None else list(data.uns[f"{key_added}_categories"])
     pop = set(data.obs[gene_key].astype(str))
     sizes = _map_sizes(cats, gmt, pop)
     labels = _resolve(
-        P, cats, gmt, sizes, mode, min_probability, eta, tau, maxk, cap, min_term_size
+        P, cats, gmt, sizes, mode, term_threshold, eta, tau, maxk, cap, min_term_size
     )
     if out_key is None:
-        out_key = (
-            f"{key_added}_resolved_specific" if mode == "specific" else f"{key_added}_resolved"
-        )
+        out_key = f"{key_added}_specific" if mode == "specific" else key_added
     data.obs[out_key] = pd.Categorical(labels)
+    return None if inplace else data
 
 
 # --------------------------------------------------------------------------- #
@@ -362,7 +337,7 @@ def independent_diffusion(
     calibration: Literal["size_aware", "shrunk", "pooled", "per_term", "none"] = "size_aware",
     kappa: float = 30.0,
     resolve: Literal["likelihood", "specific", "argmax"] | None = "likelihood",
-    min_probability: float = 0.5,
+    term_threshold: float = 0.5,
     min_term_size: int = 0,
     eta: float = 1.0,
     tau: float = 0.4,
@@ -370,9 +345,9 @@ def independent_diffusion(
     cap: int = 12,
     cv_splits: int = 5,
     n_probe: int = 96,
-    seed: int = 0,
+    random_state: int = 0,
     key_added: str = "ann_diffusion",
-    copy: bool = False,
+    inplace: bool = True,
     verbose: bool = False,
 ) -> AnnData | None:
     """Annotate a map with overlapping / hierarchical labels by one-vs-rest diffusion.
@@ -405,12 +380,17 @@ def independent_diffusion(
     kappa
         Support-weight prior for ``"size_aware"``/``"shrunk"`` blending (``w = m/(m+kappa)``).
     resolve
-        How to turn the probability vector into ``obs[{key_added}_resolved]``:
+        How to turn the probability vector into ``obs[{key_added}]``:
         ``"likelihood"`` (default; containment-link active set), ``"specific"``
-        (most-specific term with ``P >= min_probability``), ``"argmax"``, or ``None`` to
+        (most-specific term with ``P >= term_threshold``), ``"argmax"``, or ``None`` to
         skip and only write probabilities.
-    min_probability
-        Threshold for the ``"specific"`` resolver and for the compact multi-label set.
+    term_threshold
+        Per-term membership threshold: a term is a candidate for a protein when its
+        calibrated membership is at least this. Used by the ``"specific"`` resolver and
+        for the compact multi-label set. Deliberately *not* called
+        ``min_probability`` -- that name means "abstain below this confidence" everywhere
+        else in grassp, which is a different question from "does this protein belong to
+        this term".
     min_term_size
         Granularity floor: a protein may only be labelled with a term that has at least this
         many members present in the map. Because the vocabulary is hierarchical, an
@@ -420,25 +400,27 @@ def independent_diffusion(
     eta, tau, maxk, cap
         Likelihood-resolver parameters: term penalty, candidate floor, max active-set
         size, and candidate cap.
-    cv_splits, n_probe, seed
+    cv_splits, n_probe, random_state
         Cross-fit folds, Hutchinson probes for ``n_eff``, and RNG seed.
     key_added
         Prefix for the outputs (default ``"ann_diffusion"``).
-    copy
-        If ``True`` operate on and return a copy; otherwise annotate in place and return
-        ``None``.
+    inplace
+        If ``True`` (default) annotate ``data`` and return ``None``; otherwise operate on
+        and return a copy. Named to match every other annotator -- this was the one that
+        spelled it ``copy``, inverted.
     verbose
         Print progress.
 
     Returns
     -------
-    Writes ``obsm[{key_added}_probabilities]`` (per-term calibrated membership, non-simplex),
-    ``uns[{key_added}_categories]``, ``uns[{key_added}_alpha]`` (per-term ``a*``),
-    ``obs[{key_added}_maxp]`` (top-call confidence), and — when ``resolve`` is set —
-    ``obs[{key_added}_resolved]`` and ``obs[{key_added}_resolved_label_compact]``.
-    Returns the AnnData if ``copy=True``, else ``None``.
+    Writes ``obsm[{key_added}_probabilities]`` (per-term calibrated membership, non-simplex,
+    with the term names as its columns), ``uns[{key_added}_alpha]`` (per-term ``a*``),
+    ``obs[{key_added}_probability]`` (top membership), ``uns[{key_added}_params]``
+    (provenance, including ``kind="per_term"``), and — when ``resolve`` is set —
+    ``obs[{key_added}]`` (the resolved call) and ``obs[{key_added}_label_compact]``.
+    Returns the AnnData if ``inplace=False``, else ``None``.
     """
-    adata = data.copy() if copy else data
+    adata = data if inplace else data.copy()
     if alphas is None:
         alphas = np.linspace(0.1, 0.9, 19)
     if obsp_key not in adata.obsp:
@@ -460,8 +442,8 @@ def independent_diffusion(
         Y0[np.isin(gsym, list(seeds[t])), j] = 1.0
     Y01 = (Y0 > 0).astype(int)
 
-    S = _symmetric_normalized(adata.obsp[obsp_key])
-    diffuse = _make_diffuser(S, n)
+    S = symmetric_normalized(adata.obsp[obsp_key])
+    diffuse = make_diffuser(S)
     ones = np.ones(n)
     denom_by_a = {a: diffuse(ones, a) for a in alphas}
 
@@ -504,16 +486,35 @@ def independent_diffusion(
         kappa,
         n_probe,
         cv_splits,
-        seed,
+        random_state,
     )
 
-    set_matrix(adata, f"{key_added}_probabilities", Pcal, terms)
-    adata.uns[f"{key_added}_categories"] = terms
+    # derive_labels=False: an argmax over per-term memberships is not a call, because
+    # the terms did not compete for one unit of mass. The resolver below decides, and
+    # writes obs[key_added] itself.
+    write_annotation(
+        adata,
+        key_added,
+        Pcal,
+        terms,
+        kind="per_term",
+        method="one-vs-rest-diffusion",
+        derive_labels=False,
+        gt_col=gene_key,
+        extra_params={
+            "term_threshold": term_threshold,
+            "calibration": calibration,
+            "resolve": resolve,
+            "min_term_size": int(min_term_size),
+            "obsp_key": obsp_key,
+            "kappa": float(kappa),
+            "random_state": int(random_state),
+        },
+    )
     adata.uns[f"{key_added}_alpha"] = np.array(
         [astar.get(t, np.nan) for t in terms], dtype=float
     )
-    maxp = Pcal.max(axis=1)
-    adata.obs[f"{key_added}_maxp"] = maxp.astype(np.float32)
+    maxp = np.asarray(adata.obs[f"{key_added}_probability"], dtype=float)
 
     sizes = Y01.sum(axis=0)  # per-term members present in the map
     if resolve is not None:
@@ -523,26 +524,27 @@ def independent_diffusion(
             seeds,
             sizes,
             resolve,
-            min_probability,
+            term_threshold,
             eta,
             tau,
             maxk,
             cap,
             min_term_size,
         )
-        adata.obs[f"{key_added}_resolved"] = pd.Categorical(labels)
+        # the contract slot: the call goes where every other annotator puts it, so
+        # annotation_f1_score(pred_col=key_added) works here too
+        adata.obs[key_added] = pd.Categorical(labels)
         elig = sizes >= max(int(min_term_size), 1)
         compact = []
         for i in range(n):
             hi = [
-                terms[j]
-                for j in range(len(terms))
-                if Pcal[i, j] >= min_probability and elig[j]
+                terms[j] for j in range(len(terms)) if Pcal[i, j] >= term_threshold and elig[j]
             ]
             compact.append(
-                "/".join(hi) if hi else (labels[i] if labels[i] is not None else None)
+                MULTILOC_SEP.join(hi) if hi else (labels[i] if labels[i] is not None else None)
             )
-        adata.obs[f"{key_added}_resolved_label_compact"] = compact
+        adata.obs[f"{key_added}_label_compact"] = compact
+        assign_compartment_colors(adata, [key_added])
 
     if verbose:
         av = [a for a in astar.values()]
@@ -551,4 +553,4 @@ def independent_diffusion(
             f"a* {min(av):.2f}-{max(av):.2f}; calibration={calibration}; resolve={resolve}; "
             f"coverage(maxp>0)={float((maxp > 0).mean()):.3f}"
         )
-    return adata if copy else None
+    return None if inplace else adata

@@ -63,6 +63,7 @@ dev = [
     "pylint~=3.0",
     "pytest~=8.0",
     "xlrd",
+    "gseapy",
 ]
 notebook = [
     "jupyter",

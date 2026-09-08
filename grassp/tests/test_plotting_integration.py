@@ -204,8 +204,8 @@ def make_multi_dataset_for_integration(n_datasets=2, n_proteins=50, n_samples=6)
 class TestClusteringPlots:
     """Test clustering visualization functions."""
 
-    def test_knn_violin_smoke(self):
-        """Verify knn_violin executes without error."""
+    def test_annotation_violin_smoke(self):
+        """Verify annotation_violin executes without error."""
         adata = make_enriched_data_with_structure(
             n_proteins=80, marker_fraction=0.4, add_neighbors=True
         )
@@ -218,7 +218,7 @@ class TestClusteringPlots:
         # Plot
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
-            ax = clustering.knn_violin(adata, gt_col="markers", pred_col="knn_pred")
+            ax = clustering.annotation_violin(adata, gt_col="markers", pred_col="knn_pred")
 
         assert ax is not None
 
@@ -233,14 +233,14 @@ class TestClusteringPlots:
         # Add mock TAGM parameters
         n_components = 3
         n_features = adata.shape[1]
-        adata.uns["tagm.map.params"] = {
+        adata.uns["tagm_map_model"] = {
             "posteriors": {
                 "mu": np.random.randn(n_components, n_features),
                 "sigma": np.array([np.eye(n_features) for _ in range(n_components)]),
             },
             "gt_col": "markers",
         }
-        adata.uns["tagm.map.allocation_colors"] = ["red", "blue", "green"]
+        adata.uns["tagm_map_colors"] = ["red", "blue", "green"]
 
         # Plot
         with warnings.catch_warnings():
@@ -261,13 +261,13 @@ class TestClusteringPlots:
         # Add mock TAGM parameters
         n_components = 3
         n_features = adata.shape[1]
-        adata.uns["tagm.map.params"] = {
+        adata.uns["tagm_map_model"] = {
             "posteriors": {
                 "mu": np.random.randn(n_components, n_features),
                 "sigma": np.array([np.eye(n_features) * 0.5 for _ in range(n_components)]),
             }
         }
-        adata.uns["tagm.map.allocation_colors"] = ["red", "blue", "green"]
+        adata.uns["tagm_map_colors"] = ["red", "blue", "green"]
 
         # Plot
         with warnings.catch_warnings():

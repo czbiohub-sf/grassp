@@ -89,10 +89,16 @@ and back in Python:
 annotated = anndata.read_h5ad("results.h5ad")
 
 annotated.obs["tagm.map.allocation"]           # pRoloc's own column names, verbatim
-annotated.obsm["tagm.map.joint"]               # per-compartment probabilities, a DataFrame
-                                               # whose columns are the compartment names
+annotated.obsm["tagm.map.joint"]               # a DataFrame, whose columns are the classes
 annotated.uns["neighbors"]                     # and everything you had before you left
 ```
+
+Those are pRoloc's field names, kept verbatim so the round trip is lossless. grassp's *own*
+TAGM ({func}`~grassp.tl.tagm_map_train` / {func}`~grassp.tl.tagm_map_predict`) writes under
+`key_added` like every other annotator — `obs["tagm_map"]`, `obsm["tagm_map_probabilities"]`,
+`uns["tagm_map_model"]` — and reads the dotted `uns["tagm.map.params"]` as well, so a
+`MAPParams` grafted on from pRoloc can be predicted from directly. The two spellings coexist
+by provenance: dotted came from pRoloc, underscored grassp produced.
 
 `annotated` is as close to `adata` as the two data models allow — every `.obs`, `.var`, `.obsm`,
 `.varm`, `.layers` and `.uns` entry survives the trip, plus whatever pRoloc added. The only
@@ -140,10 +146,11 @@ onto matrix-valued `pData` columns by the same route, and `.layers` onto the ext
 Those come back as **DataFrames**, which is what lets the objects describe themselves instead of
 needing a side table of column names: `annotated.obsm["svm.all.scores"].columns` is pRoloc's own
 list of classes. An `.obsm` entry that goes *out* as a plain array is read just as happily — the
-class names are looked for in `.uns[f"{key}_categories"]`, the convention grassp's own annotators
-write, and then in the categories of the companion label column. Failing both it stays nameless,
-which is the right answer for an embedding: `X_pca` and `X_umap` have no class names to recover,
-and they come back as the arrays they left as rather than as frames of invented ones.
+class names are looked for in `.uns[f"{key}_categories"]`, which is the fallback the R writer
+uses for names HDF5 cannot take, and then in the categories of the companion label column.
+Failing both it stays nameless, which is the right answer for an embedding: `X_pca` and `X_umap`
+have no class names to recover, and they come back as the arrays they left as rather than as
+frames of invented ones.
 
 All three are safe under subsetting, which is what makes them usable rather than merely
 storable — verified against pRoloc:
@@ -214,28 +221,37 @@ conversion itself.
 (known-limitations)=
 ### Known limitations
 
-- **`.obsp`/`.varp` are the one thing that cannot cross.** `eSet` has no pairwise slot, and
-  pRoloc has no graph structure to map onto. Its one neighbour-ish representation, `nndist()`,
-  writes `2k` flat `fData` columns of **positional** indices — not an `n × n` graph, and silently
-  wrong after any subsetting — so there is nothing to map to. This is also the slot with the best
-  reason to stay in Python: a graph is derived from `.X`, so `gr.pp.neighbors` rebuilds it in one
-  call, and pRoloc recomputes its own neighbours for everything it does anyway. Nothing warns
-  about it, because a warning would fire on every real dataset.
-- Everything else crosses, including embeddings — a matrix `fData` column is safe whatever it
-  holds. Send less by writing a subset yourself: `adata[:, keep].write_h5ad(...)`, or
-  `del adata.obsm["X_pca"]` on a copy. Only `.X` becomes `exprs()`, so if the matrix pRoloc should
-  operate on is a layer, make it `.X` before writing.
-- **A class name containing `/` cannot be a DataFrame column.** HDF5 reads it as a path separator
-  and `rhdf5` will not create the intermediate group, so such a matrix is written as a plain array
-  with its names in `.uns[f"{key}_categories"]` instead, and a message says so. This is not
-  hypothetical: hyperLOPIT's classes include `"Endoplasmic reticulum/Golgi apparatus"`. Nothing is
-  renamed either way, and `grassp_as_msnset` reads the names back.
-- Multi-localisation has no dedicated support, because it needs none. pRoloc represents it as a
-  binary `Markers` matrix in `fData`, which is just a matrix-valued column — so one-hot the labels
-  into `.obsm` as a DataFrame and it arrives as one:
+- **`.obsp`/`.varp` are the only slots that cannot cross.** `eSet` has no pairwise slot, and
+  pRoloc's one neighbour-ish representation, `nndist()`, writes flat *positional* indices that
+  are silently wrong after any subsetting — so there is nothing to map onto. A graph is derived
+  from `.X` anyway, so `gr.pp.neighbors` rebuilds it in one call. Nothing warns about it,
+  because a warning would fire on every real dataset.
+- **A class name containing `/` cannot be a DataFrame column,** because HDF5 reads it as a path
+  separator. Both sides do the same thing about it: the matrix is stored as a plain array with
+  its class names in `.uns[f"{key}_categories"]`, and a message says so. Nothing is renamed —
+  a class name is the user's, and rewriting it would leave the stored annotation spelling a
+  compartment differently from the label column it was built from. Read such a matrix with
+  {func}`grassp.util.get_matrix`, which handles both shapes. These names are real:
+  pRolocdata's `hyperLOPIT2015` has an `"Endoplasmic reticulum/Golgi apparatus"` class and
+  `tan2009r1` an `"ER/Golgi"`. grassp's own bundled marker sets deliberately carry none, so
+  `pp.add_markers` never triggers this.
+- **pRoloc does not write every result back to the object.** Optimisation and MCMC side objects
+  — `GenRegRes` from `svmOptimisation` and friends, `MAPParams` from `tagmMapTrain`,
+  `bandleParams` — are *returned* rather than added to the `MSnSet`, so they never reach the
+  h5ad and do not come back. Only the summaries pRoloc writes into `fData` cross over. If you
+  need one on the Python side, extract what you want into `fData`/`experimentData@other` in R
+  before writing.
+- **Nothing is renamed,** so a column called `svm` in R is a column called `svm` here. If you
+  want grassp's own naming (`svm_annotation_probabilities` and friends), rename it yourself —
+  the bridge deliberately does not guess.
+- **Multi-localisation needs no dedicated support.** pRoloc represents it as a binary `Markers`
+  matrix in `fData`, which is just a matrix-valued column — so one-hot the labels into `.obsm`
+  as a DataFrame and it arrives as one:
 
   ```python
-  labels = adata.obs["soft_multiloc_label"].str.split(" / ").explode()
+  from grassp.util import MULTILOC_SEP
+
+  labels = adata.obs["soft_annotation_resolved_multiloc_label"].str.split(MULTILOC_SEP).explode()
   onehot = pd.get_dummies(labels).groupby(level=0).max().reindex(
       adata.obs_names, fill_value=0
   )
@@ -243,24 +259,14 @@ conversion itself.
   adata.write_h5ad("experiment.h5ad")
   ```
 
-  Two caveats, both pRoloc's: an all-zero row is how pRoloc encodes *unknown* under the matrix
+  Two caveats, both pRoloc's: an all-zero row is how it encodes *unknown* under the matrix
   encoding, and `pRoloc::mrkMatToVec` collapses any protein with more than one label back to
-  `"unknown"`, so do not round-trip through the vector encoding. Note also that pRoloc's
-  classifiers cannot train on a `Markers` matrix (`svmClassification` raises *"NA encountered in
-  data"*) — it is for inspecting and subsetting marker sets, via `getMarkerClasses`,
-  `markerMSnSet` and `unknownMSnSet`.
-- Optimisation and MCMC side objects (`GenRegRes`, `MAPParams`, `bandleParams`) live outside
-  `fData`, so only the summaries pRoloc writes into `fData` cross over.
-- h5ad is the only format, and `anndataR` — scverse's native R implementation of the
-  AnnData on-disk spec — the only reader/writer on the R side. `grasspio` depends on it outright,
-  which is where its R >= 4.5 requirement comes from; you do need to install `rhdf5` yourself,
-  because anndataR calls it but declares it only in *Suggests*. For now it also comes from a fork
-  rather than a release — the fix that indexes an `obsm` data frame by the parent's `obs_names`,
-  without which Python refuses the file with *"value.index does not match parent's obs names"*, has
-  not shipped yet — but that is pinned in `grasspio`'s `Remotes:` field and pulled in for you.
-  A `zellkonverter` fallback was
-  tried and removed: `SingleCellExperiment` has no `varm` analogue and `readH5AD` does not
-  surface `layers`, so both were silently dropped in either direction, and mapping `.obs` onto
-  SCE *columns* transposes the whole object relative to an `MSnSet`.
-- Nothing is renamed, so a column called `svm` in R is a column called `svm` here. If you want
-  grassp's own naming conventions, rename it yourself — the bridge deliberately does not guess.
+  `"unknown"`, so do not round-trip through the vector encoding. pRoloc's classifiers also
+  cannot train on a `Markers` matrix (`svmClassification` raises *"NA encountered in data"*) —
+  it is for inspecting and subsetting marker sets, via `getMarkerClasses`, `markerMSnSet` and
+  `unknownMSnSet`.
+- **h5ad is the only format,** and [anndataR](https://github.com/scverse/anndataR) — scverse's
+  native R implementation of the AnnData on-disk spec — the only reader/writer on the R side.
+  That is where `grasspio`'s R >= 4.5 requirement comes from. You do need to install `rhdf5`
+  yourself, because anndataR calls it but declares it only in *Suggests*; `grasspio` pins the
+  anndataR revision it needs in its `Remotes:` field and pulls it in for you.

@@ -9,40 +9,76 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import scipy.sparse as sp
 
 from sklearn.model_selection import GridSearchCV, RepeatedStratifiedKFold
 from sklearn.svm import SVC
 
-from ..util import get_matrix, set_matrix
+from ..util import MULTILOC_SEP, get_matrix, set_matrix
+from ._annotation import (
+    clamp_marker_rows,
+    marker_labels,
+    require_kind,
+    resolve_simplex,
+    write_annotation,
+)
+from ._graph import affinity, neff_kish, spread, symmetric_normalized
 
 
-def _get_knn_annotation_df(
+def _neighbor_label_matrix(
     data: AnnData, obs_ann_col: str, exclude_category: str | List[str] | None = None
 ) -> pd.DataFrame:
-    """
-    Get a dataframe with a column of .obs repeated for each protein.
+    """Square matrix whose row *i* holds every protein's label, seen from protein *i*.
+
+    The caller masks it to protein *i*'s neighbourhood, so each row becomes the labels
+    of that protein's neighbours. Labels in ``exclude_category`` are blanked.
     """
     nrow = data.obs.shape[0]
     obs_ann = data.obs[obs_ann_col]
     if isinstance(exclude_category, str):
         exclude_category = [exclude_category]
     if exclude_category is not None:
-        obs_ann.replace(exclude_category, np.nan, inplace=True)
+        # `data.obs[col]` hands back a view onto the caller's frame, so replacing
+        # in place permanently NaN'd the excluded labels in the user's object -- every
+        # annotator run afterwards saw those proteins as unlabelled. Mask a copy
+        # instead; `.where` also keeps the Categorical dtype without tripping pandas'
+        # downcasting FutureWarning that `.replace` emitted here.
+        obs_ann = obs_ann.where(~obs_ann.isin(exclude_category))
 
     df = pd.DataFrame(np.tile(obs_ann, (nrow, 1)))
     return df
 
 
+def _class_weight_by_code(class_weight, categories):
+    """Translate a label-keyed ``class_weight`` dict into the codes the SVM is fitted on.
+
+    Both SVM entry points fit on ``y.cat.codes``, so the dict a user would naturally
+    write (``{"ER": 2.0, ...}``) matched no class and sklearn rejected it outright with
+    "The classes, [0, 1, 2], are not in class_weight". ``"balanced"``, ``None`` and dicts
+    that are already keyed by code pass through untouched.
+    """
+    if not isinstance(class_weight, dict):
+        return class_weight
+    if all(key in range(len(categories)) for key in class_weight):
+        return class_weight
+    lookup = {label: code for code, label in enumerate(categories)}
+    unknown = [key for key in class_weight if key not in lookup]
+    if unknown:
+        raise KeyError(
+            f"class_weight refers to classes that are not categories of the label "
+            f"column: {unknown}. Available: {list(categories)}."
+        )
+    return {lookup[key]: value for key, value in class_weight.items()}
+
+
 def _propagate_soft(
     T,
     seed: np.ndarray,
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     method: Literal["propagation", "spreading"] = "propagation",
     iterative: bool = False,
     alpha: float = 0.8,
     max_iter: int = 30,
-    tol: float = 1e-3,
+    rtol: float = 1e-4,
     verbose: bool = False,
     fix_markers: bool = False,
 ):
@@ -59,33 +95,16 @@ def _propagate_soft(
     """
     seed = np.asarray(seed, dtype=float)
     if method == "spreading":
-        # Label spreading (Zhou et al., 2003): S = D^(-1/2) W D^(-1/2), then iterate
-        # F(t+1) = alpha * S @ F(t) + (1 - alpha) * Y_0.
-        if not 0 <= alpha <= 1:
-            raise ValueError(f"alpha must be in [0, 1), got {alpha}")
-        d = np.asarray(T.sum(axis=1)).ravel()
-        d_inv_sqrt = np.zeros_like(d, dtype=float)
-        nz = d > 0
-        d_inv_sqrt[nz] = 1.0 / np.sqrt(d[nz])
-        D_inv_sqrt = sp.diags(d_inv_sqrt)
-        S = D_inv_sqrt @ T @ D_inv_sqrt
-        Y_0 = seed
-        Y = Y_0.copy()
-        for i in range(max_iter):
-            Y_new = alpha * np.asarray(S @ Y) + (1 - alpha) * Y_0
-            diff = np.abs(Y_new - Y).sum()
-            Y = Y_new
-            if verbose:
-                print(f"Diff: {diff:.3f}, Iteration {i} completed")
-            if diff < tol:
-                if verbose:
-                    print(f"Diff: {diff:.3f}, Converged")
-                break
-        else:
-            warnings.warn(
-                f"competitive_diffusion: max_iter={max_iter} reached without convergence "
-                f"(tol={tol})."
-            )
+        # Label spreading (Zhou et al., 2003), over the shared operator in _graph.
+        Y = spread(
+            symmetric_normalized(T),
+            seed,
+            alpha=alpha,
+            max_iter=max_iter,
+            rtol=rtol,
+            verbose=verbose,
+            warn_context="competitive_diffusion",
+        )
     elif iterative:
         # Iterative propagation with hard clamping, mirroring
         # sklearn.semi_supervised.LabelPropagation.
@@ -94,10 +113,12 @@ def _propagate_soft(
         Y = labeled_oh.copy()
         Y_prev = np.zeros_like(Y)
         for _ in range(max_iter):
-            diff = np.abs(Y - Y_prev).sum()
-            if diff < tol:
+            # Relative, like `spread`: an absolute L1 sum would mean a different thing on
+            # every map, tightening as the number of proteins or classes grows.
+            diff = np.abs(Y - Y_prev).sum() / max(np.abs(Y).sum(), 1e-30)
+            if diff < rtol:
                 if verbose:
-                    print(f"Diff: {diff:.3f}, Converged")
+                    print(f"Rel. change: {diff:.3e}, Converged")
                 break
             Y_prev = Y
             Y = np.asarray(T @ Y)
@@ -107,22 +128,24 @@ def _propagate_soft(
             if fix_markers:
                 Y[~unlabeled] = labeled_oh[~unlabeled]
             if verbose:
-                print(f"Diff: {diff:.3f}, Iteration {_} completed")
+                print(f"Rel. change: {diff:.3e}, Iteration {_} completed")
         else:
             warnings.warn(
                 f"competitive_diffusion: max_iter={max_iter} reached without convergence "
-                f"(tol={tol})."
+                f"(rtol={rtol})."
             )
     else:
         # Single-step propagation along T
         Y = np.asarray(T @ seed)
     Y[Y.sum(axis=1) == 0] = 1 / Y.shape[1]
 
-    # Class balance: down-weight large seed classes so they don't dominate simply by
-    # being numerous in neighbourhoods. Guard against categories with zero total
+    # Rescale each class column so its propagated mass equals its *seed* mass, i.e.
+    # restore the seed prior that diffusion smeared out. Note this is not
+    # inverse-frequency weighting -- a large class is not penalised for being large, it
+    # is returned to the share it started with. Guard against categories with zero total
     # propagated mass (e.g. an all-zero `unknown` column when every cluster is
-    # confidently annotated) — those columns must stay zero, not become NaN.
-    if class_balance:
+    # confidently annotated) -- those columns must stay zero, not become NaN.
+    if renormalize_class_mass:
         col_mass = np.nansum(Y, axis=0)
         scale = np.divide(
             seed.sum(axis=0),
@@ -140,12 +163,12 @@ def _propagate_soft(
 def _competitive_diffusion(
     data: AnnData,
     gt_col: str | None,
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     obsp_key="connectivities",
     iterative: bool = False,
     max_iter: int = 30,
-    tol: float = 1e-3,
-    verbose: bool = True,
+    rtol: float = 1e-4,
+    verbose: bool = False,
     fix_markers: bool = False,
     method: Literal["propagation", "spreading"] = "propagation",
     alpha: float = 0.8,
@@ -179,31 +202,17 @@ def _competitive_diffusion(
     else:
         labels = data.obs[gt_col].astype("category")
         labels_one_hot = pd.get_dummies(labels).values
-    if obsp_key == "distances":
-        # Build a Gaussian RBF affinity W from the kNN distance graph, restricted
-        # to the existing sparsity pattern. sigma defaults to the median nonzero
-        # distance, which gives a data-driven kernel width that's narrower than
-        # UMAP's fuzzy-union "connectivities" and thus produces more
-        # boundary-localized smoothing in label spreading. The result is cached
-        # at adata.obsp["W_spreading"].
-        D = data.obsp[obsp_key]
-        sigma = float(np.median(D.data)) if D.nnz > 0 else 1.0
-        W = D.copy()
-        W.data = np.exp(-(D.data**2) / (2.0 * sigma**2))
-        data.obsp["W_spreading"] = W
-        T = W
-    else:
-        T = data.obsp[obsp_key]
+    T = affinity(data, obsp_key)
 
     Y = _propagate_soft(
         T,
         labels_one_hot,
-        class_balance=class_balance,
+        renormalize_class_mass=renormalize_class_mass,
         method=method,
         iterative=iterative,
         alpha=alpha,
         max_iter=max_iter,
-        tol=tol,
+        rtol=rtol,
         verbose=verbose,
         fix_markers=fix_markers,
     )
@@ -215,7 +224,7 @@ def competitive_diffusion(
     data: AnnData,
     gt_col: str | None = None,
     fix_markers: bool = False,
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     min_probability: float | None = None,
     plot_optimization: bool = True,
     inplace: bool = True,
@@ -223,8 +232,8 @@ def competitive_diffusion(
     key_added: str = "competitive_diffusion",
     iterative: bool = False,
     max_iter: int = 1000,
-    tol: float = 1e-3,
-    verbose: bool = True,
+    rtol: float = 1e-4,
+    verbose: bool = False,
     method: Literal["propagation", "spreading"] = "propagation",
     alpha: float = 0.8,
     seed_obsm_key: str | None = None,
@@ -251,8 +260,13 @@ def competitive_diffusion(
         recursion and the class probabilities collapse (see ``iterative``). Ignored,
         with a warning, when seeding from ``seed_obsm_key`` (a soft seed has no
         one-hot marker rows to clamp).
-    class_balance
-        If ``True`` ground truth compartments with a lot of proteins are downweighted proportional to their size to prevent them from dominating the propagated labels.
+    renormalize_class_mass
+        If ``True`` (default) each compartment's propagated mass is rescaled back to the
+        mass it had in the seed, undoing the redistribution diffusion causes. This is
+        *not* inverse-frequency weighting: a large compartment is not penalised for its
+        size, it is returned to the share it started with. Named for what it does --
+        ``tl.class_balance`` is an unrelated function that subsamples classes to equal
+        size, and the two used to share a name.
     min_probability
         Confidence cutoff: if the probability of the most probable label is below this
         threshold, the label is set to ``np.nan``. ``None`` (the default) applies no
@@ -280,7 +294,7 @@ def competitive_diffusion(
         :class:`sklearn.semi_supervised.LabelPropagation`). At every step the label
         distribution is propagated along ``T`` and row-normalized; if
         ``fix_markers=True`` the labeled rows are then reset to their initial one-hot
-        encoding. Iteration stops when ``|Y - Y_prev|.sum() < tol`` or when
+        encoding. Iteration stops when the relative L1 change falls below ``rtol`` or when
         ``max_iter`` is reached. If ``False`` (default) only a single propagation step
         is performed. Ignored when ``method="spreading"`` (spreading is always
         iterative, and its soft clamp plays the role of ``fix_markers``).
@@ -292,10 +306,12 @@ def competitive_diffusion(
     max_iter
         Maximum number of propagation iterations when ``iterative=True`` or
         ``method="spreading"`` (default 1000). A warning is emitted if it is reached
-        before ``tol`` is satisfied.
-    tol
-        Convergence tolerance on the L1 change of the label distribution between
-        consecutive iterations (default ``1e-3``).
+        before ``rtol`` is satisfied.
+    rtol
+        Relative convergence tolerance (default ``1e-4``). The L1 change between
+        consecutive iterations is compared against ``rtol`` times a reference magnitude,
+        so the same number means the same thing on maps of any size and with any number
+        of compartments -- unlike an absolute L1 sum, which tightens as either grows.
     verbose
         If ``True`` print progress to the console.
     method
@@ -379,7 +395,7 @@ def competitive_diffusion(
 
     # Unclamped iteration has a degenerate fixed point: the seed is overwritten on every
     # pass, so the only thing driving the recursion is the graph itself and every column
-    # converges toward the same stationary vector. Only the `tol` early stop keeps the
+    # converges toward the same stationary vector. Only the `rtol` early stop keeps the
     # result from being uniform. On held-out markers this roughly halves macro-F1.
     if iterative and method == "propagation" and not fix_markers:
         remedy = (
@@ -405,11 +421,11 @@ def competitive_diffusion(
     #         Y, labels, labels_one_hot = _competitive_diffusion(
     #             data,
     #             gt_col=gt_col,
-    #             class_balance=class_balance,
+    #             renormalize_class_mass=renormalize_class_mass,
     #             obsp_key=obsp_key,
     #             iterative=iterative,
     #             max_iter=max_iter,
-    #             tol=tol,
+    #             rtol=rtol,
     #             verbose=verbose,
     #         )
 
@@ -446,11 +462,11 @@ def competitive_diffusion(
     Y, labels, labels_one_hot = _competitive_diffusion(
         data,
         gt_col=gt_col,
-        class_balance=class_balance,
+        renormalize_class_mass=renormalize_class_mass,
         obsp_key=obsp_key,
         iterative=iterative,
         max_iter=max_iter,
-        tol=tol,
+        rtol=rtol,
         verbose=verbose,
         fix_markers=fix_markers,
         method=method,
@@ -460,46 +476,60 @@ def competitive_diffusion(
     )
 
     if fix_markers:
-        # Pin marker rows to their original one-hot encoding after the
-        # propagation/spreading + class_balance + row-normalize pipeline.
-        # This guarantees marker probabilities are 1.0 for their seed class
-        # regardless of method ("propagation"/"spreading") or iterative mode.
-        marker_mask = labels_one_hot.sum(axis=1) == 1
-        Y[marker_mask] = labels_one_hot[marker_mask].astype(float)
+        # Pin marker rows to their seed one-hot after the propagation + class-balance +
+        # row-normalize pipeline, so marker probabilities are 1.0 for their own class
+        # regardless of `method` or `iterative`.
+        Y = clamp_marker_rows(Y, labels_one_hot.astype(float), labels_one_hot.sum(axis=1) == 1)
+
+    # Resolve before the inplace fork: doing it inside the `if inplace:` branch is what
+    # made min_probability inert for every caller that asked for the dict instead.
+    # An explicit unknown class only exists on the soft-seed path.
+    predicted, probability = resolve_simplex(
+        Y,
+        labels.cat.categories,
+        min_probability=min_probability if min_probability else None,
+        unknown_label=unknown_label if seed_matrix is not None else None,
+    )
 
     if inplace:
-        set_matrix(data, f"{key_added}_probabilities", Y, labels.cat.categories)
-        set_matrix(data, f"{key_added}_one_hot_labels", labels_one_hot, labels.cat.categories)
-        predicted = pd.Categorical(
-            labels.cat.categories[Y.argmax(axis=1)],
-            categories=labels.cat.categories,
-            ordered=labels.cat.ordered,
+        write_annotation(
+            data,
+            key_added,
+            Y,
+            labels.cat.categories,
+            kind="simplex",
+            method="graph-diffusion",
+            labels=predicted,
+            probability=probability,
+            gt_col=gt_col,
+            min_probability=min_probability if min_probability else None,
+            unknown_label=unknown_label if seed_matrix is not None else None,
+            extra_params={
+                "propagation": method,
+                "iterative": bool(iterative),
+                "alpha": float(alpha) if method == "spreading" else None,
+                "obsp_key": obsp_key,
+                "renormalize_class_mass": bool(renormalize_class_mass),
+                "fix_markers": bool(fix_markers),
+            },
         )
-        data.obs[f"{key_added}"] = predicted
-        data.obs[f"{key_added}_probability"] = np.max(Y, axis=1)
-        data.obs.loc[
-            data.obs[f"{key_added}_probability"] < min_probability, f"{key_added}"
-        ] = np.nan
-        # When seeding with a soft distribution that carries an explicit
-        # background/unknown class, treat proteins whose most probable label is
-        # that class as unassigned (NaN) while keeping the full probability
-        # matrix (including the unknown column) in obsm.
-        if seed_matrix is not None and unknown_label is not None:
-            data.obs.loc[data.obs[f"{key_added}"] == unknown_label, f"{key_added}"] = np.nan
-            data.obs[f"{key_added}"] = data.obs[f"{key_added}"].astype("category")
-        if gt_col is not None and f"{gt_col}_colors" in data.uns:
-            data.uns[f"{key_added}_colors"] = data.uns[f"{gt_col}_colors"]
-
+        set_matrix(data, f"{key_added}_one_hot_labels", labels_one_hot, labels.cat.categories)
     else:
         return {
             "probabilities": Y,
             "labels": labels.cat.categories,
             "one_hot_labels": labels_one_hot,
+            "predicted": predicted,
+            "probability": probability,
+            "kind": "simplex",
         }
 
 
 def competitive_propagation(*args, **kwargs):
     """Deprecated alias for :func:`competitive_diffusion`.
+
+    .. deprecated:: 0.5.0
+       Use :func:`competitive_diffusion`. This alias will be removed in 0.7.0.
 
     Renamed so the two graph annotation families differ in exactly one word — the label
     semantics — rather than in the name of the graph operator, which they share:
@@ -526,6 +556,9 @@ def competitive_propagation(*args, **kwargs):
 
 def knn_annotation(*args, **kwargs):
     """Deprecated alias for :func:`competitive_diffusion`.
+
+    .. deprecated:: 0.4.0
+       Use :func:`competitive_diffusion`. This alias will be removed in 0.6.0.
 
     See :func:`competitive_propagation` for the renaming rationale. Like that alias, this
     one pins ``key_added`` to the historical ``"competitive_propagation"`` default.
@@ -558,7 +591,7 @@ def soft_cluster_annotation(
     s_max: float = 300.0,
     unknown_label: str | None = "unknown",
     weight_by: Literal["evidence", "odds_ratio"] = "evidence",
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     min_probability: float | None = None,
     obsp_key: str = "connectivities",
     method: Literal["propagation", "spreading"] = "propagation",
@@ -578,8 +611,9 @@ def soft_cluster_annotation(
     canonical_order: bool = False,
     random_state: int = 0,
     set_colors: bool = True,
-    verbose: bool = True,
-) -> None:
+    verbose: bool = False,
+    inplace: bool = True,
+) -> AnnData | None:
     """Soft, uncertainty-aware version of the cluster-annotation pipeline.
 
     Ties together the three steps needed to propagate enrichment *uncertainty*
@@ -590,8 +624,8 @@ def soft_cluster_annotation(
        (plus an explicit ``unknown`` class) via
        :func:`~grassp.tl.enrichment_to_cluster_distribution`.
     2. Broadcast each cluster's distribution to its member proteins, producing a
-       soft seed matrix stored in ``data.obsm[f"{key_added}_seed"]`` with the
-       category order in ``data.uns[f"{key_added}_categories"]``.
+       soft seed matrix stored in ``data.obsm[f"{key_added}_seed"]``, whose columns
+       are the compartment names.
     3. Propagate the soft seed over the neighbour graph with
        :func:`~grassp.tl.competitive_diffusion`, writing the propagated distribution to
        ``data.obsm[f"{key_added}_probabilities"]`` and the argmax label (with
@@ -622,15 +656,20 @@ def soft_cluster_annotation(
     ranking_metric, threshold, temperature, s0, s_max, unknown_label
         Forwarded to :func:`~grassp.tl.enrichment_to_cluster_distribution` (unused
         when ``cluster_distribution`` is supplied).
-    class_balance, min_probability, obsp_key, method, iterative, alpha
+    renormalize_class_mass, min_probability, obsp_key, method, iterative, alpha
         Forwarded to :func:`~grassp.tl.competitive_diffusion`.
     verbose
         Passed through to :func:`~grassp.tl.competitive_diffusion`.
+    inplace
+        If ``True`` (default) annotate ``data`` and return ``None``; otherwise operate on
+        and return a copy.
 
     Returns
     -------
-    None. ``data`` is modified in place.
+    ``None``, or the annotated copy when ``inplace=False``.
     """
+    if not inplace:
+        data = data.copy()
     # The per-cluster distribution over compartments (+ optional unknown) can come
     # from the p-value/odds-ratio enrichment (default) or be supplied directly
     # (e.g. an MGSA posterior via `mgsa_to_cluster_distribution`). Either way it is
@@ -671,13 +710,12 @@ def soft_cluster_annotation(
             seed[missing] = 1.0 / seed.shape[1]
 
     set_matrix(data, f"{key_added}_seed", seed, categories)
-    data.uns[f"{key_added}_categories"] = list(categories)
 
     competitive_diffusion(
         data,
         gt_col=None,
         key_added=key_added,
-        class_balance=class_balance,
+        renormalize_class_mass=renormalize_class_mass,
         min_probability=min_probability,
         obsp_key=obsp_key,
         method=method,
@@ -685,7 +723,6 @@ def soft_cluster_annotation(
         alpha=alpha,
         verbose=verbose,
         seed_obsm_key=f"{key_added}_seed",
-        seed_categories_uns_key=f"{key_added}_categories",
         unknown_label=unknown_label,
     )
 
@@ -709,7 +746,6 @@ def soft_cluster_annotation(
         resolve_soft_labels(
             data,
             prob_key=f"{key_added}_probabilities",
-            categories_key=f"{key_added}_categories",
             seed_key=f"{key_added}_seed",
             obsp_key=obsp_key,
             unknown_label=unknown_label,
@@ -717,7 +753,7 @@ def soft_cluster_annotation(
             null=null,
             n_permutations=n_permutations,
             alpha_fdr=alpha_fdr,
-            class_balance=class_balance,
+            renormalize_class_mass=renormalize_class_mass,
             multi_label_cum=multi_label_cum,
             single_eff_k=single_eff_k,
             max_labels=max_labels,
@@ -727,6 +763,8 @@ def soft_cluster_annotation(
             random_state=random_state,
             set_colors=set_colors,
         )
+
+    return None if inplace else data
 
 
 def _entropy_rows(P: np.ndarray) -> np.ndarray:
@@ -761,15 +799,20 @@ def _bh_fdr(p: np.ndarray) -> np.ndarray:
 def resolve_soft_labels(
     data: AnnData,
     prob_key: str,
-    categories_key: str,
+    categories_key: str | None = None,
     seed_key: str | None = None,
-    obsp_key: str = "connectivities",
+    obsp_key: str | None = None,
+    method: Literal["propagation", "spreading"] | None = None,
+    iterative: bool | None = None,
+    alpha: float | None = None,
+    max_iter: int = 30,
+    rtol: float = 1e-4,
     unknown_label: str | None = "unknown",
     unknown_gate: float = 0.5,
     null: Literal["permutation", "analytic"] | None = "permutation",
     n_permutations: int = 1000,
     alpha_fdr: float = 0.05,
-    class_balance: bool = True,
+    renormalize_class_mass: bool = True,
     multi_label_cum: float = 0.8,
     single_eff_k: float = 1.5,
     eff_k_max: float = 3.0,
@@ -821,10 +864,19 @@ def resolve_soft_labels(
         (e.g. ``"ann_soft_probabilities"``).
     categories_key
         ``uns`` key with the ordered category names for the columns of ``prob_key``.
+        Optional: when ``prob_key`` is a labelled DataFrame (everything grassp writes
+        via :func:`~grassp.util.set_matrix`) its own column names are used, and this is
+        only needed for bare arrays written by older versions.
     seed_key
         ``obsm`` key with the soft seed matrix; required when ``null="permutation"``.
     obsp_key
-        Affinity graph used for (re-)propagation (default ``"connectivities"``).
+        Affinity graph used for re-propagating the null. ``None`` (default) takes it from
+        the annotation's own ``uns[f"{key}_params"]``, so the null sees the graph the
+        annotator saw.
+    method, iterative, alpha, max_iter, rtol
+        Propagation settings for the null. ``None`` takes each from the annotation's
+        recorded parameters, which is what makes the null test the same math that
+        produced the probabilities. Give them explicitly to override.
     unknown_label
         Name of the background/unknown category in the vocabulary, or ``None`` if there
         is no such class. Used both to exclude it from the entropy and as a gate.
@@ -832,9 +884,9 @@ def resolve_soft_labels(
         Proteins with ``unknown`` mass at or above this are called unresolved outright.
     null, n_permutations, alpha_fdr
         Null model, number of permutations, and FDR level (see above).
-    class_balance
+    renormalize_class_mass
         Must match the setting used to produce ``prob_key`` so the null re-propagation is
-        faithful.
+        faithful. It is recorded in ``uns[f"{key}_params"]`` by the annotators.
     multi_label_cum
         Cumulative probability mass used to select how many compartments to emit for the
         *detailed* ``multiloc_label``.
@@ -851,7 +903,7 @@ def resolve_soft_labels(
         compact labels small.
     canonical_order
         If ``True``, sort the compartments in ``label_compact`` alphabetically so that
-        ``"A / B"`` and ``"B / A"`` collapse into one plot category (drops primary
+        ``"A; B"`` and ``"B; A"`` collapse into one plot category (drops primary
         ordering). Default ``False`` keeps the primary compartment first.
     key_added
         Output prefix in ``.obs``. Defaults to ``f"{prob_key}_resolved"``.
@@ -869,7 +921,7 @@ def resolve_soft_labels(
     -------
     None or dict
         Writes ``obs[key]`` (primary label / NaN), ``obs[key+"_multiloc"]`` (bool),
-        ``obs[key+"_multiloc_label"]`` (detailed ``"A / B"`` string from the
+        ``obs[key+"_multiloc_label"]`` (detailed ``"A; B"`` string from the
         cumulative-mass rule), ``obs[key+"_label_compact"]`` (plot-friendly label:
         primary + secondaries above ``min_secondary_mass``, capped at ``max_labels``)
         and ``obs[key+"_multiloc_compact"]`` (bool), ``obs[key+"_secondary"]``,
@@ -877,8 +929,37 @@ def resolve_soft_labels(
         ``_qvalue``, ``_unknown_mass``; a null summary in ``uns[key+"_null"]``.
     """
     key = key_added or f"{prob_key}_resolved"
-    P = np.asarray(data.obsm[prob_key], dtype=float)
-    cats = list(data.uns[categories_key])
+    # The entropy-vs-null statistic assumes the classes competed for one unit of mass.
+    # Renormalizing a per-term matrix into a simplex and running it through here yields
+    # confident-looking calls from a statistic that does not apply, so refuse it when the
+    # object says which kind it holds.
+    annotation_key = (
+        prob_key[: -len("_probabilities")] if prob_key.endswith("_probabilities") else None
+    )
+    if annotation_key:
+        require_kind(data, annotation_key, "simplex")
+    # The compartment names travel with the matrix: util.set_matrix stores it as a
+    # labelled DataFrame. Requiring a separate uns entry meant this resolver could only
+    # consume soft_cluster_annotation's output -- competitive_diffusion and
+    # svm_annotation write no uns categories, so pointing it at them raised KeyError.
+    P, columns = get_matrix(data, prob_key)
+    P = np.asarray(P, dtype=float)
+    if categories_key is not None:
+        cats = list(data.uns[categories_key])
+    elif columns is not None:
+        cats = list(columns)
+    else:
+        raise ValueError(
+            f"obsm['{prob_key}'] carries no column names, so the compartment vocabulary "
+            "cannot be recovered. Pass `categories_key` naming a uns entry with the "
+            "class names in column order (matrices written by older grassp versions are "
+            "bare arrays)."
+        )
+    if len(cats) != P.shape[1]:
+        raise ValueError(
+            f"obsm['{prob_key}'] has {P.shape[1]} columns but {len(cats)} category names "
+            "were resolved; they must describe the same matrix."
+        )
     N = P.shape[0]
 
     uk = (
@@ -894,20 +975,41 @@ def resolve_soft_labels(
     H = _entropy_rows(R)
     eff_k = np.exp(H)
 
-    T = data.obsp[obsp_key]
-    w = np.asarray(T.sum(axis=1)).ravel()
-    w2 = np.asarray(T.multiply(T).sum(axis=1)).ravel()
-    n_eff = np.where(w2 > 0, w**2 / w2, 0.0)
+    # The null has to be propagated the same way the thing it calibrates was. The
+    # annotator records how in uns[f"{key}_params"], so read it rather than assuming the
+    # defaults -- a production run with method="spreading" was previously tested against
+    # a single-step propagation null, i.e. against different math.
+    recorded = dict(data.uns.get(f"{annotation_key}_params", {})) if annotation_key else {}
+    propagation = {
+        "method": method if method is not None else recorded.get("propagation", "propagation"),
+        "iterative": (
+            iterative if iterative is not None else bool(recorded.get("iterative", False))
+        ),
+        "alpha": alpha if alpha is not None else (recorded.get("alpha") or 0.8),
+        "max_iter": max_iter,
+        "rtol": rtol,
+    }
+    if obsp_key is None:
+        obsp_key = recorded.get("obsp_key", "connectivities")
+    # affinity(), not obsp[...] -- otherwise obsp_key="distances" skips the RBF kernel the
+    # annotator actually diffused over.
+    T = affinity(data, obsp_key)
+    n_eff = neff_kish(T)
 
     Hmean = Hsd = None
     if null == "permutation":
         if seed_key is None:
             raise ValueError("seed_key is required when null='permutation'.")
-        S = np.asarray(data.obsm[seed_key], dtype=float)
+        S = np.asarray(get_matrix(data, seed_key)[0], dtype=float)
         rng = np.random.default_rng(random_state)
         Hnull = np.empty((N, n_permutations))
         for b in range(n_permutations):
-            Yb = _propagate_soft(T, S[rng.permutation(N)], class_balance=class_balance)
+            Yb = _propagate_soft(
+                T,
+                S[rng.permutation(N)],
+                renormalize_class_mass=renormalize_class_mass,
+                **propagation,
+            )
             Hnull[:, b] = _entropy_rows(_real_renorm(Yb, real_idx))
         Hmean = Hnull.mean(axis=1)
         Hsd = Hnull.std(axis=1) + 1e-9
@@ -917,7 +1019,7 @@ def resolve_soft_labels(
     elif null == "analytic":
         if seed_key is None:
             raise ValueError("seed_key is required when null='analytic'.")
-        S = np.asarray(data.obsm[seed_key], dtype=float)
+        S = np.asarray(get_matrix(data, seed_key)[0], dtype=float)
         pi = _real_renorm(S.mean(axis=0, keepdims=True), real_idx).ravel()
         pic = np.clip(pi, 1e-12, 1.0)
         H_pi = -(pic * np.log(pic)).sum()
@@ -959,7 +1061,7 @@ def resolve_soft_labels(
     #    NOT compact (diffuse-but-resolved proteins have large eff_k); the mass floor
     #    and the hard `max_labels` cap are what collapse the number of combinations.
     #    With `canonical_order=True` the compartments are sorted alphabetically so
-    #    "A / B" and "B / A" merge into one plot category (loses primary ordering).
+    #    "A; B" and "B; A" merge into one plot category (loses primary ordering).
     order = np.argsort(-R, axis=1)
     primary = np.full(N, np.nan, dtype=object)
     secondary = np.full(N, np.nan, dtype=object)
@@ -973,7 +1075,7 @@ def resolve_soft_labels(
         k = min(int(np.searchsorted(cum, multi_label_cum)) + 1, len(oi))
         labs = [real_cats[j] for j in oi[:k]]
         primary[i] = labs[0]
-        combined[i] = " / ".join(labs)
+        combined[i] = MULTILOC_SEP.join(labs)
         if k > 1:
             secondary[i] = labs[1]
             multiloc[i] = True
@@ -987,7 +1089,7 @@ def resolve_soft_labels(
                 break
         if canonical_order and len(labs_c) > 1:
             labs_c = sorted(labs_c)
-        combined_compact[i] = " / ".join(labs_c)
+        combined_compact[i] = MULTILOC_SEP.join(labs_c)
         multiloc_compact[i] = len(labs_c) > 1
 
     out = {
@@ -1056,56 +1158,7 @@ def resolve_soft_labels(
     return None
 
 
-def knn_annotation_old(
-    data: AnnData,
-    obs_ann_col: str,
-    key_added: str = "consensus_graph_annotation",
-    exclude_category: str | List[str] | None = None,
-    inplace: bool = True,
-) -> AnnData | None:
-    """Propagate categorical annotations along the *k*-NN graph.
-
-    For each observation the function inspects its neighbourhood in
-    ``adata.obsp['distances']`` (generated by :func:`scanpy.pp.neighbors`) and
-    assigns the majority category found in ``obs_ann_col``.  Ties are broken
-    arbitrarily using :func:`pandas.DataFrame.mode`.
-
-    Parameters
-    ----------
-    data
-        :class:`anndata.AnnData` with a populated neighbour graph (*distances*
-        or *connectivities*).
-    obs_ann_col
-        Observation column containing the *source* annotations to be
-        propagated.
-    key_added
-        Name of the new column that will hold the *consensus* annotation
-        (default ``"consensus_graph_annotation"``).
-    exclude_category
-        One or multiple category labels that should be ignored when computing
-        the neighbourhood majority (useful for *unknown* / *NA* categories).
-    inplace
-        If ``True`` (default) modify *data* in place.  Otherwise return a
-        copy with the additional column.
-
-    Returns
-    -------
-    Modified object when ``inplace`` is ``False`` with a new column in .obs[key_added].
-    """
-    df = _get_knn_annotation_df(data, obs_ann_col, exclude_category)
-
-    conn = data.obsp["distances"]
-    mask = ~(conn != 0).todense()  # This avoids expensive conn == 0 for sparse matrices
-    df[mask] = np.nan
-
-    majority_cluster = df.mode(axis=1, dropna=True).loc[
-        :, 0
-    ]  # take the first if there are ties
-    data.obs[key_added] = majority_cluster.values
-    return data if not inplace else None
-
-
-def svm_train(
+def svm_tune_hyperparameters(
     data: AnnData,
     gt_col: str,
     C_range: np.ndarray = np.array([0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]),
@@ -1117,12 +1170,15 @@ def svm_train(
     random_state: int | None = None,
     key_added: str = "svm",
     inplace: bool = True,
-) -> dict | None:
-    """Train SVM classifier with hyperparameter tuning using marker proteins.
+) -> tuple[GridSearchCV, dict] | None:
+    """Grid-search the SVM's C and gamma over marker proteins.
 
-    Performs grid search over C and gamma parameters using repeated stratified
-    cross-validation. Best hyperparameters are stored in ``.uns`` for later use
-    with :func:`svm_annotation`.
+    Despite the name it replaces, this does not train a reusable model: it scores a
+    grid of ``(C, gamma)`` by repeated stratified cross-validation and stores the winning
+    pair in ``.uns`` for :func:`svm_annotation`, which fits its own estimator from
+    scratch. Nothing about the fitted classifier survives the call, so calling it
+    "training" promised a model you could apply elsewhere -- unlike
+    :func:`tagm_map_train`, which genuinely persists one.
 
     Parameters
     ----------
@@ -1145,18 +1201,17 @@ def svm_train(
     random_state
         Random seed for reproducibility.
     key_added
-        Key prefix for storing results in ``.uns`` (default ``"svm"``).
+        Key prefix for storing results in ``.uns`` (default ``"svm"``), so the winning
+        parameters land in ``uns[f"{key_added}_params"]``.
     inplace
-        If ``True`` store results in ``.uns``; if ``False`` return grid search
-        object and dictionary with best parameters and CV results. This can be
-        useful if you want to inspect the grid search object or use the best
-        parameters for other tasks.
+        If ``True`` store results in ``.uns``; if ``False`` return the grid-search object
+        and the parameter dictionary, which is useful for inspecting the full CV grid.
 
     Returns
     -------
-    None or dict
-        If ``inplace=False``, returns dictionary with best parameters and CV
-        results. Otherwise modifies ``data.uns[f"{key_added}.params"]`` in place.
+    None or tuple
+        If ``inplace=False``, returns ``(grid_search, params)``. Otherwise writes
+        ``data.uns[f"{key_added}_params"]`` and returns ``None``.
 
     Examples
     --------
@@ -1165,9 +1220,9 @@ def svm_train(
 
     # When actually training, increase cv_repeats and cv_splits
     # We recommend >20 repeats with 5 splits
-    >>> gr.tl.svm_train(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
+    >>> gr.tl.svm_tune_hyperparameters(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
     Fitting 4 folds for each of 54 candidates, totalling 216 fits
-    >>> adata.uns["svm.params"]["best_params"]
+    >>> adata.uns["svm_params"]["best_params"]
     {'C': 2.0, 'gamma': 0.01}
     """
     # Validate gt_col exists
@@ -1212,16 +1267,19 @@ def svm_train(
     # fit in the grid for nothing.
     svm = SVC(
         kernel='rbf',
-        class_weight=class_weight,
+        class_weight=_class_weight_by_code(class_weight, y_train.cat.categories),
     )
 
-    # Run grid search
+    # refit=False: only the winning parameters are kept, so sklearn's default of fitting
+    # a final estimator on all the markers built a classifier that was thrown away on
+    # every call.
     grid_search = GridSearchCV(
         estimator=svm,
         param_grid=param_grid,
         cv=cv,
         scoring='f1_macro',  # Balanced metric for multiclass
         n_jobs=n_jobs,
+        refit=False,
         verbose=1,
     )
 
@@ -1247,17 +1305,17 @@ def svm_train(
             "gamma_range": gamma_range.tolist(),
         },
         "class_weight": class_weight,
-        "class_labels": y_train.cat.categories.tolist(),
+        # the vocabulary the search scored on, i.e. only the classes with markers --
+        # matching the columns svm_annotation's predict_proba will have
+        "class_labels": y_train.cat.remove_unused_categories().cat.categories.tolist(),
         "n_markers": int(X_train.shape[0]),
         "random_state": random_state,
         "n_jobs": n_jobs,
         "kernel": "rbf",
-        "cv_splits": cv_splits,
-        "cv_repeats": cv_repeats,
     }
 
     if inplace:
-        data.uns[f"{key_added}.params"] = params
+        data.uns[f"{key_added}_params"] = params
         return None
     else:
         return grid_search, params
@@ -1265,7 +1323,7 @@ def svm_train(
 
 def svm_annotation(
     data: AnnData,
-    gt_col: str = "markers",
+    gt_col: str,
     C: float | None = None,
     gamma: float | str | None = None,
     fix_markers: bool = False,
@@ -1279,7 +1337,7 @@ def svm_annotation(
 
     Trains an SVM classifier on marker proteins (non-NaN values in ``gt_col``)
     and predicts localization for all proteins. Hyperparameters can be provided
-    manually or loaded from prior :func:`svm_train` call.
+    manually or loaded from prior :func:`svm_tune_hyperparameters` call.
 
     Similar to :func:`competitive_diffusion` but uses SVM instead of graph propagation.
 
@@ -1303,7 +1361,7 @@ def svm_annotation(
     key_added
         Base name for results (default ``"svm_annotation"``).
     params_key
-        Key to load hyperparameters from ``.uns`` (default ``"svm.params"``).
+        Key to load hyperparameters from ``.uns`` (default ``"svm_params"``).
 
     Returns
     -------
@@ -1343,9 +1401,9 @@ def svm_annotation(
     ##### Option 2: Train SVM hyperparameters, then annotate #####
     # When actually training, increase cv_repeats and cv_splits
     # We recommend >20 repeats with 5 splits
-    >>> gr.tl.svm_train(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
+    >>> gr.tl.svm_tune_hyperparameters(adata, gt_col="hein2024_gt_component", cv_repeats=2, cv_splits=2, random_state=42)
     Fitting 4 folds for each of 54 candidates, totalling 216 fits
-    >>> adata.uns["svm.params"]["best_params"]
+    >>> adata.uns["svm_params"]["best_params"]
     {'C': 2.0, 'gamma': 0.01}
     >>> gr.tl.svm_annotation(adata, gt_col="hein2024_gt_component", min_probability=0.5)
     >>> sc.pl.umap(adata, color="svm_annotation") # doctest: +SKIP
@@ -1353,13 +1411,13 @@ def svm_annotation(
     # If hyperparameters not provided, try loading from .uns
     if C is None or gamma is None:
         if params_key is None:
-            params_key = "svm.params"
+            params_key = "svm_params"
 
         if params_key not in data.uns:
             raise ValueError(
                 f"No hyperparameters found in data.uns['{params_key}']. "
                 "Either:\n"
-                "  1) Run svm_train() first to tune hyperparameters, or\n"
+                "  1) Run svm_tune_hyperparameters() first to tune hyperparameters, or\n"
                 "  2) Provide C and gamma explicitly (e.g., C=1.0, gamma=0.1)"
             )
 
@@ -1371,20 +1429,12 @@ def svm_annotation(
         if class_weight is None:
             class_weight = stored_params["class_weight"]
 
-    # Validate gt_col
-    if gt_col not in data.obs.columns:
-        raise KeyError(f"Column '{gt_col}' not found in data.obs")
-
-    # Extract markers
-    marker_mask = data.obs[gt_col].notna()
-    if not marker_mask.any():
-        raise ValueError(f"No marker proteins found in '{gt_col}'")
-
-    X_train = data.X[marker_mask]
-    y_train = data.obs.loc[marker_mask, gt_col]
+    markers = marker_labels(data, gt_col)
+    X_train = data.X[markers.mask]
+    y_train = markers.labels[markers.mask]
     X_all = data.X
 
-    categories = y_train.cat.categories
+    categories = markers.categories
     y_train_codes = y_train.cat.codes
 
     # Train SVM
@@ -1392,75 +1442,72 @@ def svm_annotation(
         C=C,
         gamma=gamma,
         kernel='rbf',
-        class_weight=class_weight,
+        class_weight=_class_weight_by_code(class_weight, categories),
         probability=True,
         random_state=42,
     )
     svm.fit(X_train, y_train_codes)
 
-    # Get probability matrix (n_proteins, n_classes)
+    # The columns of predict_proba follow `svm.classes_`, which holds only the codes
+    # actually *present* among the markers -- not every declared category of `gt_col`. A
+    # Categorical keeps its unused categories (e.g. after subsetting an object to a few
+    # compartments, or when the marker vocabulary is wider than the map), so the two
+    # differ routinely. Indexing an argmax column number into the full `categories`
+    # therefore shifts every label past the first missing class, and labelling the
+    # (n, n_present) matrix with all declared categories fails outright in set_matrix.
+    pred_categories = categories[svm.classes_]
+
+    # (n_proteins, n_present_classes) -- resolve_simplex below turns it into a call
     probabilities = svm.predict_proba(X_all)
 
-    # Get predictions (argmax)
-    pred_codes = np.argmax(probabilities, axis=1)
-    pred_labels = categories[pred_codes].to_numpy()
-
-    # Get max probability
-    max_prob = np.max(probabilities, axis=1)
-
-    # Handle fix_markers
     if fix_markers:
-        # Set marker probabilities to 1.0 for their true class
-        marker_indices = np.where(marker_mask)[0]
-        for idx, label in zip(marker_indices, y_train):
-            label_idx = categories.get_loc(label)
-            probabilities[idx, :] = 0.0
-            probabilities[idx, label_idx] = 1.0
-            pred_labels[idx] = label
-            max_prob[idx] = 1.0
+        # The predicted vocabulary always contains every marker label, by construction.
+        marker_one_hot = (
+            pd.get_dummies(markers.labels)
+            .reindex(columns=pred_categories, fill_value=False)
+            .to_numpy(dtype=float)
+        )
+        probabilities = clamp_marker_rows(probabilities, marker_one_hot, markers.mask)
 
-    # Apply probability threshold
-    low_conf_mask = max_prob < min_probability
-    pred_labels[low_conf_mask] = np.nan
+    # Resolved before the inplace fork, so the cutoff applies on both paths. The label
+    # column keeps the *full* declared vocabulary even though the matrix has columns only
+    # for the classes the SVM saw, so colours and comparisons against gt_col line up.
+    predicted, probability = resolve_simplex(
+        probabilities,
+        pred_categories,
+        min_probability=min_probability,
+        declared_categories=categories,
+    )
 
-    # Store results
     if inplace:
-        # Probabilities matrix
-        set_matrix(data, f"{key_added}_probabilities", probabilities, categories)
-
-        # Predicted labels (categorical)
-        data.obs[f"{key_added}"] = pd.Categorical(pred_labels, categories=categories)
-
-        # Max probability
-        data.obs[f"{key_added}_probability"] = max_prob
-
-        # Copy colors if available
-        if f"{gt_col}_colors" in data.uns:
-            data.uns[f"{key_added}_colors"] = data.uns[f"{gt_col}_colors"]
-
-        # Store metadata
-        data.uns[f"{key_added}_params"] = {
-            "method": "SVM-RBF",
-            "C": C,
-            "gamma": gamma,
-            "gt_col": gt_col,
-            "fix_markers": fix_markers,
-            "min_probability": min_probability,
-        }
-
+        write_annotation(
+            data,
+            key_added,
+            probabilities,
+            pred_categories,
+            kind="simplex",
+            method="SVM-RBF",
+            labels=predicted,
+            probability=probability,
+            gt_col=gt_col,
+            min_probability=min_probability,
+            declared_categories=categories,
+            extra_params={"C": C, "gamma": gamma, "fix_markers": bool(fix_markers)},
+        )
         return None
     else:
         return {
             "probabilities": probabilities,
-            "labels": pred_labels,
-            "max_probability": max_prob,
-            "categories": categories,
+            "labels": predicted,
+            "probability": probability,
+            "categories": pred_categories,
+            "kind": "simplex",
         }
 
 
-def prune_markers_knn(
+def prune_markers(
     adata: AnnData, gt_col: str, key_added: str | None = None, min_probability: float = 0.9
-) -> AnnData:
+) -> None:
     """Remove "outliers" from marker proteins whose compartment label is not supported by their k-NN neighbourhood.
 
     Runs :func:`competitive_diffusion` on the existing markers and retains only those
@@ -1496,17 +1543,22 @@ def prune_markers_knn(
     original label; removed markers are set to NaN.
     """
     key_added = key_added or f"{gt_col}_pruned"
-    knnres = competitive_diffusion(
-        adata, gt_col, min_probability=min_probability, inplace=False, fix_markers=False
-    )
-    labels, Y = knnres["labels"], knnres["probabilities"]
+    propagated = competitive_diffusion(adata, gt_col, inplace=False, fix_markers=False)
+    labels, Y = propagated["labels"], propagated["probabilities"]
 
+    # as above: accept an object-dtype gt_col rather than requiring `.cat`
+    gt = adata.obs[gt_col].astype("category")
     predicted = pd.Categorical(
         labels[Y.argmax(axis=1)],
-        categories=adata.obs[gt_col].cat.categories,
-        ordered=adata.obs[gt_col].cat.ordered,
+        categories=gt.cat.categories,
+        ordered=gt.cat.ordered,
     )
     adata.obs[key_added] = predicted
+    # competitive_diffusion applies its own min_probability cutoff inside its `inplace`
+    # branch only, so on the inplace=False path used here the threshold never reached the
+    # labels and the parameter had no effect at any setting. Apply it to the propagated
+    # probabilities directly.
+    adata.obs.loc[Y.max(axis=1) < min_probability, key_added] = np.nan
     adata.obs.loc[adata.obs[gt_col].isna(), key_added] = np.nan  # Remove non-markers
     adata.obs.loc[adata.obs[gt_col] != adata.obs[key_added], key_added] = (
         np.nan

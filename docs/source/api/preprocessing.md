@@ -67,4 +67,5 @@ Any transformation of the data matrix that is not a *tool*. Other than *tools*, 
    pp.add_external_validation_markers
    pp.annotate_uniprot_cc
    pp.set_sensible_compartment_colors
+   pp.MARKER_COLORS
 ```

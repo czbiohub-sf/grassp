@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 
-from .localization import _get_knn_annotation_df
+from .localization import _neighbor_label_matrix
 
 
 def _get_clusters(matrix):
@@ -334,7 +334,7 @@ def calculate_interfacialness_score(
         )
 
     # Get full protein x protein matrix filled with annotations
-    df = _get_knn_annotation_df(
+    df = _neighbor_label_matrix(
         data, compartment_annotation_column, exclude_category=exclude_category
     )
     # Mask non-neighbors with np.nan

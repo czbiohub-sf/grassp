@@ -7,12 +7,6 @@ if TYPE_CHECKING:
 
 import numpy as np
 import pandas as pd
-import scanpy
-
-from scipy import cluster, spatial
-
-rank_proteins_groups = scanpy.tl.rank_genes_groups
-
 
 # Map from species code → filename of the bundled consolidated GMT.
 # Shared between `calculate_cluster_enrichment` and `merge_clusters_go`.
@@ -120,7 +114,7 @@ def calculate_cluster_enrichment(
     cluster_key: str = "leiden",
     gene_name_key: str = "Gene_name_canonical",
     gene_sets: str | None = None,
-    obs_key_added: str = "Cell_compartment",
+    key_added: str = "Cell_compartment",
     enrichment_ranking_metric: Literal[
         "Adjusted P-value",
         "Adjusted P-value Bonferroni",
@@ -140,7 +134,7 @@ def calculate_cluster_enrichment(
     *Enrichr* analysis via ``gseapy`` using the list of proteins (genes)
     present in that cluster.  The most significant term (according to
     ``enrichment_ranking_metric``) is written back to ``data.obs`` under
-    ``obs_key_added``.
+    ``key_added``.
 
     Parameters
     ----------
@@ -155,7 +149,7 @@ def calculate_cluster_enrichment(
         Path to a Gene set database to use for enrichment analysis in .gmt format
         If None, enrichment is performed against the uniprot subcellular compartment annotations.
         We have found that this is a good default and tends to be less noisy than GO CC.
-    obs_key_added
+    key_added
         Name of the column that will store the top enriched term per
         cluster.
     enrichment_ranking_metric
@@ -244,26 +238,29 @@ def calculate_cluster_enrichment(
 
     enrichr_results = pd.concat(enrichr_results)
 
+    # The annotation itself is unconditional -- `inplace` only chooses what is returned.
+    # It used to gate the writes, so `inplace=False` returned an object with none of the
+    # documented columns on it ("Otherwise a modified copy is returned").
+    if not inplace:
+        data = data.copy()
+
+    # Write through `data.obs` rather than the `obs_df` alias captured above: when `data`
+    # is a view, the first assignment makes anndata materialise `.obs`, which leaves
+    # `obs_df` bound to an orphaned frame and the next statement raising KeyError on the
+    # column it had itself just written.
+    metric_key = f"{key_added}_{enrichment_ranking_metric}"
+    data.obs[key_added] = groups[cluster_key].transform(lambda x: enrichr_top_terms[x.name])
+    data.obs[metric_key] = groups[cluster_key].transform(
+        lambda x: enrichr_results[enrichr_results[cluster_key] == x.name]
+        .sort_values(enrichment_ranking_metric, ascending=sort_ascending)
+        .iloc[0][enrichment_ranking_metric]
+    )
+    if sort_ascending:
+        data.obs.loc[data.obs[metric_key] >= enrichment_threshold, key_added] = np.nan
+    else:
+        data.obs.loc[data.obs[metric_key] <= enrichment_threshold, key_added] = np.nan
+
     if inplace:
-        # Add top term annotation to data.obs
-        obs_df[obs_key_added] = groups[cluster_key].transform(
-            lambda x: enrichr_top_terms[x.name]
-        )
-        obs_df[f"{obs_key_added}_{enrichment_ranking_metric}"] = groups[cluster_key].transform(
-            lambda x: enrichr_results[enrichr_results[cluster_key] == x.name]
-            .sort_values(enrichment_ranking_metric, ascending=sort_ascending)
-            .iloc[0][enrichment_ranking_metric]
-        )
-        if sort_ascending:
-            obs_df.loc[
-                obs_df[f"{obs_key_added}_{enrichment_ranking_metric}"] >= enrichment_threshold,
-                f"{obs_key_added}",
-            ] = np.nan
-        else:
-            obs_df.loc[
-                obs_df[f"{obs_key_added}_{enrichment_ranking_metric}"] <= enrichment_threshold,
-                f"{obs_key_added}",
-            ] = np.nan
         if return_enrichment_res:
             return enrichr_results
         return None
@@ -470,6 +467,17 @@ def enrichment_to_cluster_distribution(
     logits = np.where(significant, base_logits, -np.inf)
     if unknown_label is not None:
         logits = np.concatenate([logits, np.full((logits.shape[0], 1), float(s0))], axis=1)
+    if logits.shape[1] == 0:
+        # unknown_label=None and not a single term significant anywhere, so the
+        # vocabulary is empty. Without this the row-max below fails deep in numpy with
+        # "zero-size array to reduction operation maximum", which says nothing about the
+        # actual problem. (With an unknown class the column is always there, so this can
+        # only happen on the unknown_label=None path.)
+        raise ValueError(
+            f"No term passes {ranking_metric!r} <= {threshold} in any cluster, so the "
+            "compartment vocabulary would be empty. Relax `threshold`, or pass "
+            "`unknown_label` so unenriched clusters have a class to fall back on."
+        )
     row_max = np.max(logits, axis=1, keepdims=True)
     row_max = np.where(np.isfinite(row_max), row_max, 0.0)  # rows with all -inf
     with np.errstate(over="ignore"):
@@ -495,41 +503,3 @@ def enrichment_to_cluster_distribution(
 
     Q = pd.DataFrame(Q_values, index=pv.index, columns=categories)
     return Q, categories
-
-
-# Calculate pairwise distance matrix between samples
-def calculate_distance_matrix(
-    data: AnnData,
-    distance_metric: str = "correlation",
-    linkage_method: str = "average",
-    linkage_metric: str = "cosine",
-) -> pd.DataFrame:
-    """Pairwise sample-to-sample distance matrix.
-
-    Parameters
-    ----------
-    data
-        AnnData object (proteins × samples).
-    distance_metric
-        Metric passed to :func:`scipy.spatial.distance.pdist`.
-    linkage_method, linkage_metric
-        Parameters forwarded to :func:`scipy.cluster.hierarchy.linkage` – used
-        here solely to obtain an ordering of samples for the returned matrix.
-
-    Returns
-    -------
-    pandas.DataFrame
-        Square distance matrix with samples in dendrogram order.
-    """
-
-    distance_matrix = spatial.distance.pdist(data.X, metric=distance_metric)
-    linkage = cluster.hierarchy.linkage(
-        distance_matrix, method=linkage_method, metric=linkage_metric
-    )  # Hierarchical clustering
-    row_order = np.array(
-        cluster.hierarchy.dendrogram(linkage, no_plot=True, orientation="bottom")["leaves"]
-    )
-
-    distance_matrix = spatial.distance.squareform(distance_matrix)
-    distance_matrix = distance_matrix[row_order, :][:, row_order]
-    distance_matrix.shape

@@ -417,11 +417,13 @@ grassp_write_msnset <- function(x,
   uns$processing <- as.character(MSnbase::processingData(x)@processing)
 
   ## A class name containing "/" cannot be a data-frame column: HDF5 reads it as a path, and
-  ## rhdf5 will not create the intermediate group, so the entry is silently unwritable. pRoloc
-  ## does produce such names (hyperLOPIT's "Endoplasmic reticulum/Golgi apparatus"), so those
-  ## matrices fall back to a bare array plus uns[["<key>_categories"]] -- grassp's own
-  ## convention, which grassp_as_msnset() and grassp's annotators both already read. Nothing is
-  ## renamed either way.
+  ## rhdf5 will not create the intermediate group, so the entry is silently unwritable. Real
+  ## marker sets do use such names -- pRolocdata's hyperLOPIT2015 has an "Endoplasmic
+  ## reticulum/Golgi apparatus" class, tan2009r1 an "ER/Golgi" -- so those matrices fall back to
+  ## a bare array plus uns[["<key>_categories"]], the fallback both sides read (grassp_as_msnset
+  ## below, and grassp.util.get_matrix in Python). Nothing is renamed either way. Python solves
+  ## the same problem differently, rewriting "/" to "; " on write, so an h5ad written by grassp
+  ## never reaches this branch -- only an MSnSet whose classes came from pRoloc data does.
   obsm <- .demote_unwritable(fsplit$matrices, uns, "obsm")
   varm <- .demote_unwritable(psplit$matrices, obsm$uns, "varm")
 

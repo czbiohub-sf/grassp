@@ -12,16 +12,18 @@ import matplotlib
 
 matplotlib.use('Agg')  # Use non-interactive backend for testing
 
+import warnings  # noqa: E402
+
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import pytest  # noqa: E402
 import scanpy as sc  # noqa: E402
 
-from anndata import AnnData  # noqa: E402
+from anndata import AnnData, read_h5ad  # noqa: E402
 
 from grassp.preprocessing import simple  # noqa: E402
 from grassp.tools import localization, scoring, tagm  # noqa: E402
-from grassp.util import get_matrix, set_matrix  # noqa: E402
+from grassp.util import get_matrix, set_matrix, unwritable_labels  # noqa: E402
 
 
 def make_annotated_data(n_proteins=60, n_samples=6, n_compartments=4):
@@ -160,9 +162,9 @@ class TestWriters:
 
     def test_tagm_map(self, annotated):
         data, compartments = annotated
-        params = tagm.tagm_map_train(data, gt_col="markers", numIter=2, seed=0)
+        params = tagm.tagm_map_train(data, gt_col="markers", numIter=2, random_state=0)
         tagm.tagm_map_predict(data, params=params)
-        stored = data.obsm["tagm.map.probabilities"]
+        stored = data.obsm["tagm_map_probabilities"]
         assert isinstance(stored, pd.DataFrame)
         assert list(stored.columns) == compartments
 
@@ -231,7 +233,7 @@ class TestConsumers:
         localization.competitive_diffusion(
             data, gt_col="markers", key_added="cp", min_probability=0
         )
-        cm = scoring.knn_confusion_matrix(
+        cm = scoring.annotation_confusion_matrix(
             data, gt_col="markers", pred_col="cp", soft=True, plot=False
         )
         cm = np.asarray(cm)
@@ -244,7 +246,7 @@ class TestConsumers:
             data, gt_col="markers", key_added="cp", min_probability=0
         )
         cm = np.asarray(
-            scoring.knn_confusion_matrix(
+            scoring.annotation_confusion_matrix(
                 data, gt_col="markers", pred_col="cp", soft=False, plot=False
             )
         )
@@ -260,7 +262,7 @@ class TestConsumers:
             data.obsm[key] = data.obsm[key].to_numpy()
 
         cm = np.asarray(
-            scoring.knn_confusion_matrix(
+            scoring.annotation_confusion_matrix(
                 data, gt_col="markers", pred_col="cp", soft=True, plot=False
             )
         )
@@ -286,3 +288,82 @@ class TestConsumers:
             localization.competitive_diffusion(
                 data, gt_col=None, key_added="bare", seed_obsm_key="bare_seed"
             )
+
+
+class TestUnwritableClassNames:
+    """A ``"/"`` in a class name cannot be an h5ad column name.
+
+    anndata stores a labelled matrix as an HDF5 group with one dataset per column, so a
+    ``"/"`` is read as a path separator and the column silently becomes a nested
+    subgroup. Two shapes wrote a file that could not be read back at all, with no error
+    at write time. The names are real -- pRolocdata's ``hyperLOPIT2015`` has an
+    "Endoplasmic reticulum/Golgi apparatus" class -- so such a matrix is demoted to a
+    plain array plus ``uns[f"{key}_categories"]``, exactly as the R writer does, rather
+    than renamed: renaming would leave the annotation spelling a compartment differently
+    from the ``gt_col`` it was built from.
+    """
+
+    @staticmethod
+    def _write_read(columns, tmp_path):
+        import h5py
+
+        data = AnnData(np.zeros((4, 2)))
+        data.obs_names = [f"P{i}" for i in range(4)]
+        values = np.arange(4 * len(columns), dtype=float).reshape(4, len(columns))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            set_matrix(data, "probs", values, columns)
+        path = tmp_path / "t.h5ad"
+        data.write_h5ad(path)
+        reloaded = read_h5ad(path)
+        with h5py.File(path) as handle:
+            node = handle["obsm/probs"]
+            layout = sorted(node.keys()) if hasattr(node, "keys") else "dataset"
+        return reloaded, values, layout
+
+    def test_plain_labels_stay_a_labelled_frame(self, tmp_path):
+        reloaded, values, layout = self._write_read(["ER", "NUC"], tmp_path)
+        assert list(reloaded.obsm["probs"].columns) == ["ER", "NUC"]
+        assert np.allclose(np.asarray(reloaded.obsm["probs"]), values)
+        assert layout == ["ER", "NUC", "_index"]
+
+    @pytest.mark.parametrize(
+        "columns",
+        [
+            # a real pRolocdata class name
+            ["ER", "Endoplasmic reticulum/Golgi apparatus", "NUC"],
+            # the subgroup "A" used to collide with the dataset "A" -> KeyError on read
+            ["A/B", "A"],
+            # a leading "/" used to be an absolute path -> written at the file root
+            ["/X", "Y"],
+        ],
+    )
+    def test_unwritable_names_are_demoted_not_renamed(self, columns, tmp_path):
+        reloaded, values, layout = self._write_read(columns, tmp_path)
+        stored = reloaded.obsm["probs"]
+        assert not isinstance(stored, pd.DataFrame)  # a plain array
+        assert layout == "dataset"  # flat, no nested group
+        assert np.allclose(np.asarray(stored), values)
+        # the names survive untouched, next door
+        assert [str(c) for c in reloaded.uns["probs_categories"]] == columns
+        # and get_matrix puts them back together
+        recovered, recovered_columns = get_matrix(reloaded, "probs")
+        assert recovered_columns == columns
+        assert np.allclose(recovered, values)
+
+    def test_a_warning_names_the_demoted_labels(self):
+        data = AnnData(np.zeros((4, 2)))
+        data.obs_names = [f"P{i}" for i in range(4)]
+        with pytest.warns(UserWarning, match="ER/Golgi"):
+            set_matrix(data, "probs", np.zeros((4, 2)), ["ER/Golgi", "NUC"])
+
+    def test_unwritable_labels_reports_only_the_offenders(self):
+        assert unwritable_labels(["A/B", "plain", "C/D"]) == ["A/B", "C/D"]
+        assert unwritable_labels(["plain", "also plain"]) == []
+
+    def test_a_nameless_array_still_reads_as_nameless(self):
+        """Bare matrices written before grassp labelled them carry no names at all."""
+        data = AnnData(np.zeros((4, 2)))
+        data.obs_names = [f"P{i}" for i in range(4)]
+        data.obsm["legacy"] = np.zeros((4, 3))
+        assert get_matrix(data, "legacy")[1] is None
