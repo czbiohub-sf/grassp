@@ -78,7 +78,7 @@ def _propagate_soft(
     iterative: bool = False,
     alpha: float = 0.8,
     max_iter: int = 30,
-    tol: float = 1e-3,
+    rtol: float = 1e-4,
     verbose: bool = False,
     fix_markers: bool = False,
 ):
@@ -101,7 +101,7 @@ def _propagate_soft(
             seed,
             alpha=alpha,
             max_iter=max_iter,
-            tol=tol,
+            rtol=rtol,
             verbose=verbose,
             warn_context="competitive_diffusion",
         )
@@ -113,10 +113,12 @@ def _propagate_soft(
         Y = labeled_oh.copy()
         Y_prev = np.zeros_like(Y)
         for _ in range(max_iter):
-            diff = np.abs(Y - Y_prev).sum()
-            if diff < tol:
+            # Relative, like `spread`: an absolute L1 sum would mean a different thing on
+            # every map, tightening as the number of proteins or classes grows.
+            diff = np.abs(Y - Y_prev).sum() / max(np.abs(Y).sum(), 1e-30)
+            if diff < rtol:
                 if verbose:
-                    print(f"Diff: {diff:.3f}, Converged")
+                    print(f"Rel. change: {diff:.3e}, Converged")
                 break
             Y_prev = Y
             Y = np.asarray(T @ Y)
@@ -126,11 +128,11 @@ def _propagate_soft(
             if fix_markers:
                 Y[~unlabeled] = labeled_oh[~unlabeled]
             if verbose:
-                print(f"Diff: {diff:.3f}, Iteration {_} completed")
+                print(f"Rel. change: {diff:.3e}, Iteration {_} completed")
         else:
             warnings.warn(
                 f"competitive_diffusion: max_iter={max_iter} reached without convergence "
-                f"(tol={tol})."
+                f"(rtol={rtol})."
             )
     else:
         # Single-step propagation along T
@@ -165,7 +167,7 @@ def _competitive_diffusion(
     obsp_key="connectivities",
     iterative: bool = False,
     max_iter: int = 30,
-    tol: float = 1e-3,
+    rtol: float = 1e-4,
     verbose: bool = False,
     fix_markers: bool = False,
     method: Literal["propagation", "spreading"] = "propagation",
@@ -210,7 +212,7 @@ def _competitive_diffusion(
         iterative=iterative,
         alpha=alpha,
         max_iter=max_iter,
-        tol=tol,
+        rtol=rtol,
         verbose=verbose,
         fix_markers=fix_markers,
     )
@@ -230,7 +232,7 @@ def competitive_diffusion(
     key_added: str = "competitive_diffusion",
     iterative: bool = False,
     max_iter: int = 1000,
-    tol: float = 1e-3,
+    rtol: float = 1e-4,
     verbose: bool = False,
     method: Literal["propagation", "spreading"] = "propagation",
     alpha: float = 0.8,
@@ -292,7 +294,7 @@ def competitive_diffusion(
         :class:`sklearn.semi_supervised.LabelPropagation`). At every step the label
         distribution is propagated along ``T`` and row-normalized; if
         ``fix_markers=True`` the labeled rows are then reset to their initial one-hot
-        encoding. Iteration stops when ``|Y - Y_prev|.sum() < tol`` or when
+        encoding. Iteration stops when the relative L1 change falls below ``rtol`` or when
         ``max_iter`` is reached. If ``False`` (default) only a single propagation step
         is performed. Ignored when ``method="spreading"`` (spreading is always
         iterative, and its soft clamp plays the role of ``fix_markers``).
@@ -304,10 +306,12 @@ def competitive_diffusion(
     max_iter
         Maximum number of propagation iterations when ``iterative=True`` or
         ``method="spreading"`` (default 1000). A warning is emitted if it is reached
-        before ``tol`` is satisfied.
-    tol
-        Convergence tolerance on the L1 change of the label distribution between
-        consecutive iterations (default ``1e-3``).
+        before ``rtol`` is satisfied.
+    rtol
+        Relative convergence tolerance (default ``1e-4``). The L1 change between
+        consecutive iterations is compared against ``rtol`` times a reference magnitude,
+        so the same number means the same thing on maps of any size and with any number
+        of compartments -- unlike an absolute L1 sum, which tightens as either grows.
     verbose
         If ``True`` print progress to the console.
     method
@@ -391,7 +395,7 @@ def competitive_diffusion(
 
     # Unclamped iteration has a degenerate fixed point: the seed is overwritten on every
     # pass, so the only thing driving the recursion is the graph itself and every column
-    # converges toward the same stationary vector. Only the `tol` early stop keeps the
+    # converges toward the same stationary vector. Only the `rtol` early stop keeps the
     # result from being uniform. On held-out markers this roughly halves macro-F1.
     if iterative and method == "propagation" and not fix_markers:
         remedy = (
@@ -421,7 +425,7 @@ def competitive_diffusion(
     #             obsp_key=obsp_key,
     #             iterative=iterative,
     #             max_iter=max_iter,
-    #             tol=tol,
+    #             rtol=rtol,
     #             verbose=verbose,
     #         )
 
@@ -462,7 +466,7 @@ def competitive_diffusion(
         obsp_key=obsp_key,
         iterative=iterative,
         max_iter=max_iter,
-        tol=tol,
+        rtol=rtol,
         verbose=verbose,
         fix_markers=fix_markers,
         method=method,
@@ -802,7 +806,7 @@ def resolve_soft_labels(
     iterative: bool | None = None,
     alpha: float | None = None,
     max_iter: int = 30,
-    tol: float = 1e-3,
+    rtol: float = 1e-4,
     unknown_label: str | None = "unknown",
     unknown_gate: float = 0.5,
     null: Literal["permutation", "analytic"] | None = "permutation",
@@ -869,7 +873,7 @@ def resolve_soft_labels(
         Affinity graph used for re-propagating the null. ``None`` (default) takes it from
         the annotation's own ``uns[f"{key}_params"]``, so the null sees the graph the
         annotator saw.
-    method, iterative, alpha, max_iter, tol
+    method, iterative, alpha, max_iter, rtol
         Propagation settings for the null. ``None`` takes each from the annotation's
         recorded parameters, which is what makes the null test the same math that
         produced the probabilities. Give them explicitly to override.
@@ -983,7 +987,7 @@ def resolve_soft_labels(
         ),
         "alpha": alpha if alpha is not None else (recorded.get("alpha") or 0.8),
         "max_iter": max_iter,
-        "tol": tol,
+        "rtol": rtol,
     }
     if obsp_key is None:
         obsp_key = recorded.get("obsp_key", "connectivities")

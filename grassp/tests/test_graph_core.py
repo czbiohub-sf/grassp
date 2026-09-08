@@ -58,33 +58,51 @@ class TestSpread:
             with pytest.raises(ValueError, match=r"alpha must be in \[0, 1\]"):
                 _graph.spread(S, Y0, alpha=bad)
 
-    def test_tolerance_is_per_column(self, graph):
-        """The whole point of the unification: the iteration count must not depend on how
-        many classes there are."""
+    @pytest.mark.parametrize("alpha", [0.5, 0.8, 0.95])
+    def test_rtol_bounds_the_relative_error_whatever_the_shape(self, graph, alpha):
+        """``rtol`` must mean the same thing regardless of how many classes there are,
+        how many proteins there are, or how large the seed values are.
+
+        An absolute L1 test fails all three: it tightens as the matrix grows and loosens
+        as the numbers shrink. Here the achieved relative error must track ``rtol`` and
+        must not drift with the shape or the scale of the input.
+        """
         rng = np.random.default_rng(0)
         S = _graph.symmetric_normalized(graph.obsp["connectivities"])
-        per_column_error = {}
+        errors = {}
         for k in (2, 5, 20):
-            Y0 = self._seed(graph.n_obs, k, rng)
-            result = _graph.spread(S, Y0, alpha=0.8, tol=1e-3)
-            reference = _graph.spread(S, Y0, alpha=0.8, tol=1e-12, max_iter=5000)
-            # per-column tolerance => per-column error, independent of k
-            per_column_error[k] = np.abs(result - reference).sum() / k
-        errors = list(per_column_error.values())
-        assert max(errors) < 1e-2
-        # and they are the same order of magnitude, rather than growing with k
-        assert max(errors) / min(errors) < 20
+            for scale in (1.0, 1000.0):
+                Y0 = self._seed(graph.n_obs, k, rng) * scale
+                result = _graph.spread(S, Y0, alpha=alpha, rtol=1e-4)
+                exact = _graph.spread(S, Y0, alpha=alpha, rtol=1e-12, max_iter=20000)
+                errors[(k, scale)] = np.abs(result - exact).sum() / np.abs(exact).sum()
+        assert max(errors.values()) < 1e-4, errors
+        # and the same order of magnitude everywhere, rather than drifting with k, n or scale
+        assert max(errors.values()) / max(min(errors.values()), 1e-12) < 10, errors
+
+    def test_rtol_scales_the_error_linearly(self, graph):
+        """Tightening ``rtol`` by 10x must tighten the achieved error by about 10x --
+        that is what makes the number interpretable rather than merely monotone."""
+        S = _graph.symmetric_normalized(graph.obsp["connectivities"])
+        Y0 = self._seed(graph.n_obs, 5, np.random.default_rng(0))
+        exact = _graph.spread(S, Y0, alpha=0.9, rtol=1e-12, max_iter=20000)
+        err = {}
+        for rtol in (1e-3, 1e-4, 1e-5):
+            got = _graph.spread(S, Y0, alpha=0.9, rtol=rtol, max_iter=20000)
+            err[rtol] = np.abs(got - exact).sum() / np.abs(exact).sum()
+        assert 3 < err[1e-3] / err[1e-4] < 30, err
+        assert 3 < err[1e-4] / err[1e-5] < 30, err
 
     def test_warns_only_when_asked(self, graph):
         S = _graph.symmetric_normalized(graph.obsp["connectivities"])
         Y0 = self._seed(graph.n_obs, 3, np.random.default_rng(0))
         with pytest.warns(UserWarning, match="without convergence"):
-            _graph.spread(S, Y0, alpha=0.99, max_iter=1, tol=1e-12, warn_context="ctx")
+            _graph.spread(S, Y0, alpha=0.99, max_iter=1, rtol=1e-12, warn_context="ctx")
         import warnings as w
 
         with w.catch_warnings():
             w.simplefilter("error")
-            _graph.spread(S, Y0, alpha=0.99, max_iter=1, tol=1e-12)
+            _graph.spread(S, Y0, alpha=0.99, max_iter=1, rtol=1e-12)
 
 
 class TestAffinity:
