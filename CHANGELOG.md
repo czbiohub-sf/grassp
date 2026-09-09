@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.5.0](https://github.com/czbiohub-sf/grassp/compare/v0.4.0...v0.5.0) (2026-09-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* gr.tl.knn_f1_score is now gr.tl.annotation_f1_score, gr.tl.knn_confusion_matrix is now gr.tl.annotation_confusion_matrix, gr.pl.knn_violin is now gr.pl.annotation_violin and gr.pl.knn_marker_df is now gr.pl.annotation_marker_df. pred_col is required on the two tl functions; pass the annotation you want scored, e.g. pred_col="competitive_diffusion".
+* read_prolocdata now returns NaN where it previously returned the string "unknown". Any code that filtered on == "unknown" needs .isna(), and marker counts will change. Pass unknown_to_nan=False to restore the old output.
+
+### Features
+
+* embeddings with nice labels ([#26](https://github.com/czbiohub-sf/grassp/issues/26)) ([30d754f](https://github.com/czbiohub-sf/grassp/commit/30d754ff7d3d04db350438a24c161f5cb226875c))
+* pRoloc interoperability — exchange objects as plain h5ad ([#31](https://github.com/czbiohub-sf/grassp/issues/31)) ([63d1463](https://github.com/czbiohub-sf/grassp/commit/63d14633a2bf1846dd3e4b9342f9c59612ffc4c2))
+* rename competitive_propagation to competitive_diffusion ([c374ffb](https://github.com/czbiohub-sf/grassp/commit/c374ffbc9bd54b315bcb361f6dc11e5e20d5383c))
+* warn when competitive_propagation iterates without clamped markers ([308217a](https://github.com/czbiohub-sf/grassp/commit/308217a885b6307f760adcd15e6ccc3bdda89198))
+
+
+### Code Refactoring
+
+* Annotation functions ([#33](https://github.com/czbiohub-sf/grassp/issues/33)) ([0f8b141](https://github.com/czbiohub-sf/grassp/commit/0f8b1417e7d5867f9f640084aab27ec6709b04d6))
+
 ## [0.4.0](https://github.com/czbiohub-sf/grassp/compare/v0.3.0...v0.4.0) (2026-08-10)
 
 
