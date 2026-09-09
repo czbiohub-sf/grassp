@@ -30,6 +30,7 @@ Many of [Scanpy's plotting](https://scanpy.readthedocs.io/en/stable/api/plotting
 ```
 
 ## Embedding
+
 ```{eval-rst}
 .. autosummary::
    :nosignatures:
@@ -39,6 +40,8 @@ Many of [Scanpy's plotting](https://scanpy.readthedocs.io/en/stable/api/plotting
    pl.umap_prob
    pl.pca_prob
    pl.tsne_prob
+   pl.umap
+   pl.pretty_embedding
 ```
 
 ## Integration

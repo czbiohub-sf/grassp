@@ -34,6 +34,7 @@ classifiers = [
 
 # list package dependencies here
 dependencies = [
+    "adjustText",
     "anndata",
     "markov_clustering",
     "matplotlib",
