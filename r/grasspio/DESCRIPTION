@@ -41,5 +41,5 @@ Remotes:
 VignetteBuilder: knitr
 URL: https://github.com/czbiohub-sf/grassp
 BugReports: https://github.com/czbiohub-sf/grassp/issues
-RoxygenNote: 7.3.2
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0
