@@ -11,6 +11,12 @@ version_scheme = "post-release"
 local_scheme = "no-local-version"
 write_to = "grassp/_version.py"
 fallback_version = "0.0.1"
+# Match only this package's own tags. release-please releases the R package in r/grasspio
+# from the same run, tagging the same commit as grasspio-v*, and `git describe` returns that
+# ahead of v0.5.0. setuptools_scm's default tag_regex allows a leading name, so it read
+# grasspio-v0.1.0 as 0.1.0 and the build produced the wrong version.
+git_describe_command = "git describe --dirty --tags --long --abbrev=40 --match v[0-9]*"
+tag_regex = '^v(?P<version>\d+(?:\.\d+){0,2}.*)$'
 
 [project]
 name =  "grassp"
