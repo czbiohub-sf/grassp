@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/czbiohub-sf/grassp/compare/v0.5.0...v0.5.1) (2026-09-22)
+
+
+### Bug Fixes
+
+* release please gets the right tag ([2b93df8](https://github.com/czbiohub-sf/grassp/commit/2b93df8edfd4cc28e56271d7cbfe4d4f8771a3fd))
+
 ## [0.5.0](https://github.com/czbiohub-sf/grassp/compare/v0.4.0...v0.5.0) (2026-09-22)
 
 
