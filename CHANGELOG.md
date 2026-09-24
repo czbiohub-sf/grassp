@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/czbiohub-sf/grassp/compare/v0.5.1...v0.6.0) (2026-09-24)
+
+
+### Features
+
+* add compartments and gocc vocabs to grassp ([89a80ca](https://github.com/czbiohub-sf/grassp/commit/89a80ca60dd9d8cd75e6eca3265f08ebe229f9c9))
+* gene set reader function ([cb6ce27](https://github.com/czbiohub-sf/grassp/commit/cb6ce273dd7ad1dfd9c619bb754afffc8c0fa4d6))
+
 ## [0.5.1](https://github.com/czbiohub-sf/grassp/compare/v0.5.0...v0.5.1) (2026-09-22)
 
 
