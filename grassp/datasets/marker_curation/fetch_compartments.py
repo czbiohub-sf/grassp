@@ -51,6 +51,8 @@ from _vocab_utils import (  # noqa: E402
     collapse_near_duplicates,
     deduplicate_identical,
     download,
+    file_fingerprint,
+    remote_metadata,
     write_gmt,
     write_provenance,
 )
@@ -212,7 +214,13 @@ def main() -> None:
         source="COMPARTMENTS knowledge channel (Binder et al. 2014)",
         url=URL,
         homepage="https://compartments.jensenlab.org",
-        release=None,  # rolling file; no versioned archive exists
+        # COMPARTMENTS has no versioned archive: download.jensenlab.org serves one
+        # rolling file per species/channel, with no dated copies and no release index.
+        # The checksum of the bytes we built from is the closest thing to a version,
+        # and upstream's Last-Modified dates the copy we saw.
+        release=None,
+        source_file=file_fingerprint(Path(source)),
+        source_upstream=remote_metadata(URL),
         species="hsap",
         gene_ids="symbol",
         recipe={
