@@ -15,6 +15,7 @@ one home.
 
 from __future__ import annotations
 import gzip
+import json
 import pickle
 
 from pathlib import Path
@@ -33,16 +34,37 @@ _SPECIES_TO_FILE_TOKEN: dict[str, str] = {
 _EXTERNAL = Path(__file__).parent / "external"
 
 
-def _resolve_path(stem: str, species: str) -> Path:
-    """Map ``(stem, species code)`` onto a bundled GMT, or raise with the options."""
+def _resolve_path(stem: str, species: str, available: set[str] | None = None) -> Path:
+    """Map ``(stem, species code)`` onto a bundled GMT, or raise with the options.
+
+    ``available`` narrows the species for sources that are only vendored for some of
+    them -- COMPARTMENTS and GO CC are human-only -- so the caller gets "bundled for
+    hsap only" rather than a FileNotFoundError on a path they never chose.
+    """
     if species not in _SPECIES_TO_FILE_TOKEN:
         raise ValueError(
             f"species must be one of {sorted(_SPECIES_TO_FILE_TOKEN)}, got {species!r}"
         )
+    if available is not None and species not in available:
+        raise ValueError(f"{stem!r} is bundled for {sorted(available)} only, got {species!r}")
     path = _EXTERNAL / f"{stem}_{_SPECIES_TO_FILE_TOKEN[species]}.gmt"
     if not path.exists():  # pragma: no cover - only reachable from a broken install
         raise FileNotFoundError(f"Bundled gene sets missing: {path}")
     return path
+
+
+def provenance(stem: str, species: str = "hsap") -> dict:
+    """How a vendored vocabulary was built: source, release, build date, recipe.
+
+    Written by the ``marker_curation`` scripts next to the GMT. COMPARTMENTS has no
+    upstream version to cite -- Jensen lab publish a rolling file -- so ``built`` is the
+    only handle on which vocabulary a result came from, which is why the accessors quote
+    it in their docstrings and a test keeps the two in step.
+    """
+    path = _resolve_path(stem, species).with_suffix(".json")
+    if not path.exists():
+        raise FileNotFoundError(f"No provenance sidecar for {stem!r} ({species}): {path}")
+    return json.loads(path.read_text())
 
 
 def _read_gmt(path: Path) -> dict[str, tuple[str, list[str]]]:
@@ -249,4 +271,137 @@ def gene_sets_uniprot_sl(
         parsed = {term: value for term, value in parsed.items() if _is_under(value[0])}
 
     gene_sets = {term: genes for term, (_, genes) in parsed.items()}
+    return _apply_min_genes(gene_sets, min_genes)
+
+
+def gene_sets_compartments(
+    species: Species = "hsap",
+    *,
+    min_genes: int | None = None,
+) -> dict[str, list[str]]:
+    """COMPARTMENTS curated subcellular localisation, 874 terms for human.
+
+    COMPARTMENTS (Binder et al. 2014, https://compartments.jensenlab.org) integrates
+    localisation evidence from several channels; this is the **knowledge** channel, the
+    curated one -- manually assigned GO cellular-component terms carrying a 1-5 star
+    confidence, already propagated over the ontology. Kept at confidence >= 3 and >= 5
+    genes, with generic and non-locational terms removed (whole-cell aggregators,
+    topology qualifiers, "region of" groupings, the extracellular-exosome dump) and
+    near-duplicate gene sets collapsed at Jaccard >= 0.8, keeping the canonical
+    organelle name.
+
+    Sits between :func:`gene_sets_curated` and :func:`gene_sets_go_cc` in granularity.
+    Term labels are upper-case, as in both published grassp analyses; the GO id is in
+    the GMT's description column.
+
+    **Vendored build: 2026-09-24.** COMPARTMENTS publishes no versioned archive, only a
+    rolling download, so this build date is the only version this vocabulary has --
+    quote it when reporting results. :func:`grassp.datasets.gene_sets.provenance`
+    returns the full record, and ``marker_curation/fetch_compartments.py`` rebuilds it.
+
+    Parameters
+    ----------
+    species
+        Only ``"hsap"`` is bundled; the knowledge channel for other species is not
+        curated to a comparable standard.
+    min_genes
+        Drop terms with fewer than this many genes. The build already applies a floor of
+        5; raising it further is worthwhile for enrichment testing.
+
+    Returns
+    -------
+    dict[str, list[str]]
+        Mapping of upper-case compartment name to gene symbols.
+
+    See Also
+    --------
+    gene_sets_curated : the coarse, experiment-resolvable compartments to start from.
+    gene_sets_go_cc : the finer GO cellular-component vocabulary.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> sets = gr.ds.gene_sets_compartments()
+    >>> len(sets)
+    874
+    >>> len(gr.ds.gene_sets_compartments(min_genes=20))
+    404
+
+    Notes
+    -----
+    13 term names contain ``/``, which h5ad rejects as an obsm column name; annotators
+    fall back to ``uns[f"{key}_probabilities_categories"`` for those.
+    """
+    path = _resolve_path("compartments", species, available={"hsap"})
+    gene_sets = {term: genes for term, (_, genes) in _read_gmt(path).items()}
+    return _apply_min_genes(gene_sets, min_genes)
+
+
+def gene_sets_go_cc(
+    species: Species = "hsap",
+    *,
+    min_genes: int | None = None,
+) -> dict[str, list[str]]:
+    """Cleaned, propagated GO cellular component, 1829 terms for human.
+
+    The finest of the bundled vocabularies. Raw GO CC is not usable as a label set --
+    it mixes places a protein can be with groupings that only organise the ontology,
+    and GOA's high-throughput evidence codes dump most of the proteome into
+    ``extracellular exosome`` -- so this is the cleaned form: locational qualifiers
+    only, high-throughput evidence dropped, propagated over ``is_a`` + ``part_of``,
+    generic terms removed, grouping terms whose descendants span three or more major
+    organelles removed, and near-duplicates collapsed at Jaccard >= 0.9 keeping the
+    most specific term.
+
+    At this granularity most terms are not separable in a fractionation profile, so
+    set ``min_term_size`` when diffusing: of the 1829 terms only ~380 have 20 or more
+    members in a typical 9,500-protein map, and a call to one of the remaining 1,400 is
+    a statement about the annotation rather than about the data.
+
+    Labels are ``name (GO:id)``, matching both published grassp analyses; the bare GO id
+    is also in the GMT's description column.
+
+    **Vendored build: 2026-09-24, from GO release 2026-06-19 (ontology 2026-06-15).**
+    :func:`grassp.datasets.gene_sets.provenance` returns the full record, and
+    ``marker_curation/fetch_go_cc.py`` rebuilds it against another release.
+
+    Parameters
+    ----------
+    species
+        Only ``"hsap"`` is bundled.
+    min_genes
+        Drop terms with fewer than this many genes. This is a floor on the *vocabulary*;
+        for a floor relative to the object being annotated -- usually what you want --
+        pass ``min_term_size`` to :func:`grassp.tl.independent_diffusion` instead.
+
+    Returns
+    -------
+    dict[str, list[str]]
+        Mapping of ``name (GO:id)`` to gene symbols.
+
+    See Also
+    --------
+    gene_sets_curated : the coarse, experiment-resolvable compartments to start from.
+    grassp.tl.independent_diffusion : one-vs-rest diffusion, which these sets are for.
+
+    Examples
+    --------
+    >>> import grassp as gr
+    >>> sets = gr.ds.gene_sets_go_cc()
+    >>> len(sets)
+    1829
+    >>> "nucleolus (GO:0005730)" in sets
+    True
+
+    Notes
+    -----
+    The published builds additionally dropped terms covering over half of the dataset
+    being annotated, which made the vocabulary dataset-dependent. Audited against both
+    published populations that filter removed exactly one term, ``cytoplasm``, so
+    GO:0005737 is simply blacklisted here and the vocabulary is the same artifact for
+    every dataset. 35 term names contain ``/``, which h5ad rejects as an obsm column
+    name.
+    """
+    path = _resolve_path("go_cc", species, available={"hsap"})
+    gene_sets = {term: genes for term, (_, genes) in _read_gmt(path).items()}
     return _apply_min_genes(gene_sets, min_genes)

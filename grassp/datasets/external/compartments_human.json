@@ -1,0 +1,19 @@
+{
+  "gmt": "compartments_human.gmt",
+  "built": "2026-09-24",
+  "n_terms": 874,
+  "source": "COMPARTMENTS knowledge channel (Binder et al. 2014)",
+  "url": "https://download.jensenlab.org/human_compartment_knowledge_full.tsv",
+  "homepage": "https://compartments.jensenlab.org",
+  "release": null,
+  "species": "hsap",
+  "gene_ids": "symbol",
+  "recipe": {
+    "min_confidence": 3,
+    "min_genes": 5,
+    "drop_terms": 43,
+    "generic_patterns": 15,
+    "jaccard": 0.8,
+    "jaccard_keeps": "shortest name"
+  }
+}

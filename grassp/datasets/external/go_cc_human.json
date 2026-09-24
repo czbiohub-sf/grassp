@@ -1,0 +1,40 @@
+{
+  "gmt": "go_cc_human.gmt",
+  "built": "2026-09-24",
+  "n_terms": 1829,
+  "source": "GO cellular component + GOA human (GAF)",
+  "url": "https://release.geneontology.org/2026-06-19/annotations/gaf/HUMAN-uniprot.gaf.gz",
+  "homepage": "https://geneontology.org",
+  "release": "2026-06-19",
+  "ontology_data_version": "releases/2026-06-15",
+  "species": "hsap",
+  "gene_ids": "symbol",
+  "recipe": {
+    "keep_qualifiers": [
+      "is_active_in",
+      "located_in",
+      "part_of"
+    ],
+    "drop_evidence": [
+      "HDA",
+      "HTP",
+      "ND"
+    ],
+    "propagate": [
+      "is_a",
+      "part_of"
+    ],
+    "generic_terms": [
+      "GO:0005575",
+      "GO:0005737",
+      "GO:0016020",
+      "GO:0031974",
+      "GO:0032991",
+      "GO:0043226",
+      "GO:0110165"
+    ],
+    "major_span": 3,
+    "jaccard": 0.9,
+    "jaccard_keeps": "most specific"
+  }
+}

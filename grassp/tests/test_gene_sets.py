@@ -5,11 +5,18 @@ species map lives in one place; the tests below pin both the accessors and that 
 delegation kept the tools' behaviour identical.
 """
 
+import re
+
 import pytest
 
 import grassp as gr
 
-from grassp.datasets.gene_sets import _apply_min_genes, _read_gmt, _resolve_path
+from grassp.datasets.gene_sets import (
+    _apply_min_genes,
+    _read_gmt,
+    _resolve_path,
+    provenance,
+)
 from grassp.tools.enrichment import _load_gmt
 
 SPECIES_TERM_COUNTS = {"hsap": 24, "mmus": 24, "scer": 23}
@@ -134,3 +141,110 @@ class TestToolsStillResolveTheBundledDefault:
         second = gr.ds.gene_sets_curated()
         assert "Nucleus" in second
         assert second["Cytoplasm"]
+
+
+class TestGeneSetsCompartments:
+    def test_resolves(self):
+        sets = gr.ds.gene_sets_compartments()
+        assert len(sets) == 874
+        assert all(genes for genes in sets.values())
+
+    def test_labels_are_upper_case(self):
+        """Both published analyses have COMPARTMENTS terms upper-cased; downstream
+        colour lookup is case-insensitive but cross-vocabulary joins are not."""
+        assert all(term == term.upper() for term in gr.ds.gene_sets_compartments())
+
+    def test_the_build_floor_of_five_genes_held(self):
+        assert min(len(g) for g in gr.ds.gene_sets_compartments().values()) >= 5
+
+    def test_generic_terms_are_absent(self):
+        """The whole point of the drop-list: CYTOPLASM and friends name no place."""
+        sets = gr.ds.gene_sets_compartments()
+        for term in ("CYTOPLASM", "MEMBRANE", "ORGANELLE", "EXTRACELLULAR EXOSOME"):
+            assert term not in sets
+
+    def test_description_column_carries_the_go_id(self):
+        parsed = _read_gmt(_resolve_path("compartments", "hsap"))
+        description, _ = parsed["NUCLEOLUS"]
+        assert description.startswith("GO:")
+
+    def test_is_bundled_for_human_only(self):
+        for species in ("mmus", "scer"):
+            with pytest.raises(ValueError, match="bundled for \\['hsap'\\] only"):
+                gr.ds.gene_sets_compartments(species)
+
+
+class TestGeneSetsGoCc:
+    def test_resolves(self):
+        assert len(gr.ds.gene_sets_go_cc()) == 1829
+
+    def test_labels_carry_the_go_id(self):
+        sets = gr.ds.gene_sets_go_cc()
+        assert "nucleolus (GO:0005730)" in sets
+        assert all(re.search(r"\(GO:\d{7}\)$", term) for term in sets)
+
+    def test_cytoplasm_is_blacklisted(self):
+        """It replaces the published population filter, which removed exactly this one
+        term against both published populations."""
+        assert "cytoplasm (GO:0005737)" not in gr.ds.gene_sets_go_cc()
+
+    def test_structural_generics_are_absent(self):
+        sets = gr.ds.gene_sets_go_cc()
+        for term in (
+            "membrane (GO:0016020)",
+            "organelle (GO:0043226)",
+            "cellular_component (GO:0005575)",
+        ):
+            assert term not in sets
+
+    def test_is_finer_than_every_other_bundled_vocabulary(self):
+        assert (
+            len(gr.ds.gene_sets_go_cc())
+            > len(gr.ds.gene_sets_compartments())
+            > len(gr.ds.gene_sets_uniprot_sl())
+            > len(gr.ds.gene_sets_curated())
+        )
+
+    def test_is_bundled_for_human_only(self):
+        with pytest.raises(ValueError, match="bundled for \\['hsap'\\] only"):
+            gr.ds.gene_sets_go_cc("mmus")
+
+
+class TestProvenance:
+    """The vendored vocabularies are built from rolling downloads, so the build date is
+    the only version COMPARTMENTS has. These keep it recorded and quoted accurately."""
+
+    @pytest.mark.parametrize("stem", ["compartments", "go_cc"])
+    def test_sidecar_exists_and_is_complete(self, stem):
+        record = provenance(stem)
+        for field in ("gmt", "built", "n_terms", "source", "url", "species", "recipe"):
+            assert field in record, f"{stem} provenance is missing {field!r}"
+        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", record["built"])
+
+    @pytest.mark.parametrize(
+        "stem,fn",
+        [("compartments", gr.ds.gene_sets_compartments), ("go_cc", gr.ds.gene_sets_go_cc)],
+    )
+    def test_sidecar_term_count_matches_the_gmt(self, stem, fn):
+        assert provenance(stem)["n_terms"] == len(fn())
+
+    @pytest.mark.parametrize(
+        "stem,fn",
+        [("compartments", gr.ds.gene_sets_compartments), ("go_cc", gr.ds.gene_sets_go_cc)],
+    )
+    def test_docstring_quotes_the_real_build_date(self, stem, fn):
+        """A docstring that states a build date goes stale the moment the vocabulary is
+        rebuilt, and a stale date is worse than none -- it is what someone will cite."""
+        built = provenance(stem)["built"]
+        assert built in fn.__doc__, (
+            f"{fn.__name__} docstring does not quote its build date {built!r}; "
+            f"rerun marker_curation/fetch_{stem}.py and update the docstring"
+        )
+
+    def test_docstring_quotes_the_go_release(self):
+        release = provenance("go_cc")["release"]
+        assert release in gr.ds.gene_sets_go_cc.__doc__
+
+    def test_unknown_source_raises(self):
+        with pytest.raises(FileNotFoundError, match="No provenance sidecar"):
+            provenance("uniprot_subcell")

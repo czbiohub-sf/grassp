@@ -13,6 +13,7 @@ grassp/datasets/marker_curation/*.tsv
 grassp/datasets/marker_curation/*.md
 !grassp/datasets/marker_curation/README.md
 grassp/datasets/marker_curation/*.csv
+grassp/datasets/marker_curation/_cache/
 grassp/datasets/marker_curation/*.xlsx
 grassp/_version.py
 CLAUDE.md

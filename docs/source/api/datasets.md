@@ -60,6 +60,11 @@ experiment can usually resolve. Functions return `{term: [gene, ...]}` dicts, re
 to e.g. {func}`~grassp.tl.mgsa`, {func}`~grassp.tl.calculate_cluster_enrichment` or
 {func}`~grassp.tl.merge_clusters_go` {func}`~grassp.tl.independent_diffusion`.
 
+`gene_sets_compartments` and `gene_sets_go_cc` are vendored builds of rolling
+downloads rather than pinned releases, so each one's docstring quotes the date its
+file was built; {func}`~grassp.datasets.gene_sets.provenance` returns the full
+record, including the source URL and every recipe parameter.
+
 ```{eval-rst}
 .. autosummary::
    :nosignatures:
@@ -67,4 +72,6 @@ to e.g. {func}`~grassp.tl.mgsa`, {func}`~grassp.tl.calculate_cluster_enrichment`
 
    ds.gene_sets_curated
    ds.gene_sets_uniprot_sl
+   ds.gene_sets_compartments
+   ds.gene_sets_go_cc
 ```

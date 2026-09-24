@@ -8,4 +8,9 @@ from .example_data import (
     load_dataset,
     schessner_2023,
 )
-from .gene_sets import gene_sets_curated, gene_sets_uniprot_sl
+from .gene_sets import (
+    gene_sets_compartments,
+    gene_sets_curated,
+    gene_sets_go_cc,
+    gene_sets_uniprot_sl,
+)
