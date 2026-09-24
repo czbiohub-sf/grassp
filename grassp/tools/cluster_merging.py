@@ -1075,12 +1075,10 @@ def merge_clusters_go(
         ``dict[str, list[str]]``, or ``None`` (uses the consolidated UniProt
         subcellular compartment gene sets for the chosen ``species``).
     species
-        Species code used to pick the default gene-set file when
-        ``gene_sets_path`` is ``None``. One of ``"hsap"`` (human,
-        ``uniprot_subcell_consolidated_human.gmt``), ``"mmus"`` (mouse,
-        ``uniprot_subcell_consolidated_mouse.gmt``), or ``"scer"`` (yeast,
-        ``uniprot_subcell_consolidated_yeast.gmt``). Default ``"hsap"``. Ignored when
-        an explicit ``gene_sets_path`` is provided.
+        Species code used to pick the default gene sets when ``gene_sets_path`` is
+        ``None``. One of ``"hsap"``, ``"mmus"`` or ``"scer"``, passed to
+        :func:`grassp.ds.gene_sets_curated`. Default ``"hsap"``. Ignored when an
+        explicit ``gene_sets_path`` is provided.
     deduplicate_terms
         If ``True`` (default), collapse gene sets with identical membership to a
         single term (keeping the first-seen name) before merging, so synonymous /

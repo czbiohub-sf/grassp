@@ -939,6 +939,14 @@ def add_markers(
     >>> # Disable automatic color mapping
     >>> gr.pp.add_markers(adata, species='hsap', authors=['marker_lilley'], add_colors=False)  # doctest: +ELLIPSIS
     Added marker_lilley annotations for ...
+
+    See Also
+    --------
+    grassp.ds.gene_sets_curated : compartment gene sets, as a ``{term: [gene, ...]}``
+        mapping rather than ``.obs`` label columns. Marker sets are single-label and so
+        fit a column; gene sets are many-to-many and do not.
+    grassp.ds.gene_sets_uniprot_sl : the full UniProt subcellular-location vocabulary.
+    add_external_validation_markers : topology and mitochondrial reference annotations.
     """
     # Construct file path
     module_path = Path(__file__).parent.parent

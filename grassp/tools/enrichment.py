@@ -1,5 +1,4 @@
 from __future__ import annotations
-from pathlib import Path
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 if TYPE_CHECKING:
@@ -8,13 +7,7 @@ if TYPE_CHECKING:
 import numpy as np
 import pandas as pd
 
-# Map from species code → filename of the bundled consolidated GMT.
-# Shared between `calculate_cluster_enrichment` and `merge_clusters_go`.
-_SPECIES_TO_GMT_FILENAME: dict[str, str] = {
-    "hsap": "uniprot_subcell_consolidated_human.gmt",
-    "mmus": "uniprot_subcell_consolidated_mouse.gmt",
-    "scer": "uniprot_subcell_consolidated_yeast.gmt",
-}
+from ..datasets.gene_sets import gene_sets_curated
 
 
 def _deduplicate_gene_sets(
@@ -63,8 +56,7 @@ def _load_gmt(
           sets bundled with grassp, picked according to ``species``.
     species
         Used only when ``path is None``. One of ``"hsap"``, ``"mmus"``,
-        ``"scer"``; selects the matching ``uniprot_subcell_consolidated_*.gmt`` file
-        in ``grassp/datasets/external/``.
+        ``"scer"``; passed to :func:`grassp.ds.gene_sets_curated`.
     deduplicate_terms
         If ``True`` (default), collapse terms with identical gene membership via
         :func:`_deduplicate_gene_sets`, keeping the first-seen name. A no-op for
@@ -78,17 +70,10 @@ def _load_gmt(
     if isinstance(path, dict):
         return _deduplicate_gene_sets(path) if deduplicate_terms else dict(path)
     if path is None:
-        if species not in _SPECIES_TO_GMT_FILENAME:
-            raise ValueError(
-                f"species must be one of {sorted(_SPECIES_TO_GMT_FILENAME)}, "
-                f"got {species!r}"
-            )
-        path = str(
-            Path(__file__).parent.parent
-            / "datasets"
-            / "external"
-            / _SPECIES_TO_GMT_FILENAME[species]
-        )
+        # One home for the species map and the bundled filenames: `ds.gene_sets_curated`
+        # raises on an unknown species with the same message this used to build itself.
+        gene_sets = gene_sets_curated(species)
+        return _deduplicate_gene_sets(gene_sets) if deduplicate_terms else gene_sets
 
     import os
 
