@@ -50,15 +50,3 @@ datasets from the [pRoloc](https://bioconductor.org/packages/pRolocdata/) collec
    ds.list_prolocdata_files
    ds.download_prolocdata
 ```
-
-## Metadata
-
-Reference annotations bundled with grassp.
-
-```{eval-rst}
-.. autosummary::
-   :nosignatures:
-   :toctree: ../generated/
-
-   ds.uniprot_compartment_goterms
-```
