@@ -1077,9 +1077,9 @@ def merge_clusters_go(
     species
         Species code used to pick the default gene-set file when
         ``gene_sets_path`` is ``None``. One of ``"hsap"`` (human,
-        ``consolidated_goterms_human.gmt``), ``"mmus"`` (mouse,
-        ``consolidated_goterms_mouse.gmt``), or ``"scer"`` (yeast,
-        ``consolidated_goterms_yeast.gmt``). Default ``"hsap"``. Ignored when
+        ``uniprot_subcell_consolidated_human.gmt``), ``"mmus"`` (mouse,
+        ``uniprot_subcell_consolidated_mouse.gmt``), or ``"scer"`` (yeast,
+        ``uniprot_subcell_consolidated_yeast.gmt``). Default ``"hsap"``. Ignored when
         an explicit ``gene_sets_path`` is provided.
     deduplicate_terms
         If ``True`` (default), collapse gene sets with identical membership to a

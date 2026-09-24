@@ -5,9 +5,9 @@ For each (species, fine-grained term) pair, queries UniProt for reviewed
 entries whose ``cc_scl_term`` matches the term, splits multi-name gene-name
 fields into individual rows, deduplicates, and writes:
 
-- ``./consolidated_goterms_{species}.csv`` with columns
+- ``./uniprot_subcell_consolidated_{species}.csv`` with columns
   ``Compartment, Compartment_consolidated, Gene_name``
-- ``../grassp/datasets/external/consolidated_goterms_{species}.gmt`` keyed
+- ``../grassp/datasets/external/uniprot_subcell_consolidated_{species}.gmt`` keyed
   on the consolidated compartment label.
 
 In addition, a handful of large protein complexes that subcellular proteomics
@@ -22,7 +22,7 @@ to, so both granularities are available as markers (the coarse label remains a
 fallback).
 
 Run from anywhere:
-    python marker_curation/fetch_custom_goterms.py
+    python marker_curation/fetch_consolidated_terms.py
 """
 
 from __future__ import annotations
@@ -286,9 +286,13 @@ def fetch_species(species: str, taxon_id: int, session: requests.Session) -> pd.
 
 
 def write_gmt(df: pd.DataFrame, path: Path) -> None:
-    """Write a GMT file (matching ``consolidated_goterms.gmt``) keyed on the
-    consolidated compartment label, one row per consolidated compartment with
-    all unique gene names."""
+    """Write a GMT file keyed on the consolidated compartment label, one row per
+    consolidated compartment with all unique gene names.
+
+    The description column is a literal ``Uniprot_SL`` rather than an ontology id:
+    these are UniProt subcellular-location terms, not GO terms. A handful of rows
+    (the ribosomal subunits, the proteasome, RNA granules) come from Complex Portal
+    or are custom groupings and have no SL node behind them."""
     with path.open("w") as f:
         for compartment, group in df.groupby("Compartment_consolidated", sort=True):
             genes = sorted(set(group["Gene_name"]))
@@ -308,11 +312,11 @@ def main() -> None:
         print(f"\n=== {species} (taxon {taxon_id}) ===")
         df = fetch_species(species, taxon_id, session)
 
-        csv_path = here / f"consolidated_goterms_{species}.csv"
+        csv_path = here / f"uniprot_subcell_consolidated_{species}.csv"
         df.to_csv(csv_path, index=False)
         print(f"  -> {csv_path}  ({len(df)} unique gene rows)")
 
-        gmt_path = here.parent / "external" / f"consolidated_goterms_{species}.gmt"
+        gmt_path = here.parent / "external" / f"uniprot_subcell_consolidated_{species}.gmt"
 
         write_gmt(df, gmt_path)
         n_compartments = df["Compartment_consolidated"].nunique()

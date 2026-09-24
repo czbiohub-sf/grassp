@@ -11,9 +11,9 @@ import pandas as pd
 # Map from species code → filename of the bundled consolidated GMT.
 # Shared between `calculate_cluster_enrichment` and `merge_clusters_go`.
 _SPECIES_TO_GMT_FILENAME: dict[str, str] = {
-    "hsap": "consolidated_goterms_human.gmt",
-    "mmus": "consolidated_goterms_mouse.gmt",
-    "scer": "consolidated_goterms_yeast.gmt",
+    "hsap": "uniprot_subcell_consolidated_human.gmt",
+    "mmus": "uniprot_subcell_consolidated_mouse.gmt",
+    "scer": "uniprot_subcell_consolidated_yeast.gmt",
 }
 
 
@@ -63,7 +63,7 @@ def _load_gmt(
           sets bundled with grassp, picked according to ``species``.
     species
         Used only when ``path is None``. One of ``"hsap"``, ``"mmus"``,
-        ``"scer"``; selects the matching ``consolidated_goterms_*.gmt`` file
+        ``"scer"``; selects the matching ``uniprot_subcell_consolidated_*.gmt`` file
         in ``grassp/datasets/external/``.
     deduplicate_terms
         If ``True`` (default), collapse terms with identical gene membership via
@@ -159,9 +159,9 @@ def calculate_cluster_enrichment(
         Threshold for the enrichment ranking metric. Only terms with a ranking metric value less than or equal to this threshold are considered.
     species
         Species code used to pick the default gene-set file when ``gene_sets``
-        is ``None``. One of ``"hsap"`` (human, ``consolidated_goterms_human.gmt``),
-        ``"mmus"`` (mouse, ``consolidated_goterms_mouse.gmt``), or
-        ``"scer"`` (yeast, ``consolidated_goterms_yeast.gmt``). Default
+        is ``None``. One of ``"hsap"`` (human, ``uniprot_subcell_consolidated_human.gmt``),
+        ``"mmus"`` (mouse, ``uniprot_subcell_consolidated_mouse.gmt``), or
+        ``"scer"`` (yeast, ``uniprot_subcell_consolidated_yeast.gmt``). Default
         ``"hsap"``. Ignored when an explicit ``gene_sets`` path is provided.
     deduplicate_terms
         If ``True`` (default), collapse gene sets with identical membership to a

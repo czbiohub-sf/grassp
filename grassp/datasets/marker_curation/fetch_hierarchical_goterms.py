@@ -1,7 +1,7 @@
 """Fetch the full *hierarchical* set of UniProt subcellular-location terms
 (cellular architecture) for human, mouse, and yeast — without consolidation.
 
-Where ``fetch_custom_goterms.py`` maps ~90 fine-grained UniProt SL terms onto
+Where ``fetch_consolidated_terms.py`` maps ~90 fine-grained UniProt SL terms onto
 ~20 consolidated compartments, this script keeps every fine-grained term as its
 own node and preserves the UniProt SL hierarchy (``is-a`` + ``part-of``). The
 result is a browsable compartment graph rather than a flat marker set.
@@ -36,7 +36,7 @@ Reuses:
 - :func:`grassp.datasets.uniprot_cc.uniprot_subcellular_vocabulary` for the
   controlled vocabulary and its hierarchy, and
   :func:`grassp.datasets.uniprot_cc.find_roots` for top-level containers;
-- :func:`fetch_custom_goterms.fetch_term_genes` (sibling script) for the
+- :func:`fetch_consolidated_terms.fetch_term_genes` (sibling script) for the
   UniProt reviewed-gene-token query.
 
 Note: the vocabulary from ``subcell.txt`` only contains ``Cellular component``
@@ -45,7 +45,8 @@ instead of ``ID`` and are skipped by the parser — so no category filter is
 needed here.
 
 Outputs, for each species. Only the GMT is shipped (written to
-``../grassp/datasets/external/``, alongside the ``consolidated_goterms_{species}``
+``../grassp/datasets/external/``, alongside the
+``uniprot_subcell_consolidated_{species}``
 data); the node/edge hierarchy CSVs are curation intermediates and stay in this
 ``marker_curation/`` directory.
 
@@ -77,12 +78,16 @@ from grassp.datasets.uniprot_cc import find_roots, uniprot_subcellular_vocabular
 
 # Reuse the sibling script's UniProt gene-token query + polite defaults.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from fetch_custom_goterms import REQUEST_SLEEP, UNIPROT_HEADERS, fetch_term_genes  # noqa: E402
+from fetch_consolidated_terms import (  # noqa: E402
+    REQUEST_SLEEP,
+    UNIPROT_HEADERS,
+    fetch_term_genes,
+)
 
 # ------------------------------------------------------------------- config
 # Species name -> NCBI taxonomy id (as used by UniProt's model_organism filter)
 # and whether it is a mammal (mammals get the extra exclusions below). Yeast is
-# S. cerevisiae S288C, matching fetch_custom_goterms.py.
+# S. cerevisiae S288C, matching fetch_consolidated_terms.py.
 SPECIES: dict[str, dict] = {
     "human": {"taxon": 9606, "mammal": True},
     "mouse": {"taxon": 10090, "mammal": True},
