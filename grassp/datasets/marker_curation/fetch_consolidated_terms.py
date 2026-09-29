@@ -26,12 +26,16 @@ Run from anywhere:
 """
 
 from __future__ import annotations
+import sys
 import time
 
 from pathlib import Path
 
 import pandas as pd
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vocab_utils import uniprot_release, write_provenance  # noqa: E402
 
 # ---------------------------------------------------------------------- terms
 # Map: fine-grained UniProt SL term -> consolidated compartment label.
@@ -308,6 +312,11 @@ def main() -> None:
     session = requests.Session()
     session.headers.update(UNIPROT_HEADERS)
 
+    # Recorded, not pinned: the REST API only serves the current release, so this is
+    # the release the vendored files below actually came from.
+    release = uniprot_release(session)
+    print(f"[uniprot] release {release['release']} ({release['release_date']})")
+
     for species, taxon_id in SPECIES.items():
         print(f"\n=== {species} (taxon {taxon_id}) ===")
         df = fetch_species(species, taxon_id, session)
@@ -321,6 +330,24 @@ def main() -> None:
         write_gmt(df, gmt_path)
         n_compartments = df["Compartment_consolidated"].nunique()
         print(f"  -> {gmt_path}  ({n_compartments} consolidated compartments)")
+        write_provenance(
+            gmt_path,
+            source="UniProt subcellular-location terms, consolidated, + Complex Portal",
+            url="https://rest.uniprot.org/uniprotkb/search",
+            homepage="https://www.uniprot.org",
+            release=release["release"],
+            release_date=release["release_date"],
+            species=species,
+            gene_ids="symbol",
+            recipe={
+                "query": 'cc_scl_term AND reviewed:true AND model_organism:<taxon>',
+                "taxon": taxon_id,
+                "term_map": len(TERM_MAP),
+                "species_specific_terms": len(SPECIES_SPECIFIC_TERMS.get(species, {})),
+                "fine_terms": len(FINE_TERMS),
+                "complex_queries": len(COMPLEX_QUERIES),
+            },
+        )
 
 
 if __name__ == "__main__":

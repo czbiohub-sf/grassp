@@ -1,0 +1,20 @@
+{
+  "gmt": "uniprot_subcell_consolidated_yeast.gmt",
+  "built": "2026-09-24",
+  "n_terms": 23,
+  "source": "UniProt subcellular-location terms, consolidated, + Complex Portal",
+  "url": "https://rest.uniprot.org/uniprotkb/search",
+  "homepage": "https://www.uniprot.org",
+  "release": "2026_03",
+  "release_date": "02-September-2026",
+  "species": "yeast",
+  "gene_ids": "symbol",
+  "recipe": {
+    "query": "cc_scl_term AND reviewed:true AND model_organism:<taxon>",
+    "taxon": 559292,
+    "term_map": 52,
+    "species_specific_terms": 1,
+    "fine_terms": 5,
+    "complex_queries": 3
+  }
+}

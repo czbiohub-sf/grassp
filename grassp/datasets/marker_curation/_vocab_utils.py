@@ -14,6 +14,7 @@ the accessor docstrings still agree with it.
 """
 
 from __future__ import annotations
+import hashlib
 import json
 
 from collections import defaultdict
@@ -43,6 +44,65 @@ def download(url: str, dest: Path, force: bool = False) -> Path:
     dest.write_bytes(response.content)
     print(f"        -> {dest} ({dest.stat().st_size / 1e6:.1f} MB)")
     return dest
+
+
+def file_fingerprint(path: Path) -> dict[str, str | int]:
+    """SHA-256 and size of a build input.
+
+    The point of recording this rather than only a URL: COMPARTMENTS publishes one
+    rolling file with no version in its name, so "downloaded from
+    download.jensenlab.org" identifies nothing. A checksum of the bytes the build
+    actually consumed does, and it is verifiable by anyone who fetches the file again --
+    which is as close to a release number as that source gets.
+    """
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return {"sha256": digest.hexdigest(), "bytes": path.stat().st_size}
+
+
+def remote_metadata(url: str) -> dict[str, str | None]:
+    """Upstream ``Last-Modified`` / ``ETag`` for a rolling download, via HEAD.
+
+    Complements :func:`file_fingerprint`: the checksum says what we built from, this
+    says what upstream was serving when we built it. Returns empty values rather than
+    raising, so a build still completes when the source is unreachable.
+    """
+    try:
+        response = requests.head(url, timeout=60, allow_redirects=True)
+        response.raise_for_status()
+    except requests.RequestException as exc:  # pragma: no cover - network dependent
+        print(f"[warn ] could not read upstream metadata for {url}: {exc}")
+        return {"last_modified": None, "etag": None}
+    return {
+        "last_modified": response.headers.get("last-modified"),
+        "etag": response.headers.get("etag"),
+    }
+
+
+UNIPROT_RELEASE_PROBE = (
+    "https://rest.uniprot.org/uniprotkb/search?query=reviewed:true&fields=accession&size=1"
+)
+
+
+def uniprot_release(session: requests.Session | None = None) -> dict[str, str | None]:
+    """The UniProt release the REST API is currently serving.
+
+    UniProt's REST API only ever serves the current release -- there is no way to query
+    a historical one, and the archived releases on the FTP site exist only as whole-
+    knowledgebase tarballs. So a UniProt-derived vocabulary cannot be pinned the way the
+    GO CC one is; the vendored build *is* the pin. What UniProt does give us is the
+    release on every response header, so the build can at least record exactly which one
+    it saw -- which is the difference between a dated artifact and an undated one.
+    """
+    session = session or requests.Session()
+    response = session.get(UNIPROT_RELEASE_PROBE, timeout=60)
+    response.raise_for_status()
+    return {
+        "release": response.headers.get("x-uniprot-release"),
+        "release_date": response.headers.get("x-uniprot-release-date"),
+    }
 
 
 def deduplicate_identical(gene_sets: dict[str, list[str]]) -> dict[str, list[str]]:

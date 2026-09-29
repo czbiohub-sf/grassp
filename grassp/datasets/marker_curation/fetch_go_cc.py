@@ -58,6 +58,7 @@ from _vocab_utils import (  # noqa: E402
     EXTERNAL,
     collapse_near_duplicates,
     download,
+    file_fingerprint,
     write_gmt,
     write_provenance,
 )
@@ -253,6 +254,12 @@ def main() -> None:
         homepage="https://geneontology.org",
         release=GO_RELEASE,
         ontology_data_version=data_version,
+        # The release is pinned in the URL, but --obo/--gaf let a rebuild be pointed at
+        # a local copy; the checksums say which bytes were actually consumed.
+        source_files={
+            "go-basic.obo": file_fingerprint(Path(obo)),
+            "HUMAN-uniprot.gaf.gz": file_fingerprint(Path(gaf)),
+        },
         species="hsap",
         gene_ids="symbol",
         recipe={

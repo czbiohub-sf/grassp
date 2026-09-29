@@ -210,41 +210,77 @@ class TestGeneSetsGoCc:
             gr.ds.gene_sets_go_cc("mmus")
 
 
+#: Every vendored vocabulary: its file stem, and the accessor that reads it. The two
+#: UniProt families are per-species; COMPARTMENTS and GO CC are human-only.
+VENDORED = [
+    ("uniprot_subcell_consolidated", gr.ds.gene_sets_curated, ["hsap", "mmus", "scer"]),
+    ("uniprot_subcell", gr.ds.gene_sets_uniprot_sl, ["hsap", "mmus", "scer"]),
+    ("compartments", gr.ds.gene_sets_compartments, ["hsap"]),
+    ("go_cc", gr.ds.gene_sets_go_cc, ["hsap"]),
+]
+_IDS = [stem for stem, _, _ in VENDORED]
+
+
 class TestProvenance:
-    """The vendored vocabularies are built from rolling downloads, so the build date is
-    the only version COMPARTMENTS has. These keep it recorded and quoted accurately."""
+    """Every vendored vocabulary is a build of a rolling download -- UniProt's REST API
+    and Jensen lab's file serve only the current release, and even the pinned GO release
+    is a choice the build made. The sidecars record which one each file came from, and
+    these keep the docstrings from quoting a date that is no longer true.
+    """
 
-    @pytest.mark.parametrize("stem", ["compartments", "go_cc"])
-    def test_sidecar_exists_and_is_complete(self, stem):
-        record = provenance(stem)
-        for field in ("gmt", "built", "n_terms", "source", "url", "species", "recipe"):
-            assert field in record, f"{stem} provenance is missing {field!r}"
-        assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", record["built"])
+    @pytest.mark.parametrize("stem,fn,species", VENDORED, ids=_IDS)
+    def test_sidecar_exists_for_every_bundled_species(self, stem, fn, species):
+        for sp in species:
+            record = provenance(stem, sp)
+            for field in ("gmt", "built", "n_terms", "source", "url", "species", "recipe"):
+                assert field in record, f"{stem}/{sp} provenance is missing {field!r}"
+            assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", record["built"])
 
-    @pytest.mark.parametrize(
-        "stem,fn",
-        [("compartments", gr.ds.gene_sets_compartments), ("go_cc", gr.ds.gene_sets_go_cc)],
-    )
-    def test_sidecar_term_count_matches_the_gmt(self, stem, fn):
-        assert provenance(stem)["n_terms"] == len(fn())
+    @pytest.mark.parametrize("stem,fn,species", VENDORED, ids=_IDS)
+    def test_sidecar_term_count_matches_the_gmt(self, stem, fn, species):
+        for sp in species:
+            assert provenance(stem, sp)["n_terms"] == len(fn(sp))
 
-    @pytest.mark.parametrize(
-        "stem,fn",
-        [("compartments", gr.ds.gene_sets_compartments), ("go_cc", gr.ds.gene_sets_go_cc)],
-    )
-    def test_docstring_quotes_the_real_build_date(self, stem, fn):
+    @pytest.mark.parametrize("stem,fn,species", VENDORED, ids=_IDS)
+    def test_docstring_quotes_the_real_build_date(self, stem, fn, species):
         """A docstring that states a build date goes stale the moment the vocabulary is
         rebuilt, and a stale date is worse than none -- it is what someone will cite."""
-        built = provenance(stem)["built"]
+        built = provenance(stem, species[0])["built"]
         assert built in fn.__doc__, (
             f"{fn.__name__} docstring does not quote its build date {built!r}; "
-            f"rerun marker_curation/fetch_{stem}.py and update the docstring"
+            f"rebuild the vocabulary or update the docstring"
         )
 
-    def test_docstring_quotes_the_go_release(self):
-        release = provenance("go_cc")["release"]
-        assert release in gr.ds.gene_sets_go_cc.__doc__
+    @pytest.mark.parametrize("stem,fn,species", VENDORED, ids=_IDS)
+    def test_docstring_quotes_the_release_when_there_is_one(self, stem, fn, species):
+        """COMPARTMENTS has no upstream version at all, so its record has none to quote;
+        every other source does, and citing the wrong one is a reproducibility claim."""
+        release = provenance(stem, species[0])["release"]
+        if release is None:
+            assert stem == "compartments", f"{stem} should record a release"
+            return
+        assert release in fn.__doc__
 
-    def test_unknown_source_raises(self):
+    def test_every_bundled_gmt_has_a_sidecar(self):
+        """Catches a vocabulary added to external/ without provenance."""
+        from grassp.datasets.gene_sets import _EXTERNAL
+
+        missing = sorted(
+            p.name for p in _EXTERNAL.glob("*.gmt") if not p.with_suffix(".json").exists()
+        )
+        assert not missing, f"vendored GMTs without a provenance sidecar: {missing}"
+
+    def test_unknown_source_raises_about_the_missing_gmt(self):
+        """An unknown stem fails at path resolution, before the sidecar is looked for."""
+        with pytest.raises(FileNotFoundError, match="Bundled gene sets missing"):
+            provenance("not_a_real_source")
+
+    def test_gmt_without_a_sidecar_raises_about_the_sidecar(self, tmp_path, monkeypatch):
+        """The other half of the contract: the GMT is there but undated. Every shipped
+        vocabulary has a sidecar, so this branch needs a synthetic one to reach."""
+        from grassp.datasets import gene_sets as module
+
+        (tmp_path / "orphan_human.gmt").write_text("TERM\tGO:1\tA\tB\n")
+        monkeypatch.setattr(module, "_EXTERNAL", tmp_path)
         with pytest.raises(FileNotFoundError, match="No provenance sidecar"):
-            provenance("uniprot_subcell")
+            module.provenance("orphan")

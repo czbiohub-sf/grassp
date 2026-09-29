@@ -7,6 +7,16 @@
   "homepage": "https://geneontology.org",
   "release": "2026-06-19",
   "ontology_data_version": "releases/2026-06-15",
+  "source_files": {
+    "go-basic.obo": {
+      "sha256": "c72fc198a86983d55e43aac585d1ffdbeb6e3601475b3f18b6045acdc0a0734c",
+      "bytes": 32215811
+    },
+    "HUMAN-uniprot.gaf.gz": {
+      "sha256": "258f6ea163375c036929478c400f25bf32e6d83df547cc4b864dfb4ec20c1ffb",
+      "bytes": 12090108
+    }
+  },
   "species": "hsap",
   "gene_ids": "symbol",
   "recipe": {

@@ -6,6 +6,14 @@
   "url": "https://download.jensenlab.org/human_compartment_knowledge_full.tsv",
   "homepage": "https://compartments.jensenlab.org",
   "release": null,
+  "source_file": {
+    "sha256": "d35f2d14aba6020e4b5084fa4502d4c3880d4f234ce328a8edab14bf22899e49",
+    "bytes": 65587367
+  },
+  "source_upstream": {
+    "last_modified": "Fri, 18 Sep 2026 19:16:55 GMT",
+    "etag": "\"3e8c8a7-65bc6be5d5c94\""
+  },
   "species": "hsap",
   "gene_ids": "symbol",
   "recipe": {

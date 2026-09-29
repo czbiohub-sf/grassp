@@ -78,6 +78,7 @@ from grassp.datasets.uniprot_cc import find_roots, uniprot_subcellular_vocabular
 
 # Reuse the sibling script's UniProt gene-token query + polite defaults.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _vocab_utils import uniprot_release, write_provenance  # noqa: E402
 from fetch_consolidated_terms import (  # noqa: E402
     REQUEST_SLEEP,
     UNIPROT_HEADERS,
@@ -339,6 +340,14 @@ def main() -> None:
     session = requests.Session()
     session.headers.update(UNIPROT_HEADERS)
 
+    # Recorded, not pinned: see `_vocab_utils.uniprot_release`.
+    release = (
+        uniprot_release(session)
+        if not args.dry_run
+        else {"release": None, "release_date": None}
+    )
+    print(f"[uniprot] release {release['release']} ({release['release_date']})")
+
     for species in args.species:
         cfg = SPECIES[species]
         exclude_ancestors, exclude_terms = exclusion_sets(cfg["mammal"])
@@ -369,6 +378,25 @@ def main() -> None:
             gmt_path = external / f"uniprot_subcell_{species}.gmt"
             write_gmt(genes_by_term, term_to_acc, gmt_path)
             print(f"  -> {gmt_path}")
+            write_provenance(
+                gmt_path,
+                source="UniProt subcellular-location vocabulary, full hierarchy",
+                url="https://rest.uniprot.org/uniprotkb/search",
+                homepage="https://www.uniprot.org",
+                release=release["release"],
+                release_date=release["release_date"],
+                vocabulary="subcell.txt via uniprot_cc.uniprot_subcellular_vocabulary()",
+                species=species,
+                gene_ids="symbol",
+                recipe={
+                    "query": 'cc_scl_term AND reviewed:true AND model_organism:<taxon>',
+                    "taxon": cfg["taxon"],
+                    "mammal_exclusions": cfg["mammal"],
+                    "exclude_ancestors": len(exclude_ancestors),
+                    "exclude_terms": len(exclude_terms),
+                    "drop_terms_without_reviewed_genes": True,
+                },
+            )
 
 
 if __name__ == "__main__":
