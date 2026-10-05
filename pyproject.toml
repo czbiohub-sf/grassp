@@ -71,6 +71,10 @@ dev = [
     "pytest~=8.0",
     "xlrd",
     "gseapy",
+    # alphabase-backed reading of search-engine output. tests/test_alphabase_interop.py checks
+    # that its output still matches protdata's after the manual steps in the alphapepttools
+    # tutorial; the module skips when this is missing.
+    "alphapepttools",
 ]
 notebook = [
     "jupyter",
@@ -117,6 +121,8 @@ docs = [
     "mpltern",
     # The pRoloc tutorial reads a pRolocdata .rda with gr.io.read_prolocdata, which needs this.
     "rdata",
+    # The alphapepttools tutorial reads a MaxQuant table through alphabase at build time.
+    "alphapepttools",
 ]
 
 [project.scripts]

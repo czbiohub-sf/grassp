@@ -10,6 +10,7 @@ Below you will find hands-on notebooks demonstrating typical `grassp` workflows.
 notebooks/DC_tutorial
 notebooks/OrgIP_tutorial
 notebooks/integration_tutorial
+notebooks/alphapepttools_tutorial
 ```
 
 
