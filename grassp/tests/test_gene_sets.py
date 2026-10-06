@@ -49,7 +49,8 @@ class TestGeneSetsCurated:
 
     def test_min_genes_is_keyword_only(self):
         with pytest.raises(TypeError):
-            gr.ds.gene_sets_curated("hsap", 100)
+            # the extra positional argument is the point of the test
+            gr.ds.gene_sets_curated("hsap", 100)  # pylint: disable=too-many-function-args
 
 
 class TestGeneSetsUniprotSl:
