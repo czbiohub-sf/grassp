@@ -9,7 +9,8 @@ import sys
 import numpy as np
 import pandas as pd
 
-from numpy.linalg import det, eigvals, inv
+from numpy.linalg import eigvals, inv
+from scipy.linalg import solve_triangular
 from scipy.special import gammaln  # pylint: disable=no-name-in-module
 from scipy.stats import multivariate_normal
 
@@ -36,12 +37,20 @@ def _multivariate_t_logpdf(X, delta, sigma, df):
     """
     d = X.shape[1]
     X_delta = X - delta
-    inv_sigma = inv(sigma)
-    Q = np.sum((X_delta @ inv_sigma) * X_delta, axis=1)
+    # Same recipe as mvtnorm::dmvt, which pRoloc calls: factor sigma once with
+    # Cholesky, read half the log-determinant off the diagonal and get the
+    # Mahalanobis term from a triangular solve. This never forms det(sigma), which
+    # over/underflows float64 on high-dimensional maps, and never inverts sigma.
+    # (numpy's det/slogdet also emit spurious RuntimeWarnings for matrices of 36+
+    # dimensions under Apple Accelerate, numpy issue #30079; cholesky does not.)
+    L = np.linalg.cholesky(sigma)
+    z = solve_triangular(L, X_delta.T, lower=True)
+    Q = np.sum(z * z, axis=0)
+    half_logdet = np.sum(np.log(np.diag(L)))
     log_norm = gammaln((df + d) / 2) - (
-        gammaln(df / 2) + 0.5 * d * np.log(df * np.pi) + 0.5 * np.log(det(sigma))
+        gammaln(df / 2) + 0.5 * d * np.log(df * np.pi) + half_logdet
     )
-    return log_norm - ((df + d) / 2) * np.log(1 + Q / df)
+    return log_norm - ((df + d) / 2) * np.log1p(Q / df)
 
 
 def _log_multivariate_gamma(a, d):
@@ -258,7 +267,11 @@ def tagm_map_train(
         if np.sum(idx) > 0:
             x_j = mydata[idx]
             diff = x_j - xk[j]
-            sk[j] = S0 + (diff.T @ diff) + lambda0 * np.outer(mu0 - xk[j], mu0 - xk[j])
+            # NIW posterior scatter: the prior-mean discrepancy term carries the
+            # shrinkage weight lambda0 * n_k / (lambda0 + n_k), matching pRoloc's
+            # S0 + X'X + lambda0*mu0*mu0' - lambda_k*m_k*m_k' and the M-step below.
+            shrink = lambda0 * nk[j] / lambdak[j]
+            sk[j] = S0 + (diff.T @ diff) + shrink * np.outer(mu0 - xk[j], mu0 - xk[j])
 
     betak = beta0 + nk
 

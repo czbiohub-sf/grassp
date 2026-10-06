@@ -705,3 +705,98 @@ class TestCompositeLabelSeparator:
             "ER; MITO",
             "NUC",
         ]
+
+
+class TestTagmPriorShrinkage:
+    """`tagm_map_train` over-weighted the prior-mean term of the NIW posterior scatter.
+
+    Conditioning the normal-inverse-Wishart prior on the ``n_k`` markers of a class gives
+    ``S0 + sum (x - xbar)(x - xbar)' + lambda0 * n_k / (lambda0 + n_k) * (xbar - mu0)(xbar - mu0)'``.
+    The centred rewrite dropped the ``n_k / (lambda0 + n_k)`` shrinkage, weighting the
+    last term by ``lambda0`` alone, so the marker-only update disagreed with pRoloc and
+    with the EM step a few lines below it (which applies the analogous factor). At the
+    default ``lambda0=0.01`` the error is ~1e-5 on probabilities; it grows with ``lambda0``.
+    """
+
+    LAMBDA0 = 1.0  # large enough that the dropped factor (1 + lambda0 / n_k) is visible
+
+    def test_initial_sigma_matches_proloc_closed_form(self):
+        data = _blobs()
+        D = data.n_vars
+        mu0 = np.zeros(D)
+        S0 = np.eye(D)
+        nu0 = D + 2
+        # numIter=0 skips EM, so the stored sigma is the marker-only posterior scatter.
+        params = gr.tl.tagm_map_train(
+            data,
+            gt_col="markers",
+            numIter=0,
+            lambda0=self.LAMBDA0,
+            mu0=mu0,
+            S0=S0,
+            nu0=nu0,
+            inplace=False,
+        )
+        sigma = params["posteriors"]["sigma"]
+        labels = data.obs["markers"]
+        for j, m in enumerate(params["markers"]):
+            Xk = np.asarray(data.X)[(labels == m).values]
+            n_k = Xk.shape[0]
+            lambda_k = self.LAMBDA0 + n_k
+            m_k = (Xk.sum(axis=0) + self.LAMBDA0 * mu0) / lambda_k
+            # pRoloc's uncentred form: S0 + X'X + lambda0 mu0 mu0' - lambda_k m_k m_k'
+            sk = (
+                S0
+                + Xk.T @ Xk
+                + self.LAMBDA0 * np.outer(mu0, mu0)
+                - lambda_k * np.outer(m_k, m_k)
+            )
+            expected = sk / (nu0 + n_k + D + 1)
+            np.testing.assert_allclose(sigma[j], expected, rtol=1e-10, atol=1e-12)
+
+            # The test must be able to tell the buggy form apart from the correct one.
+            xbar = Xk.mean(axis=0)
+            diff = Xk - xbar
+            buggy = (S0 + diff.T @ diff + self.LAMBDA0 * np.outer(mu0 - xbar, mu0 - xbar)) / (
+                nu0 + n_k + D + 1
+            )
+            assert not np.allclose(buggy, expected, rtol=1e-10, atol=1e-12)
+
+
+class TestMultivariateTLogDet:
+    """`_multivariate_t_logpdf` normalised with ``log(det(sigma))``.
+
+    On maps with many fractions the determinant itself can leave the float64 range,
+    which turns the log-density into ``inf``. The function now follows mvtnorm's
+    ``dmvt`` (what pRoloc calls): one Cholesky factorisation gives half the
+    log-determinant from its diagonal and the Mahalanobis term from a triangular solve,
+    so no determinant and no explicit inverse are ever formed.
+
+    The test pins finiteness and agreement with scipy rather than "no warning": numpy
+    built against Apple Accelerate emits spurious divide/overflow RuntimeWarnings from
+    ``det``/``slogdet`` for any matrix of 36+ dimensions (numpy issue #30079), so a
+    warning assertion would be about the BLAS backend, not this function.
+    """
+
+    def test_finite_and_matches_scipy_when_det_underflows(self):
+        from scipy.stats import multivariate_t
+
+        from grassp.tools.tagm import _multivariate_t_logpdf
+
+        rng = np.random.default_rng(0)
+        d = 45
+        # Per-fraction variance ~1e-10 puts det(sigma) far below float64's minimum, so
+        # the naive log(det(sigma)) is log(0) = -inf.
+        A = rng.normal(size=(d, d)) * 1e-5
+        sigma = A @ A.T + np.eye(d) * 1e-10
+        with np.errstate(all="ignore"):
+            assert np.linalg.det(sigma) == 0.0
+        X = rng.normal(size=(20, d)) * 1e-5
+        delta = np.zeros(d)
+
+        with np.errstate(all="ignore"):
+            got = _multivariate_t_logpdf(X, delta, sigma, df=4)
+
+        assert np.all(np.isfinite(got))
+        expected = multivariate_t(loc=delta, shape=sigma, df=4).logpdf(X)
+        np.testing.assert_allclose(got, expected, rtol=1e-8)
