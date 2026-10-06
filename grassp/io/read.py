@@ -3,6 +3,8 @@ from __future__ import annotations
 # import re
 import urllib
 
+from collections.abc import Mapping
+
 import anndata
 import numpy as np
 import pandas as pd
@@ -195,6 +197,42 @@ def _unknown_sentinel_to_nan(
         set_sensible_compartment_colors(adata, columns=touched)
 
 
+def _flatten_nested_frames(obj):
+    """Splice a nested ``data.frame`` column into its parent as ``<column>.<subcolumn>``.
+
+    ``featureData`` in a pRolocdata object can hold a *nested* ``data.frame`` -- e.g. the
+    ``TAGM`` column of ``hyperLOPIT2015``, which carries the authors' published TAGM-MAP and
+    TAGM-MCMC allocations. ``rdata`` converts the inner frame first and then hands the outer
+    constructor a column that is itself a DataFrame, which pandas rejects
+    (``ValueError: Buffer has wrong number of dimensions``). Flattening the inner columns in
+    place, in order, gives the same layout R's own ``as.data.frame`` would: ``TAGM`` becomes
+    ``TAGM.tagm.map.allocation``, ``TAGM.tagm.mcmc.probability``, and so on.
+
+    ``obj`` is the column mapping ``rdata`` passes to a ``data.frame`` constructor. Inner
+    values are taken positionally -- an R ``data.frame`` column must have the parent's row
+    count, so no index alignment is needed or wanted. Anything that isn't a Mapping is returned
+    untouched.
+
+    Examples
+    --------
+    >>> inner = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+    >>> list(_flatten_nested_frames({"x": [0, 0], "nested": inner, "y": [1, 1]}))
+    ['x', 'nested.a', 'nested.b', 'y']
+    """
+    if not isinstance(obj, Mapping) or not any(
+        isinstance(value, pd.DataFrame) for value in obj.values()
+    ):
+        return obj
+    flat: dict = {}
+    for column, value in obj.items():
+        if isinstance(value, pd.DataFrame):
+            for sub in value.columns:
+                flat[f"{column}.{sub}"] = value[sub].to_numpy()
+        else:
+            flat[column] = value
+    return flat
+
+
 def _import_rdata():
     """Import the optional ``rdata`` dependency or raise a helpful error."""
     try:
@@ -269,6 +307,13 @@ def read_prolocdata(
             pdata = rdata.parser.parse_data(dataset.read(), extension="rda")
     else:
         pdata = rdata.parser.parse_file(file_name)
+    # rdata's own data.frame constructor, with nested frames flattened first (see
+    # _flatten_nested_frames) -- without this hyperLOPIT2015 cannot be read at all.
+    dataframe_constructor = rdata.conversion.DEFAULT_CLASS_MAP["data.frame"]
+
+    def flat_dataframe_constructor(obj, attrs):
+        return dataframe_constructor(_flatten_nested_frames(obj), attrs)
+
     proloc_classes = {
         "AnnotatedDataFrame": lambda x, y: x,
         "Versions": lambda x, y: x,
@@ -277,7 +322,12 @@ def read_prolocdata(
         "MIAPE": lambda x, y: x,
     }
     pdata = rdata.conversion.convert(
-        pdata, constructor_dict={**proloc_classes, **rdata.conversion.DEFAULT_CLASS_MAP}
+        pdata,
+        constructor_dict={
+            **proloc_classes,
+            **rdata.conversion.DEFAULT_CLASS_MAP,
+            "data.frame": flat_dataframe_constructor,
+        },
     )
     # Handle both cases: pdata is a dict (container) or already the dataset
     if isinstance(pdata, dict):

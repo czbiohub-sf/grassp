@@ -27,7 +27,8 @@ _mock_conversion = MagicMock()
 
 _mock_rdata.parser = _mock_parser
 _mock_rdata.conversion = _mock_conversion
-_mock_conversion.DEFAULT_CLASS_MAP = {}
+# read_prolocdata wraps the real map's "data.frame" constructor, so the mock has to carry one.
+_mock_conversion.DEFAULT_CLASS_MAP = {"data.frame": MagicMock()}
 
 sys.modules["rdata"] = _mock_rdata
 sys.modules["rdata.parser"] = _mock_parser
@@ -834,6 +835,65 @@ class TestReadProlocdataConventions:
         result = read.read_prolocdata("proloc.rda")
 
         assert "markers_colors" in result.uns
+
+
+# ==============================================================================
+# Tests for _flatten_nested_frames (nested fData data.frames)
+# ==============================================================================
+
+
+class TestFlattenNestedFrames:
+    """``fData(hyperLOPIT2015)$TAGM`` is a data.frame inside a data.frame.
+
+    ``rdata`` converts the inner frame first and then hands the outer constructor a
+    two-dimensional column, which pandas rejects -- so until this helper existed the dataset
+    could not be read at all. The end-to-end check on a real ``.rda`` lives in
+    ``test_proloc_interop.py``; these pin the helper's contract.
+    """
+
+    def test_nested_columns_are_spliced_in_place_with_r_style_names(self):
+        """Same layout R's own ``as.data.frame`` gives: ``<column>.<subcolumn>``, in order."""
+        inner = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+        out = read._flatten_nested_frames({"x": [0, 0], "TAGM": inner, "y": [1, 1]})
+
+        assert list(out) == ["x", "TAGM.a", "TAGM.b", "y"]
+        assert list(out["TAGM.a"]) == [1, 2]
+        assert list(out["TAGM.b"]) == [3, 4]
+
+    def test_inner_values_are_taken_positionally(self):
+        """The inner frame's own row names are irrelevant: an R column has its parent's rows."""
+        inner = pd.DataFrame({"a": [1, 2]}, index=["r2", "r1"])
+        out = read._flatten_nested_frames({"TAGM": inner})
+
+        assert isinstance(out["TAGM.a"], np.ndarray)
+        assert list(out["TAGM.a"]) == [1, 2]
+
+    def test_a_frame_without_nested_columns_is_returned_as_is(self):
+        obj = {"x": [0, 0], "y": [1, 1]}
+        assert read._flatten_nested_frames(obj) is obj
+
+    def test_non_mapping_input_is_returned_as_is(self):
+        """``rdata`` can also hand the constructor a list of columns."""
+        obj = [[0, 0], [1, 1]]
+        assert read._flatten_nested_frames(obj) is obj
+
+    @patch("rdata.parser.parse_file")
+    @patch("rdata.conversion.convert")
+    def test_the_reader_registers_a_data_frame_constructor(self, mock_convert, mock_parse):
+        """The flattening has to run *inside* rdata's conversion, not on its output."""
+        mock_data = make_rdata_mock_dict()
+        mock_parse.return_value = mock_data
+        mock_convert.return_value = mock_data
+
+        read.read_prolocdata("file.rda")
+
+        constructors = mock_convert.call_args.kwargs["constructor_dict"]
+        inner = pd.DataFrame({"a": [1, 2]})
+        constructors["data.frame"]({"TAGM": inner}, {"row.names": ["P1", "P2"]})
+        base = _mock_conversion.DEFAULT_CLASS_MAP["data.frame"]
+        flattened, attrs = base.call_args.args
+        assert list(flattened) == ["TAGM.a"]
+        assert attrs == {"row.names": ["P1", "P2"]}
 
 
 # ==============================================================================
