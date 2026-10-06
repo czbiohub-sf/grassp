@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.6.0](https://github.com/czbiohub-sf/grassp/compare/v0.5.1...v0.6.0) (2026-10-06)
+
+
+### Features
+
+* add compartments and gocc vocabs to grassp ([89a80ca](https://github.com/czbiohub-sf/grassp/commit/89a80ca60dd9d8cd75e6eca3265f08ebe229f9c9))
+* add fingerprint for compartments vocab ([3352d4e](https://github.com/czbiohub-sf/grassp/commit/3352d4e69038b51415db5fdd52478611bbcda132))
+* gene set reader function ([cb6ce27](https://github.com/czbiohub-sf/grassp/commit/cb6ce273dd7ad1dfd9c619bb754afffc8c0fa4d6))
+* tutorial and test for reading with alphapepttools ([a461cb1](https://github.com/czbiohub-sf/grassp/commit/a461cb1588cd6f4f682e9f19a4915415848dacc6))
+
+
+### Bug Fixes
+
+* bugfix in tagm-map function ([503cae3](https://github.com/czbiohub-sf/grassp/commit/503cae3b73d39392892267eae98ad687591268bd))
+* read pRolocdata objects with a nested fData data.frame ([aa4b019](https://github.com/czbiohub-sf/grassp/commit/aa4b019bb80b194a51e4f7c858f2c6336e1ea333))
+* silence pylint on the intentional bad call in test_gene_sets ([9946cc3](https://github.com/czbiohub-sf/grassp/commit/9946cc3cdce43e22c51aad8e4fc1730b1d122b8e))
+* update ccompass tutorial with new api ([2e6072c](https://github.com/czbiohub-sf/grassp/commit/2e6072c318ba3ea26cd6851c893092ae42b71acb))
+
 ## [0.5.1](https://github.com/czbiohub-sf/grassp/compare/v0.5.0...v0.5.1) (2026-09-22)
 
 
