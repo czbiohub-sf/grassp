@@ -6,6 +6,7 @@
 [anndata]: https://anndata.readthedocs.io
 [scanpy]: https://scanpy.readthedocs.io
 [protdata]: https://protdata.sf.czbiohub.org
+[alphapepttools]: https://mannlabs.github.io/alphapepttools/
 [documentation]: https://public.czbiohub.org/comp.bio/grassp/
 
 
@@ -19,15 +20,15 @@ It uses the [anndata][] format to store mass-spec data and analysis results and 
 
 **grassp** enables
 
-- Reading the ouput format of most mass-spectrometry search engines (using [protdata][])
+- Reading the ouput format of most mass-spectrometry search engines (using [protdata][] or [alphapepttools][])
 - Calculating subcellular enrichment profiles of proteins for different experimental protocols
 - Annotating the subcellular location of proteins in an unsupervised and semi-supervised manner
-- Detecting proteins at the interface of organelles
-- Detecting multi-localizing proteins (work in progress)
-- Detecting re-localizing proteins between conditions (work in progress)
 - Combining multiple subcellular proteomics datasets
-- Assessing subcellular resolution
 - Finding the optimal experimental design for future experiments based on simulations
+- Detecting proteins at the interface of organelles
+- Assessing subcellular resolution
+- Detecting re-localizing proteins between conditions (work in progress)
+- Detecting multi-localizing proteins (work in progress)
 - Integration of multiple modalities (e.g. Lipidomics) (work in progress)
 
 Please refer to the [documentation] for reference to individual functions and [tutorials](https://public.czbiohub.org/comp.bio/grassp/tutorials/index.html).
@@ -50,6 +51,6 @@ If you'd like to contribute to **grassp** please feel free to look at our [contr
 
 ## Authors
 
-**grassp** is created and maintained by the [Computational Biology Platform](https://www.czbiohub.org/comp-biology/) at the [Chan Zuckerberg Biohub San Francisco](https://www.czbiohub.org/sf/). For details, see the [Contributors page](https://public.czbiohub.org/comp.bio/grassp/contributors.html).
+**grassp** is created and maintained by the [Leonetti Group](https://biohub.org/leonetti/) at the [Biohub San Francisco](https://biohub.org/). For details, see the [Contributors page](https://public.czbiohub.org/comp.bio/grassp/contributors.html).
 
 To get in touch please use the [GihHub issues](https://github.com/czbiohub-sf/grassp/issues) page.
