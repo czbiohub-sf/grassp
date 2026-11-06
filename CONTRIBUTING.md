@@ -32,8 +32,9 @@ This installs the package with the `-e` option and development and documentation
 
    That creates the `grassp-r` environment, installs `grasspio` into it, and registers the `ir`
    Jupyter kernel. The kernel is the part worth knowing about: **the docs build executes
-   `docs/source/tutorials/proloc_r_tutorial.Rmd` with it**, so without this step that page cannot
-   build. Run `make test-r` for the grasspio test suite.
+   `docs/source/tutorials/proloc_r_tutorial.Rmd` with it**. Without it, build with
+   `GRASSP_DOCS_SKIP_R=1`, which renders that page without outputs instead of failing. Run
+   `make test-r` for the grasspio test suite.
 
 ## Testing
 
@@ -58,9 +59,8 @@ This installs the package with the `-e` option and development and documentation
 - Build docs locally to check formatting:
 
    ```bash
-   cd docs
-   # Optional (if running into errors): make clean
-   make html
+   make docs                       # from the repo root; writes docs/build/html
+   GRASSP_DOCS_SKIP_R=1 make docs  # without the R environment
    ```
 
 **Every tutorial is executed as part of the build**, except `ccompass_tutorial`, which ships
@@ -68,9 +68,13 @@ pre-rendered because it needs TensorFlow. So building the docs needs the `.[docs
 access (the tutorials download datasets from the grassp portal), and — for the R tutorial — the
 conda environment from `make setup-r`.
 
-Read the build log, not the exit status. A notebook that fails to execute is only a **warning**:
-`sphinx-build` still exits 0 and publishes the page with the traceback embedded in it. To find
-those, grep the output for `[mystnb.exec]`, or look in `docs/build/html/reports/`.
+A notebook that fails to execute **fails the build**, with the failing cell's traceback in the
+log.
+
+The docs are built on every pull request and published to
+<https://czbiohub-sf.github.io/grassp/> on every push to `main`, by
+[docs.yml](https://github.com/czbiohub-sf/grassp/blob/main/.github/workflows/docs.yml). There is
+nothing to upload by hand.
 
 ## Adding New public functions
 
