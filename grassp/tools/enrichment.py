@@ -217,7 +217,9 @@ def calculate_cluster_enrichment(
                 [{"Term": np.nan, "P-value": 1, "Odds Ratio": 0, "Combined Score": 0}],
                 columns=["Term", "P-value", "Odds Ratio", "Combined Score"],
             )
-            enrichr_top_terms[n] = "NaN"
+            # A real missing value, not the string "NaN": the string became a category of its
+            # own, and two unenriched clusters then "shared" a best term in merge_clusters_go.
+            enrichr_top_terms[n] = np.nan
             er[cluster_key] = n
             enrichr_results.append(er)
 
@@ -240,10 +242,13 @@ def calculate_cluster_enrichment(
         .sort_values(enrichment_ranking_metric, ascending=sort_ascending)
         .iloc[0][enrichment_ranking_metric]
     )
+    # Terms *at* the threshold are kept, as documented. With `>=`, merge_clusters_go's
+    # `enrichment_threshold=1.0` ("always assign a top term") blanked every cluster whose
+    # best adjusted p-value had been capped at 1.0.
     if sort_ascending:
-        data.obs.loc[data.obs[metric_key] >= enrichment_threshold, key_added] = np.nan
+        data.obs.loc[data.obs[metric_key] > enrichment_threshold, key_added] = np.nan
     else:
-        data.obs.loc[data.obs[metric_key] <= enrichment_threshold, key_added] = np.nan
+        data.obs.loc[data.obs[metric_key] < enrichment_threshold, key_added] = np.nan
 
     if inplace:
         if return_enrichment_res:

@@ -652,8 +652,15 @@ def highly_variable_proteins(
     1000
     >>> highly_variable_subset = adata[adata.obs['highly_variable']]
     """
+    # Proteins are observations here, so scanpy runs on the transpose and `batch_key` names a
+    # sample (var) column -- which is an obs column of `data.T`, exactly where scanpy looks.
     df = sc.pp.highly_variable_genes(
-        data.T, inplace=False, n_top_genes=n_top_proteins, **kwargs
+        data.T,
+        inplace=False,
+        n_top_genes=n_top_proteins,
+        flavor=flavor,
+        batch_key=batch_key,
+        **kwargs,
     )
     if not inplace:
         if subset:
@@ -661,16 +668,16 @@ def highly_variable_proteins(
         return df
 
     data.uns["hvg"] = {"flavor": flavor}
-    data.obs["highly_variable"] = df["highly_variable"]
-    data.obs["means"] = df["means"]
-    data.obs["dispersions"] = df["dispersions"]
-    data.obs["dispersions_norm"] = df["dispersions_norm"].astype(np.float32, copy=False)
-
-    if batch_key is not None:
-        data.obs["highly_variable_nbatches"] = df["highly_variable_nbatches"]
-        data.obs["highly_variable_intersection"] = df["highly_variable_intersection"]
+    # Copy whatever statistics the flavor produced: the seurat_v3 flavors report
+    # variances/variances_norm/highly_variable_rank instead of dispersions.
+    for col in df.columns:
+        data.obs[col] = df[col].to_numpy()
+    if "dispersions_norm" in df.columns:
+        data.obs["dispersions_norm"] = data.obs["dispersions_norm"].astype(
+            np.float32, copy=False
+        )
     if subset:
-        data._inplace_subset_var(df["highly_variable"])
+        data._inplace_subset_obs(df["highly_variable"].to_numpy())
 
 
 # @TODO: This needs fixing. Does not return the scaled  with inplace=True

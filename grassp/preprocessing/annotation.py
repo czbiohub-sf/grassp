@@ -50,7 +50,7 @@ MARKER_COLORS = {
     "Stress granules": "#559529",
     "RNA granule": "#559529",
     "RNA granules": "#559529",
-    "SG: "  # 559529",
+    "SG": "#559529",
     # 14-3-3
     "14-3-3": "#4D4D4D",
     "14-3-3 scaffold": "#4D4D4D",

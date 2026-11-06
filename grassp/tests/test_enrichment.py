@@ -87,6 +87,36 @@ def test_calculate_enrichment_vs_untagged_basic():
         )
 
 
+def test_original_intensities_layer_is_not_overwritten():
+    """The layer used to alias X, so writing the fold changes into X overwrote it."""
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", message="invalid value encountered in divide", category=RuntimeWarning
+        )
+        untagged = enrichment.calculate_enrichment_vs_untagged(
+            make_basic_anndata(),
+            covariates=["covariate_1"],
+            subcellular_enrichment_column="subcellular_enrichment",
+            untagged_name="UNTAGGED",
+            drop_untagged=False,
+            original_intensities_key="original_intensities",
+        )
+        vs_all = enrichment.calculate_enrichment_vs_all(
+            make_basic_anndata(),
+            covariates=["covariate_1"],
+            subcellular_enrichment_column="subcellular_enrichment",
+            enrichment_method="lfc",
+            correlation_threshold=1.0,
+        )
+    for result in (untagged, vs_all):
+        layer = result.layers["original_intensities"]
+        assert not np.shares_memory(layer, result.X)
+        assert not np.allclose(layer, result.X)
+        # aggregate_samples averages replicates, so every raw value is non-negative --
+        # unlike the log fold changes now in X.
+        assert (layer >= 0).all()
+
+
 def test_calculate_enrichment_vs_all_basic():
     with warnings.catch_warnings():
         warnings.filterwarnings(

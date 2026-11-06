@@ -158,6 +158,46 @@ def test_best_term_returns_modal():
     assert _best_term(adata, 'cluster', 'B') == 'ER'
 
 
+def test_best_term_unannotated_cluster_is_none():
+    """value_counts on a categorical lists absent categories with count 0; an
+    unannotated cluster used to get one of those as its "modal" term."""
+    obs = pd.DataFrame(
+        {
+            'cluster': ['A', 'A', 'B', 'B'],
+            'Cell_compartment': pd.Categorical([np.nan, np.nan, 'ER', 'ER']),
+        },
+        index=['p0', 'p1', 'p2', 'p3'],
+    )
+    adata = AnnData(X=np.zeros((4, 2)), obs=obs)
+    assert _best_term(adata, 'cluster', 'A') is None
+    assert _best_term(adata, 'cluster', 'B') == 'ER'
+    # Same for an object column.
+    adata.obs['Cell_compartment'] = adata.obs['Cell_compartment'].astype(object)
+    assert _best_term(adata, 'cluster', 'A') is None
+
+
+def test_test_pair_unannotated_clusters_do_not_agree():
+    """Two clusters without a term must not count as sharing one."""
+    obs = pd.DataFrame(
+        {
+            'cluster': ['A', 'A', 'B', 'B'],
+            'Cell_compartment': pd.Categorical([np.nan] * 4, categories=['Mito']),
+            'Gene_name_canonical': ['G1', 'G2', 'G3', 'G4'],
+        },
+        index=[f'p{i}' for i in range(4)],
+    )
+    adata = AnnData(X=np.zeros((4, 2)), obs=obs)
+    _, _, _, terms_agree = _test_pair(
+        adata,
+        'cluster',
+        ('A', 'B'),
+        {'Mito': ['G1']},
+        'Gene_name_canonical',
+        'Cell_compartment',
+    )
+    assert terms_agree is False
+
+
 # ── _gene_set ─────────────────────────────────────────────────────────────────
 
 
