@@ -5,10 +5,11 @@ if TYPE_CHECKING:
     from anndata import AnnData
     from typing import List, Sequence
 
+    import umap
+
 from functools import reduce
 
 import numpy as np
-import umap
 
 
 def align_adatas(
@@ -103,6 +104,9 @@ def aligned_umap(
     list[AnnData] | umap.AlignedUMAP
         Depending on *return_data_objects*.
     """
+    # Imported here, not at module level: umap pulls in pynndescent's numba-compiled distances
+    # and (via umap.parametric_umap) TensorFlow, which made `import grassp` take ~5 s longer.
+    import umap
 
     # Make sure all anndata objects have the same var_names and obs_names
     if align_data:
