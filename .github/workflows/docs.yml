@@ -72,9 +72,27 @@ jobs:
     - name: Install grasspio
       run: R CMD INSTALL --no-docs r/grasspio
 
-    # After the Python install: installspec shells out to `jupyter kernelspec install`.
+    # What IRkernel::installspec() does, but from the shell. installspec() runs `jupyter` as a
+    # child of R, and there `jupyter kernelspec --version` exits 1: R puts its own lib dir first
+    # on LD_LIBRARY_PATH, which the toolcache Python also relies on to find libpython. So copy
+    # IRkernel's kernelspec, point it at this R by absolute path (all installspec() changes),
+    # and install it with the Python-side jupyter directly.
     - name: Register the R Jupyter kernel
-      run: Rscript -e 'IRkernel::installspec(name = "ir", displayname = "R")'
+      run: |
+        jupyter kernelspec --version
+        spec="$RUNNER_TEMP/ir-kernelspec"
+        cp -r "$(Rscript -e 'cat(system.file("kernelspec", package = "IRkernel"))')" "$spec"
+        python - "$spec/kernel.json" "$(command -v R)" <<'EOF'
+        import json, sys
+        path, r_bin = sys.argv[1:]
+        with open(path) as f:
+            spec = json.load(f)
+        spec["argv"][0] = r_bin
+        with open(path, "w") as f:
+            json.dump(spec, f, indent=1)
+        EOF
+        jupyter kernelspec install --user --replace --name ir "$spec"
+        jupyter kernelspec list
 
     # Every tutorial executes, the R one included; any execution error fails this step
     # (nb_execution_raise_on_error in conf.py).
