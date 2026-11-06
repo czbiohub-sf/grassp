@@ -13,7 +13,7 @@ conda activate grassp
 pip install grassp
 ```
 
-grassp needs Python 3.11 or newer, and is tested on 3.11 through 3.14.
+grassp needs Python 3.12 or newer, and is tested on 3.12 through 3.14.
 
 ## Optional extras
 
