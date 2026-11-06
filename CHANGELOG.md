@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/czbiohub-sf/grassp/compare/v0.6.0...v0.7.0) (2026-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* Python 3.11 is no longer supported. Installs on 3.11 keep grassp 0.6.x.
+
+### Features
+
+* grassp code QOL improvements and bugfixes ([#36](https://github.com/czbiohub-sf/grassp/issues/36)) ([32cc5c4](https://github.com/czbiohub-sf/grassp/commit/32cc5c431565d18efa4fdd6a6b670d322c75a9f3))
+
 ## [0.6.0](https://github.com/czbiohub-sf/grassp/compare/v0.5.1...v0.6.0) (2026-10-06)
 
 
