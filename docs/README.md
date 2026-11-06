@@ -5,18 +5,22 @@
 Manually add the function to the `.md` files in `source/api` if you want it to be displayed in the docs.
 
 
-## Updating the documentation
+## Building the documentation
 
 ```
-cd docs
-# make clean (optional, removes build dir)
-make html
+pip install -e '.[docs]'
+make docs            # from the repo root; writes docs/build/html
 ```
+
+The build executes the tutorial notebooks, and a notebook that raises fails the build.
+Outputs are cached in `docs/build/.jupyter_cache`, so only changed notebooks re-run.
+
+The R tutorial (`source/tutorials/proloc_r_tutorial.Rmd`) needs R with the `ir` Jupyter kernel
+(`make setup-r`). Without it, build with `GRASSP_DOCS_SKIP_R=1 make docs`: the page is then
+rendered without outputs.
 
 ## Deployment
 
-At the moment the documentation is just hosted internally on bruno under https://onsite.czbiohub.org/compbio/grassp/api/plotting.html. To upload run
-```
-sh upload_local.sh
-```
-
+`.github/workflows/docs.yml` builds the docs on every pull request and publishes them to
+<https://czbiohub-sf.github.io/grassp/> on every push to `main`. Nothing needs to be uploaded by
+hand.

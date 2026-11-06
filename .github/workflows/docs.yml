@@ -1,40 +1,65 @@
-name: Build and Deploy Documentation
+name: Documentation
+
+# Builds the docs on every PR, so a tutorial that stops executing fails the PR. Publishes to
+# GitHub Pages (https://czbiohub-sf.github.io/grassp/) only from main. Pages must be set to
+# "GitHub Actions" as its source in the repository settings; there is no gh-pages branch.
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
-permissions:
-  contents: write
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      # No R kernel in this job yet, so the R tutorial renders without outputs rather than
+      # failing the build. Every Python tutorial still executes. See docs/source/conf.py.
+      GRASSP_DOCS_SKIP_R: "1"
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
+      with:
+        # setuptools_scm derives the version shown in the docs from the tags.
+        fetch-depth: 0
+        persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
+    - uses: actions/setup-python@v7
+      with:
+        python-version: "3.12"
+        cache: pip
+        cache-dependency-path: pyproject.toml
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ".[docs]"  # Install package with docs dependencies
+    - name: Install grassp with the docs extra
+      run: pip install '.[docs]'
 
-      - name: Build Documentation
-        run: |
-          cd docs
-          make html
-          touch build/html/.nojekyll
+    # Notebook execution errors fail this step (nb_execution_raise_on_error in conf.py).
+    - name: Build the docs
+      run: make docs
 
-      - name: Deploy to GitHub Pages
-        if: github.event_name == 'push'
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: docs/build/html
-          branch: gh-pages
+    - uses: actions/upload-pages-artifact@v5
+      with:
+        path: docs/build/html
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write     # publish the uploaded artifact
+      id-token: write  # OIDC token the Pages deployment is verified with
+    steps:
+    - uses: actions/configure-pages@v6
+    - id: deployment
+      uses: actions/deploy-pages@v5

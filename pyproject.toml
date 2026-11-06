@@ -136,7 +136,7 @@ docs = [
 
 [project.urls]
 homepage = "https://github.com/czbiohub-sf/grassp"
-documentation = "https://public.czbiohub.org/comp.bio/grassp/"
+documentation = "https://czbiohub-sf.github.io/grassp/"
 repository = "https://github.com/czbiohub-sf/grassp"
 changelog = "https://github.com/czbiohub-sf/grassp/blob/main/CHANGELOG.md"
 
