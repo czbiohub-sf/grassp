@@ -42,16 +42,9 @@ def align_adatas(
         var_intersect = reduce(lambda x, y: x.intersection(y), var)
     else:
         var_intersect = None
-    data_sub_list = []
-    for data in data_list:
-        data_sub = data.copy()
-        if var_intersect is not None:
-            data_sub = data_sub[:, var_intersect]
-        if obs_intersect is not None:
-            data_sub = data_sub[obs_intersect, :]
-        data_sub_list.append(data_sub)
-
-    return data_sub_list
+    obs_idx = slice(None) if obs_intersect is None else obs_intersect
+    var_idx = slice(None) if var_intersect is None else var_intersect
+    return [data[obs_idx, var_idx].copy() for data in data_list]
 
 
 def aligned_umap(
