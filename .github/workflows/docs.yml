@@ -1,40 +1,119 @@
-name: Build and Deploy Documentation
+name: Documentation
+
+# Builds the docs on every PR, so a tutorial that stops executing fails the PR. Publishes to
+# GitHub Pages (https://czbiohub-sf.github.io/grassp/) only from main. Pages must be set to
+# "GitHub Actions" as its source in the repository settings; there is no gh-pages branch.
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
-permissions:
-  contents: write
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      # pak installs anndataR from GitHub (grasspio's `Remotes:`); a token avoids the
+      # unauthenticated API rate limit.
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
+      with:
+        # setuptools_scm derives the version shown in the docs from the tags.
+        fetch-depth: 0
+        persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
+    - uses: actions/setup-python@v7
+      with:
+        python-version: "3.12"
+        cache: pip
+        cache-dependency-path: pyproject.toml
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ".[docs]"  # Install package with docs dependencies
+    - name: Install grassp with the docs extra
+      run: pip install '.[docs]'
 
-      - name: Build Documentation
-        run: |
-          cd docs
-          make html
-          touch build/html/.nojekyll
+    # --- R, for docs/source/tutorials/proloc_r_tutorial.Rmd, which runs on the `ir` kernel.
+    # The same setup as the contract job in CI-R.yaml; see the comments there.
+    - uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: 'release'
+        use-public-rspm: true
 
-      - name: Deploy to GitHub Pages
-        if: github.event_name == 'push'
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: docs/build/html
-          branch: gh-pages
+    - name: Prefer Posit's Bioconductor binaries when they exist
+      run: |
+        codename="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+        if curl -sf --max-time 30 https://packagemanager.posit.co/__api__/status \
+             | jq -e --arg c "$codename" \
+                 '.distros[] | select(.binaryURL == $c and .binaries == true)' >/dev/null; then
+          echo "R_BIOC_MIRROR=https://packagemanager.posit.co/bioconductor/__linux__/$codename" \
+            >> "$GITHUB_ENV"
+        fi
+
+    - uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        working-directory: r/grasspio
+        dependencies: '"all"'
+        # The tutorial also loads pRolocdata, which grasspio does not depend on, and needs
+        # IRkernel to run as a notebook at all.
+        extra-packages: |
+          any::IRkernel
+          bioc::pRolocdata
+        cache: 'always'
+
+    - name: Install grasspio
+      run: R CMD INSTALL --no-docs r/grasspio
+
+    # What IRkernel::installspec() does, but from the shell. installspec() runs `jupyter` as a
+    # child of R, and there `jupyter kernelspec --version` exits 1: R puts its own lib dir first
+    # on LD_LIBRARY_PATH, which the toolcache Python also relies on to find libpython. So copy
+    # IRkernel's kernelspec, point it at this R by absolute path (all installspec() changes),
+    # and install it with the Python-side jupyter directly.
+    - name: Register the R Jupyter kernel
+      run: |
+        jupyter kernelspec --version
+        spec="$RUNNER_TEMP/ir-kernelspec"
+        cp -r "$(Rscript -e 'cat(system.file("kernelspec", package = "IRkernel"))')" "$spec"
+        python - "$spec/kernel.json" "$(command -v R)" <<'EOF'
+        import json, sys
+        path, r_bin = sys.argv[1:]
+        with open(path) as f:
+            spec = json.load(f)
+        spec["argv"][0] = r_bin
+        with open(path, "w") as f:
+            json.dump(spec, f, indent=1)
+        EOF
+        jupyter kernelspec install --user --replace --name ir "$spec"
+        jupyter kernelspec list
+
+    # Every tutorial executes, the R one included; any execution error fails this step
+    # (nb_execution_raise_on_error in conf.py).
+    - name: Build the docs
+      run: make docs
+
+    - uses: actions/upload-pages-artifact@v5
+      with:
+        path: docs/build/html
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write     # publish the uploaded artifact
+      id-token: write  # OIDC token the Pages deployment is verified with
+    steps:
+    - uses: actions/configure-pages@v6
+    - id: deployment
+      uses: actions/deploy-pages@v5

@@ -121,7 +121,7 @@ def calculate_enrichment_vs_untagged(
     data_aggr = aggregate_samples(data, grouping_columns=grouping_columns)
     try:
         if original_intensities_key is not None:
-            data_aggr.layers[original_intensities_key] = data_aggr.X
+            data_aggr.layers[original_intensities_key] = data_aggr.X.copy()
         data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
         for experimental_condition in data_aggr.var["_experimental_condition"].unique():
             data_sub = data[:, data.var["_experimental_condition"] == experimental_condition]
@@ -241,7 +241,7 @@ def calculate_enrichment_vs_all(
     data_aggr = aggregate_samples(data, grouping_columns=grouping_columns, keep_raw=False)
 
     if original_intensities_key is not None:
-        data_aggr.layers[original_intensities_key] = data_aggr.X
+        data_aggr.layers[original_intensities_key] = data_aggr.X.copy()
     data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
     data_aggr.var["enriched_vs"] = ""
     intensities = data_aggr.X.copy()

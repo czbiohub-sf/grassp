@@ -70,6 +70,7 @@ class TestToolsNamespace:
         mgsa_model.py and ccompass_nn.py resolved it; this keeps it resolved.
         """
         import importlib
+
         from pathlib import Path
 
         from grassp import tools
@@ -99,6 +100,7 @@ class TestToolsNamespace:
         skipped both. ``sys.modules`` cannot be shadowed that way.
         """
         import importlib
+
         from pathlib import Path
 
         from grassp import tools

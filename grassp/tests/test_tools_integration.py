@@ -977,6 +977,69 @@ class TestEnrichmentFunctions:
         # Clean up mock
         del sys.modules["gseapy"]
 
+    def test_calculate_cluster_enrichment_unenriched_cluster_is_missing(self, monkeypatch):
+        """A cluster without hits gets a real NaN (not the string "NaN"), and a term
+        exactly at the threshold is kept, as documented."""
+        import sys
+
+        from unittest.mock import MagicMock
+
+        hits = {
+            "A": pd.DataFrame(
+                {
+                    "Term": ["Mito"],
+                    "P-value": [0.001],
+                    "Adjusted P-value": [0.001],
+                    "Odds Ratio": [5.0],
+                    "Combined Score": [50.0],
+                }
+            ),
+            "B": pd.DataFrame(),
+            "C": pd.DataFrame(
+                {
+                    "Term": ["ER"],
+                    "P-value": [0.05],
+                    "Adjusted P-value": [0.05],
+                    "Odds Ratio": [2.0],
+                    "Combined Score": [10.0],
+                }
+            ),
+        }
+
+        def mock_enrich(gene_list, gene_sets, background, outdir):
+            result = MagicMock()
+            result.results = hits[gene_list[0][0]].copy()
+            return result
+
+        mock_gseapy = MagicMock()
+        mock_gseapy.enrich = mock_enrich
+        monkeypatch.setitem(sys.modules, "gseapy", mock_gseapy)
+
+        clusters = ["A"] * 3 + ["B"] * 3 + ["C"] * 3
+        adata = AnnData(
+            X=np.zeros((9, 2)),
+            obs=pd.DataFrame(
+                {
+                    "cluster": pd.Categorical(clusters),
+                    "Gene_name_canonical": [f"{c}{i}" for i, c in enumerate(clusters)],
+                },
+                index=[f"p{i}" for i in range(9)],
+            ),
+        )
+        enrichment.calculate_cluster_enrichment(
+            adata,
+            cluster_key="cluster",
+            gene_sets={"Mito": ["A0"], "ER": ["C6"]},
+            enrichment_ranking_metric="Adjusted P-value",
+            enrichment_threshold=0.05,
+            return_enrichment_res=False,
+        )
+        labels = adata.obs["Cell_compartment"]
+        assert "NaN" not in set(labels.dropna().astype(str))
+        assert labels[adata.obs["cluster"] == "B"].isna().all()
+        assert (labels[adata.obs["cluster"] == "A"] == "Mito").all()
+        assert (labels[adata.obs["cluster"] == "C"] == "ER").all()
+
     def test_calculate_cluster_enrichment_return_modes(self, monkeypatch):
         """Test all return mode combinations."""
 

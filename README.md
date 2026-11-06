@@ -1,13 +1,13 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/grassp)](https://pypi.org/project/grassp/)
 [![CI](https://github.com/czbiohub-sf/grassp/actions/workflows/CI.yaml/badge.svg)](https://github.com/czbiohub-sf/grassp/actions/workflows/CI.yaml)
-[![docs online](https://img.shields.io/badge/docs-online-blue)](https://public.czbiohub.org/comp.bio/grassp/)
+[![docs online](https://img.shields.io/badge/docs-online-blue)](https://czbiohub-sf.github.io/grassp/)
 
 
 [anndata]: https://anndata.readthedocs.io
 [scanpy]: https://scanpy.readthedocs.io
 [protdata]: https://protdata.sf.czbiohub.org
 [alphapepttools]: https://mannlabs.github.io/alphapepttools/
-[documentation]: https://public.czbiohub.org/comp.bio/grassp/
+[documentation]: https://czbiohub-sf.github.io/grassp/
 
 
 <p align="center">
@@ -31,7 +31,7 @@ It uses the [anndata][] format to store mass-spec data and analysis results and 
 - Detecting multi-localizing proteins (work in progress)
 - Integration of multiple modalities (e.g. Lipidomics) (work in progress)
 
-Please refer to the [documentation] for reference to individual functions and [tutorials](https://public.czbiohub.org/comp.bio/grassp/tutorials/index.html).
+Please refer to the [documentation] for reference to individual functions and [tutorials](https://czbiohub-sf.github.io/grassp/tutorials/index.html).
 
 ## Installation
 
@@ -39,7 +39,7 @@ grassp can be installed via [pip](https://pypi.org/project/pip/) from [PyPI](htt
 ```
 pip install grassp
 ```
-For details on installation, please see the [install section of the documentation](https://public.czbiohub.org/comp.bio/grassp/installation.html).
+For details on installation, please see the [install section of the documentation](https://czbiohub-sf.github.io/grassp/installation.html).
 
 ## Changelog
 
@@ -47,10 +47,10 @@ See the [CHANGELOG.md](https://github.com/czbiohub-sf/grassp/blob/main/CHANGELOG
 
 ## Contributing
 
-If you'd like to contribute to **grassp** please feel free to look at our [contribution guide](https://public.czbiohub.org/comp.bio/grassp/contributing.html) and open a [Pull request](https://github.com/czbiohub-sf/grassp/pulls).
+If you'd like to contribute to **grassp** please feel free to look at our [contribution guide](https://czbiohub-sf.github.io/grassp/contributing.html) and open a [Pull request](https://github.com/czbiohub-sf/grassp/pulls).
 
 ## Authors
 
-**grassp** is created and maintained by the [Leonetti Group](https://biohub.org/leonetti/) at the [Biohub San Francisco](https://biohub.org/). For details, see the [Contributors page](https://public.czbiohub.org/comp.bio/grassp/contributors.html).
+**grassp** is created and maintained by the [Leonetti Group](https://biohub.org/leonetti/) at the [Biohub San Francisco](https://biohub.org/). For details, see the [Contributors page](https://czbiohub-sf.github.io/grassp/contributors.html).
 
 To get in touch please use the [GihHub issues](https://github.com/czbiohub-sf/grassp/issues) page.

@@ -296,6 +296,16 @@ def test_add_markers_colors_use_predefined():
         assert colors[cytosol_idx] == "#1B9E9E", "Predefined color for Cytosol not used"
 
 
+def test_marker_colors_has_no_concatenated_keys():
+    """A swallowed value once fused "SG: " with the next key into "SG: 14-3-3"."""
+    assert annotation.MARKER_COLORS["14-3-3"] == "#4D4D4D"
+    assert annotation.MARKER_COLORS["SG"] == "#559529"
+    assert "SG: 14-3-3" not in annotation.MARKER_COLORS
+    assert all(
+        isinstance(v, str) and v.startswith("#") for v in annotation.MARKER_COLORS.values()
+    )
+
+
 # Tests for add_external_validation_markers
 
 

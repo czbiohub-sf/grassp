@@ -13,9 +13,14 @@ repos:
       - id: check-merge-conflict
       - id: check-symlinks
       - id: debug-statements
+      # Not on bundled data: in a TSV a trailing tab is an empty last column
+      # (hsap_markers.tsv's marker_hein2025_gt), and the fixers would delete it.
       - id: trailing-whitespace
+        exclude: &data_files ^grassp/(datasets/external|tests/fixtures)/
       - id: mixed-line-ending
+        exclude: *data_files
       - id: end-of-file-fixer
+        exclude: *data_files
       - id: requirements-txt-fixer
 
   - repo: https://github.com/pre-commit/pygrep-hooks

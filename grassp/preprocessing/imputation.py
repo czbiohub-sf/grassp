@@ -14,6 +14,7 @@ import scipy.sparse
 import sklearn.impute
 
 from anndata import AnnData
+from sklearn.utils import check_random_state
 
 
 def impute_gaussian(
@@ -74,7 +75,10 @@ def impute_gaussian(
     >>> int(adata.obs['n_imputed'].sum())  # Total imputed values
     747946
     """
-    np.random.seed(random_state)
+    # A local generator, so the caller's global numpy RNG state is left alone. For an int
+    # seed this draws exactly the values the old `np.random.seed(...)` + `np.random.normal`
+    # did, so results stay reproducible across the change.
+    rng = check_random_state(random_state)
 
     if not inplace:
         data = data.copy()
@@ -100,15 +104,17 @@ def impute_gaussian(
     imp_stdev = stdev * width
 
     if per_sample:
-        imputed_values = np.random.normal(loc=imp_mean, scale=imp_stdev, size=X.shape)
+        imputed_values = rng.normal(loc=imp_mean, scale=imp_stdev, size=X.shape)
         X[np.invert(zero_mask)] = imputed_values[np.invert(zero_mask)]
     else:
-        imputed_values = np.random.normal(loc=imp_mean, scale=imp_stdev, size=n_zeros)
+        imputed_values = rng.normal(loc=imp_mean, scale=imp_stdev, size=n_zeros)
         X[np.invert(zero_mask)] = imputed_values
     if not inplace:
         return X
-    else:
-        data.obs["n_imputed"] = X.shape[1] - zero_mask.sum(axis=1)
+    # Sparse input was densified into a new array above, so write it back -- otherwise the
+    # imputation is silently dropped while `n_imputed` still reports it.
+    data.X = X
+    data.obs["n_imputed"] = X.shape[1] - zero_mask.sum(axis=1)
 
 
 def impute_knn(

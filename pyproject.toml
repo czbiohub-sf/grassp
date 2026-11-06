@@ -23,7 +23,10 @@ name =  "grassp"
 description = "A python package to facilitate Organellar profiling"
 readme = "README.md"
 license = {text = "BSD 3-Clause License"}
-requires-python = ">=3.11, <4.0"
+# 3.12 is the floor because scanpy (>= 1.12), anndata, numpy and scipy all require it: on 3.11
+# the resolver could only pick their last 3.11-compatible releases, and scanpy 1.11's ingest is
+# broken against pynndescent >= 0.7. Also SPEC 0, which drops each Python 3 years after release.
+requires-python = ">=3.12, <4.0"
 
 # the dynamically determined project metadata attributes
 dynamic = ["version"]
@@ -32,7 +35,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -65,12 +67,19 @@ dependencies = [
 dev = [
     "black~=25.1",
     "flake8~=7.0",
-    "isort~=5.0",
+    # Same major version as the isort hook in .pre-commit-config.yaml, which CI runs: 5 and 6
+    # disagree on blank lines between function-level imports.
+    "isort~=6.0",
     "pre-commit~=4.0",
     "pylint~=3.0",
     "pytest~=8.0",
     "xlrd",
     "gseapy",
+    # Without these the tests that need them skip rather than fail, so CI -- which installs
+    # only this extra -- silently stopped covering the ternary plots (mpltern) and the 30
+    # real-.rda pRolocdata reader tests (rdata, also in the `proloc` extra).
+    "mpltern",
+    "rdata",
     # alphabase-backed reading of search-engine output. tests/test_alphabase_interop.py checks
     # that its output still matches protdata's after the manual steps in the alphapepttools
     # tutorial; the module skips when this is missing.
@@ -125,14 +134,11 @@ docs = [
     "alphapepttools",
 ]
 
-[project.scripts]
-some-cli = "some_package.cli.some_cli:main"
-
-
 [project.urls]
-homepage = "https://github.com/czbiohub/some-package"
-documentation = "https://github.com/czbiohub/some-package"
-repository = "https://github.com/czbiohub/some-package"
+homepage = "https://github.com/czbiohub-sf/grassp"
+documentation = "https://czbiohub-sf.github.io/grassp/"
+repository = "https://github.com/czbiohub-sf/grassp"
+changelog = "https://github.com/czbiohub-sf/grassp/blob/main/CHANGELOG.md"
 
 
 [tool.setuptools]
@@ -157,7 +163,8 @@ include = ["grassp*"]
 
 [tool.black]
 line-length = 95
-target-version = ['py310', 'py311', 'py312']
+# Matches requires-python. black 25.1 has no py314 target yet.
+target-version = ['py312', 'py313']
 include = '\.pyi?$'
 skip-string-normalization = true
 exclude = '''
@@ -175,7 +182,6 @@ exclude = '''
     | notebooks
     | ignore
   )/
-  | some/specific/module.py
 )
 '''
 

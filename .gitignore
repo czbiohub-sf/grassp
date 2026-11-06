@@ -17,6 +17,9 @@ grassp/datasets/marker_curation/_cache/
 grassp/datasets/marker_curation/*.xlsx
 grassp/_version.py
 CLAUDE.md
+# Local-only copy of the docs to the old public.czbiohub.org host; docs.yml publishes the
+# docs to GitHub Pages.
+docs/upload_local.sh
 
 tests/output/
 client/.npm/

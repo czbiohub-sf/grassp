@@ -858,6 +858,79 @@ class TestImputationFunctions:
 
         assert np.sum(adata.X == 0) == 0
 
+    def test_impute_gaussian_sparse_inplace_writes_back(self):
+        """Sparse X used to be densified into a local and the imputation dropped."""
+        import scipy.sparse
+
+        adata = make_mini_orgip_data(n_proteins=50, n_baits=2, n_replicates=2)
+        sc.pp.log1p(adata)
+        n_zeros_before = int(np.sum(adata.X == 0))
+        assert n_zeros_before > 0
+        adata.X = scipy.sparse.csr_matrix(adata.X)
+
+        imputation.impute_gaussian(adata)
+
+        X = adata.X.toarray() if scipy.sparse.issparse(adata.X) else adata.X
+        assert np.sum(X == 0) == 0
+        assert adata.obs["n_imputed"].sum() == n_zeros_before
+
+    def test_impute_gaussian_leaves_global_rng_alone(self):
+        """The seed must not reset numpy's global RNG, yet results stay reproducible."""
+        adata = make_mini_orgip_data(n_proteins=50, n_baits=2, n_replicates=2)
+        sc.pp.log1p(adata)
+        a, b = adata.copy(), adata.copy()
+
+        np.random.seed(123)
+        expected_next = np.random.random()
+        np.random.seed(123)
+        imputation.impute_gaussian(a, random_state=0)
+        assert np.random.random() == expected_next
+
+        imputation.impute_gaussian(b, random_state=0)
+        np.testing.assert_array_equal(a.X, b.X)
+
+
+class TestHighlyVariableProteins:
+    """`flavor`, `batch_key` and `subset` used to be ignored or broken."""
+
+    @staticmethod
+    def _make(n_proteins=300, n_samples=12):
+        rng = np.random.default_rng(0)
+        X = rng.lognormal(size=(n_proteins, n_samples)).astype(np.float32)
+        obs = pd.DataFrame(index=[f"p{i}" for i in range(n_proteins)])
+        var = pd.DataFrame(
+            {"batch": ["b1"] * (n_samples // 2) + ["b2"] * (n_samples - n_samples // 2)},
+            index=[f"s{i}" for i in range(n_samples)],
+        )
+        return AnnData(X=X, obs=obs, var=var)
+
+    def test_flavor_is_passed_to_scanpy(self):
+        seurat = simple.highly_variable_proteins(
+            self._make(), n_top_proteins=50, flavor="seurat", inplace=False
+        )
+        cell_ranger = simple.highly_variable_proteins(
+            self._make(), n_top_proteins=50, flavor="cell_ranger", inplace=False
+        )
+        assert not seurat["dispersions_norm"].equals(cell_ranger["dispersions_norm"])
+
+    def test_batch_key(self):
+        adata = self._make()
+        simple.highly_variable_proteins(adata, n_top_proteins=50, batch_key="batch")
+        assert "highly_variable_nbatches" in adata.obs.columns
+        assert adata.obs["highly_variable_nbatches"].max() <= 2
+
+    def test_subset_keeps_highly_variable_proteins(self):
+        adata = self._make()
+        expected = simple.highly_variable_proteins(
+            adata, n_top_proteins=50, subset=True, inplace=False
+        )
+        simple.highly_variable_proteins(adata, n_top_proteins=50, subset=True)
+        # seurat may keep a few extra proteins tied at the cutoff, so compare to scanpy's
+        # own selection rather than to exactly 50.
+        assert list(adata.obs_names) == list(expected.index)
+        assert adata.n_vars == 12
+        assert adata.obs["highly_variable"].all()
+
 
 # ==============================================================================
 # QC and Annotation Tests

@@ -39,10 +39,13 @@ test-r:
 uninstall:
 	pip uninstall -y $(PACKAGE_NAME)
 
+# Check-only; `make pre-commit` runs the same formatters with fixes applied. CI's lint job runs
+# the pre-commit hooks (which pin their own tool versions) and then pylint.
 .PHONY: lint
 lint:
-	flake8 . --count --statistics --exit-zero
+	flake8 . --count --statistics
 	black --check .
+	isort --check-only .
 	python -m pylint $(PACKAGE_NAME)
 
 .PHONY: pre-commit

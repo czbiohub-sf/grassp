@@ -59,7 +59,7 @@ def _best_term(
     cluster_col: str,
     cluster_id: str,
     compartment_col: str = 'Cell_compartment',
-) -> str:
+) -> str | None:
     """Return the modal compartment term for *cluster_id*.
 
     Parameters
@@ -75,14 +75,17 @@ def _best_term(
 
     Returns
     -------
-    str
-        Most frequent compartment term in the cluster.
+    str or None
+        Most frequent compartment term in the cluster, or ``None`` when no protein in it
+        has one.
     """
-    return (
-        adata.obs.loc[adata.obs[cluster_col] == cluster_id, compartment_col]
-        .value_counts()
-        .index[0]
-    )
+    counts = adata.obs.loc[
+        adata.obs[cluster_col] == cluster_id, compartment_col
+    ].value_counts()
+    # On a categorical column value_counts also lists the categories absent from this
+    # cluster, with count 0, so an unannotated cluster would otherwise get an arbitrary term.
+    counts = counts[counts > 0]
+    return counts.index[0] if len(counts) else None
 
 
 def _gene_set(
@@ -145,12 +148,14 @@ def _test_pair(
         p2          – Fisher p-value for the best term of cluster 2.
         terms_agree – True when both clusters share the same best term
                       (unconditional merge candidate, p-values set to 1.0).
+                      Never True for a cluster without a term: having no evidence is
+                      not agreement, so such a pair goes through the Fisher tests.
     """
     c1, c2 = pair
     t1 = _best_term(adata, cluster_col, c1, compartment_col)
     t2 = _best_term(adata, cluster_col, c2, compartment_col)
 
-    if t1 == t2:
+    if t1 is not None and t1 == t2:
         return (0.0, 1.0, 1.0, True)
 
     genes1 = _gene_set(adata, cluster_col, c1, gene_name_key)
@@ -865,7 +870,11 @@ def _plot_merge_dendrogram(
     # 8. Legend
     merged_clusters: set[str] = {c for m in merge_log for c in (m['c1'], m['c2'])}
     merged_terms = sorted(
-        {initial_cluster_terms[c] for c in merged_clusters if c in initial_cluster_terms}
+        {
+            initial_cluster_terms[c]
+            for c in merged_clusters
+            if initial_cluster_terms.get(c) is not None
+        }
     )
     legend_handles = [
         plt.Line2D([0], [0], color=term_color.get(t, _gray), lw=3, label=t)
