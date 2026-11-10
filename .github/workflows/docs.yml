@@ -22,8 +22,8 @@ jobs:
     permissions:
       contents: read
     env:
-      # pak installs anndataR from GitHub (grasspio's `Remotes:`); a token avoids the
-      # unauthenticated API rate limit.
+      # The r-lib actions and pak query the GitHub API; a token avoids the unauthenticated
+      # rate limit.
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v7

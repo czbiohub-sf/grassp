@@ -28,8 +28,10 @@ dependencies:
   # anndataR is scverse's native R implementation of the AnnData on-disk spec, and grasspio's
   # only hard dependency. rhdf5 is listed explicitly because anndataR calls it but declares it
   # only in Suggests, so nothing else pulls it in — and its absence surfaces as a confusing
-  # "there is no package called 'rhdf5'".
-  - bioconductor-anndatar
+  # "there is no package called 'rhdf5'". 1.2.3 is the first release that writes obsm/varm
+  # data frames with the parent's obs_names as their index, which Python requires to open the
+  # file (scverse/anndataR#501, backported to Bioconductor 3.23 in #538).
+  - bioconductor-anndatar >=1.2.3
   - bioconductor-rhdf5
   - bioconductor-msnbase
 
