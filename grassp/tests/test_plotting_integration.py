@@ -303,6 +303,41 @@ class TestHeatmapPlots:
 
         assert g is not None
 
+    def test_protein_clustermap_linkage_metric(self, monkeypatch):
+        """linkage() was always given the precomputed distances, for which scipy ignores
+        `metric`, so linkage_metric had no effect."""
+        # same direction, different scale: correlation groups p0/p1 and p2/p3,
+        # euclidean groups the small p0/p2 and the large p1/p3
+        X = np.array(
+            [[1, 1, 0, 0.1], [10, 10, 0, 1], [0, 0.1, 1, 1], [0, 1, 10, 10]], dtype=float
+        )
+        adata = AnnData(X=X, obs=pd.DataFrame({"c": ["a", "a", "b", "b"]}, index=list("wxyz")))
+        calls = []
+        real = heatmaps.sch.linkage
+
+        def spy(y, *args, **kwargs):
+            out = real(y, *args, **kwargs)
+            calls.append((np.ndim(y), kwargs.get("metric"), out))
+            return out
+
+        monkeypatch.setattr(heatmaps.sch, "linkage", spy)
+        for linkage_metric in (None, "euclidean"):
+            g = heatmaps.protein_clustermap(
+                adata,
+                "c",
+                distance_metric="correlation",
+                linkage_metric=linkage_metric,
+                show=False,
+            )
+            plt.close(g.fig)
+
+        (dim_default, _, link_default), (dim_eucl, metric_eucl, link_eucl) = calls
+        assert dim_default == 1  # clustered on the shown correlation distances
+        assert (dim_eucl, metric_eucl) == (2, "euclidean")  # profiles, with the metric
+        first_merge = lambda link: set(link[0, :2].astype(int))  # noqa: E731
+        assert first_merge(link_default) in ({0, 1}, {2, 3})
+        assert first_merge(link_eucl) == {0, 2}
+
     def test_sample_heatmap_smoke(self):
         """Verify sample_heatmap executes without error."""
         adata = make_enriched_data_with_structure(n_proteins=50, n_samples=8)
