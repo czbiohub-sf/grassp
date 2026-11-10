@@ -517,13 +517,13 @@ class TestClusteringFunctions:
             compartment_annotation_column="markers",
         )
 
-        assert "jaccard_score" in result.obs.columns
-        assert "jaccard_d1" in result.obs.columns
-        assert "jaccard_d2" in result.obs.columns
-        assert "jaccard_k1" in result.obs.columns
-        assert "jaccard_k2" in result.obs.columns
+        assert "interfacial_score" in result.obs.columns
+        assert "interfacial_d1" in result.obs.columns
+        assert "interfacial_d2" in result.obs.columns
+        assert "interfacial_k1" in result.obs.columns
+        assert "interfacial_k2" in result.obs.columns
         # Scores should be non-negative
-        assert (result.obs["jaccard_score"] >= 0).all()
+        assert (result.obs["interfacial_score"] >= 0).all()
 
     def test_tagm_map_train_basic_smoke(self):
         """Test TAGM training basic functionality."""

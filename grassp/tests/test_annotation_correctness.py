@@ -172,19 +172,19 @@ class TestInterfacialnessDoesNotMutateInput:
         data = self._with_unknowns()
         gr.tl.calculate_interfacialness_score(data, "compartment", exclude_category="unknown")
         # the excluded label must never win a neighbourhood
-        for col in ("jaccard_k1", "jaccard_k2"):
+        for col in ("interfacial_k1", "interfacial_k2"):
             assert "unknown" not in set(data.obs[col].dropna().astype(str))
 
     def test_score_is_unaffected_by_a_second_call(self):
         """The old mutation made the function non-idempotent on its own input."""
         data = self._with_unknowns()
         gr.tl.calculate_interfacialness_score(data, "compartment", exclude_category="unknown")
-        first = data.obs["jaccard_score"].to_numpy(dtype=float).copy()
+        first = data.obs["interfacial_score"].to_numpy(dtype=float).copy()
         data.obs = data.obs.drop(
-            columns=[c for c in data.obs.columns if c.startswith("jaccard_")]
+            columns=[c for c in data.obs.columns if c.startswith("interfacial_")]
         )
         gr.tl.calculate_interfacialness_score(data, "compartment", exclude_category="unknown")
-        second = data.obs["jaccard_score"].to_numpy(dtype=float)
+        second = data.obs["interfacial_score"].to_numpy(dtype=float)
         assert np.allclose(first, second)
 
 
@@ -215,26 +215,48 @@ class TestInterfacialnessPartites:
         data.obsp["connectivities"] = conn
         return data
 
-    def test_partites(self):
-        obs = gr.tl.calculate_interfacialness_score(
-            self._graph(), "compartment", obsp="connectivities"
-        ).obs
+    @pytest.mark.parametrize(
+        "flavor, expected",
+        [
+            ("evenness", 2 * 3 / (4 + 3)),  # 4:3 split
+            ("hein2024", (4 + 3) / (6 + 6 - (4 + 3))),  # (d1+d2) / (N1+N2-(d1+d2))
+        ],
+    )
+    def test_partites(self, flavor, expected):
+        data = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities", flavor=flavor
+        )
+        obs = data.obs
+        assert data.uns["interfacial_params"]["flavor"] == flavor
 
         one = obs.loc["p0"]
-        assert one["jaccard_k1"] == "A" and one["jaccard_d1"] == 4
-        assert pd.isna(one["jaccard_k2"])
-        assert one["jaccard_score"] == 0
+        assert one["interfacial_k1"] == "A" and one["interfacial_d1"] == 4
+        assert pd.isna(one["interfacial_k2"])
+        assert one["interfacial_score"] == 0
 
         none = obs.loc["p6"]
-        assert pd.isna(none["jaccard_k1"]) and pd.isna(none["jaccard_k2"])
-        assert pd.isna(none["jaccard_d1"])
-        assert none["jaccard_score"] == 0
+        assert pd.isna(none["interfacial_k1"]) and pd.isna(none["interfacial_k2"])
+        assert pd.isna(none["interfacial_d1"])
+        assert none["interfacial_score"] == 0
 
         # B ranks first: 4/6 of B against 3/6 of A
         two = obs.loc["p12"]
-        assert (two["jaccard_k1"], two["jaccard_k2"]) == ("B", "A")
-        assert (two["jaccard_d1"], two["jaccard_d2"]) == (4, 3)
-        assert two["jaccard_score"] == pytest.approx(7 / (6 + 6 - 7))
+        assert (two["interfacial_k1"], two["interfacial_k2"]) == ("B", "A")
+        assert (two["interfacial_d1"], two["interfacial_d2"]) == (4, 3)
+        assert two["interfacial_score"] == pytest.approx(expected)
+
+    def test_default_is_evenness(self):
+        data = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities"
+        )
+        assert data.uns["interfacial_params"]["flavor"] == "evenness"
+        assert data.obs.loc["p12", "interfacial_score"] == pytest.approx(6 / 7)
+
+    def test_unknown_flavor_raises(self):
+        with pytest.raises(ValueError, match="flavor"):
+            gr.tl.calculate_interfacialness_score(
+                self._graph(), "compartment", obsp="connectivities", flavor="jaccard"
+            )
 
 
 class TestTagmJointAndPersistence:

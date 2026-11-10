@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anndata import AnnData
-    from typing import List
+    from typing import List, Literal
 
 import markov_clustering as mc
 import networkx as nx
@@ -252,20 +252,21 @@ def get_n_nearest_neighbors(G, node: str, order: int = 1, n: int = 10):
     return all_neighbors
 
 
-def _modified_jaccard_coeff(
+def _interfacial_partites(
     row: pd.Series,
     organelle_counts: pd.Series,
-    norm_degrees_to_def_top_partites: bool = True,
+    flavor: str,
     min_partite_deg: int = 3,
 ):
-    if norm_degrees_to_def_top_partites:
-        # Only compartments holding at least min_partite_deg of the neighbours can be partites;
-        # rank those by degree normalised to compartment size.
-        eligible = row[row >= min_partite_deg]
-        ranked = (eligible / organelle_counts[eligible.index]).sort_values(ascending=False)
-        nl = eligible[ranked.index[:2]]
-    else:
-        nl = row.nlargest(2)
+    """Pick a protein's two partite compartments and score it; see calculate_interfacialness_score.
+
+    ``row`` holds the protein's neighbour count per compartment.
+    """
+    # Only compartments holding at least min_partite_deg of the neighbours can be partites;
+    # rank those by degree normalised to compartment size.
+    eligible = row[row >= min_partite_deg]
+    ranked = (eligible / organelle_counts[eligible.index]).sort_values(ascending=False)
+    nl = eligible[ranked.index[:2]]
 
     # With fewer than two partites the missing ones are reported as missing, as in the paper's
     # implementation. Ranking every compartment and zeroing the ineligible ones used to name an
@@ -275,11 +276,11 @@ def _modified_jaccard_coeff(
     k1, k2 = list(nl.index) + [np.nan] * (2 - len(nl))
     if pd.isna(k2):
         return np.nan, d1, d2, k1, k2
-    # p_second_largest = organelle_counts[k2] / organelle_counts.sum()
-    # p_interfacial = -scipy.stats.binom.logsf(d2-1, d1+d2, p_second_largest)
-    jaccard = (d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
-    # d1overd2 = d2/d1#(d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
-    return jaccard, d1, d2, k1, k2
+    if flavor == "evenness":
+        score = 2 * min(d1, d2) / (d1 + d2)
+    else:  # "hein2024"
+        score = (d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
+    return score, d1, d2, k1, k2
 
 
 def calculate_interfacialness_score(
@@ -288,25 +289,54 @@ def calculate_interfacialness_score(
     neighbors_key: str | None = None,
     obsp: str | None = None,
     exclude_category: str | List[str] | None = None,
+    flavor: Literal["evenness", "hein2024"] = "evenness",
 ) -> AnnData:
-    """Quantify *interfacialness* of proteins across compartment boundaries.
+    """Quantify *interfacialness*: how much a protein sits between two compartments.
 
-    The score is based on a **modified Jaccard index** computed from each
-    protein’s immediate neighbourhood:
+    Both flavors look at each protein's direct neighbours in the neighbour graph and pick the
+    same two *partite* compartments:
 
-    1. For a given protein count how many of its neighbours belong to each
-       compartment (categories in ``compartment_annotation_column``).
-    2. Sort counts and take the two highest: ``d1`` and ``d2`` for
-       compartments ``k1`` and ``k2``.
-    3. Compute
+    1. Count the protein's neighbours in each compartment of
+       ``compartment_annotation_column`` (``d_c`` for compartment *c*).
+    2. Only compartments holding at least 3 of the neighbours are eligible.
+    3. Rank the eligible compartments by ``d_c / N_c``, where ``N_c`` is the number of proteins
+       annotated as *c* in the dataset, and take the top two: ``k1`` and ``k2`` with
+       neighbour counts ``d1`` and ``d2``.
 
-       ``score = (d1 + d2) / (N_k1 + N_k2 - (d1 + d2))``
+    Proteins with fewer than two eligible compartments score 0. The flavors differ only in how
+    ``d1`` and ``d2`` are turned into a score.
 
-       where ``N_k`` is the total number of proteins annotated as compartment
-       *k* in the dataset.  High scores indicate that a protein sits at an
-       interface between two compartments.
+    ``flavor="evenness"`` (default)
+        ``score = 2 * min(d1, d2) / (d1 + d2)``: how evenly the protein's neighbours split
+        between the two compartments. 1 is an even split; an *r*:1 split scores
+        ``2 / (r + 1)`` (0.67 for 2:1, 0.5 for 3:1, 0.2 for 9:1). Compartment size does not
+        enter the score, so the boundary between two large compartments (e.g. cytosol and
+        nucleus) scores like the boundary between two small ones. The score is not
+        long-tailed, so call proteins interfacial with a fixed split, e.g.
+        ``score >= 2/3`` (at least 2:1), rather than with an outlier rule.
 
-    New columns are appended to ``data.obs`` with the *jaccard_* prefix.
+        Exclude catch-all labels such as ``"unclassified"`` (``exclude_category``): proteins
+        without a clear localization lie between clusters, so being next to them would
+        otherwise read as an even split.
+
+    ``flavor="hein2024"``
+        The modified Jaccard coefficient of Hein et al., *Cell* (2025), Fig. 3D
+        (https://www.cell.com/cell/fulltext/S0092-8674(24)01344-8),
+        ``score = (d1 + d2) / (N_k1 + N_k2 - (d1 + d2))``.
+        This reproduces the paper's implementation
+        (https://github.com/czbiohub-sf/Organelle_IP_analyses_and_figures, script
+        ``utils/Jaccard_coefficient.py``), which used the ``connectivities`` graph, the
+        consensus graph-based annotation with ``"unclassified"`` counted as a compartment,
+        and called proteins interfacial above the 1.5 IQR upper bound of all scores (0.046).
+
+        **This score is dominated by compartment size.** ``d1 + d2`` is bounded by the number
+        of neighbours (a few dozen), while ``N_k1 + N_k2`` ranges from tens to thousands of
+        proteins, so the score mostly tracks ``1 / (N_k1 + N_k2)``. A protein split evenly
+        between cytosol and nucleus can score at most ~0.008 (with 26 neighbours), far below
+        the paper's cutoff, while a protein inside a small compartment with only three
+        neighbours in another small one can exceed it. How evenly the neighbours split does
+        not enter the score, and proteins with many neighbours in the symmetrised graph
+        score higher.
 
     Parameters
     ----------
@@ -318,26 +348,33 @@ def calculate_interfacialness_score(
     neighbors_key, obsp
         Specify which neighbour graph to use (mirrors Scanpy conventions).
     exclude_category
-        One or multiple category labels (e.g. *'unknown'*) to ignore when
+        One or multiple category labels (e.g. *'unclassified'*) to ignore when
         counting neighbours.
+    flavor
+        ``"evenness"`` (default) or ``"hein2024"``; see above.
 
     Returns
     -------
-    :class:'~anndata.AnnData` object with additional columns:
+    :class:`~anndata.AnnData` object with additional columns:
 
-        ``jaccard_score``
-            Interfacialness score.
-        ``jaccard_d1``, ``jaccard_d2``
-            Counts of the two dominating neighbour compartments.
-        ``jaccard_k1``, ``jaccard_k2``
+        ``interfacial_score``
+            Interfacialness score of the chosen ``flavor``; 0 with fewer than two partites.
+        ``interfacial_d1``, ``interfacial_d2``
+            Neighbour counts in the two partite compartments.
+        ``interfacial_k1``, ``interfacial_k2``
             Corresponding compartment labels; missing when fewer than two (or no)
             compartments hold at least three of the protein's neighbours.
+
+    and ``uns["interfacial_params"]`` recording ``flavor``, the annotation column and
+    ``exclude_category``.
     """
 
     if compartment_annotation_column not in data.obs.columns:
         raise ValueError(
             f"Compartment annotation column {compartment_annotation_column} not found in .obs"
         )
+    if flavor not in ("evenness", "hein2024"):
+        raise ValueError(f"flavor must be 'evenness' or 'hein2024', got {flavor!r}")
 
     # Get full protein x protein matrix filled with annotations
     df = _neighbor_label_matrix(
@@ -349,32 +386,38 @@ def calculate_interfacialness_score(
     df[mask] = np.nan
     vc = df.apply(lambda x: x.value_counts(dropna=True), axis=1).fillna(0).astype("Int64")
 
-    # For each protein, calculate the modified jaccard coefficient
+    # For each protein, pick the two partites and score it
     organelle_counts = data.obs[compartment_annotation_column].value_counts()
     res = vc.apply(
-        _modified_jaccard_coeff,
+        _interfacial_partites,
         axis=1,
         result_type="expand",
         organelle_counts=organelle_counts,
+        flavor=flavor,
     )
     res.columns = [
-        "jaccard_score",
-        "jaccard_d1",
-        "jaccard_d2",
-        "jaccard_k1",
-        "jaccard_k2",
+        "interfacial_score",
+        "interfacial_d1",
+        "interfacial_d2",
+        "interfacial_k1",
+        "interfacial_k2",
     ]
     # result_type="expand" over mixed numbers and labels gives every column object dtype. Give
     # the numeric ones a real dtype: write_h5ad cannot store numbers in an object column, and
     # fillna's silent downcast of object columns -- which used to do this for two of them -- is
-    # deprecated in pandas. NaNs come from zero counts; jaccard_d1 keeps its missing values,
+    # deprecated in pandas. NaNs come from zero counts; interfacial_d1 keeps its missing values,
     # so it gets the nullable integer dtype.
-    res["jaccard_score"] = pd.to_numeric(res["jaccard_score"]).fillna(0)
-    res["jaccard_d1"] = pd.to_numeric(res["jaccard_d1"]).astype("Int64")
-    res["jaccard_d2"] = pd.to_numeric(res["jaccard_d2"]).fillna(0).astype("int64")
+    res["interfacial_score"] = pd.to_numeric(res["interfacial_score"]).fillna(0)
+    res["interfacial_d1"] = pd.to_numeric(res["interfacial_d1"]).astype("Int64")
+    res["interfacial_d2"] = pd.to_numeric(res["interfacial_d2"]).fillna(0).astype("int64")
 
     # Annotate the data with the interfacialness scores
     res.index = data.obs.index
     data.obs = pd.concat([data.obs, res], axis=1)
+    data.uns["interfacial_params"] = {
+        "flavor": flavor,
+        "compartment_annotation_column": compartment_annotation_column,
+        "exclude_category": exclude_category,
+    }
 
     return data
