@@ -190,6 +190,26 @@ class TestRemoveContaminants:
         # Filtered copy has contaminants removed
         assert adata_filtered.shape[0] == 90
 
+    @pytest.mark.parametrize("inplace", [True, False])
+    def test_remove_contaminants_leaves_filter_columns(self, inplace):
+        """The '+' columns used to be overwritten with booleans in the caller's object,
+        even with inplace=False."""
+        obs = pd.DataFrame(
+            {'Potential contaminant': ['+'] * 10 + [''] * 90},
+            index=[f"p{i}" for i in range(100)],
+        )
+        adata = AnnData(X=np.zeros((100, 2)), obs=obs)
+
+        out = contaminants.remove_contaminants(
+            adata, filter_columns='Potential contaminant', filter_value='+', inplace=inplace
+        )
+
+        if not inplace:
+            assert (adata.obs['Potential contaminant'] == '+').sum() == 10
+            assert not out.is_view
+        else:
+            assert set(adata.obs['Potential contaminant']) == {''}
+
 
 class TestUpdateCRAPScript:
     """Test update_cRAP.py helper functions."""

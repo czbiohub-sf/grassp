@@ -36,22 +36,24 @@ def remove_contaminants(
     Returns
     -------
 
-    * If `inplace=False`, returns filtered data.
+    * If `inplace=False`, returns a filtered copy; ``data`` is left unchanged.
     * If `inplace=True`, returns None.
+
+    The filter columns themselves are not modified.
 
     Examples
     --------
     >>> import grassp as gr
     >>> adata = gr.datasets.hein_2024(enrichment="raw")
     >>> adata.shape
-    (8538, 183)
+    (14551, 222)
     >>> gr.pp.remove_contaminants(
     ...     adata,
     ...     filter_columns=['Potential contaminant'],
     ...     filter_value='+'
     ... )
-    >>> adata.shape  # Contaminants removed
-    (8538, 183)
+    >>> adata.shape  # 128 contaminants removed
+    (14423, 222)
     """
 
     if filter_columns is None:
@@ -59,11 +61,16 @@ def remove_contaminants(
     elif isinstance(filter_columns, str):
         filter_columns = [filter_columns]
 
+    # Build the mask without writing it back: assigning the comparison to
+    # data.obs[filter_columns] overwrote the caller's columns even with inplace=False.
+    flags = data.obs[filter_columns]
     if filter_value is not None:
-        data.obs[filter_columns] = data.obs[filter_columns].eq(filter_value)
-    is_contaminant = data.obs[filter_columns].any(axis=1)
+        flags = flags.eq(filter_value)
+    is_contaminant = flags.any(axis=1).to_numpy()
     if not inplace:
-        return data.copy()[~is_contaminant, :]
+        # Subset, then copy: a real copy of the kept rows only. data.copy()[mask] copied
+        # everything and returned a view.
+        return data[~is_contaminant].copy()
     data._inplace_subset_obs(data.obs.index[~is_contaminant])
 
 
