@@ -349,56 +349,61 @@ def aggregate_proteins(
     >>> import grassp as gr
     >>> adata = gr.datasets.hein_2024(enrichment="raw")
     >>> adata.shape
-    (8538, 183)
+    (14551, 222)
     >>> aggregated = gr.pp.aggregate_proteins(
     ...     adata,
     ...     grouping_columns='Gene names'
     ... )
     >>> aggregated.shape  # Fewer proteins after aggregation
-    (8057, 183)
+    (12617, 222)
+
+    Proteins with a missing value in ``grouping_columns`` are not merged with anything: each
+    is kept as its own row under its original name (here the 2,371 proteins without a gene
+    name). ``n_merged_proteins`` counts the input proteins behind each row, and adds up when
+    an already aggregated object is aggregated again.
     """
-    groups = data.obs.groupby(grouping_columns, observed=True)
-    X = np.empty((len(groups), data.n_vars))
-    # obs_list = []
-    obs = pd.DataFrame(index=groups.groups.keys(), columns=data.obs.columns)
-    obs["n_merged_proteins"] = 1
+    obs_in = data.obs
+    keys = obs_in[grouping_columns]
+    missing = keys.isna() if keys.ndim == 1 else keys.isna().any(axis=1)
+    # groupby drops rows with a missing key, which used to delete those proteins silently;
+    # grouping them (dropna=False) would merge every unnamed protein into a single row.
+    groups = obs_in.groupby(grouping_columns, observed=True)
+    entries = list(groups.indices.items()) + [
+        (obs_in.index[p], np.array([p])) for p in np.flatnonzero(missing.to_numpy())
+    ]
+
+    # Start from each group's first row, so every column keeps its dtype (an empty frame
+    # filled row by row made them all object, which write_h5ad cannot store), then blank the
+    # columns whose values differ within a merged group.
+    obs = obs_in.iloc[[pos[0] for _, pos in entries]].copy()
+    obs.index = pd.Index([key for key, _ in entries])
+    varies = np.zeros(obs.shape, dtype=bool)
+    for i, (_, pos) in enumerate(entries):
+        if len(pos) > 1:
+            varies[i] = (obs_in.iloc[pos].nunique() > 1).to_numpy()
+    obs = obs.mask(varies)
+    for col in obs.columns:  # bool + NaN would be object; keep it storable
+        if obs_in[col].dtype == bool and obs[col].dtype == object:
+            obs[col] = obs[col].astype("boolean")
+    prior = (
+        obs_in["n_merged_proteins"].to_numpy()
+        if "n_merged_proteins" in obs_in.columns
+        else np.ones(len(obs_in), dtype=int)
+    )
+    obs["n_merged_proteins"] = [int(prior[pos].sum()) for _, pos in entries]
+
+    X = np.empty((len(entries), data.n_vars))
     layers_dict = {layer: X.copy() for layer in layer_names(data)}
-
-    individual_indices, obs_indices = [], []
-    for i, (_, ind) in enumerate(groups.indices.items()):
-        if len(ind) == 1:
-            # obs_list.append(data.obs.iloc[ind])
-            individual_indices.append(i)
-            obs_indices.append(ind[0])
-        else:
-            # Aggregate obs
-            g = data.obs.iloc[ind]
-            nunique = g.nunique()
-            obs_sub = g.iloc[0].copy()
-            obs_sub[nunique > 1] = np.nan
-            obs_sub["n_merged_proteins"] = len(ind)
-            obs.iloc[i, :] = obs_sub.values
-            # Aggregate X
-            X_sub = data.X[ind, :]
-            X_sub = agg_func(X_sub, axis=0)
-            X[i, :] = X_sub
-            # obs_list.append(obs_sub)
-            # Aggregate layers
+    for i, (_, pos) in enumerate(entries):
+        if len(pos) == 1:
+            X[i] = data.X[pos[0]]
             for layer_name in layers_dict:
-                layer_sub = data.layers[layer_name][ind, :]
-                layer_sub = agg_func(layer_sub, axis=0)
-                layers_dict[layer_name][i, :] = layer_sub
+                layers_dict[layer_name][i] = data.layers[layer_name][pos[0]]
+        else:
+            X[i] = agg_func(data.X[pos, :], axis=0)
+            for layer_name in layers_dict:
+                layers_dict[layer_name][i] = agg_func(data.layers[layer_name][pos, :], axis=0)
 
-    obs.iloc[individual_indices, :-1] = data.obs.iloc[obs_indices].copy()
-    X[individual_indices] = data.X[obs_indices]
-    for layer_name in layers_dict:
-        layers_dict[layer_name][individual_indices] = data.layers[layer_name][obs_indices]
-
-    # obs = pd.concat(obs_list, axis=0)
-    # X = np.vstack(X_list)
-    # aggregated_layers = {
-    #     layer: np.vstack(layer_list) for layer, layer_list in layers_dict.items()
-    # }
     retdata = AnnData(
         X=X,
         obs=obs,

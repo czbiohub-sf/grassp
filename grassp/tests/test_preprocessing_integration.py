@@ -776,6 +776,53 @@ class TestAggregationFunctions:
         assert "n_merged_proteins" in aggregated.obs.columns
         assert aggregated.n_obs < adata.n_obs
 
+    @staticmethod
+    def _typed_obs_data():
+        adata = make_mini_orgip_data(n_proteins=50, n_baits=2, n_replicates=2)
+        adata.obs["Gene names"] = ["GENE1"] * 10 + [f"GENE{i}" for i in range(2, 42)]
+        adata.obs["score"] = np.arange(50, dtype=float)
+        adata.obs["flag"] = np.arange(50) % 2 == 0
+        adata.obs["kind"] = pd.Categorical(["a", "b"] * 25)
+        return adata
+
+    def test_aggregate_proteins_keeps_dtypes_and_writes(self, tmp_path):
+        """obs used to come back all-object, so write_h5ad failed on the result."""
+        adata = self._typed_obs_data()
+        agg = simple.aggregate_proteins(adata, grouping_columns="Gene names")
+
+        assert agg.obs["score"].dtype.kind == "f"
+        assert isinstance(agg.obs["kind"].dtype, pd.CategoricalDtype)
+        assert agg.obs["n_merged_proteins"].dtype.kind == "i"
+        # GENE1 merges rows with differing values: those columns are blanked
+        assert pd.isna(agg.obs.loc["GENE1", "score"])
+        assert pd.isna(agg.obs.loc["GENE1", "flag"])
+        assert agg.obs.loc["GENE2", "flag"] == adata.obs.iloc[10]["flag"]
+        agg.write_h5ad(tmp_path / "agg.h5ad")
+
+    def test_aggregate_proteins_twice_keeps_columns(self):
+        """Re-aggregating dropped the true last obs column for unmerged proteins, because
+        n_merged_proteins was assumed to be the last column."""
+        adata = self._typed_obs_data()
+        once = simple.aggregate_proteins(adata, grouping_columns="Gene names")
+        once.obs["last"] = np.arange(once.n_obs, dtype=float)
+        twice = simple.aggregate_proteins(once, grouping_columns="Gene names")
+
+        assert twice.obs["last"].notna().all()
+        assert twice.obs.loc["GENE1", "n_merged_proteins"] == 10  # counts add up
+
+    def test_aggregate_proteins_keeps_proteins_without_key(self):
+        """Proteins with a missing grouping key used to be dropped silently."""
+        adata = self._typed_obs_data()
+        adata.obs["Gene names"] = adata.obs["Gene names"].astype(object)
+        adata.obs.iloc[[45, 46], adata.obs.columns.get_loc("Gene names")] = np.nan
+        agg = simple.aggregate_proteins(adata, grouping_columns="Gene names")
+
+        for name in adata.obs_names[[45, 46]]:
+            assert name in agg.obs_names
+            assert agg.obs.loc[name, "n_merged_proteins"] == 1
+            np.testing.assert_allclose(agg[name].X, adata[name].X)
+        assert agg.n_obs == 39 + 2  # 39 named gene groups, 2 unnamed proteins kept apart
+
     def test_aggregate_samples_basic(self):
         """Test aggregate_samples."""
         adata = make_mini_dc_data(n_proteins=50, n_fractions=5, n_replicates=3)
