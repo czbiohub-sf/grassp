@@ -346,6 +346,27 @@ class TestHeatmapPlots:
 
         assert ax is not None
 
+    def test_qsep_boxplot_point_colours(self):
+        """The points were coloured with seaborn's default palette (blue/orange) instead
+        of grey for a cluster's distance to itself and red for the others."""
+        adata = AnnData(X=np.zeros((3, 2)))
+        adata.uns["cluster_distances"] = {
+            "distances": np.array([[1.0, 3.0, 4.0], [3.0, 1.0, 5.0], [4.0, 5.0, 2.0]]),
+            "clusters": ["A", "B", "C"],
+        }
+        fig, ax = plt.subplots()
+
+        heatmaps.qsep_boxplot(adata, ax=ax, show=False)
+
+        point_rgb = {
+            tuple(np.round(fc[:3], 3))
+            for coll in ax.collections
+            for fc in coll.get_facecolors()
+            if len(coll.get_offsets())
+        }
+        assert point_rgb == {(0.502, 0.502, 0.502), (1.0, 0.0, 0.0)}  # grey, red
+        plt.close(fig)
+
 
 # ==============================================================================
 # Integration Plot Tests

@@ -365,13 +365,15 @@ def qsep_boxplot(
         **kwargs,
     )
 
-    # Add individual points
+    # Add individual points: grey for a cluster's distance to itself, red for the others.
+    # The "color" values are hue *levels*; without a palette seaborn mapped them to its
+    # default colours, so the points came out blue and orange.
     sns.stripplot(
         data=plot_df,
         x="Distance",
         y="Reference Cluster",
         hue="color",
-        # hue="Target Cluster",
+        palette={"grey": "grey", "red": "red"},
         orient="h",
         size=4,
         # color=".3",
