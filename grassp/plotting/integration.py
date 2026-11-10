@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from anndata import AnnData
-    from typing import List, Literal
+    from typing import List, Literal, Sequence
     from matplotlib.axes import Axes
 
 import matplotlib.lines as mlines
@@ -373,10 +373,10 @@ def mr_plot(
     data: AnnData,
     mr_key: str = "mr_scores",
     ax: plt.Axes = None,
-    m_cutoffs: list[float] = [2, 3, 4],
-    r_cutoffs: list[float] = [0.68, 0.81, 0.93],
+    m_cutoffs: Sequence[float] = (2, 3, 4),
+    r_cutoffs: Sequence[float] = (0.68, 0.81, 0.93),
     highlight_hits: bool = True,
-    highlight_proteins: list[str] = [],
+    highlight_proteins: Sequence[str] | None = None,
     show: bool | None = None,
     save: bool | str | None = None,
     **kwargs,
@@ -399,7 +399,8 @@ def mr_plot(
     highlight_hits
         If ``True`` mark proteins passing the *lenient* thresholds in red.
     highlight_proteins
-        List of proteins to highlight. Not compatible with ``highlight_hits``.
+        Names (``data.obs_names``) of proteins to mark with larger blue points, drawn on
+        top of the hits. Can be combined with ``highlight_hits``.
     ax, show, save, **kwargs
         Standard matplotlib/scanpy plotting options.
 
@@ -421,14 +422,14 @@ def mr_plot(
     # Plot data
     ax.scatter(m_scores, r_scores, alpha=0.5, s=10, color="black", marker=".", **kwargs)
 
-    if highlight_proteins != []:
-        # assert not highlight_hits, (
-        #     "highlight_proteins and highlight_hits cannot be used together"
-        # )
-        hits = data.obs_names.isin(highlight_proteins)
     if highlight_hits:
         hits = (m_scores >= m_cutoffs[0]) & (r_scores >= r_cutoffs[0])
         ax.scatter(m_scores[hits], r_scores[hits], color="red", s=20, marker=".")
+    # Drawn in its own layer: the selection used to be computed into `hits` and then
+    # overwritten by (or, with highlight_hits=False, never passed to) the scatter call.
+    if highlight_proteins:
+        chosen = data.obs_names.isin(highlight_proteins)
+        ax.scatter(m_scores[chosen], r_scores[chosen], color="tab:blue", s=40, marker="o")
 
     # Add cutoff lines
     colors = ["gray", "darkgray", "lightgray"]
@@ -446,7 +447,8 @@ def mr_plot(
     ax.set_title("MR Plot")
 
     show = scanpy.settings.autoshow if show is None else show
-    scanpy.pl._utils.savefig_or_show("remodeling_score", show=show, save=save)
+    # its own file name: "remodeling_score" overwrote that plot's saved figure
+    scanpy.pl._utils.savefig_or_show("mr_plot", show=show, save=save)
     if show:
         return None
     return ax

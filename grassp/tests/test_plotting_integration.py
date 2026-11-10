@@ -399,6 +399,31 @@ class TestIntegrationPlots:
 
         assert ax is not None
 
+    @pytest.mark.parametrize("highlight_hits", [False, True])
+    def test_mr_plot_highlights_proteins(self, highlight_hits, monkeypatch):
+        """highlight_proteins was computed and then never drawn, and the figure was saved
+        under remodeling_score's name."""
+        adata = make_enriched_data_with_structure(n_proteins=60)
+        adata.obs["mr_scores_M"] = np.linspace(0, 10, adata.n_obs)
+        adata.obs["mr_scores_R"] = np.linspace(0, 1, adata.n_obs)
+        chosen = list(adata.obs_names[:3])
+        saved = []
+        monkeypatch.setattr(
+            integration.scanpy.pl._utils,
+            "savefig_or_show",
+            lambda name, **kwargs: saved.append(name),
+        )
+
+        ax = integration.mr_plot(
+            adata, highlight_hits=highlight_hits, highlight_proteins=chosen, show=False
+        )
+
+        last = ax.collections[-1].get_offsets()
+        expected = adata.obs.loc[chosen, ["mr_scores_M", "mr_scores_R"]].to_numpy()
+        np.testing.assert_allclose(last, expected)
+        assert saved == ["mr_plot"]
+        plt.close(ax.figure)
+
     def test_remodeling_sankey_smoke(self):
         """Verify remodeling_sankey executes without error."""
         datasets = make_multi_dataset_for_integration(n_datasets=2, n_proteins=50, n_samples=6)
