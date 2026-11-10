@@ -92,6 +92,8 @@ def filter_proteins(
 ) -> AnnData | tuple[np.ndarray, np.ndarray] | None:
     """Filter proteins based on number of counts or samples.
 
+    Only one criterion can be given per call, as in :func:`scanpy.pp.filter_cells`.
+
     Parameters
     ----------
     data
@@ -111,8 +113,6 @@ def filter_proteins(
         (If using fractionation instead of organellar IP) Minimum number of consecutive
         fractions that a protein is present in; see
         :func:`filter_min_consecutive_fractions`. Requires an AnnData.
-
-    Only one criterion can be given per call, as in :func:`scanpy.pp.filter_cells`.
 
     Returns
     -------
