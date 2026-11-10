@@ -508,6 +508,9 @@ def competitive_diffusion(
                 "propagation": method,
                 "iterative": bool(iterative),
                 "alpha": float(alpha) if method == "spreading" else None,
+                # recorded so resolve_soft_labels re-propagates its null the same way
+                "max_iter": int(max_iter),
+                "rtol": float(rtol),
                 "obsp_key": obsp_key,
                 "renormalize_class_mass": bool(renormalize_class_mass),
                 "fix_markers": bool(fix_markers),
@@ -805,8 +808,8 @@ def resolve_soft_labels(
     method: Literal["propagation", "spreading"] | None = None,
     iterative: bool | None = None,
     alpha: float | None = None,
-    max_iter: int = 30,
-    rtol: float = 1e-4,
+    max_iter: int | None = None,
+    rtol: float | None = None,
     unknown_label: str | None = "unknown",
     unknown_gate: float = 0.5,
     null: Literal["permutation", "analytic"] | None = "permutation",
@@ -986,8 +989,11 @@ def resolve_soft_labels(
             iterative if iterative is not None else bool(recorded.get("iterative", False))
         ),
         "alpha": alpha if alpha is not None else (recorded.get("alpha") or 0.8),
-        "max_iter": max_iter,
-        "rtol": rtol,
+        # These defaulted to 30 / 1e-4 regardless of the run: against competitive_diffusion's
+        # max_iter=1000, a spreading null (~40 iterations to converge at alpha=0.8) stopped
+        # unconverged while the production run converged. Fallbacks are its defaults.
+        "max_iter": max_iter if max_iter is not None else int(recorded.get("max_iter", 1000)),
+        "rtol": rtol if rtol is not None else float(recorded.get("rtol", 1e-4)),
     }
     if obsp_key is None:
         obsp_key = recorded.get("obsp_key", "connectivities")

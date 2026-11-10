@@ -391,6 +391,36 @@ class TestNullMatchesTheProduction:
             mismatched.obs[f"{key}_zscore"].to_numpy(dtype=float),
         )
 
+    def test_the_recorded_iteration_settings_are_used(self, annotated, monkeypatch):
+        """max_iter/rtol were not recorded and defaulted to 30 in the resolver, so a
+        spreading null stopped unconverged while competitive_diffusion (max_iter=1000)
+        converged."""
+        from grassp.tools import localization
+
+        gr.tl.competitive_diffusion(
+            annotated, gt_col="markers", method="spreading", alpha=0.8, max_iter=500, rtol=1e-6
+        )
+        params = annotated.uns["competitive_diffusion_params"]
+        assert (params["max_iter"], params["rtol"]) == (500, 1e-6)
+
+        seen = []
+        real = localization._propagate_soft
+
+        def spy(*args, **kwargs):
+            seen.append((kwargs.get("max_iter"), kwargs.get("rtol")))
+            return real(*args, **kwargs)
+
+        monkeypatch.setattr(localization, "_propagate_soft", spy)
+        gr.tl.resolve_soft_labels(
+            annotated,
+            prob_key="competitive_diffusion_probabilities",
+            seed_key="competitive_diffusion_one_hot_labels",
+            unknown_label=None,
+            n_permutations=5,
+            random_state=0,
+        )
+        assert seen and set(seen) == {(500, 1e-6)}
+
     def test_the_rbf_graph_is_reproduced(self, annotated):
         """obsp_key="distances" means an RBF kernel, not the raw distance matrix; the
         null read data.obsp[obsp_key] directly and so skipped the kernel entirely."""
