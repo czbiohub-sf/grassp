@@ -1,6 +1,8 @@
 [build-system]
 requires = [
-  "setuptools >= 42",
+  # 77 is the first setuptools with PEP 639 licence metadata (an SPDX `license` string and
+  # `license-files`).
+  "setuptools >= 77",
   "wheel",
   "setuptools_scm[toml]>=3.4"
 ]
@@ -22,7 +24,9 @@ tag_regex = '^v(?P<version>\d+(?:\.\d+){0,2}.*)$'
 name =  "grassp"
 description = "A python package to facilitate Organellar profiling"
 readme = "README.md"
-license = {text = "BSD 3-Clause License"}
+license = "BSD-3-Clause"
+# Shipped in every wheel and sdist: BSD-3-Clause requires redistributing the notice.
+license-files = ["LICENSE"]
 # 3.12 is the floor because scanpy (>= 1.12), anndata, numpy and scipy all require it: on 3.11
 # the resolver could only pick their last 3.11-compatible releases, and scanpy 1.11's ingest is
 # broken against pynndescent >= 0.7. Also SPEC 0, which drops each Python 3 years after release.
@@ -147,9 +151,6 @@ changelog = "https://github.com/czbiohub-sf/grassp/blob/main/CHANGELOG.md"
 [tool.setuptools]
 # allow use of __file__ to load data files included in the package
 zip-safe = false
-
-# Don't include LICENSE as a license-file in the metadata
-license-files = []
 
 # Discover subpackages instead of listing only the top level. The previous
 # `packages = ["grassp"]` was a flat list, so which subpackage modules ended up in a wheel
