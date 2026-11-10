@@ -1359,6 +1359,44 @@ class TestIntegrationFunctions:
         assert (adata.obs["mr_scores_R"] >= -1).all()
         assert (adata.obs["mr_scores_R"] <= 1).all()
 
+    @staticmethod
+    def _with_fractions(adata):
+        adata.var["fraction"] = [name.rsplit("_", 1)[1] for name in adata.var_names]
+        return adata
+
+    def test_mr_score_pairs_fractions_by_fraction_key(self):
+        """Control and treatment fractions were paired by column order, unchecked."""
+        ordered = self._with_fractions(make_mr_score_data(n_proteins=60, n_fractions=4))
+        rng = np.random.default_rng(0)
+        order = np.arange(ordered.n_vars)
+        for rep in ["R1", "R2", "R3"]:  # shuffle the treatment fractions within each replicate
+            idx = np.flatnonzero(
+                (ordered.var["condition"] == "treatment") & (ordered.var["replicate"] == rep)
+            )
+            order[idx] = rng.permutation(idx)
+        shuffled = ordered[:, order].copy()
+
+        integration.mr_score(ordered, "condition", "replicate", fraction_key="fraction")
+        integration.mr_score(shuffled, "condition", "replicate", fraction_key="fraction")
+        np.testing.assert_allclose(shuffled.obs["mr_scores_R"], ordered.obs["mr_scores_R"])
+        np.testing.assert_allclose(shuffled.obs["mr_scores_M"], ordered.obs["mr_scores_M"])
+
+    def test_mr_score_rejects_unmatched_fractions(self):
+        adata = self._with_fractions(make_mr_score_data(n_proteins=60, n_fractions=4))
+        drop = (
+            (adata.var["condition"] == "treatment")
+            & (adata.var["replicate"] == "R2")
+            & (adata.var["fraction"] == "F4")
+        )
+        fewer = adata[:, ~drop.to_numpy()].copy()
+        with pytest.raises(ValueError, match="fractions must match"):
+            integration.mr_score(fewer, "condition", "replicate")
+
+        renamed = adata.copy()
+        renamed.var.loc[drop, "fraction"] = "F9"
+        with pytest.raises(ValueError, match="same fractions"):
+            integration.mr_score(renamed, "condition", "replicate", fraction_key="fraction")
+
     def test_mr_score_custom_params(self):
         """Test M/R score with custom parameters."""
         adata = make_mr_score_data(n_proteins=100, n_fractions=5)
