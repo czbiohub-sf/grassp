@@ -252,6 +252,27 @@ class TestInterfacialnessPartites:
         assert data.uns["interfacial_params"]["flavor"] == "evenness"
         assert data.obs.loc["p12", "interfacial_score"] == pytest.approx(6 / 7)
 
+    def test_string_labels_and_excluded_category(self):
+        """A plain (non-categorical) label column gives the same result, and an excluded
+        category is never a partite."""
+        cols = ["interfacial_score", "interfacial_d1", "interfacial_d2"]
+        cat = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities"
+        ).obs
+        data = self._graph()
+        data.obs["compartment"] = data.obs["compartment"].astype(str)
+        plain = gr.tl.calculate_interfacialness_score(
+            data, "compartment", obsp="connectivities"
+        ).obs
+        pd.testing.assert_frame_equal(plain[cols], cat[cols])
+
+        excl = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities", exclude_category=["B"]
+        ).obs
+        # p12 had 3 A and 4 B neighbours: with B excluded only A is a partite
+        assert excl.loc["p12", "interfacial_k1"] == "A"
+        assert pd.isna(excl.loc["p12", "interfacial_k2"])
+
     def test_unknown_flavor_raises(self):
         with pytest.raises(ValueError, match="flavor"):
             gr.tl.calculate_interfacialness_score(

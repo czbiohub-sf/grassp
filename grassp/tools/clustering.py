@@ -12,8 +12,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import scanpy as sc
-
-from .localization import _neighbor_label_matrix
+import scipy.sparse
 
 
 def _get_clusters(matrix):
@@ -276,34 +275,52 @@ def get_n_nearest_neighbors(G, node: str, order: int = 1, n: int = 10):
 
 
 def _interfacial_partites(
-    row: pd.Series,
-    organelle_counts: pd.Series,
+    counts: np.ndarray,
+    sizes: np.ndarray,
+    categories: pd.Index,
     flavor: str,
     min_partite_deg: int = 3,
-):
-    """Pick a protein's two partite compartments and score it; see calculate_interfacialness_score.
+) -> pd.DataFrame:
+    """Pick every protein's two partite compartments and score it.
 
-    ``row`` holds the protein's neighbour count per compartment.
+    ``counts`` is the ``(n_proteins, n_compartments)`` matrix of neighbour counts per
+    compartment, ``sizes`` the compartment sizes; see calculate_interfacialness_score.
     """
+    n = counts.shape[0]
+    rows = np.arange(n)
     # Only compartments holding at least min_partite_deg of the neighbours can be partites;
-    # rank those by degree normalised to compartment size.
-    eligible = row[row >= min_partite_deg]
-    ranked = (eligible / organelle_counts[eligible.index]).sort_values(ascending=False)
-    nl = eligible[ranked.index[:2]]
+    # rank those by degree normalised to compartment size. Ties go to the earlier category.
+    eligible = counts >= min_partite_deg
+    n_eligible = eligible.sum(axis=1)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        rank = np.where(eligible, counts / sizes, -np.inf)
+    top = np.argsort(-rank, axis=1, kind="stable")[:, :2]
+    if top.shape[1] < 2:  # a single compartment in the vocabulary
+        top = np.column_stack([top, top])
+    d1 = counts[rows, top[:, 0]].astype(float)
+    d2 = counts[rows, top[:, 1]].astype(float)
+    has1, has2 = n_eligible >= 1, n_eligible >= 2
 
-    # With fewer than two partites the missing ones are reported as missing, as in the paper's
-    # implementation. Ranking every compartment and zeroing the ineligible ones used to name an
-    # arbitrary zero-count compartment (usually the first category) as k2, and as k1 too when
-    # none qualified.
-    d1, d2 = list(nl.values) + [np.nan] * (2 - len(nl))
-    k1, k2 = list(nl.index) + [np.nan] * (2 - len(nl))
-    if pd.isna(k2):
-        return np.nan, d1, d2, k1, k2
-    if flavor == "evenness":
-        score = 2 * min(d1, d2) / (d1 + d2)
-    else:  # "hein2024"
-        score = (d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
-    return score, d1, d2, k1, k2
+    # Fewer than two partites score 0, and the missing ones are reported as missing, as in
+    # the paper's implementation.
+    with np.errstate(divide="ignore", invalid="ignore"):
+        if flavor == "evenness":
+            score = 2 * np.minimum(d1, d2) / (d1 + d2)
+        else:  # "hein2024"
+            score = (d1 + d2) / (sizes[top[:, 0]] + sizes[top[:, 1]] - (d1 + d2))
+    labels = np.asarray(categories, dtype=object)
+    k1 = np.where(has1, labels[top[:, 0]], np.nan)
+    k2 = np.where(has2, labels[top[:, 1]], np.nan)
+    return pd.DataFrame(
+        {
+            "interfacial_score": np.where(has2, score, 0.0),
+            # NaN when no compartment qualifies, hence the nullable integer dtype
+            "interfacial_d1": pd.array(np.where(has1, d1, np.nan), dtype="Int64"),
+            "interfacial_d2": np.where(has2, d2, 0).astype("int64"),
+            "interfacial_k1": k1,
+            "interfacial_k2": k2,
+        }
+    )
 
 
 def calculate_interfacialness_score(
@@ -399,40 +416,31 @@ def calculate_interfacialness_score(
     if flavor not in ("evenness", "hein2024"):
         raise ValueError(f"flavor must be 'evenness' or 'hein2024', got {flavor!r}")
 
-    # Get full protein x protein matrix filled with annotations
-    df = _neighbor_label_matrix(
-        data, compartment_annotation_column, exclude_category=exclude_category
+    # Neighbour counts per compartment as one sparse product, adjacency x one-hot labels:
+    # (n_proteins x n_compartments). This used to build a dense n x n table of labels and
+    # value_count every row -- 1.2 GB and ~4 s for the 8.5k proteins of Hein 2024.
+    labels = data.obs[compartment_annotation_column]
+    if not isinstance(labels.dtype, pd.CategoricalDtype):
+        labels = labels.astype("category")
+    categories = labels.cat.categories
+    codes = labels.cat.codes.to_numpy().copy()
+    if exclude_category is not None:
+        excluded = (
+            [exclude_category] if isinstance(exclude_category, str) else exclude_category
+        )
+        codes[np.isin(codes, np.flatnonzero(categories.isin(excluded)))] = -1
+    labelled = np.flatnonzero(codes >= 0)
+    one_hot = scipy.sparse.csr_matrix(
+        (np.ones(labelled.size), (labelled, codes[labelled])),
+        shape=(data.n_obs, len(categories)),
     )
-    # Mask non-neighbors with np.nan
     adjacency = sc._utils._choose_graph(data, obsp, neighbors_key=neighbors_key)
-    mask = ~(adjacency != 0).todense()  # This avoids expensive conn == 0 for sparse matrices
-    df[mask] = np.nan
-    vc = df.apply(lambda x: x.value_counts(dropna=True), axis=1).fillna(0).astype("Int64")
+    neighbours = (scipy.sparse.csr_matrix(adjacency) != 0).astype(np.float64)
+    counts = np.asarray((neighbours @ one_hot).todense()).round().astype(np.int64)
+    # Compartment sizes over the whole column, excluded categories included, as before
+    sizes = labels.value_counts().reindex(categories).to_numpy(dtype=float)
 
-    # For each protein, pick the two partites and score it
-    organelle_counts = data.obs[compartment_annotation_column].value_counts()
-    res = vc.apply(
-        _interfacial_partites,
-        axis=1,
-        result_type="expand",
-        organelle_counts=organelle_counts,
-        flavor=flavor,
-    )
-    res.columns = [
-        "interfacial_score",
-        "interfacial_d1",
-        "interfacial_d2",
-        "interfacial_k1",
-        "interfacial_k2",
-    ]
-    # result_type="expand" over mixed numbers and labels gives every column object dtype. Give
-    # the numeric ones a real dtype: write_h5ad cannot store numbers in an object column, and
-    # fillna's silent downcast of object columns -- which used to do this for two of them -- is
-    # deprecated in pandas. NaNs come from zero counts; interfacial_d1 keeps its missing values,
-    # so it gets the nullable integer dtype.
-    res["interfacial_score"] = pd.to_numeric(res["interfacial_score"]).fillna(0)
-    res["interfacial_d1"] = pd.to_numeric(res["interfacial_d1"]).astype("Int64")
-    res["interfacial_d2"] = pd.to_numeric(res["interfacial_d2"]).fillna(0).astype("int64")
+    res = _interfacial_partites(counts, sizes, categories, flavor)
 
     # Annotate the data with the interfacialness scores
     res.index = data.obs.index

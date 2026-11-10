@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from anndata import AnnData
-    from typing import List
 
 import warnings
 
@@ -23,30 +22,6 @@ from ._annotation import (
 )
 from ._graph import affinity, neff_kish, spread, symmetric_normalized
 from ._svm_proba import PairwiseCoupledSVC
-
-
-def _neighbor_label_matrix(
-    data: AnnData, obs_ann_col: str, exclude_category: str | List[str] | None = None
-) -> pd.DataFrame:
-    """Square matrix whose row *i* holds every protein's label, seen from protein *i*.
-
-    The caller masks it to protein *i*'s neighbourhood, so each row becomes the labels
-    of that protein's neighbours. Labels in ``exclude_category`` are blanked.
-    """
-    nrow = data.obs.shape[0]
-    obs_ann = data.obs[obs_ann_col]
-    if isinstance(exclude_category, str):
-        exclude_category = [exclude_category]
-    if exclude_category is not None:
-        # `data.obs[col]` hands back a view onto the caller's frame, so replacing
-        # in place permanently NaN'd the excluded labels in the user's object -- every
-        # annotator run afterwards saw those proteins as unlabelled. Mask a copy
-        # instead; `.where` also keeps the Categorical dtype without tripping pandas'
-        # downcasting FutureWarning that `.replace` emitted here.
-        obs_ann = obs_ann.where(~obs_ann.isin(exclude_category))
-
-    df = pd.DataFrame(np.tile(obs_ann, (nrow, 1)))
-    return df
 
 
 def _class_weight_by_code(class_weight, categories):
