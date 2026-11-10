@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.7.0](https://github.com/czbiohub-sf/grassp/compare/v0.6.0...v0.7.0) (2026-11-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* the default score is now evenness, not the Jaccard coefficient; pass flavor="hein2024" for the previous values. The output columns are renamed from jaccard_score/_d1/_d2/_k1/_k2 to interfacial_score/_d1/_d2/_k1/_k2.
+* Python 3.11 is no longer supported. Installs on 3.11 keep grassp 0.6.x.
+
+### Features
+
+* **diffusion:** count only annotated neighbours, one gene once, nest-only resolver ([#38](https://github.com/czbiohub-sf/grassp/issues/38)) ([f71e973](https://github.com/czbiohub-sf/grassp/commit/f71e973391d13f74cab7d66f14cbf6546ba5c47b))
+* grassp code QOL improvements and bugfixes ([#36](https://github.com/czbiohub-sf/grassp/issues/36)) ([32cc5c4](https://github.com/czbiohub-sf/grassp/commit/32cc5c431565d18efa4fdd6a6b670d322c75a9f3))
+* interfacialness evenness score, libsvm-style SVM probabilities, and a round of bug fixes ([#40](https://github.com/czbiohub-sf/grassp/issues/40)) ([49f3acd](https://github.com/czbiohub-sf/grassp/commit/49f3acd6c6096585a54321e9760a7dff96f56d1b))
+
+
+### Bug Fixes
+
+* **deps:** pin umap-learn below 0.6, mark the package Beta ([#39](https://github.com/czbiohub-sf/grassp/issues/39)) ([ccc20f0](https://github.com/czbiohub-sf/grassp/commit/ccc20f0e6038fdef48bea56b700396aae4f772f8))
+
 ## [0.6.0](https://github.com/czbiohub-sf/grassp/compare/v0.5.1...v0.6.0) (2026-10-06)
 
 

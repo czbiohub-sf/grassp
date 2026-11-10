@@ -1,7 +1,7 @@
 Package: grasspio
 Type: Package
 Title: Exchange Spatial Proteomics Data Between pRoloc and grassp
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: person(given = "Max", family = "Frank",
                   email = "max.frank@czbiohub.org",
                   role = c("aut", "cre"))
