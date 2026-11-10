@@ -72,13 +72,14 @@ dependencies = [
 [project.optional-dependencies]
 # note that dev dependencies are only pinned to major versions
 dev = [
-    "black~=25.1",
+    "black~=26.10",
     "flake8~=7.0",
-    # Same major version as the isort hook in .pre-commit-config.yaml, which CI runs: 5 and 6
-    # disagree on blank lines between function-level imports.
-    "isort~=6.0",
+    # Keep black and isort on the major versions of their hooks in .pre-commit-config.yaml,
+    # which CI runs: isort majors disagree on e.g. blank lines between function-level imports.
+    # pylint 4 is the first that allows isort >= 6.
+    "isort~=9.0",
     "pre-commit~=4.0",
-    "pylint~=3.0",
+    "pylint~=4.0",
     "pytest~=8.0",
     "xlrd",
     "gseapy",

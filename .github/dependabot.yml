@@ -1,0 +1,16 @@
+# Keeps the pinned versions of the GitHub Actions used in .github/workflows current, so they
+# do not silently age into deprecated runtimes again (CI ran checkout@v2 until 2026).
+# Dependency updates for the Python package itself are left to the version ranges in
+# pyproject.toml; pre-commit hooks are updated with `pre-commit autoupdate`.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      # matches the conventional-commit check on PR titles
+      prefix: "ci"
