@@ -1,4 +1,6 @@
 from __future__ import annotations
+import warnings
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -76,6 +78,7 @@ def leiden_mito_sweep(
     min_mito_fraction: float = 0.9,
     increment_threshold: float = 0.005,
     protein_ground_truth_column: str = "protein_ground_truth",
+    max_iter: int = 50,
     **leiden_kwargs,
 ) -> None:
     """Automated sweep to pick a *Leiden* resolution that keeps mitochondria intact.
@@ -86,9 +89,11 @@ def leiden_mito_sweep(
     a single Leiden cluster with at least ``min_mito_fraction`` of all
     mitochondrial proteins.
 
-    The final resolution and the observed fraction are stored in
-    ``data.uns['leiden']['params']['resolution']`` and
-    ``data.uns['leiden']['mito_majority_fraction']``.
+    The result is the highest resolution tried that kept more than ``min_mito_fraction``
+    together. Its clusters are written to ``data.obs[key_added]`` (``"leiden"`` unless
+    ``key_added`` is passed through ``leiden_kwargs``), its resolution to
+    ``data.uns[key_added]['params']['resolution']`` and the observed fraction to
+    ``data.uns[key_added]['mito_majority_fraction']``.
 
     Parameters
     ----------
@@ -108,47 +113,65 @@ def leiden_mito_sweep(
     protein_ground_truth_column
         Observation column holding the curated ground-truth localisation with
         the category ``"mitochondria"``.
+    max_iter
+        Maximum number of Leiden runs. If the search has not converged by then (e.g. the
+        mitochondria stay together at every resolution tried), a warning is raised and
+        the best resolution so far is kept.
     **leiden_kwargs
         Extra parameters forwarded to :func:`scanpy.tl.leiden` (e.g.
-        ``random_state``).
+        ``random_state``, ``key_added``).
 
     Returns
     -------
-    Updates ``data.obs['leiden']`` and ``data.uns['leiden']`` in place.
+    Updates ``data.obs[key_added]`` and ``data.uns[key_added]`` in place.
     """
+    # sc.tl.leiden writes to key_added; reading a hard-coded "leiden" column instead never
+    # saw the new clusters when key_added was passed, so the search never converged.
+    key = leiden_kwargs.get("key_added", "leiden")
+    is_mito = (data.obs[protein_ground_truth_column] == "mitochondria").to_numpy()
+    if not is_mito.any():
+        raise ValueError(
+            f"No 'mitochondria' proteins in data.obs[{protein_ground_truth_column!r}]."
+        )
 
+    resolution, step = starting_resolution, resolution_increments
+    best = None  # (resolution, clusters, fraction) of the highest resolution over the target
     over_before = True
-    mito_majority_fraction = 1
-    data.obs["leiden"] = "0"
-    while resolution_increments > increment_threshold:
-        # Binary search for the highest resolution that is over the fraction by less than precision_threshold
-        leiden_col = data.obs["leiden"]
-        last_mito_majority_fraction = mito_majority_fraction
-        sc.tl.leiden(data, resolution=starting_resolution, **leiden_kwargs)
-        test_col = data.obs.loc[
-            data.obs[protein_ground_truth_column] == "mitochondria", "leiden"
-        ]
-        mito_majority_fraction = _majority_cluster_fraction(test_col)
-        print(f"Resolution: {starting_resolution}, Increment: {resolution_increments}")
-        print(f"Majority mito cluster fraction: {mito_majority_fraction}")
+    for _ in range(max_iter):
+        sc.tl.leiden(data, resolution=resolution, **leiden_kwargs)
+        fraction = _majority_cluster_fraction(data.obs.loc[is_mito, key])
+        print(f"Resolution: {resolution}, Increment: {step}")
+        print(f"Majority mito cluster fraction: {fraction}")
 
-        currently_over = mito_majority_fraction > min_mito_fraction
-        if over_before != currently_over:
-            resolution_increments /= 2
-        starting_resolution += (
-            resolution_increments if currently_over else -resolution_increments
-        )
-        over_before = currently_over
-
-    # Set the leiden clusters to the last resolution
-    if not currently_over:
-        data.obs["leiden"] = leiden_col
-        data.uns["leiden"]["params"]["resolution"] = (
-            starting_resolution - resolution_increments
-        )
-        data.uns["leiden"]["mito_majority_fraction"] = last_mito_majority_fraction
+        over = fraction > min_mito_fraction
+        if over and (best is None or resolution > best[0]):
+            best = (resolution, data.obs[key].copy(), fraction)
+        if over != over_before:
+            step /= 2
+        over_before = over
+        if step <= increment_threshold:
+            break
+        # binary search: up while the mitochondria stay together, down once they split
+        resolution += step if over else -step
+        if resolution <= 0:
+            break
     else:
-        data.uns["leiden"]["mito_majority_fraction"] = mito_majority_fraction
+        warnings.warn(
+            f"leiden_mito_sweep: no convergence after max_iter={max_iter} Leiden runs; "
+            "keeping the best resolution found so far."
+        )
+
+    if best is None:
+        warnings.warn(
+            f"leiden_mito_sweep: no resolution tried kept more than {min_mito_fraction} of "
+            f"the mitochondrial proteins together; data.obs[{key!r}] holds the last run."
+        )
+        data.uns[key]["mito_majority_fraction"] = fraction
+        return
+    best_resolution, best_clusters, best_fraction = best
+    data.obs[key] = best_clusters
+    data.uns[key]["params"]["resolution"] = best_resolution
+    data.uns[key]["mito_majority_fraction"] = best_fraction
 
 
 def to_knn_graph(
