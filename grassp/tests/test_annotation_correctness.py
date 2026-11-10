@@ -784,11 +784,14 @@ class TestCompositeLabelSeparator:
 
         data = _blobs()
         data.obs["gene_symbol"] = [f"G{i}" for i in range(data.n_obs)]
+        # ER and ER_like share 30 of 40 genes (containment 0.75): co-localised but not
+        # nested, so ER proteins get both as leaves and the compact label needs the
+        # separator. (A nested parent would be implied by its child and not listed.)
         gene_sets = {
             "ER": [f"G{i}" for i in range(40)],
+            "ER_like": [f"G{i}" for i in range(10, 40)] + [f"G{i}" for i in range(80, 90)],
             "MITO": [f"G{i}" for i in range(40, 80)],
             "NUC": [f"G{i}" for i in range(80, 120)],
-            "ER_or_MITO": [f"G{i}" for i in range(80)],
         }
         gr.tl.independent_diffusion(
             data, gene_sets, gene_key="gene_symbol", resolve="likelihood"

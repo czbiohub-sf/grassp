@@ -173,8 +173,13 @@ def neff_hutchinson(
     *,
     n_probe: int,
     rng: np.random.RandomState,
+    mask: np.ndarray | None = None,
 ) -> np.ndarray:
     """Kish effective sample size of the *diffused* operator, excluding self.
+
+    With ``mask`` (a 0/1 vector over nodes) only the masked nodes count as neighbours:
+    ``denominator`` must then be ``diffuse(mask, alpha)``, and the result is the effective
+    number of *masked* (e.g. annotated) neighbours each node sees.
 
     Unlike :func:`neff_kish` this measures the neighbourhood a protein actually sees at
     diffusion depth ``alpha``, which is not available in closed form -- the operator is a
@@ -197,6 +202,8 @@ def neff_hutchinson(
         Random state for the probes.
     """
     probes = rng.choice([-1.0, 1.0], size=(len(denominator), n_probe))
+    if mask is not None:
+        probes *= np.asarray(mask, dtype=float)[:, None]
     diffused = diffuse(probes, alpha)
     diagonal = (probes * diffused).mean(axis=1)
     off_sum = np.maximum(denominator - diagonal, 1e-9)
