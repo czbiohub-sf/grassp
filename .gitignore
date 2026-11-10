@@ -20,6 +20,8 @@ CLAUDE.md
 # Local-only copy of the docs to the old public.czbiohub.org host; docs.yml publishes the
 # docs to GitHub Pages.
 docs/upload_local.sh
+# autosummary stubs: the docs build regenerates them from docs/source/api/*.md every time.
+docs/source/generated/
 
 tests/output/
 client/.npm/

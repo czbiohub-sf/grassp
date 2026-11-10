@@ -4,7 +4,7 @@
 exclude: ^(docs/(?!source/tutorials/notebooks)|notebooks/|ignore/|tests/artifacts/)
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v6.0.0
     hooks:
       - id: check-yaml
       - id: check-toml
@@ -24,7 +24,7 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: python-check-blanket-noqa
       - id: python-check-blanket-type-ignore
@@ -32,25 +32,25 @@ repos:
       - id: python-no-eval
 
   - repo: https://github.com/pycqa/isort
-    rev: 6.0.0
+    rev: 9.0.2
     hooks:
     - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 26.10.1
     hooks:
     - id: black
       entry: black
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+    rev: 7.5.0
     hooks:
     - id: flake8
       entry: flake8
       args: [--statistics]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 0.9.1
     hooks:
       - id: nbstripout
         files: ^docs/source/tutorials/notebooks/.*\.ipynb$
