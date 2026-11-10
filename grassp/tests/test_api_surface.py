@@ -1,8 +1,10 @@
 """Guardrails on the public API surface.
 
 The audit that prompted the annotation refactor found functions that were defined,
-docstringed and unreachable, and doc pages listing names that had moved. These keep the
-three views -- what is exported, what is documented, and what has a stub -- in step.
+docstringed and unreachable, and doc pages listing names that had moved. These keep what
+is exported and what is documented in step. The autosummary stubs are no longer checked:
+docs/source/generated is a build artifact since it stopped being tracked, so a stub exists
+only after a docs build.
 """
 
 import inspect
@@ -15,7 +17,6 @@ import pytest
 import grassp as gr
 
 DOCS = Path(__file__).resolve().parents[2] / "docs" / "source"
-GENERATED = DOCS / "generated"
 
 NAMESPACES = {"tl": gr.tl, "pl": gr.pl, "pp": gr.pp, "io": gr.io, "ds": gr.ds}
 
@@ -34,14 +35,6 @@ class TestDocsMatchTheApi:
         namespace = NAMESPACES[prefix]
         missing = sorted(n for n in _listed(page, prefix) if not hasattr(namespace, n))
         assert not missing, f"{page} lists names that do not exist: {missing}"
-
-    def test_every_documented_name_has_a_stub(self, page, prefix):
-        missing = sorted(
-            n
-            for n in _listed(page, prefix)
-            if not (GENERATED / f"grassp.{prefix}.{n}.rst").exists()
-        )
-        assert not missing, f"no autosummary stub for: {missing}"
 
 
 class TestToolsNamespace:
