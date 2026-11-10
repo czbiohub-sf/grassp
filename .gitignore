@@ -151,3 +151,6 @@ local/
 docs/source/tutorials/notebooks/experiment.h5ad
 docs/source/tutorials/notebooks/experiment_run_proloc.R
 docs/source/tutorials/notebooks/proloc_tutorial_results.h5ad
+
+# local working notes, not part of the package
+improvement_ideas.md
