@@ -17,15 +17,11 @@ BiocManager::install("rhdf5")
 remotes::install_github("czbiohub-sf/grassp", subdir = "r/grasspio")
 ```
 
-Needs R >= 4.5, which is anndataR's own requirement.
-
-> **anndataR comes from a fork, for now.** Matrix-valued `fData` columns are written as `obsm`
-> data frames so that they carry their own class names, and the fix that makes anndataR store the
-> parent's `obs_names` as such a frame's index is newer than the last release — without it, Python
-> refuses to open the file with *"value.index does not match parent's obs names"*. The fork is
-> pinned in the `Remotes:` field of [`DESCRIPTION`](DESCRIPTION), which `remotes` and `pak` both
-> honour, so the install above picks it up and CI needs no special case. **When the fix ships,
-> deleting those two lines is the only change needed.**
+Needs R >= 4.5, which is anndataR's own requirement, and anndataR >= 1.2.3 (Bioconductor 3.23).
+Matrix-valued `fData` columns are written as `obsm` data frames so that they carry their own
+class names, and only from 1.2.3 does anndataR store the parent's `obs_names` as such a frame's
+index; with older versions Python refuses to open the file with *"value.index does not match
+parent's obs names"*.
 
 ```r
 library(grasspio)
@@ -74,4 +70,4 @@ Three things the file encodes that are easy to get wrong by hand:
 Both `pRoloc` and `pRolocdata` are in bioconda, so nothing here needs a C++ toolchain or a
 source build. The combination this package was last verified against:
 
-    R 4.5.3 | MSnbase 2.36.0 | pRoloc 1.51.1 | anndataR 1.3.1 (from GitHub) | rhdf5 2.54.1
+    R 4.6.1 | MSnbase 2.38.1 | pRoloc 1.52.0 | anndataR 1.2.3 | rhdf5 2.56.1 (Bioconductor 3.23)

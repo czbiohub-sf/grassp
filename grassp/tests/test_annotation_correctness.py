@@ -172,20 +172,112 @@ class TestInterfacialnessDoesNotMutateInput:
         data = self._with_unknowns()
         gr.tl.calculate_interfacialness_score(data, "compartment", exclude_category="unknown")
         # the excluded label must never win a neighbourhood
-        for col in ("jaccard_k1", "jaccard_k2"):
+        for col in ("interfacial_k1", "interfacial_k2"):
             assert "unknown" not in set(data.obs[col].dropna().astype(str))
 
     def test_score_is_unaffected_by_a_second_call(self):
         """The old mutation made the function non-idempotent on its own input."""
         data = self._with_unknowns()
         gr.tl.calculate_interfacialness_score(data, "compartment", exclude_category="unknown")
-        first = data.obs["jaccard_score"].to_numpy(dtype=float).copy()
+        first = data.obs["interfacial_score"].to_numpy(dtype=float).copy()
         data.obs = data.obs.drop(
-            columns=[c for c in data.obs.columns if c.startswith("jaccard_")]
+            columns=[c for c in data.obs.columns if c.startswith("interfacial_")]
         )
         gr.tl.calculate_interfacialness_score(data, "compartment", exclude_category="unknown")
-        second = data.obs["jaccard_score"].to_numpy(dtype=float)
+        second = data.obs["interfacial_score"].to_numpy(dtype=float)
         assert np.allclose(first, second)
+
+
+class TestInterfacialnessPartites:
+    """Partites are compartments with >= 3 of a protein's neighbours. Fewer than two used to
+    still get a k2 -- an arbitrary zero-count compartment, usually the first category -- and
+    no eligible compartment an arbitrary k1 as well."""
+
+    @staticmethod
+    def _graph() -> ad.AnnData:
+        import scipy.sparse as sp
+
+        labels = ["A"] * 6 + ["B"] * 6 + ["C"] * 3
+        neighbours = {
+            0: [1, 2, 3, 4],  # 4 x A: one partite
+            6: [0, 7],  # 1 x A, 1 x B: none
+            12: [0, 1, 2, 6, 7, 8, 9],  # 3 x A, 4 x B: two partites
+        }
+        rows = [i for i, nb in neighbours.items() for _ in nb]
+        cols = [j for nb in neighbours.values() for j in nb]
+        conn = sp.csr_matrix((np.ones(len(rows)), (rows, cols)), shape=(15, 15))
+        data = ad.AnnData(
+            X=np.zeros((15, 2)),
+            obs=pd.DataFrame(
+                {"compartment": pd.Categorical(labels)}, index=[f"p{i}" for i in range(15)]
+            ),
+        )
+        data.obsp["connectivities"] = conn
+        return data
+
+    @pytest.mark.parametrize(
+        "flavor, expected",
+        [
+            ("evenness", 2 * 3 / (4 + 3)),  # 4:3 split
+            ("hein2024", (4 + 3) / (6 + 6 - (4 + 3))),  # (d1+d2) / (N1+N2-(d1+d2))
+        ],
+    )
+    def test_partites(self, flavor, expected):
+        data = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities", flavor=flavor
+        )
+        obs = data.obs
+        assert data.uns["interfacial_params"]["flavor"] == flavor
+
+        one = obs.loc["p0"]
+        assert one["interfacial_k1"] == "A" and one["interfacial_d1"] == 4
+        assert pd.isna(one["interfacial_k2"])
+        assert one["interfacial_score"] == 0
+
+        none = obs.loc["p6"]
+        assert pd.isna(none["interfacial_k1"]) and pd.isna(none["interfacial_k2"])
+        assert pd.isna(none["interfacial_d1"])
+        assert none["interfacial_score"] == 0
+
+        # B ranks first: 4/6 of B against 3/6 of A
+        two = obs.loc["p12"]
+        assert (two["interfacial_k1"], two["interfacial_k2"]) == ("B", "A")
+        assert (two["interfacial_d1"], two["interfacial_d2"]) == (4, 3)
+        assert two["interfacial_score"] == pytest.approx(expected)
+
+    def test_default_is_evenness(self):
+        data = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities"
+        )
+        assert data.uns["interfacial_params"]["flavor"] == "evenness"
+        assert data.obs.loc["p12", "interfacial_score"] == pytest.approx(6 / 7)
+
+    def test_string_labels_and_excluded_category(self):
+        """A plain (non-categorical) label column gives the same result, and an excluded
+        category is never a partite."""
+        cols = ["interfacial_score", "interfacial_d1", "interfacial_d2"]
+        cat = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities"
+        ).obs
+        data = self._graph()
+        data.obs["compartment"] = data.obs["compartment"].astype(str)
+        plain = gr.tl.calculate_interfacialness_score(
+            data, "compartment", obsp="connectivities"
+        ).obs
+        pd.testing.assert_frame_equal(plain[cols], cat[cols])
+
+        excl = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities", exclude_category=["B"]
+        ).obs
+        # p12 had 3 A and 4 B neighbours: with B excluded only A is a partite
+        assert excl.loc["p12", "interfacial_k1"] == "A"
+        assert pd.isna(excl.loc["p12", "interfacial_k2"])
+
+    def test_unknown_flavor_raises(self):
+        with pytest.raises(ValueError, match="flavor"):
+            gr.tl.calculate_interfacialness_score(
+                self._graph(), "compartment", obsp="connectivities", flavor="jaccard"
+            )
 
 
 class TestTagmJointAndPersistence:
@@ -360,6 +452,40 @@ class TestTagmColoursAndProvenance:
         data.obs.iloc[1, data.obs.columns.get_loc("markers")] = "GOLGI"
         with pytest.raises(ValueError, match="GOLGI"):
             gr.tl.tagm_map_predict(data, probJoint=True)
+
+
+class TestSvmCalibration:
+    """Probabilities come from grassp's pairwise coupling (tools/_svm_proba), not the
+    SVC(probability=True) that scikit-learn deprecated in 1.9 and removes in 1.11."""
+
+    def test_no_deprecated_svc_probability(self):
+        data = _blobs()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("error", category=FutureWarning, module="sklearn")
+            gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
+        P = data.obsm["svm_annotation_probabilities"].to_numpy()
+        np.testing.assert_allclose(P.sum(axis=1), 1.0)
+        # well-separated blobs: the calls recover the truth
+        assert (data.obs["svm_annotation"] == data.obs["truth"]).mean() > 0.95
+
+    def test_small_classes_use_fewer_folds(self):
+        """Stratified 5-fold CV needs 5 markers per class; smaller classes still work."""
+        data = _blobs()
+        markers = data.obs["markers"].astype(object)
+        keep_nuc = np.flatnonzero(markers == "NUC")[:3]
+        markers[(markers == "NUC") & ~np.isin(np.arange(data.n_obs), keep_nuc)] = None
+        data.obs["markers"] = pd.Categorical(markers)
+        gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
+        assert "NUC" in set(data.obs["svm_annotation"].dropna())
+
+    def test_single_marker_class_raises(self):
+        data = _blobs()
+        markers = data.obs["markers"].astype(object)
+        nuc = np.flatnonzero(markers == "NUC")
+        markers.iloc[nuc[1:]] = None  # positional: pandas 3 no longer falls back on []
+        data.obs["markers"] = pd.Categorical(markers)
+        with pytest.raises(ValueError, match="at least 2 marker proteins per class"):
+            gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
 
 
 class TestSvmParameterHandling:

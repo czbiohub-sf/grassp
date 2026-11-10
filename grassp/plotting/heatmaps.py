@@ -27,9 +27,9 @@ def protein_clustermap(
     linkage_method: Literal[
         "single", "complete", "average", "weighted", "centroid", "median", "ward"
     ] = "average",
-    linkage_metric: Literal[
-        "euclidean", "cosine", "correlation", "cityblock", "jaccard", "hamming"
-    ] = "cosine",
+    linkage_metric: (
+        Literal["euclidean", "cosine", "correlation", "cityblock", "jaccard", "hamming"] | None
+    ) = None,
     palette="Blues_r",
     show: bool = True,
 ) -> sns.matrix.ClusterGrid | None:
@@ -55,8 +55,9 @@ def protein_clustermap(
     linkage_method
         Linkage strategy for :func:`scipy.cluster.hierarchy.linkage`.
     linkage_metric
-        Metric used within the linkage algorithm.  Usually identical to
-        ``distance_metric`` but can differ.
+        Metric for the hierarchical clustering that orders the proteins. ``None``
+        (default) clusters on the ``distance_metric`` distances shown in the heat-map;
+        any other metric clusters the protein profiles with it instead.
     palette
         Matplotlib/Seaborn palette used for the heat-map color scale.
     show
@@ -71,7 +72,12 @@ def protein_clustermap(
     """
 
     distance_matrix = sp.distance.pdist(data.X, metric=distance_metric)
-    linkage = sch.linkage(distance_matrix, method=linkage_method, metric=linkage_metric)
+    # scipy ignores `metric` when linkage() is given precomputed distances, so passing
+    # linkage_metric along with distance_matrix never had an effect.
+    if linkage_metric is None or linkage_metric == distance_metric:
+        linkage = sch.linkage(distance_matrix, method=linkage_method)
+    else:
+        linkage = sch.linkage(data.X, method=linkage_method, metric=linkage_metric)
     row_order = np.array(sch.dendrogram(linkage, no_plot=True, orientation="bottom")["leaves"])
     distance_matrix = sp.distance.squareform(distance_matrix)
     distance_matrix = distance_matrix[row_order, :][:, row_order]
@@ -365,13 +371,15 @@ def qsep_boxplot(
         **kwargs,
     )
 
-    # Add individual points
+    # Add individual points: grey for a cluster's distance to itself, red for the others.
+    # The "color" values are hue *levels*; without a palette seaborn mapped them to its
+    # default colours, so the points came out blue and orange.
     sns.stripplot(
         data=plot_df,
         x="Distance",
         y="Reference Cluster",
         hue="color",
-        # hue="Target Cluster",
+        palette={"grey": "grey", "red": "red"},
         orient="h",
         size=4,
         # color=".3",

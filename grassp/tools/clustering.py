@@ -1,17 +1,18 @@
 from __future__ import annotations
+import warnings
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anndata import AnnData
-    from typing import List
+    from typing import List, Literal
 
 import markov_clustering as mc
 import networkx as nx
 import numpy as np
 import pandas as pd
 import scanpy as sc
-
-from .localization import _neighbor_label_matrix
+import scipy.sparse
 
 
 def _get_clusters(matrix):
@@ -76,6 +77,7 @@ def leiden_mito_sweep(
     min_mito_fraction: float = 0.9,
     increment_threshold: float = 0.005,
     protein_ground_truth_column: str = "protein_ground_truth",
+    max_iter: int = 50,
     **leiden_kwargs,
 ) -> None:
     """Automated sweep to pick a *Leiden* resolution that keeps mitochondria intact.
@@ -86,9 +88,11 @@ def leiden_mito_sweep(
     a single Leiden cluster with at least ``min_mito_fraction`` of all
     mitochondrial proteins.
 
-    The final resolution and the observed fraction are stored in
-    ``data.uns['leiden']['params']['resolution']`` and
-    ``data.uns['leiden']['mito_majority_fraction']``.
+    The result is the highest resolution tried that kept more than ``min_mito_fraction``
+    together. Its clusters are written to ``data.obs[key_added]`` (``"leiden"`` unless
+    ``key_added`` is passed through ``leiden_kwargs``), its resolution to
+    ``data.uns[key_added]['params']['resolution']`` and the observed fraction to
+    ``data.uns[key_added]['mito_majority_fraction']``.
 
     Parameters
     ----------
@@ -108,47 +112,65 @@ def leiden_mito_sweep(
     protein_ground_truth_column
         Observation column holding the curated ground-truth localisation with
         the category ``"mitochondria"``.
+    max_iter
+        Maximum number of Leiden runs. If the search has not converged by then (e.g. the
+        mitochondria stay together at every resolution tried), a warning is raised and
+        the best resolution so far is kept.
     **leiden_kwargs
         Extra parameters forwarded to :func:`scanpy.tl.leiden` (e.g.
-        ``random_state``).
+        ``random_state``, ``key_added``).
 
     Returns
     -------
-    Updates ``data.obs['leiden']`` and ``data.uns['leiden']`` in place.
+    Updates ``data.obs[key_added]`` and ``data.uns[key_added]`` in place.
     """
+    # sc.tl.leiden writes to key_added; reading a hard-coded "leiden" column instead never
+    # saw the new clusters when key_added was passed, so the search never converged.
+    key = leiden_kwargs.get("key_added", "leiden")
+    is_mito = (data.obs[protein_ground_truth_column] == "mitochondria").to_numpy()
+    if not is_mito.any():
+        raise ValueError(
+            f"No 'mitochondria' proteins in data.obs[{protein_ground_truth_column!r}]."
+        )
 
+    resolution, step = starting_resolution, resolution_increments
+    best = None  # (resolution, clusters, fraction) of the highest resolution over the target
     over_before = True
-    mito_majority_fraction = 1
-    data.obs["leiden"] = "0"
-    while resolution_increments > increment_threshold:
-        # Binary search for the highest resolution that is over the fraction by less than precision_threshold
-        leiden_col = data.obs["leiden"]
-        last_mito_majority_fraction = mito_majority_fraction
-        sc.tl.leiden(data, resolution=starting_resolution, **leiden_kwargs)
-        test_col = data.obs.loc[
-            data.obs[protein_ground_truth_column] == "mitochondria", "leiden"
-        ]
-        mito_majority_fraction = _majority_cluster_fraction(test_col)
-        print(f"Resolution: {starting_resolution}, Increment: {resolution_increments}")
-        print(f"Majority mito cluster fraction: {mito_majority_fraction}")
+    for _ in range(max_iter):
+        sc.tl.leiden(data, resolution=resolution, **leiden_kwargs)
+        fraction = _majority_cluster_fraction(data.obs.loc[is_mito, key])
+        print(f"Resolution: {resolution}, Increment: {step}")
+        print(f"Majority mito cluster fraction: {fraction}")
 
-        currently_over = mito_majority_fraction > min_mito_fraction
-        if over_before != currently_over:
-            resolution_increments /= 2
-        starting_resolution += (
-            resolution_increments if currently_over else -resolution_increments
-        )
-        over_before = currently_over
-
-    # Set the leiden clusters to the last resolution
-    if not currently_over:
-        data.obs["leiden"] = leiden_col
-        data.uns["leiden"]["params"]["resolution"] = (
-            starting_resolution - resolution_increments
-        )
-        data.uns["leiden"]["mito_majority_fraction"] = last_mito_majority_fraction
+        over = fraction > min_mito_fraction
+        if over and (best is None or resolution > best[0]):
+            best = (resolution, data.obs[key].copy(), fraction)
+        if over != over_before:
+            step /= 2
+        over_before = over
+        if step <= increment_threshold:
+            break
+        # binary search: up while the mitochondria stay together, down once they split
+        resolution += step if over else -step
+        if resolution <= 0:
+            break
     else:
-        data.uns["leiden"]["mito_majority_fraction"] = mito_majority_fraction
+        warnings.warn(
+            f"leiden_mito_sweep: no convergence after max_iter={max_iter} Leiden runs; "
+            "keeping the best resolution found so far."
+        )
+
+    if best is None:
+        warnings.warn(
+            f"leiden_mito_sweep: no resolution tried kept more than {min_mito_fraction} of "
+            f"the mitochondrial proteins together; data.obs[{key!r}] holds the last run."
+        )
+        data.uns[key]["mito_majority_fraction"] = fraction
+        return
+    best_resolution, best_clusters, best_fraction = best
+    data.obs[key] = best_clusters
+    data.uns[key]["params"]["resolution"] = best_resolution
+    data.uns[key]["mito_majority_fraction"] = best_fraction
 
 
 def to_knn_graph(
@@ -252,29 +274,53 @@ def get_n_nearest_neighbors(G, node: str, order: int = 1, n: int = 10):
     return all_neighbors
 
 
-def _modified_jaccard_coeff(
-    row: pd.Series,
-    organelle_counts: pd.Series,
-    norm_degrees_to_def_top_partites: bool = True,
+def _interfacial_partites(
+    counts: np.ndarray,
+    sizes: np.ndarray,
+    categories: pd.Index,
+    flavor: str,
     min_partite_deg: int = 3,
-):
-    if norm_degrees_to_def_top_partites:
-        counts = row
-        counts[counts < min_partite_deg] = 0
-        counts_norm = counts / organelle_counts[counts.index]
-        counts_norm = counts_norm.sort_values(ascending=False)
-        counts = counts[counts_norm.index]
-        nl = counts.iloc[:2].replace(0, np.nan)
-    else:
-        nl = row.nlargest(2)
+) -> pd.DataFrame:
+    """Pick every protein's two partite compartments and score it.
 
-    d1, d2 = nl.values
-    k1, k2 = nl.index
-    # p_second_largest = organelle_counts[k2] / organelle_counts.sum()
-    # p_interfacial = -scipy.stats.binom.logsf(d2-1, d1+d2, p_second_largest)
-    jaccard = (d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
-    # d1overd2 = d2/d1#(d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
-    return jaccard, d1, d2, k1, k2
+    ``counts`` is the ``(n_proteins, n_compartments)`` matrix of neighbour counts per
+    compartment, ``sizes`` the compartment sizes; see calculate_interfacialness_score.
+    """
+    n = counts.shape[0]
+    rows = np.arange(n)
+    # Only compartments holding at least min_partite_deg of the neighbours can be partites;
+    # rank those by degree normalised to compartment size. Ties go to the earlier category.
+    eligible = counts >= min_partite_deg
+    n_eligible = eligible.sum(axis=1)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        rank = np.where(eligible, counts / sizes, -np.inf)
+    top = np.argsort(-rank, axis=1, kind="stable")[:, :2]
+    if top.shape[1] < 2:  # a single compartment in the vocabulary
+        top = np.column_stack([top, top])
+    d1 = counts[rows, top[:, 0]].astype(float)
+    d2 = counts[rows, top[:, 1]].astype(float)
+    has1, has2 = n_eligible >= 1, n_eligible >= 2
+
+    # Fewer than two partites score 0, and the missing ones are reported as missing, as in
+    # the paper's implementation.
+    with np.errstate(divide="ignore", invalid="ignore"):
+        if flavor == "evenness":
+            score = 2 * np.minimum(d1, d2) / (d1 + d2)
+        else:  # "hein2024"
+            score = (d1 + d2) / (sizes[top[:, 0]] + sizes[top[:, 1]] - (d1 + d2))
+    labels = np.asarray(categories, dtype=object)
+    k1 = np.where(has1, labels[top[:, 0]], np.nan)
+    k2 = np.where(has2, labels[top[:, 1]], np.nan)
+    return pd.DataFrame(
+        {
+            "interfacial_score": np.where(has2, score, 0.0),
+            # NaN when no compartment qualifies, hence the nullable integer dtype
+            "interfacial_d1": pd.array(np.where(has1, d1, np.nan), dtype="Int64"),
+            "interfacial_d2": np.where(has2, d2, 0).astype("int64"),
+            "interfacial_k1": k1,
+            "interfacial_k2": k2,
+        }
+    )
 
 
 def calculate_interfacialness_score(
@@ -283,25 +329,54 @@ def calculate_interfacialness_score(
     neighbors_key: str | None = None,
     obsp: str | None = None,
     exclude_category: str | List[str] | None = None,
+    flavor: Literal["evenness", "hein2024"] = "evenness",
 ) -> AnnData:
-    """Quantify *interfacialness* of proteins across compartment boundaries.
+    """Quantify *interfacialness*: how much a protein sits between two compartments.
 
-    The score is based on a **modified Jaccard index** computed from each
-    protein’s immediate neighbourhood:
+    Both flavors look at each protein's direct neighbours in the neighbour graph and pick the
+    same two *partite* compartments:
 
-    1. For a given protein count how many of its neighbours belong to each
-       compartment (categories in ``compartment_annotation_column``).
-    2. Sort counts and take the two highest: ``d1`` and ``d2`` for
-       compartments ``k1`` and ``k2``.
-    3. Compute
+    1. Count the protein's neighbours in each compartment of
+       ``compartment_annotation_column`` (``d_c`` for compartment *c*).
+    2. Only compartments holding at least 3 of the neighbours are eligible.
+    3. Rank the eligible compartments by ``d_c / N_c``, where ``N_c`` is the number of proteins
+       annotated as *c* in the dataset, and take the top two: ``k1`` and ``k2`` with
+       neighbour counts ``d1`` and ``d2``.
 
-       ``score = (d1 + d2) / (N_k1 + N_k2 - (d1 + d2))``
+    Proteins with fewer than two eligible compartments score 0. The flavors differ only in how
+    ``d1`` and ``d2`` are turned into a score.
 
-       where ``N_k`` is the total number of proteins annotated as compartment
-       *k* in the dataset.  High scores indicate that a protein sits at an
-       interface between two compartments.
+    ``flavor="evenness"`` (default)
+        ``score = 2 * min(d1, d2) / (d1 + d2)``: how evenly the protein's neighbours split
+        between the two compartments. 1 is an even split; an *r*:1 split scores
+        ``2 / (r + 1)`` (0.67 for 2:1, 0.5 for 3:1, 0.2 for 9:1). Compartment size does not
+        enter the score, so the boundary between two large compartments (e.g. cytosol and
+        nucleus) scores like the boundary between two small ones. The score is not
+        long-tailed, so call proteins interfacial with a fixed split, e.g.
+        ``score >= 2/3`` (at least 2:1), rather than with an outlier rule.
 
-    New columns are appended to ``data.obs`` with the *jaccard_* prefix.
+        Exclude catch-all labels such as ``"unclassified"`` (``exclude_category``): proteins
+        without a clear localization lie between clusters, so being next to them would
+        otherwise read as an even split.
+
+    ``flavor="hein2024"``
+        The modified Jaccard coefficient of Hein et al., *Cell* (2025), Fig. 3D
+        (https://www.cell.com/cell/fulltext/S0092-8674(24)01344-8),
+        ``score = (d1 + d2) / (N_k1 + N_k2 - (d1 + d2))``.
+        This reproduces the paper's implementation
+        (https://github.com/czbiohub-sf/Organelle_IP_analyses_and_figures, script
+        ``utils/Jaccard_coefficient.py``), which used the ``connectivities`` graph, the
+        consensus graph-based annotation with ``"unclassified"`` counted as a compartment,
+        and called proteins interfacial above the 1.5 IQR upper bound of all scores (0.046).
+
+        **This score is dominated by compartment size.** ``d1 + d2`` is bounded by the number
+        of neighbours (a few dozen), while ``N_k1 + N_k2`` ranges from tens to thousands of
+        proteins, so the score mostly tracks ``1 / (N_k1 + N_k2)``. A protein split evenly
+        between cytosol and nucleus can score at most ~0.008 (with 26 neighbours), far below
+        the paper's cutoff, while a protein inside a small compartment with only three
+        neighbours in another small one can exceed it. How evenly the neighbours split does
+        not enter the score, and proteins with many neighbours in the symmetrised graph
+        score higher.
 
     Parameters
     ----------
@@ -313,59 +388,67 @@ def calculate_interfacialness_score(
     neighbors_key, obsp
         Specify which neighbour graph to use (mirrors Scanpy conventions).
     exclude_category
-        One or multiple category labels (e.g. *'unknown'*) to ignore when
+        One or multiple category labels (e.g. *'unclassified'*) to ignore when
         counting neighbours.
+    flavor
+        ``"evenness"`` (default) or ``"hein2024"``; see above.
 
     Returns
     -------
-    :class:'~anndata.AnnData` object with additional columns:
+    :class:`~anndata.AnnData` object with additional columns:
 
-        ``jaccard_score``
-            Interfacialness score.
-        ``jaccard_d1``, ``jaccard_d2``
-            Counts of the two dominating neighbour compartments.
-        ``jaccard_k1``, ``jaccard_k2``
-            Corresponding compartment labels.
+        ``interfacial_score``
+            Interfacialness score of the chosen ``flavor``; 0 with fewer than two partites.
+        ``interfacial_d1``, ``interfacial_d2``
+            Neighbour counts in the two partite compartments.
+        ``interfacial_k1``, ``interfacial_k2``
+            Corresponding compartment labels; missing when fewer than two (or no)
+            compartments hold at least three of the protein's neighbours.
+
+    and ``uns["interfacial_params"]`` recording ``flavor``, the annotation column and
+    ``exclude_category``.
     """
 
     if compartment_annotation_column not in data.obs.columns:
         raise ValueError(
             f"Compartment annotation column {compartment_annotation_column} not found in .obs"
         )
+    if flavor not in ("evenness", "hein2024"):
+        raise ValueError(f"flavor must be 'evenness' or 'hein2024', got {flavor!r}")
 
-    # Get full protein x protein matrix filled with annotations
-    df = _neighbor_label_matrix(
-        data, compartment_annotation_column, exclude_category=exclude_category
+    # Neighbour counts per compartment as one sparse product, adjacency x one-hot labels:
+    # (n_proteins x n_compartments). This used to build a dense n x n table of labels and
+    # value_count every row -- 1.2 GB and ~4 s for the 8.5k proteins of Hein 2024.
+    labels = data.obs[compartment_annotation_column]
+    if not isinstance(labels.dtype, pd.CategoricalDtype):
+        labels = labels.astype("category")
+    categories = labels.cat.categories
+    codes = labels.cat.codes.to_numpy().copy()
+    if exclude_category is not None:
+        excluded = (
+            [exclude_category] if isinstance(exclude_category, str) else exclude_category
+        )
+        codes[np.isin(codes, np.flatnonzero(categories.isin(excluded)))] = -1
+    labelled = np.flatnonzero(codes >= 0)
+    one_hot = scipy.sparse.csr_matrix(
+        (np.ones(labelled.size), (labelled, codes[labelled])),
+        shape=(data.n_obs, len(categories)),
     )
-    # Mask non-neighbors with np.nan
     adjacency = sc._utils._choose_graph(data, obsp, neighbors_key=neighbors_key)
-    mask = ~(adjacency != 0).todense()  # This avoids expensive conn == 0 for sparse matrices
-    df[mask] = np.nan
-    vc = df.apply(lambda x: x.value_counts(dropna=True), axis=1).fillna(0).astype("Int64")
+    neighbours = (scipy.sparse.csr_matrix(adjacency) != 0).astype(np.float64)
+    counts = np.asarray((neighbours @ one_hot).todense()).round().astype(np.int64)
+    # Compartment sizes over the whole column, excluded categories included, as before
+    sizes = labels.value_counts().reindex(categories).to_numpy(dtype=float)
 
-    # For each protein, calculate the modified jaccard coefficient
-    organelle_counts = data.obs[compartment_annotation_column].value_counts()
-    res = vc.apply(
-        _modified_jaccard_coeff,
-        axis=1,
-        result_type="expand",
-        organelle_counts=organelle_counts,
-    )
-    res.columns = [
-        "jaccard_score",
-        "jaccard_d1",
-        "jaccard_d2",
-        "jaccard_k1",
-        "jaccard_k2",
-    ]
-    # nans come from zero counts. Assign the result back rather than calling
-    # .replace(inplace=True) on the extracted column: that is chained assignment,
-    # which under copy-on-write updates a temporary and leaves res untouched.
-    res["jaccard_d2"] = res["jaccard_d2"].fillna(0)
-    res["jaccard_score"] = res["jaccard_score"].fillna(0)
+    res = _interfacial_partites(counts, sizes, categories, flavor)
 
     # Annotate the data with the interfacialness scores
     res.index = data.obs.index
     data.obs = pd.concat([data.obs, res], axis=1)
+    data.uns["interfacial_params"] = {
+        "flavor": flavor,
+        "compartment_annotation_column": compartment_annotation_column,
+        "exclude_category": exclude_category,
+    }
 
     return data

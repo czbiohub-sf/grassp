@@ -716,6 +716,55 @@ class TestFilteringFunctions:
 
         assert "n_replicates_with_minimum_2_fractions" in adata.obs.columns
 
+    @staticmethod
+    def _runs_data():
+        """4 proteins x (2 replicates x 4 fractions); longest detected run per replicate:
+        p0: 4 and 3, p1: 2 and 0, p2: 0 and 3, p3: 1 and 1."""
+        X = np.array(
+            [
+                [1, 1, 1, 1, 1, 1, 1, 0],
+                [1, 1, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1, 1, 1],
+                [1, 0, 1, 0, 1, 0, 1, 0],
+            ],
+            dtype=float,
+        )
+        var = pd.DataFrame(
+            {"replicate": ["r1"] * 4 + ["r2"] * 4}, index=[f"s{i}" for i in range(8)]
+        )
+        return AnnData(X=X, obs=pd.DataFrame(index=["p0", "p1", "p2", "p3"]), var=var)
+
+    def test_filter_proteins_min_consecutive(self):
+        """min_consecutive was accepted and ignored (scanpy then raised for having no
+        criterion at all)."""
+        adata = self._runs_data()
+        mask = simple.filter_proteins(adata, min_consecutive=3, inplace=False)
+        np.testing.assert_array_equal(mask, [True, False, True, False])
+
+        simple.filter_proteins(adata, min_consecutive=3)
+        assert list(adata.obs_names) == ["p0", "p2"]
+
+        with pytest.raises(ValueError, match="one of the filtering criteria"):
+            simple.filter_proteins(self._runs_data(), min_consecutive=3, min_samples=1)
+
+    def test_filter_min_consecutive_fractions_replicate_defaults(self):
+        """min_replicates=None hit `>= None` (TypeError), and inplace=False returned the
+        per-protein counts instead of the documented boolean mask."""
+        adata = self._runs_data()
+        mask = simple.filter_min_consecutive_fractions(
+            adata, min_consecutive=3, replicate_column="replicate", inplace=False
+        )
+        np.testing.assert_array_equal(mask, [True, False, True, False])  # >= 1 replicate
+
+        both = simple.filter_min_consecutive_fractions(
+            adata,
+            min_consecutive=3,
+            replicate_column="replicate",
+            min_replicates=2,
+            inplace=False,
+        )
+        np.testing.assert_array_equal(both, [True, False, False, False])
+
     def test_remove_contaminants(self):
         """Test remove_contaminants."""
         adata = make_mini_orgip_data(
@@ -775,6 +824,53 @@ class TestAggregationFunctions:
 
         assert "n_merged_proteins" in aggregated.obs.columns
         assert aggregated.n_obs < adata.n_obs
+
+    @staticmethod
+    def _typed_obs_data():
+        adata = make_mini_orgip_data(n_proteins=50, n_baits=2, n_replicates=2)
+        adata.obs["Gene names"] = ["GENE1"] * 10 + [f"GENE{i}" for i in range(2, 42)]
+        adata.obs["score"] = np.arange(50, dtype=float)
+        adata.obs["flag"] = np.arange(50) % 2 == 0
+        adata.obs["kind"] = pd.Categorical(["a", "b"] * 25)
+        return adata
+
+    def test_aggregate_proteins_keeps_dtypes_and_writes(self, tmp_path):
+        """obs used to come back all-object, so write_h5ad failed on the result."""
+        adata = self._typed_obs_data()
+        agg = simple.aggregate_proteins(adata, grouping_columns="Gene names")
+
+        assert agg.obs["score"].dtype.kind == "f"
+        assert isinstance(agg.obs["kind"].dtype, pd.CategoricalDtype)
+        assert agg.obs["n_merged_proteins"].dtype.kind == "i"
+        # GENE1 merges rows with differing values: those columns are blanked
+        assert pd.isna(agg.obs.loc["GENE1", "score"])
+        assert pd.isna(agg.obs.loc["GENE1", "flag"])
+        assert agg.obs.loc["GENE2", "flag"] == adata.obs.iloc[10]["flag"]
+        agg.write_h5ad(tmp_path / "agg.h5ad")
+
+    def test_aggregate_proteins_twice_keeps_columns(self):
+        """Re-aggregating dropped the true last obs column for unmerged proteins, because
+        n_merged_proteins was assumed to be the last column."""
+        adata = self._typed_obs_data()
+        once = simple.aggregate_proteins(adata, grouping_columns="Gene names")
+        once.obs["last"] = np.arange(once.n_obs, dtype=float)
+        twice = simple.aggregate_proteins(once, grouping_columns="Gene names")
+
+        assert twice.obs["last"].notna().all()
+        assert twice.obs.loc["GENE1", "n_merged_proteins"] == 10  # counts add up
+
+    def test_aggregate_proteins_keeps_proteins_without_key(self):
+        """Proteins with a missing grouping key used to be dropped silently."""
+        adata = self._typed_obs_data()
+        adata.obs["Gene names"] = adata.obs["Gene names"].astype(object)
+        adata.obs.iloc[[45, 46], adata.obs.columns.get_loc("Gene names")] = np.nan
+        agg = simple.aggregate_proteins(adata, grouping_columns="Gene names")
+
+        for name in adata.obs_names[[45, 46]]:
+            assert name in agg.obs_names
+            assert agg.obs.loc[name, "n_merged_proteins"] == 1
+            np.testing.assert_allclose(agg[name].X, adata[name].X)
+        assert agg.n_obs == 39 + 2  # 39 named gene groups, 2 unnamed proteins kept apart
 
     def test_aggregate_samples_basic(self):
         """Test aggregate_samples."""
@@ -974,6 +1070,35 @@ class TestQCAnnotation:
         simple.neighbors(adata, layer="log1p", n_neighbors=15)
 
         assert "connectivities" in adata.obsp
+
+    @pytest.mark.parametrize("layer", [None, "log1p"])
+    def test_neighbors_copy_returns_graph_and_leaves_input(self, layer):
+        """copy=True used to be forwarded to scanpy, whose copy (holding the graph) was
+        discarded: without a layer the input came back without a graph, with one a copy
+        without a graph."""
+        adata = make_mini_dc_data(n_proteins=50, n_fractions=5, n_replicates=2)
+        sc.pp.log1p(adata)
+        adata.layers["log1p"] = adata.X.copy()
+        imputation.impute_gaussian(adata)
+
+        out = simple.neighbors(adata, layer=layer, n_neighbors=15, copy=True)
+
+        assert out is not adata
+        assert "connectivities" in out.obsp and "neighbors" in out.uns
+        assert "connectivities" not in adata.obsp and "neighbors" not in adata.uns
+
+    def test_neighbors_restores_X_when_scanpy_fails(self):
+        """X is swapped for the layer during the call; an error must not leave it swapped."""
+        adata = make_mini_dc_data(n_proteins=50, n_fractions=5, n_replicates=2)
+        sc.pp.log1p(adata)
+        imputation.impute_gaussian(adata)
+        adata.layers["other"] = np.zeros_like(adata.X)
+        X_before = adata.X.copy()
+
+        with pytest.raises(Exception):
+            simple.neighbors(adata, layer="other", n_neighbors=15, method="not-a-method")
+
+        np.testing.assert_array_equal(adata.X, X_before)
 
     def test_add_markers_error_on_invalid_species(self):
         """Test add_markers with invalid species."""

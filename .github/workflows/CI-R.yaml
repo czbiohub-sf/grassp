@@ -12,7 +12,10 @@ name: CI (R)
 # The path lists below are duplicated rather than shared with a YAML anchor: GitHub Actions'
 # workflow parser does not support anchors, so an alias here would not expand.
 on:
+  # push only for main: on a PR branch every push would otherwise run this twice, once for the
+  # push and once for the pull_request event.
   push:
+    branches: [ main ]
     paths:
       - 'r/**'
       - '.github/workflows/CI-R.yaml'
@@ -105,8 +108,8 @@ jobs:
           # anything. Bioconductor is resolved automatically -- pak adds the Bioc repos for the
           # R version in use, so no BiocManager step and no bioc:: prefixes are needed.
           dependencies: '"all"'
-          # anndataR comes from a fork, pinned in the `Remotes:` field of r/grasspio/DESCRIPTION,
-          # which pak honours -- so there is nothing to pin here. See that field for why.
+          # anndataR comes from Bioconductor; DESCRIPTION's floor (>= 1.2.3) is the first
+          # release with the obsm/varm index fix the bridge needs, so nothing to pin here.
           extra-packages: any::rcmdcheck
           # 'always', not the default true: with `true` the cache is only written when the job
           # succeeds, so a run that fails anywhere after the install throws away 20+ minutes of

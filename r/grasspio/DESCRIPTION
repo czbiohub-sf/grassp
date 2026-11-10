@@ -25,7 +25,7 @@ Encoding: UTF-8
 Depends:
     R (>= 4.5)
 Imports:
-    anndataR (>= 1.3.1),
+    anndataR (>= 1.2.3),
     Biobase,
     MSnbase,
     methods,
@@ -37,8 +37,6 @@ Suggests:
     Matrix,
     knitr,
     rmarkdown
-Remotes:
-    github::mffrank/anndataR@fix-obsm-varm-data-frame-index
 VignetteBuilder: knitr
 URL: https://github.com/czbiohub-sf/grassp
 BugReports: https://github.com/czbiohub-sf/grassp/issues

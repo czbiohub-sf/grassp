@@ -5,10 +5,11 @@ if TYPE_CHECKING:
     from anndata import AnnData
     from typing import List, Sequence
 
+    import umap
+
 from functools import reduce
 
 import numpy as np
-import umap
 
 
 def align_adatas(
@@ -41,16 +42,9 @@ def align_adatas(
         var_intersect = reduce(lambda x, y: x.intersection(y), var)
     else:
         var_intersect = None
-    data_sub_list = []
-    for data in data_list:
-        data_sub = data.copy()
-        if var_intersect is not None:
-            data_sub = data_sub[:, var_intersect]
-        if obs_intersect is not None:
-            data_sub = data_sub[obs_intersect, :]
-        data_sub_list.append(data_sub)
-
-    return data_sub_list
+    obs_idx = slice(None) if obs_intersect is None else obs_intersect
+    var_idx = slice(None) if var_intersect is None else var_intersect
+    return [data[obs_idx, var_idx].copy() for data in data_list]
 
 
 def aligned_umap(
@@ -103,6 +97,9 @@ def aligned_umap(
     list[AnnData] | umap.AlignedUMAP
         Depending on *return_data_objects*.
     """
+    # Imported here, not at module level: umap pulls in pynndescent's numba-compiled distances
+    # and (via umap.parametric_umap) TensorFlow, which made `import grassp` take ~5 s longer.
+    import umap
 
     # Make sure all anndata objects have the same var_names and obs_names
     if align_data:
@@ -200,6 +197,7 @@ def mr_score(
     assume_centered: bool = True,
     n_iterations: int = 11,
     key_added: str = "mr_scores",
+    fraction_key: str | None = None,
 ) -> None:
     """*M*/*R* score for detecting protein translocation.
 
@@ -213,15 +211,20 @@ def mr_score(
         AnnData object containing all conditions/replicates stacked in
         variables.
     condition_key
-        Observation column indicating the experimental condition (e.g.
+        ``data.var`` column indicating the experimental condition (e.g.
         *control*, *treatment*).
     replicate_key
-        Column indicating biological replicates.
+        ``data.var`` column indicating biological replicates.
     mcd_proportion, assume_centered, n_iterations
         Parameters forwarded to :func:`sklearn.covariance.MinCovDet`.
     key_added
         Base name for the two new columns ``{key_added}_M`` and
         ``{key_added}_R`` written to ``data.obs``.
+    fraction_key
+        ``data.var`` column naming the fraction of each sample. If given, control and
+        treatment samples are paired by fraction, and each replicate must have the same
+        fractions in both conditions. If ``None``, they are paired by column order, so
+        the fractions must appear in the same order in both conditions.
     """
     from scipy.stats import chi2
     from sklearn.covariance import MinCovDet
@@ -232,6 +235,8 @@ def mr_score(
         raise ValueError(f"Condition key {condition_key} not found in data.var")
     if replicate_key not in data.var:
         raise ValueError(f"Replicate key {replicate_key} not found in data.var")
+    if fraction_key is not None and fraction_key not in data.var:
+        raise ValueError(f"Fraction key {fraction_key} not found in data.var")
 
     conditions = data.var[condition_key].unique()
     if len(conditions) != 2:
@@ -256,11 +261,27 @@ def mr_score(
             data.var[replicate_key] == rep
         )
 
-        # if not (control_mask.sum() == treat_mask.sum() == 5):
-        #     raise ValueError(f"Expected 5 fractions per condition in replicate {rep}")
-
-        # @TODO This assumes that the samples have the same order
-        diff = data[:, control_mask].X - data[:, treat_mask].X
+        # The difference profile subtracts fraction from fraction, so control and
+        # treatment columns must be paired up. This used to rely on column order
+        # unchecked: a different order gave silently wrong profiles, a different count
+        # an opaque broadcasting error.
+        ctrl_idx = np.flatnonzero(control_mask.to_numpy())
+        treat_idx = np.flatnonzero(treat_mask.to_numpy())
+        if len(ctrl_idx) != len(treat_idx):
+            raise ValueError(
+                f"Replicate {rep!r} has {len(ctrl_idx)} {control_name!r} and "
+                f"{len(treat_idx)} {treatment_name!r} samples; the fractions must match."
+            )
+        if fraction_key is not None:
+            frac = data.var[fraction_key].to_numpy()
+            ctrl_idx = ctrl_idx[np.argsort(frac[ctrl_idx], kind="stable")]
+            treat_idx = treat_idx[np.argsort(frac[treat_idx], kind="stable")]
+            if not np.array_equal(frac[ctrl_idx], frac[treat_idx]):
+                raise ValueError(
+                    f"Replicate {rep!r}: {control_name!r} and {treatment_name!r} do not "
+                    f"have the same fractions in {fraction_key!r}."
+                )
+        diff = data.X[:, ctrl_idx] - data.X[:, treat_idx]
         diff_profiles.append(diff)
 
     # Calculate M scores

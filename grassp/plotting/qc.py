@@ -176,8 +176,11 @@ def bait_volcano_plots(
     )
     if title is not None:
         fig.suptitle(title)
+    # plt.subplots returns a single Axes for one bait, a 1-D array for one row and a 2-D
+    # array otherwise; axs.flatten() failed on the single Axes.
+    flat_axs = np.atleast_1d(axs).ravel()
     for i, bait in enumerate(baits):
-        ax = axs.flatten()[i]
+        ax = flat_axs[i]
         data_sub = data[:, bait]
         enrichments = data_sub.X[:, 0]
         if "pvals" not in data_sub.layers.keys():

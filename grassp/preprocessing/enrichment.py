@@ -79,7 +79,10 @@ def calculate_enrichment_vs_untagged(
         The column in ``.var`` that contains subcellular enrichment labels.
     untagged_name
         The label in ``subcellular_enrichment_column`` that identifies untagged control
-        samples.
+        samples. A regular expression matched from the *start* of each label
+        (:meth:`pandas.Series.str.match`): ``".._UNTAGGED"`` matches ``"01_UNTAGGED"``,
+        and the default ``"UNTAGGED"`` also matches ``"UNTAGGED_2"``. Anchor the pattern
+        (``"UNTAGGED$"``) to match one label exactly.
     original_intensities_key
         If specified, the original intensity values are stored in
         ``data.layers[original_intensities_key]``.
@@ -112,8 +115,9 @@ def calculate_enrichment_vs_untagged(
     >>> enriched.layers['pvals'][:5, :5]  # P-values from t-tests  # doctest: +SKIP
     """
     covariates = _check_covariates(data, covariates)
-    if data.is_view:
-        data = data.copy()
+    # Work on a copy: the helper column below used to be left on the caller's object (only a
+    # view was copied), and it ended up in .raw as well.
+    data = data.copy()
     data.var["_experimental_condition"] = data.var[covariates].apply(
         lambda x: "_".join(x.dropna().astype(str)), axis=1
     )
@@ -125,6 +129,8 @@ def calculate_enrichment_vs_untagged(
         data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
         for experimental_condition in data_aggr.var["_experimental_condition"].unique():
             data_sub = data[:, data.var["_experimental_condition"] == experimental_condition]
+            # untagged_name is a regex matched from the start of the label (str.match), see
+            # the parameter description; callers pass patterns such as ".._UNTAGGED".
             intensities_control = data_sub[
                 :,
                 data_sub.var[subcellular_enrichment_column].str.match(untagged_name),
@@ -160,7 +166,9 @@ def calculate_enrichment_vs_untagged(
                 :, ~data_aggr.var[subcellular_enrichment_column].str.match(untagged_name)
             ]
         if keep_raw:
-            data_aggr.raw = data.copy()
+            # data is this function's own copy, so it can be stored as is
+            data.var.drop(columns=["_experimental_condition"], inplace=True)
+            data_aggr.raw = data
     finally:
         # data_aggr is bound before the try block, so this cannot mask a failure
         # above with an UnboundLocalError.

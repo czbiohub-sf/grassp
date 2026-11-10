@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
     from anndata import AnnData
-    from typing import List
 
 import warnings
 
@@ -22,30 +21,7 @@ from ._annotation import (
     write_annotation,
 )
 from ._graph import affinity, neff_kish, spread, symmetric_normalized
-
-
-def _neighbor_label_matrix(
-    data: AnnData, obs_ann_col: str, exclude_category: str | List[str] | None = None
-) -> pd.DataFrame:
-    """Square matrix whose row *i* holds every protein's label, seen from protein *i*.
-
-    The caller masks it to protein *i*'s neighbourhood, so each row becomes the labels
-    of that protein's neighbours. Labels in ``exclude_category`` are blanked.
-    """
-    nrow = data.obs.shape[0]
-    obs_ann = data.obs[obs_ann_col]
-    if isinstance(exclude_category, str):
-        exclude_category = [exclude_category]
-    if exclude_category is not None:
-        # `data.obs[col]` hands back a view onto the caller's frame, so replacing
-        # in place permanently NaN'd the excluded labels in the user's object -- every
-        # annotator run afterwards saw those proteins as unlabelled. Mask a copy
-        # instead; `.where` also keeps the Categorical dtype without tripping pandas'
-        # downcasting FutureWarning that `.replace` emitted here.
-        obs_ann = obs_ann.where(~obs_ann.isin(exclude_category))
-
-    df = pd.DataFrame(np.tile(obs_ann, (nrow, 1)))
-    return df
+from ._svm_proba import PairwiseCoupledSVC
 
 
 def _class_weight_by_code(class_weight, categories):
@@ -508,6 +484,9 @@ def competitive_diffusion(
                 "propagation": method,
                 "iterative": bool(iterative),
                 "alpha": float(alpha) if method == "spreading" else None,
+                # recorded so resolve_soft_labels re-propagates its null the same way
+                "max_iter": int(max_iter),
+                "rtol": float(rtol),
                 "obsp_key": obsp_key,
                 "renormalize_class_mass": bool(renormalize_class_mass),
                 "fix_markers": bool(fix_markers),
@@ -805,8 +784,8 @@ def resolve_soft_labels(
     method: Literal["propagation", "spreading"] | None = None,
     iterative: bool | None = None,
     alpha: float | None = None,
-    max_iter: int = 30,
-    rtol: float = 1e-4,
+    max_iter: int | None = None,
+    rtol: float | None = None,
     unknown_label: str | None = "unknown",
     unknown_gate: float = 0.5,
     null: Literal["permutation", "analytic"] | None = "permutation",
@@ -986,8 +965,11 @@ def resolve_soft_labels(
             iterative if iterative is not None else bool(recorded.get("iterative", False))
         ),
         "alpha": alpha if alpha is not None else (recorded.get("alpha") or 0.8),
-        "max_iter": max_iter,
-        "rtol": rtol,
+        # These defaulted to 30 / 1e-4 regardless of the run: against competitive_diffusion's
+        # max_iter=1000, a spreading null (~40 iterations to converge at alpha=0.8) stopped
+        # unconverged while the production run converged. Fallbacks are its defaults.
+        "max_iter": max_iter if max_iter is not None else int(recorded.get("max_iter", 1000)),
+        "rtol": rtol if rtol is not None else float(recorded.get("rtol", 1e-4)),
     }
     if obsp_key is None:
         obsp_key = recorded.get("obsp_key", "connectivities")
@@ -1437,13 +1419,26 @@ def svm_annotation(
     categories = markers.categories
     y_train_codes = y_train.cat.codes
 
-    # Train SVM
-    svm = SVC(
-        C=C,
-        gamma=gamma,
-        kernel='rbf',
-        class_weight=_class_weight_by_code(class_weight, categories),
-        probability=True,
+    # Train SVM. Probabilities are computed as libsvm's SVC(probability=True) did --
+    # pairwise Platt sigmoids on cross-validated one-vs-one decision values, coupled into
+    # one distribution -- which scikit-learn deprecated in 1.9 and removes in 1.11. Its
+    # suggested CalibratedClassifierCV(SVC()) is not equivalent with more than two classes;
+    # see _svm_proba. The folds are stratified, so each class needs a marker per fold.
+    min_class_size = int(y_train_codes.value_counts().min())
+    if min_class_size < 2:
+        raise ValueError(
+            "svm_annotation needs at least 2 marker proteins per class to calibrate "
+            "probabilities; remove or merge classes with a single marker in "
+            f"data.obs[{gt_col!r}]."
+        )
+    svm = PairwiseCoupledSVC(
+        SVC(
+            C=C,
+            gamma=gamma,
+            kernel='rbf',
+            class_weight=_class_weight_by_code(class_weight, categories),
+        ),
+        cv=min(5, min_class_size),
         random_state=42,
     )
     svm.fit(X_train, y_train_codes)

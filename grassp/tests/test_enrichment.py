@@ -87,6 +87,33 @@ def test_calculate_enrichment_vs_untagged_basic():
         )
 
 
+def test_vs_untagged_leaves_no_helper_column():
+    """_experimental_condition used to stay on the caller's var (unless it was a view) and in
+    .raw."""
+    adata = make_basic_anndata()
+    var_before = adata.var.copy()
+    result = enrichment.calculate_enrichment_vs_untagged(
+        adata, covariates=["covariate_1"], keep_raw=True
+    )
+    pd.testing.assert_frame_equal(adata.var, var_before)
+    assert "_experimental_condition" not in result.var.columns
+    assert "_experimental_condition" not in result.raw.var.columns
+
+
+def test_vs_untagged_name_is_a_regex_matched_from_the_start():
+    """untagged_name is a pattern (callers pass e.g. ".._UNTAGGED"), not a literal label."""
+    adata = make_basic_anndata()
+    expected = enrichment.calculate_enrichment_vs_untagged(adata, covariates=["covariate_1"])
+    result = enrichment.calculate_enrichment_vs_untagged(
+        adata, covariates=["covariate_1"], untagged_name="UNTAG.*"
+    )
+    np.testing.assert_allclose(result.X, expected.X)
+    with pytest.raises(ValueError, match="No NOTHING_LIKE_IT"):
+        enrichment.calculate_enrichment_vs_untagged(
+            adata.copy(), covariates=["covariate_1"], untagged_name="NOTHING_LIKE_IT$"
+        )
+
+
 def test_original_intensities_layer_is_not_overwritten():
     """The layer used to alias X, so writing the fold changes into X overwrote it."""
     with warnings.catch_warnings():

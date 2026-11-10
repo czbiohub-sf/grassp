@@ -92,6 +92,8 @@ def filter_proteins(
 ) -> AnnData | tuple[np.ndarray, np.ndarray] | None:
     """Filter proteins based on number of counts or samples.
 
+    Only one criterion can be given per call, as in :func:`scanpy.pp.filter_cells`.
+
     Parameters
     ----------
     data
@@ -108,15 +110,17 @@ def filter_proteins(
     inplace
         Perform computation inplace or return result.
     min_consecutive
-        (If using fractionation instead of organellar IP) Minimum number of consecutive fractions that a protein is present in.
+        (If using fractionation instead of organellar IP) Minimum number of consecutive
+        fractions that a protein is present in; see
+        :func:`filter_min_consecutive_fractions`. Requires an AnnData.
 
     Returns
     -------
     Depending on ``inplace`` and input type, returns either:
 
     * ``None`` if ``inplace=True``
-    * AnnData if input is AnnData and ``inplace=False``
-    * A tuple of arrays ``(retained_proteins, retained_samples)`` if input is not AnnData
+    * A tuple of arrays ``(retained_proteins, retained_samples)`` if ``inplace=False``
+    * A boolean mask of retained proteins for ``min_consecutive`` with ``inplace=False``
 
     Examples
     --------
@@ -128,6 +132,15 @@ def filter_proteins(
     >>> adata.shape  # Fewer proteins after filtering
     (8358, 183)
     """
+    # min_consecutive used to be accepted and silently ignored.
+    if min_consecutive is not None:
+        if any(v is not None for v in (min_counts, min_samples, max_counts, max_samples)):
+            raise ValueError("Only provide one of the filtering criteria per call.")
+        if not isinstance(data, AnnData):
+            raise TypeError("min_consecutive requires an AnnData object.")
+        return filter_min_consecutive_fractions(
+            data, min_consecutive=min_consecutive, inplace=inplace
+        )
 
     return sc.pp.filter_cells(
         data,
@@ -157,15 +170,16 @@ def filter_min_consecutive_fractions(
     min_consecutive : int
         Minimum number of consecutive fractions in which a protein must be detected to pass filtering.
     replicate_column : str, optional
-        Column name in ``data.obs`` that contains replicate identifiers.
+        Column name in ``data.var`` that contains replicate identifiers.
         If provided, consecutive fraction filtering is applied per replicate,
         and proteins must meet the `min_consecutive` threshold in at least `min_replicates` number of replicates.
         If None, filtering is applied across all samples as a single dataset.
     min_replicates : int, optional
-        Minimum number of replicates that must satisfy the consecutive fraction requirement for a protein to be retained.
+        Minimum number of replicates that must satisfy the consecutive fraction requirement
+        for a protein to be retained. ``None`` (default) means 1.
     inplace : bool, default True
-        If True, modifies the input AnnData object in place and returns None.
-        If False, returns a new filtered AnnData object.
+        If True, removes the proteins that fail from the input AnnData and returns None.
+        If False, returns the boolean mask of proteins that pass.
 
     Returns
     -------
@@ -193,22 +207,21 @@ def filter_min_consecutive_fractions(
         if inplace:
             data.obs["consecutive_fractions"] = consecutive_fractions
     else:
+        # A None default used to reach `>= None` and raise TypeError.
+        if min_replicates is None:
+            min_replicates = 1
         groups = data.var.groupby(replicate_column, observed=True)
         protein_subset = np.repeat(0, repeats=data.n_obs)
         for _, g in groups:
             ad_sub = data[:, g.index].copy()
-
+            # boolean mask of the proteins passing within this replicate
             gs = filter_min_consecutive_fractions(
                 ad_sub, min_consecutive=min_consecutive, inplace=False
             )
-            # isn't this returning anndata object and not a tuple ---> need to fix this portion, take a look at how he did it before
-
             protein_subset = protein_subset + gs
         filtered_subset = protein_subset >= min_replicates
         if inplace:
             data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = protein_subset
-        else:
-            return protein_subset
 
     if not inplace:
         return filtered_subset
@@ -349,56 +362,61 @@ def aggregate_proteins(
     >>> import grassp as gr
     >>> adata = gr.datasets.hein_2024(enrichment="raw")
     >>> adata.shape
-    (8538, 183)
+    (14551, 222)
     >>> aggregated = gr.pp.aggregate_proteins(
     ...     adata,
     ...     grouping_columns='Gene names'
     ... )
     >>> aggregated.shape  # Fewer proteins after aggregation
-    (8057, 183)
+    (12617, 222)
+
+    Proteins with a missing value in ``grouping_columns`` are not merged with anything: each
+    is kept as its own row under its original name (here the 2,371 proteins without a gene
+    name). ``n_merged_proteins`` counts the input proteins behind each row, and adds up when
+    an already aggregated object is aggregated again.
     """
-    groups = data.obs.groupby(grouping_columns, observed=True)
-    X = np.empty((len(groups), data.n_vars))
-    # obs_list = []
-    obs = pd.DataFrame(index=groups.groups.keys(), columns=data.obs.columns)
-    obs["n_merged_proteins"] = 1
+    obs_in = data.obs
+    keys = obs_in[grouping_columns]
+    missing = keys.isna() if keys.ndim == 1 else keys.isna().any(axis=1)
+    # groupby drops rows with a missing key, which used to delete those proteins silently;
+    # grouping them (dropna=False) would merge every unnamed protein into a single row.
+    groups = obs_in.groupby(grouping_columns, observed=True)
+    entries = list(groups.indices.items()) + [
+        (obs_in.index[p], np.array([p])) for p in np.flatnonzero(missing.to_numpy())
+    ]
+
+    # Start from each group's first row, so every column keeps its dtype (an empty frame
+    # filled row by row made them all object, which write_h5ad cannot store), then blank the
+    # columns whose values differ within a merged group.
+    obs = obs_in.iloc[[pos[0] for _, pos in entries]].copy()
+    obs.index = pd.Index([key for key, _ in entries])
+    varies = np.zeros(obs.shape, dtype=bool)
+    for i, (_, pos) in enumerate(entries):
+        if len(pos) > 1:
+            varies[i] = (obs_in.iloc[pos].nunique() > 1).to_numpy()
+    obs = obs.mask(varies)
+    for col in obs.columns:  # bool + NaN would be object; keep it storable
+        if obs_in[col].dtype == bool and obs[col].dtype == object:
+            obs[col] = obs[col].astype("boolean")
+    prior = (
+        obs_in["n_merged_proteins"].to_numpy()
+        if "n_merged_proteins" in obs_in.columns
+        else np.ones(len(obs_in), dtype=int)
+    )
+    obs["n_merged_proteins"] = [int(prior[pos].sum()) for _, pos in entries]
+
+    X = np.empty((len(entries), data.n_vars))
     layers_dict = {layer: X.copy() for layer in layer_names(data)}
-
-    individual_indices, obs_indices = [], []
-    for i, (_, ind) in enumerate(groups.indices.items()):
-        if len(ind) == 1:
-            # obs_list.append(data.obs.iloc[ind])
-            individual_indices.append(i)
-            obs_indices.append(ind[0])
-        else:
-            # Aggregate obs
-            g = data.obs.iloc[ind]
-            nunique = g.nunique()
-            obs_sub = g.iloc[0].copy()
-            obs_sub[nunique > 1] = np.nan
-            obs_sub["n_merged_proteins"] = len(ind)
-            obs.iloc[i, :] = obs_sub.values
-            # Aggregate X
-            X_sub = data.X[ind, :]
-            X_sub = agg_func(X_sub, axis=0)
-            X[i, :] = X_sub
-            # obs_list.append(obs_sub)
-            # Aggregate layers
+    for i, (_, pos) in enumerate(entries):
+        if len(pos) == 1:
+            X[i] = data.X[pos[0]]
             for layer_name in layers_dict:
-                layer_sub = data.layers[layer_name][ind, :]
-                layer_sub = agg_func(layer_sub, axis=0)
-                layers_dict[layer_name][i, :] = layer_sub
+                layers_dict[layer_name][i] = data.layers[layer_name][pos[0]]
+        else:
+            X[i] = agg_func(data.X[pos, :], axis=0)
+            for layer_name in layers_dict:
+                layers_dict[layer_name][i] = agg_func(data.layers[layer_name][pos, :], axis=0)
 
-    obs.iloc[individual_indices, :-1] = data.obs.iloc[obs_indices].copy()
-    X[individual_indices] = data.X[obs_indices]
-    for layer_name in layers_dict:
-        layers_dict[layer_name][individual_indices] = data.layers[layer_name][obs_indices]
-
-    # obs = pd.concat(obs_list, axis=0)
-    # X = np.vstack(X_list)
-    # aggregated_layers = {
-    #     layer: np.vstack(layer_list) for layer, layer_list in layers_dict.items()
-    # }
     retdata = AnnData(
         X=X,
         obs=obs,
@@ -781,7 +799,7 @@ def drop_excess_MQ_metadata(
 #     scanpy.pp.pca(data.T, **kwargs)
 
 
-def neighbors(data, layer=None, **kwargs) -> None:
+def neighbors(data, layer=None, copy: bool = False, **kwargs) -> AnnData | None:
     """Compute the nearest neighbors distance matrix using scanpy.pp.neighbors.
 
     This function is a wrapper around :func:`scanpy:scanpy.pp.neighbors` ``scanpy.pp.neighbors`` adding support for using different layers.
@@ -792,21 +810,31 @@ def neighbors(data, layer=None, **kwargs) -> None:
         The annotated data matrix with proteins as observations (rows).
     layer
         Layer to use for nearest neighbors calculation.
+    copy
+        Return a copy with the neighbors graph instead of writing it to ``data``.
     **kwargs
         Additional arguments to pass to scanpy.pp.neighbors.
-    """
-    copy = kwargs.setdefault("copy", False)
 
-    if layer is not None:
-        data = data.copy() if copy else data
-        X = data.X.copy()
+    Returns
+    -------
+    A copy of ``data`` with the neighbors graph if ``copy=True``, else ``None``.
+    """
+    # The copy is made here and scanpy runs in place on it. Forwarding copy=True to scanpy
+    # made it write the graph to a copy of its own that was discarded, so the returned
+    # object had no neighbors graph.
+    if copy:
+        data = data.copy()
+    if layer is None:
+        sc.pp.neighbors(data, **kwargs)
+    else:
+        X = data.X
         data.X = data.layers[layer]
         kwargs["use_rep"] = "X"  # when specifying a layer, we should always use X
-    sc.pp.neighbors(data, **kwargs)
-    if layer is not None:
-        data.X = X
-    if copy:
-        return data
+        try:
+            sc.pp.neighbors(data, **kwargs)
+        finally:  # never leave the layer in X, even if scanpy raises
+            data.X = X
+    return data if copy else None
 
 
 def _calculate_cv(

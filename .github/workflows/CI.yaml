@@ -41,7 +41,7 @@ jobs:
     # Only the runtime dependencies: the dev extra's heavy test-only packages add nothing here.
     - name: pylint
       run: |
-        pip install -e . "pylint~=3.0"
+        pip install -e . "pylint~=4.0"
         python -m pylint grassp
 
   test:

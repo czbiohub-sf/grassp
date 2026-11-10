@@ -303,6 +303,41 @@ class TestHeatmapPlots:
 
         assert g is not None
 
+    def test_protein_clustermap_linkage_metric(self, monkeypatch):
+        """linkage() was always given the precomputed distances, for which scipy ignores
+        `metric`, so linkage_metric had no effect."""
+        # same direction, different scale: correlation groups p0/p1 and p2/p3,
+        # euclidean groups the small p0/p2 and the large p1/p3
+        X = np.array(
+            [[1, 1, 0, 0.1], [10, 10, 0, 1], [0, 0.1, 1, 1], [0, 1, 10, 10]], dtype=float
+        )
+        adata = AnnData(X=X, obs=pd.DataFrame({"c": ["a", "a", "b", "b"]}, index=list("wxyz")))
+        calls = []
+        real = heatmaps.sch.linkage
+
+        def spy(y, *args, **kwargs):
+            out = real(y, *args, **kwargs)
+            calls.append((np.ndim(y), kwargs.get("metric"), out))
+            return out
+
+        monkeypatch.setattr(heatmaps.sch, "linkage", spy)
+        for linkage_metric in (None, "euclidean"):
+            g = heatmaps.protein_clustermap(
+                adata,
+                "c",
+                distance_metric="correlation",
+                linkage_metric=linkage_metric,
+                show=False,
+            )
+            plt.close(g.fig)
+
+        (dim_default, _, link_default), (dim_eucl, metric_eucl, link_eucl) = calls
+        assert dim_default == 1  # clustered on the shown correlation distances
+        assert (dim_eucl, metric_eucl) == (2, "euclidean")  # profiles, with the metric
+        first_merge = lambda link: set(link[0, :2].astype(int))  # noqa: E731
+        assert first_merge(link_default) in ({0, 1}, {2, 3})
+        assert first_merge(link_eucl) == {0, 2}
+
     def test_sample_heatmap_smoke(self):
         """Verify sample_heatmap executes without error."""
         adata = make_enriched_data_with_structure(n_proteins=50, n_samples=8)
@@ -345,6 +380,27 @@ class TestHeatmapPlots:
             ax = heatmaps.qsep_boxplot(adata, show=False)
 
         assert ax is not None
+
+    def test_qsep_boxplot_point_colours(self):
+        """The points were coloured with seaborn's default palette (blue/orange) instead
+        of grey for a cluster's distance to itself and red for the others."""
+        adata = AnnData(X=np.zeros((3, 2)))
+        adata.uns["cluster_distances"] = {
+            "distances": np.array([[1.0, 3.0, 4.0], [3.0, 1.0, 5.0], [4.0, 5.0, 2.0]]),
+            "clusters": ["A", "B", "C"],
+        }
+        fig, ax = plt.subplots()
+
+        heatmaps.qsep_boxplot(adata, ax=ax, show=False)
+
+        point_rgb = {
+            tuple(np.round(fc[:3], 3))
+            for coll in ax.collections
+            for fc in coll.get_facecolors()
+            if len(coll.get_offsets())
+        }
+        assert point_rgb == {(0.502, 0.502, 0.502), (1.0, 0.0, 0.0)}  # grey, red
+        plt.close(fig)
 
 
 # ==============================================================================
@@ -398,6 +454,31 @@ class TestIntegrationPlots:
             ax = integration.mr_plot(adata, mr_key="mr_scores", show=False)
 
         assert ax is not None
+
+    @pytest.mark.parametrize("highlight_hits", [False, True])
+    def test_mr_plot_highlights_proteins(self, highlight_hits, monkeypatch):
+        """highlight_proteins was computed and then never drawn, and the figure was saved
+        under remodeling_score's name."""
+        adata = make_enriched_data_with_structure(n_proteins=60)
+        adata.obs["mr_scores_M"] = np.linspace(0, 10, adata.n_obs)
+        adata.obs["mr_scores_R"] = np.linspace(0, 1, adata.n_obs)
+        chosen = list(adata.obs_names[:3])
+        saved = []
+        monkeypatch.setattr(
+            integration.scanpy.pl._utils,
+            "savefig_or_show",
+            lambda name, **kwargs: saved.append(name),
+        )
+
+        ax = integration.mr_plot(
+            adata, highlight_hits=highlight_hits, highlight_proteins=chosen, show=False
+        )
+
+        last = ax.collections[-1].get_offsets()
+        expected = adata.obs.loc[chosen, ["mr_scores_M", "mr_scores_R"]].to_numpy()
+        np.testing.assert_allclose(last, expected)
+        assert saved == ["mr_plot"]
+        plt.close(ax.figure)
 
     def test_remodeling_sankey_smoke(self):
         """Verify remodeling_sankey executes without error."""
@@ -461,6 +542,22 @@ class TestQCPlots:
             axs = qc.bait_volcano_plots(enriched, show=False)
 
         assert axs is not None
+
+    def test_bait_volcano_plots_single_bait(self):
+        """plt.subplots returns a single Axes for one panel; axs.flatten() raised
+        AttributeError."""
+        adata = AnnData(
+            X=np.array([[3.0], [-0.5], [0.2]]),
+            obs=pd.DataFrame(index=["P1", "P2", "P3"]),
+            var=pd.DataFrame(index=["BAIT1"]),
+        )
+        adata.layers["pvals"] = np.array([[1e-4], [0.5], [0.9]])
+
+        ax = qc.bait_volcano_plots(adata, annotate_top_n=1, show=False)
+
+        assert ax.get_title() == "BAIT1"
+        assert len(ax.collections) >= 2  # all proteins, then the significant ones
+        plt.close(ax.figure)
 
     def test_highly_variable_proteins_smoke(self):
         """Verify highly_variable_proteins executes without error."""

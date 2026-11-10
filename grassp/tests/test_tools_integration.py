@@ -268,6 +268,65 @@ class TestClusteringFunctions:
         assert "leiden" in adata.uns
         assert "mito_majority_fraction" in adata.uns["leiden"]
 
+    @staticmethod
+    def _fake_leiden(split_above):
+        """Stand-in for sc.tl.leiden: mitochondria stay in one cluster up to
+        `split_above`, beyond it they split in half."""
+
+        def leiden(data, resolution, key_added="leiden", **kwargs):
+            labels = np.zeros(data.n_obs, dtype=int)
+            if resolution > split_above:
+                mito = np.flatnonzero(data.obs["gt"] == "mitochondria")
+                labels[mito[: len(mito) // 2]] = 1
+            data.obs[key_added] = pd.Categorical(labels.astype(str))
+            data.uns[key_added] = {"params": {"resolution": resolution}}
+
+        return leiden
+
+    @staticmethod
+    def _sweep_data():
+        return AnnData(
+            X=np.zeros((20, 2)),
+            obs=pd.DataFrame({"gt": ["mitochondria"] * 10 + ["other"] * 10}),
+        )
+
+    def test_leiden_mito_sweep_honours_key_added(self, monkeypatch):
+        """With key_added the sweep kept reading obs["leiden"] (pre-set to "0"), so the
+        fraction stayed 1 and the loop never ended; obs["leiden"] was also clobbered."""
+        monkeypatch.setattr(clustering.sc.tl, "leiden", self._fake_leiden(1.3))
+        adata = self._sweep_data()
+        adata.obs["leiden"] = "mine"
+
+        clustering.leiden_mito_sweep(
+            adata,
+            protein_ground_truth_column="gt",
+            increment_threshold=0.01,
+            key_added="sweep",
+            max_iter=100,
+        )
+
+        assert (adata.obs["leiden"] == "mine").all()
+        assert adata.uns["sweep"]["mito_majority_fraction"] == 1.0
+        # the highest resolution that still keeps the mitochondria together
+        assert 1.3 - 0.02 <= adata.uns["sweep"]["params"]["resolution"] <= 1.3
+
+    def test_leiden_mito_sweep_single_run(self, monkeypatch):
+        """increments <= threshold skipped the loop and raised UnboundLocalError."""
+        monkeypatch.setattr(clustering.sc.tl, "leiden", self._fake_leiden(1.3))
+        adata = self._sweep_data()
+        clustering.leiden_mito_sweep(
+            adata, protein_ground_truth_column="gt", resolution_increments=0.001
+        )
+        assert adata.uns["leiden"]["params"]["resolution"] == 0.5
+
+    def test_leiden_mito_sweep_stops_when_never_split(self, monkeypatch):
+        """If the mitochondria never split, the step never halves: cap the runs."""
+        monkeypatch.setattr(clustering.sc.tl, "leiden", self._fake_leiden(np.inf))
+        adata = self._sweep_data()
+        with pytest.warns(UserWarning, match="no convergence"):
+            clustering.leiden_mito_sweep(adata, protein_ground_truth_column="gt", max_iter=10)
+        assert adata.uns["leiden"]["params"]["resolution"] == pytest.approx(0.5 + 9 * 0.5)
+
     def test_competitive_diffusion_basic(self):
         """Test KNN annotation propagation."""
         adata = make_enriched_data_with_structure(
@@ -517,13 +576,13 @@ class TestClusteringFunctions:
             compartment_annotation_column="markers",
         )
 
-        assert "jaccard_score" in result.obs.columns
-        assert "jaccard_d1" in result.obs.columns
-        assert "jaccard_d2" in result.obs.columns
-        assert "jaccard_k1" in result.obs.columns
-        assert "jaccard_k2" in result.obs.columns
+        assert "interfacial_score" in result.obs.columns
+        assert "interfacial_d1" in result.obs.columns
+        assert "interfacial_d2" in result.obs.columns
+        assert "interfacial_k1" in result.obs.columns
+        assert "interfacial_k2" in result.obs.columns
         # Scores should be non-negative
-        assert (result.obs["jaccard_score"] >= 0).all()
+        assert (result.obs["interfacial_score"] >= 0).all()
 
     def test_tagm_map_train_basic_smoke(self):
         """Test TAGM training basic functionality."""
@@ -1299,6 +1358,44 @@ class TestIntegrationFunctions:
         # R scores should be in [-1, 1]
         assert (adata.obs["mr_scores_R"] >= -1).all()
         assert (adata.obs["mr_scores_R"] <= 1).all()
+
+    @staticmethod
+    def _with_fractions(adata):
+        adata.var["fraction"] = [name.rsplit("_", 1)[1] for name in adata.var_names]
+        return adata
+
+    def test_mr_score_pairs_fractions_by_fraction_key(self):
+        """Control and treatment fractions were paired by column order, unchecked."""
+        ordered = self._with_fractions(make_mr_score_data(n_proteins=60, n_fractions=4))
+        rng = np.random.default_rng(0)
+        order = np.arange(ordered.n_vars)
+        for rep in ["R1", "R2", "R3"]:  # shuffle the treatment fractions within each replicate
+            idx = np.flatnonzero(
+                (ordered.var["condition"] == "treatment") & (ordered.var["replicate"] == rep)
+            )
+            order[idx] = rng.permutation(idx)
+        shuffled = ordered[:, order].copy()
+
+        integration.mr_score(ordered, "condition", "replicate", fraction_key="fraction")
+        integration.mr_score(shuffled, "condition", "replicate", fraction_key="fraction")
+        np.testing.assert_allclose(shuffled.obs["mr_scores_R"], ordered.obs["mr_scores_R"])
+        np.testing.assert_allclose(shuffled.obs["mr_scores_M"], ordered.obs["mr_scores_M"])
+
+    def test_mr_score_rejects_unmatched_fractions(self):
+        adata = self._with_fractions(make_mr_score_data(n_proteins=60, n_fractions=4))
+        drop = (
+            (adata.var["condition"] == "treatment")
+            & (adata.var["replicate"] == "R2")
+            & (adata.var["fraction"] == "F4")
+        )
+        fewer = adata[:, ~drop.to_numpy()].copy()
+        with pytest.raises(ValueError, match="fractions must match"):
+            integration.mr_score(fewer, "condition", "replicate")
+
+        renamed = adata.copy()
+        renamed.var.loc[drop, "fraction"] = "F9"
+        with pytest.raises(ValueError, match="same fractions"):
+            integration.mr_score(renamed, "condition", "replicate", fraction_key="fraction")
 
     def test_mr_score_custom_params(self):
         """Test M/R score with custom parameters."""
