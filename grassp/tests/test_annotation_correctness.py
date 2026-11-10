@@ -482,7 +482,7 @@ class TestSvmCalibration:
         data = _blobs()
         markers = data.obs["markers"].astype(object)
         nuc = np.flatnonzero(markers == "NUC")
-        markers[nuc[1:]] = None
+        markers.iloc[nuc[1:]] = None  # positional: pandas 3 no longer falls back on []
         data.obs["markers"] = pd.Categorical(markers)
         with pytest.raises(ValueError, match="at least 2 marker proteins per class"):
             gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
