@@ -15,7 +15,7 @@ spread over it.
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from anndata import AnnData
@@ -122,9 +122,9 @@ def spread(
         Print the L1 residual each iteration.
     warn_context
         If given, the name to use in a warning when ``max_iter`` is reached before
-        convergence. ``None`` iterates silently, which is what the per-term alpha sweep
-        in :func:`~grassp.tools.independent_diffusion` needs -- it calls this hundreds of
-        times and a warning per call would bury the run.
+        convergence. ``None`` iterates silently, which is what the cross-validated choice
+        of ``alpha`` in :func:`~grassp.tools.independent_diffusion` needs -- it diffuses
+        once per fold and candidate, and a warning per call would bury the run.
     """
     if not 0 <= alpha <= 1:
         raise ValueError(f"alpha must be in [0, 1], got {alpha}")
@@ -166,56 +166,11 @@ def neff_kish(T) -> np.ndarray:
     return np.where(w2 > 0, w**2 / w2, 0.0)
 
 
-def neff_hutchinson(
-    diffuse: Callable[[np.ndarray, float], np.ndarray],
-    alpha: float,
-    denominator: np.ndarray,
-    *,
-    n_probe: int,
-    rng: np.random.RandomState,
-    mask: np.ndarray | None = None,
-) -> np.ndarray:
-    """Kish effective sample size of the *diffused* operator, excluding self.
-
-    With ``mask`` (a 0/1 vector over nodes) only the masked nodes count as neighbours:
-    ``denominator`` must then be ``diffuse(mask, alpha)``, and the result is the effective
-    number of *masked* (e.g. annotated) neighbours each node sees.
-
-    Unlike :func:`neff_kish` this measures the neighbourhood a protein actually sees at
-    diffusion depth ``alpha``, which is not available in closed form -- the operator is a
-    matrix power series, never materialized. Estimated with Hutchinson probes: for a
-    symmetric ``M``, ``mean_g (M g)_i²`` converges to ``Σ_j M_ij²`` and
-    ``mean_g g_i (M g)_i`` to ``M_ii``, which is enough to remove the diagonal from both
-    the sum and the sum of squares.
-
-    Parameters
-    ----------
-    diffuse
-        ``diffuse(Y, alpha)`` applying the operator, as returned by :func:`make_diffuser`.
-    alpha
-        Diffusion depth to measure at.
-    denominator
-        ``diffuse(ones, alpha)``, the row sums including self.
-    n_probe
-        Number of Rademacher probe vectors. More probes, less variance.
-    rng
-        Random state for the probes.
-    """
-    probes = rng.choice([-1.0, 1.0], size=(len(denominator), n_probe))
-    if mask is not None:
-        probes *= np.asarray(mask, dtype=float)[:, None]
-    diffused = diffuse(probes, alpha)
-    diagonal = (probes * diffused).mean(axis=1)
-    off_sum = np.maximum(denominator - diagonal, 1e-9)
-    off_sq = np.maximum((diffused**2).mean(axis=1) - diagonal**2, 1e-12)
-    return off_sum**2 / off_sq
-
-
 def make_diffuser(S, *, max_iter: int = DEFAULT_MAX_ITER, rtol: float = DEFAULT_RTOL):
     """Return a ``diffuse(Y, alpha)`` closure over :func:`spread`.
 
-    The per-term alpha sweep applies the same operator at many depths, so binding ``S``
-    once and varying only ``alpha`` keeps the call sites readable.
+    The cross-validated choice of ``alpha`` applies the same operator at many depths, so
+    binding ``S`` once and varying only ``alpha`` keeps the call sites readable.
     """
 
     def diffuse(Y, alpha, max_iter=max_iter, rtol=rtol):

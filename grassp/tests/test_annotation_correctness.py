@@ -679,9 +679,9 @@ class TestCompositeLabelSeparator:
 
         data = _blobs()
         data.obs["gene_symbol"] = [f"G{i}" for i in range(data.n_obs)]
-        # ER and ER_like share 30 of 40 genes (containment 0.75): co-localised but not
-        # nested, so ER proteins get both as leaves and the compact label needs the
-        # separator. (A nested parent would be implied by its child and not listed.)
+        # ER and ER_like overlap by 3/4 in both directions (below the 0.8 nesting cutoff),
+        # so ER proteins carry both as leaves of their multi-location call. (A parent such
+        # as ER_or_MITO would not do: nested parents are dropped from that call.)
         gene_sets = {
             "ER": [f"G{i}" for i in range(40)],
             "ER_like": [f"G{i}" for i in range(10, 40)] + [f"G{i}" for i in range(80, 90)],

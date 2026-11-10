@@ -44,7 +44,11 @@ def test_independent_diffusion_outputs_and_nonsimplex(blob_adata):
     assert P.shape == (a.n_obs, len(gs))
     assert terms == [str(t) for t in gs]
     assert terms == list(gs)  # the matrix names itself; no uns side-channel
-    assert a.uns["ann_diffusion_alpha"].shape == (len(gs),)
+    # one depth for the whole map, chosen by cross-validation from the grid
+    assert a.uns["ann_diffusion_alpha"] in gr.tl.diffusion.ALPHA_GRID
+    params = a.uns["ann_diffusion_params"]
+    assert params["alpha"] == a.uns["ann_diffusion_alpha"]
+    assert len(params["alpha_cv_ap"]) == len(params["alpha_grid"])
     assert 0.0 <= P.min() and P.max() <= 1.0
     # per-term (one-vs-rest), NOT a simplex: some rows carry mass on >1 term (blob + AorB)
     assert (P.sum(axis=1) > 1.5).any()
@@ -64,7 +68,7 @@ def test_likelihood_resolver_prefers_specific_over_broad(blob_adata):
         assert (sub == name).mean() > 0.7
 
 
-@pytest.mark.parametrize("calibration", ["size_aware", "shrunk", "pooled", "per_term", "none"])
+@pytest.mark.parametrize("calibration", ["size_aware", "none"])
 def test_calibration_modes_run(blob_adata, calibration):
     a, gs = blob_adata
     gr.tl.independent_diffusion(
@@ -72,6 +76,13 @@ def test_calibration_modes_run(blob_adata, calibration):
     )
     P, _ = get_matrix(a, "ann_diffusion_probabilities")
     assert np.isfinite(P).all()
+
+
+@pytest.mark.parametrize("calibration", ["shrunk", "pooled", "per_term"])
+def test_removed_calibration_modes_raise(blob_adata, calibration):
+    a, gs = blob_adata
+    with pytest.raises(ValueError, match="size_aware"):
+        gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", calibration=calibration)
 
 
 @pytest.mark.parametrize("resolve", ["likelihood", "specific", "argmax"])
@@ -149,6 +160,20 @@ def test_resolve_diffusion_standalone(blob_adata):
     assert a.obs["spec"].notna().any()
 
 
+def test_min_term_size_floor(blob_adata):
+    a, gs = blob_adata
+    # a floor larger than every term leaves nothing eligible -> all NA
+    gr.tl.independent_diffusion(
+        a, gs, gene_key="gene_symbol", resolve="likelihood", min_term_size=10_000
+    )
+    assert a.obs["ann_diffusion"].notna().sum() == 0
+    # a modest floor still annotates most proteins (fallback to larger ancestor terms)
+    gr.tl.independent_diffusion(
+        a, gs, gene_key="gene_symbol", resolve="likelihood", min_term_size=5
+    )
+    assert a.obs["ann_diffusion"].notna().mean() > 0.8
+
+
 def test_unannotated_proteins_do_not_dilute_the_score(blob_adata):
     """The raw score is the fraction of the *annotated* neighbourhood carrying a term.
 
@@ -168,12 +193,78 @@ def test_unannotated_proteins_do_not_dilute_the_score(blob_adata):
     assert np.median(P[in_a, terms.index("blobA")]) > 0.85
 
 
+def test_fixed_alpha_skips_the_cross_validation(blob_adata):
+    a, gs = blob_adata
+    gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", alpha=0.5)
+    assert a.uns["ann_diffusion_alpha"] == 0.5
+    assert a.uns["ann_diffusion_params"]["alpha_grid"] is None
+
+
+@pytest.mark.parametrize("name", ["alphas", "n_probe", "eta", "tau", "maxk", "cap"])
+def test_removed_parameters_warn_and_are_ignored(blob_adata, name):
+    a, gs = blob_adata
+    value = np.linspace(0.1, 0.9, 3) if name == "alphas" else 1
+    with pytest.warns(DeprecationWarning, match=name):
+        gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", **{name: value})
+    assert "ann_diffusion" in a.obs
+
+
+def test_unknown_parameter_is_an_error(blob_adata):
+    a, gs = blob_adata
+    with pytest.raises(TypeError, match="not_a_parameter"):
+        gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", not_a_parameter=1)
+
+
+def test_threshold_resolver_rules():
+    """On at P >= theta, or >= theta_child when nested in an on term; leaves; lineage call."""
+    from grassp.tools.diffusion import _resolve
+
+    genes = [f"g{i}" for i in range(30)]
+    seeds = {"parent": set(genes[:20]), "child": set(genes[:5]), "other": set(genes[20:])}
+    terms = list(seeds)
+    sizes = np.array([len(seeds[t]) for t in terms])
+    P = np.array(
+        [
+            [0.90, 0.55, 0.00],  # child under an on parent: the child wins at P > 0.5
+            [0.60, 0.00, 0.00],  # below the break-even on its own: no call
+            [0.90, 0.00, 0.70],  # two non-nested on terms: both are leaves
+            [0.30, 0.55, 0.00],  # child without an on parent needs theta itself
+            [0.90, 0.70, 0.00],  # child on by itself: the parent drops out of the leaves
+        ]
+    )
+    labels, leaves = _resolve(
+        P,
+        terms,
+        seeds,
+        sizes,
+        "likelihood",
+        theta=0.63,
+        theta_child=0.5,
+        nest_threshold=0.8,
+        term_threshold=0.5,
+        min_term_size=0,
+    )
+    assert list(labels) == ["child", None, "parent", None, "child"]
+    assert leaves == [["child"], [], ["parent", "other"], [], ["child"]]
+
+
+def test_disconnected_unannotated_blob_gets_no_call(blob_adata):
+    """A component with no annotated protein has no evidence: abstain, don't call the prior."""
+    a, gs = blob_adata
+    W = a.obsp["connectivities"].tocsr()
+    c = (a.obs["_blob"] == 2).to_numpy()
+    assert W[c][:, ~c].nnz == 0  # blob C is its own component
+    vocab = {t: g for t, g in gs.items() if t != "blobC"}
+    gr.tl.independent_diffusion(a, vocab, gene_key="gene_symbol")
+    assert a.obs["ann_diffusion"][c].isna().all()
+
+
 def test_duplicate_gene_entries_are_one_unit_of_evidence(blob_adata):
     """Map entries sharing a gene symbol (isoforms, duplicate accessions) count once.
 
     Three blob-A proteins get a twin entry with the same symbol and a near-identical
     profile, so a term of those three genes has six entries but three genes. It must not
-    be scored (the member floor counts genes), where seeding every entry would make it a
+    be diffused (``MIN_MEMBERS`` counts genes), where seeding every entry would make it a
     valid term whose twins score it for each other. The twins are recorded in the params.
     """
     a, gs = blob_adata
@@ -192,41 +283,6 @@ def test_duplicate_gene_entries_are_one_unit_of_evidence(blob_adata):
     assert b.uns["ann_diffusion_params"]["duplicate_gene_entries"] == 3
 
 
-def test_multilabel_lists_leaves_only(blob_adata):
-    """The multi-location call lists the most specific called terms; parents are implied.
-
-    AorB contains blobA, so a blob-A protein's compact label must say blobA, not
-    ``blobA; AorB``.
-    """
-    a, gs = blob_adata
-    gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol")
-    in_a = (a.obs["_blob"] == 0).to_numpy()
-    compact = a.obs["ann_diffusion_label_compact"][in_a].dropna().astype(str)
-    assert len(compact) > 0.8 * in_a.sum()
-    assert not compact.str.contains("AorB").any()
-    assert (compact == "blobA").mean() > 0.8
-
-
-def test_only_nested_terms_explain_each_other():
-    """Containment counts in the likelihood resolver only at ``>= nest_threshold``.
-
-    Two terms sharing half their genes (containment 0.5) are co-localised, not nested: a
-    protein probable for both keeps both as active leaves -- a dual location. Soft
-    containment would let either explain half of the other away and keep only one, which
-    is what lowering the threshold to 0.5 reproduces.
-    """
-    from grassp.tools.diffusion import _resolve
-
-    gs = {"T1": [f"g{i}" for i in range(20)], "T2": [f"g{i}" for i in range(10, 30)]}
-    P = np.array([[0.9, 0.9]])
-    sizes = np.array([20, 20])
-    args = (P, ["T1", "T2"], gs, sizes, "likelihood", 0.5, 1.0, 0.4, 3, 12, 0)
-    labels, leaves = _resolve(*args, 0.8)
-    assert set(leaves[0]) == {"T1", "T2"} and labels[0] in {"T1", "T2"}
-    labels, leaves = _resolve(*args, 0.5)
-    assert len(leaves[0]) == 1 and labels[0] == leaves[0][0]
-
-
 def test_re_resolving_with_the_same_parameters_is_a_no_op(blob_adata):
     a, gs = blob_adata
     gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol")
@@ -235,17 +291,3 @@ def test_re_resolving_with_the_same_parameters_is_a_no_op(blob_adata):
     gr.tl.resolve_diffusion(a, gs, gene_key="gene_symbol")
     pd.testing.assert_series_equal(a.obs["ann_diffusion"].astype(object), before)
     assert list(a.obs["ann_diffusion_label_compact"]) == compact
-
-
-def test_min_term_size_floor(blob_adata):
-    a, gs = blob_adata
-    # a floor larger than every term leaves nothing eligible -> all NA
-    gr.tl.independent_diffusion(
-        a, gs, gene_key="gene_symbol", resolve="likelihood", min_term_size=10_000
-    )
-    assert a.obs["ann_diffusion"].notna().sum() == 0
-    # a modest floor still annotates most proteins (fallback to larger ancestor terms)
-    gr.tl.independent_diffusion(
-        a, gs, gene_key="gene_symbol", resolve="likelihood", min_term_size=5
-    )
-    assert a.obs["ann_diffusion"].notna().mean() > 0.8

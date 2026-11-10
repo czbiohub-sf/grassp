@@ -137,18 +137,3 @@ class TestEffectiveNeighbourhood:
     def test_kish_of_a_uniform_row_is_its_count(self):
         W = sp.csr_matrix(np.array([[0.0, 1.0, 1.0, 1.0]]))
         assert np.isclose(_graph.neff_kish(W)[0], 3.0)
-
-    def test_hutchinson_tracks_kish_at_shallow_depth(self, graph):
-        """At small alpha the diffused operator is nearly the graph itself, so the two
-        estimators should agree in rank even though they measure different things."""
-        S = _graph.symmetric_normalized(graph.obsp["connectivities"])
-        diffuse = _graph.make_diffuser(S)
-        ones = np.ones(graph.n_obs)
-        denominator = diffuse(ones, 0.2)
-        estimated = _graph.neff_hutchinson(
-            diffuse, 0.2, denominator, n_probe=256, rng=np.random.RandomState(0)
-        )
-        assert np.isfinite(estimated).all()
-        assert (estimated > 0).all()
-        kish = _graph.neff_kish(graph.obsp["connectivities"])
-        assert np.corrcoef(estimated, kish)[0, 1] > 0.5
