@@ -100,25 +100,18 @@ def test_vs_untagged_leaves_no_helper_column():
     assert "_experimental_condition" not in result.raw.var.columns
 
 
-def test_vs_untagged_matches_the_untagged_label_exactly():
-    """untagged_name was a regex prefix, so "UNTAGGED_2" samples joined the control."""
+def test_vs_untagged_name_is_a_regex_matched_from_the_start():
+    """untagged_name is a pattern (callers pass e.g. ".._UNTAGGED"), not a literal label."""
     adata = make_basic_anndata()
-    labels = adata.var["subcellular_enrichment"].to_numpy().copy()
-    labels[1] = "UNTAGGED_2"  # one condition-x "A" sample, relabelled
-    adata.var["subcellular_enrichment"] = labels
+    expected = enrichment.calculate_enrichment_vs_untagged(adata, covariates=["covariate_1"])
     result = enrichment.calculate_enrichment_vs_untagged(
-        adata, covariates=["covariate_1"], drop_untagged=False
+        adata, covariates=["covariate_1"], untagged_name="UNTAG.*"
     )
-
-    x = adata.var["covariate_1"] == "x"
-    ip = adata.X[:, (x & (adata.var["subcellular_enrichment"] == "UNTAGGED_2")).to_numpy()]
-    ctrl = adata.X[:, (x & (adata.var["subcellular_enrichment"] == "UNTAGGED")).to_numpy()]
-    expected = np.median(ip, axis=1) - np.median(ctrl, axis=1)
-    col = (
-        (result.var["subcellular_enrichment"] == "UNTAGGED_2")
-        & (result.var["covariate_1"] == "x")
-    ).to_numpy()
-    np.testing.assert_allclose(result.X[:, col].ravel(), expected)
+    np.testing.assert_allclose(result.X, expected.X)
+    with pytest.raises(ValueError, match="No NOTHING_LIKE_IT"):
+        enrichment.calculate_enrichment_vs_untagged(
+            adata.copy(), covariates=["covariate_1"], untagged_name="NOTHING_LIKE_IT$"
+        )
 
 
 def test_original_intensities_layer_is_not_overwritten():

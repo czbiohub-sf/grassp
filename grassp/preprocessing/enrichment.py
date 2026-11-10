@@ -79,8 +79,10 @@ def calculate_enrichment_vs_untagged(
         The column in ``.var`` that contains subcellular enrichment labels.
     untagged_name
         The label in ``subcellular_enrichment_column`` that identifies untagged control
-        samples. A regular expression matched against the whole label, so ``"UNTAGGED"``
-        does not match ``"UNTAGGED_2"`` and ``".._UNTAGGED"`` matches ``"01_UNTAGGED"``.
+        samples. A regular expression matched from the *start* of each label
+        (:meth:`pandas.Series.str.match`): ``".._UNTAGGED"`` matches ``"01_UNTAGGED"``,
+        and the default ``"UNTAGGED"`` also matches ``"UNTAGGED_2"``. Anchor the pattern
+        (``"UNTAGGED$"``) to match one label exactly.
     original_intensities_key
         If specified, the original intensity values are stored in
         ``data.layers[original_intensities_key]``.
@@ -127,12 +129,11 @@ def calculate_enrichment_vs_untagged(
         data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
         for experimental_condition in data_aggr.var["_experimental_condition"].unique():
             data_sub = data[:, data.var["_experimental_condition"] == experimental_condition]
-            # Anchored match: str.match only anchored the start, so with the default
-            # untagged_name="UNTAGGED" the "UNTAGGED_2" samples were pooled into the control.
-            # fullmatch keeps the regex support callers rely on (e.g. ".._UNTAGGED").
+            # untagged_name is a regex matched from the start of the label (str.match), see
+            # the parameter description; callers pass patterns such as ".._UNTAGGED".
             intensities_control = data_sub[
                 :,
-                data_sub.var[subcellular_enrichment_column].str.fullmatch(untagged_name),
+                data_sub.var[subcellular_enrichment_column].str.match(untagged_name),
             ].X
             if intensities_control.shape[1] == 0:
                 raise ValueError(
@@ -162,7 +163,7 @@ def calculate_enrichment_vs_untagged(
                 data_aggr.X[:, aggr_mask] = lfc[:, None]
         if drop_untagged:
             data_aggr = data_aggr[
-                :, ~data_aggr.var[subcellular_enrichment_column].str.fullmatch(untagged_name)
+                :, ~data_aggr.var[subcellular_enrichment_column].str.match(untagged_name)
             ]
         if keep_raw:
             # data is this function's own copy, so it can be stored as is
