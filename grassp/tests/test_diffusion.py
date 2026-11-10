@@ -5,6 +5,7 @@ import warnings
 
 import anndata as ad
 import numpy as np
+import pandas as pd
 import pytest
 import scanpy as sc
 
@@ -146,6 +147,94 @@ def test_resolve_diffusion_standalone(blob_adata):
     gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol", resolve="likelihood")
     gr.tl.resolve_diffusion(a, gs, mode="specific", out_key="spec")
     assert a.obs["spec"].notna().any()
+
+
+def test_unannotated_proteins_do_not_dilute_the_score(blob_adata):
+    """The raw score is the fraction of the *annotated* neighbourhood carrying a term.
+
+    Drop every other protein from the vocabulary entirely: those stay in the graph but
+    carry no term. Inside blob A every annotated neighbour is a blobA member, so the score
+    must stay near 1 rather than falling to the ~0.5 an all-protein reference would give.
+    """
+    a, gs = blob_adata
+    genes = a.obs["gene_symbol"].to_numpy()
+    kept = set(genes[::2])
+    sparse_gs = {t: [g for g in m if g in kept] for t, m in gs.items()}
+    gr.tl.independent_diffusion(
+        a, sparse_gs, gene_key="gene_symbol", calibration="none", resolve=None
+    )
+    P, terms = get_matrix(a, "ann_diffusion_probabilities")
+    in_a = (a.obs["_blob"] == 0).to_numpy()
+    assert np.median(P[in_a, terms.index("blobA")]) > 0.85
+
+
+def test_duplicate_gene_entries_are_one_unit_of_evidence(blob_adata):
+    """Map entries sharing a gene symbol (isoforms, duplicate accessions) count once.
+
+    Three blob-A proteins get a twin entry with the same symbol and a near-identical
+    profile, so a term of those three genes has six entries but three genes. It must not
+    be scored (the member floor counts genes), where seeding every entry would make it a
+    valid term whose twins score it for each other. The twins are recorded in the params.
+    """
+    a, gs = blob_adata
+    rng = np.random.RandomState(1)
+    dup = np.where(a.obs["_blob"].to_numpy() == 0)[0][:3]
+    twin = ad.AnnData(a.X[dup] + 0.01 * rng.randn(len(dup), a.n_vars))
+    twin.obs["gene_symbol"] = a.obs["gene_symbol"].to_numpy()[dup]
+    twin.obs["_blob"] = a.obs["_blob"].to_numpy()[dup]
+    twin.obs_names = [f"twin{i}" for i in range(len(dup))]
+    b = ad.concat([a, twin])
+    sc.pp.neighbors(b, n_neighbors=15)
+    gs = dict(gs, twins=list(a.obs["gene_symbol"].to_numpy()[dup]))
+    gr.tl.independent_diffusion(b, gs, gene_key="gene_symbol", calibration="none")
+    P, terms = get_matrix(b, "ann_diffusion_probabilities")
+    assert P[:, terms.index("twins")].max() == 0
+    assert b.uns["ann_diffusion_params"]["duplicate_gene_entries"] == 3
+
+
+def test_multilabel_lists_leaves_only(blob_adata):
+    """The multi-location call lists the most specific called terms; parents are implied.
+
+    AorB contains blobA, so a blob-A protein's compact label must say blobA, not
+    ``blobA; AorB``.
+    """
+    a, gs = blob_adata
+    gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol")
+    in_a = (a.obs["_blob"] == 0).to_numpy()
+    compact = a.obs["ann_diffusion_label_compact"][in_a].dropna().astype(str)
+    assert len(compact) > 0.8 * in_a.sum()
+    assert not compact.str.contains("AorB").any()
+    assert (compact == "blobA").mean() > 0.8
+
+
+def test_only_nested_terms_explain_each_other():
+    """Containment counts in the likelihood resolver only at ``>= nest_threshold``.
+
+    Two terms sharing half their genes (containment 0.5) are co-localised, not nested: a
+    protein probable for both keeps both as active leaves -- a dual location. Soft
+    containment would let either explain half of the other away and keep only one, which
+    is what lowering the threshold to 0.5 reproduces.
+    """
+    from grassp.tools.diffusion import _resolve
+
+    gs = {"T1": [f"g{i}" for i in range(20)], "T2": [f"g{i}" for i in range(10, 30)]}
+    P = np.array([[0.9, 0.9]])
+    sizes = np.array([20, 20])
+    args = (P, ["T1", "T2"], gs, sizes, "likelihood", 0.5, 1.0, 0.4, 3, 12, 0)
+    labels, leaves = _resolve(*args, 0.8)
+    assert set(leaves[0]) == {"T1", "T2"} and labels[0] in {"T1", "T2"}
+    labels, leaves = _resolve(*args, 0.5)
+    assert len(leaves[0]) == 1 and labels[0] == leaves[0][0]
+
+
+def test_re_resolving_with_the_same_parameters_is_a_no_op(blob_adata):
+    a, gs = blob_adata
+    gr.tl.independent_diffusion(a, gs, gene_key="gene_symbol")
+    before = a.obs["ann_diffusion"].astype(object).copy()
+    compact = list(a.obs["ann_diffusion_label_compact"])
+    gr.tl.resolve_diffusion(a, gs, gene_key="gene_symbol")
+    pd.testing.assert_series_equal(a.obs["ann_diffusion"].astype(object), before)
+    assert list(a.obs["ann_diffusion_label_compact"]) == compact
 
 
 def test_min_term_size_floor(blob_adata):
