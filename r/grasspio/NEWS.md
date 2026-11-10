@@ -1,3 +1,10 @@
+## [0.2.0](https://github.com/czbiohub-sf/grassp/compare/grasspio-v0.1.0...grasspio-v0.2.0) (2026-11-10)
+
+
+### Features
+
+* depend on the released anndataR (>= 1.2.3, Bioconductor) instead of a GitHub fork; 1.2.3 is the first release that writes obsm/varm data frames with the index Python needs to open the file ([#40](https://github.com/czbiohub-sf/grassp/issues/40)) ([49f3acd](https://github.com/czbiohub-sf/grassp/commit/49f3acd6c6096585a54321e9760a7dff96f56d1b))
+
 ## 0.1.0 (2026-09-22)
 
 
