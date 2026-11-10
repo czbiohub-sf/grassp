@@ -87,6 +87,40 @@ def test_calculate_enrichment_vs_untagged_basic():
         )
 
 
+def test_vs_untagged_leaves_no_helper_column():
+    """_experimental_condition used to stay on the caller's var (unless it was a view) and in
+    .raw."""
+    adata = make_basic_anndata()
+    var_before = adata.var.copy()
+    result = enrichment.calculate_enrichment_vs_untagged(
+        adata, covariates=["covariate_1"], keep_raw=True
+    )
+    pd.testing.assert_frame_equal(adata.var, var_before)
+    assert "_experimental_condition" not in result.var.columns
+    assert "_experimental_condition" not in result.raw.var.columns
+
+
+def test_vs_untagged_matches_the_untagged_label_exactly():
+    """untagged_name was a regex prefix, so "UNTAGGED_2" samples joined the control."""
+    adata = make_basic_anndata()
+    labels = adata.var["subcellular_enrichment"].to_numpy().copy()
+    labels[1] = "UNTAGGED_2"  # one condition-x "A" sample, relabelled
+    adata.var["subcellular_enrichment"] = labels
+    result = enrichment.calculate_enrichment_vs_untagged(
+        adata, covariates=["covariate_1"], drop_untagged=False
+    )
+
+    x = adata.var["covariate_1"] == "x"
+    ip = adata.X[:, (x & (adata.var["subcellular_enrichment"] == "UNTAGGED_2")).to_numpy()]
+    ctrl = adata.X[:, (x & (adata.var["subcellular_enrichment"] == "UNTAGGED")).to_numpy()]
+    expected = np.median(ip, axis=1) - np.median(ctrl, axis=1)
+    col = (
+        (result.var["subcellular_enrichment"] == "UNTAGGED_2")
+        & (result.var["covariate_1"] == "x")
+    ).to_numpy()
+    np.testing.assert_allclose(result.X[:, col].ravel(), expected)
+
+
 def test_original_intensities_layer_is_not_overwritten():
     """The layer used to alias X, so writing the fold changes into X overwrote it."""
     with warnings.catch_warnings():

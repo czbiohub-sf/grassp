@@ -112,8 +112,9 @@ def calculate_enrichment_vs_untagged(
     >>> enriched.layers['pvals'][:5, :5]  # P-values from t-tests  # doctest: +SKIP
     """
     covariates = _check_covariates(data, covariates)
-    if data.is_view:
-        data = data.copy()
+    # Work on a copy: the helper column below used to be left on the caller's object (only a
+    # view was copied), and it ended up in .raw as well.
+    data = data.copy()
     data.var["_experimental_condition"] = data.var[covariates].apply(
         lambda x: "_".join(x.dropna().astype(str)), axis=1
     )
@@ -125,9 +126,11 @@ def calculate_enrichment_vs_untagged(
         data_aggr.layers["pvals"] = np.zeros_like(data_aggr.X)
         for experimental_condition in data_aggr.var["_experimental_condition"].unique():
             data_sub = data[:, data.var["_experimental_condition"] == experimental_condition]
+            # An exact label match: str.match treated untagged_name as a regex prefix, so
+            # e.g. "UNTAGGED_2" samples were pooled into the "UNTAGGED" control.
             intensities_control = data_sub[
                 :,
-                data_sub.var[subcellular_enrichment_column].str.match(untagged_name),
+                data_sub.var[subcellular_enrichment_column] == untagged_name,
             ].X
             if intensities_control.shape[1] == 0:
                 raise ValueError(
@@ -157,10 +160,12 @@ def calculate_enrichment_vs_untagged(
                 data_aggr.X[:, aggr_mask] = lfc[:, None]
         if drop_untagged:
             data_aggr = data_aggr[
-                :, ~data_aggr.var[subcellular_enrichment_column].str.match(untagged_name)
+                :, data_aggr.var[subcellular_enrichment_column] != untagged_name
             ]
         if keep_raw:
-            data_aggr.raw = data.copy()
+            # data is this function's own copy, so it can be stored as is
+            data.var.drop(columns=["_experimental_condition"], inplace=True)
+            data_aggr.raw = data
     finally:
         # data_aggr is bound before the try block, so this cannot mask a failure
         # above with an UnboundLocalError.
