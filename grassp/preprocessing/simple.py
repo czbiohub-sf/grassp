@@ -108,15 +108,19 @@ def filter_proteins(
     inplace
         Perform computation inplace or return result.
     min_consecutive
-        (If using fractionation instead of organellar IP) Minimum number of consecutive fractions that a protein is present in.
+        (If using fractionation instead of organellar IP) Minimum number of consecutive
+        fractions that a protein is present in; see
+        :func:`filter_min_consecutive_fractions`. Requires an AnnData.
+
+    Only one criterion can be given per call, as in :func:`scanpy.pp.filter_cells`.
 
     Returns
     -------
     Depending on ``inplace`` and input type, returns either:
 
     * ``None`` if ``inplace=True``
-    * AnnData if input is AnnData and ``inplace=False``
-    * A tuple of arrays ``(retained_proteins, retained_samples)`` if input is not AnnData
+    * A tuple of arrays ``(retained_proteins, retained_samples)`` if ``inplace=False``
+    * A boolean mask of retained proteins for ``min_consecutive`` with ``inplace=False``
 
     Examples
     --------
@@ -128,6 +132,15 @@ def filter_proteins(
     >>> adata.shape  # Fewer proteins after filtering
     (8358, 183)
     """
+    # min_consecutive used to be accepted and silently ignored.
+    if min_consecutive is not None:
+        if any(v is not None for v in (min_counts, min_samples, max_counts, max_samples)):
+            raise ValueError("Only provide one of the filtering criteria per call.")
+        if not isinstance(data, AnnData):
+            raise TypeError("min_consecutive requires an AnnData object.")
+        return filter_min_consecutive_fractions(
+            data, min_consecutive=min_consecutive, inplace=inplace
+        )
 
     return sc.pp.filter_cells(
         data,
@@ -157,15 +170,16 @@ def filter_min_consecutive_fractions(
     min_consecutive : int
         Minimum number of consecutive fractions in which a protein must be detected to pass filtering.
     replicate_column : str, optional
-        Column name in ``data.obs`` that contains replicate identifiers.
+        Column name in ``data.var`` that contains replicate identifiers.
         If provided, consecutive fraction filtering is applied per replicate,
         and proteins must meet the `min_consecutive` threshold in at least `min_replicates` number of replicates.
         If None, filtering is applied across all samples as a single dataset.
     min_replicates : int, optional
-        Minimum number of replicates that must satisfy the consecutive fraction requirement for a protein to be retained.
+        Minimum number of replicates that must satisfy the consecutive fraction requirement
+        for a protein to be retained. ``None`` (default) means 1.
     inplace : bool, default True
-        If True, modifies the input AnnData object in place and returns None.
-        If False, returns a new filtered AnnData object.
+        If True, removes the proteins that fail from the input AnnData and returns None.
+        If False, returns the boolean mask of proteins that pass.
 
     Returns
     -------
@@ -193,22 +207,21 @@ def filter_min_consecutive_fractions(
         if inplace:
             data.obs["consecutive_fractions"] = consecutive_fractions
     else:
+        # A None default used to reach `>= None` and raise TypeError.
+        if min_replicates is None:
+            min_replicates = 1
         groups = data.var.groupby(replicate_column, observed=True)
         protein_subset = np.repeat(0, repeats=data.n_obs)
         for _, g in groups:
             ad_sub = data[:, g.index].copy()
-
+            # boolean mask of the proteins passing within this replicate
             gs = filter_min_consecutive_fractions(
                 ad_sub, min_consecutive=min_consecutive, inplace=False
             )
-            # isn't this returning anndata object and not a tuple ---> need to fix this portion, take a look at how he did it before
-
             protein_subset = protein_subset + gs
         filtered_subset = protein_subset >= min_replicates
         if inplace:
             data.obs[f"n_replicates_with_minimum_{min_consecutive}_fractions"] = protein_subset
-        else:
-            return protein_subset
 
     if not inplace:
         return filtered_subset

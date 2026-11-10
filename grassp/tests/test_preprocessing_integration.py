@@ -716,6 +716,55 @@ class TestFilteringFunctions:
 
         assert "n_replicates_with_minimum_2_fractions" in adata.obs.columns
 
+    @staticmethod
+    def _runs_data():
+        """4 proteins x (2 replicates x 4 fractions); longest detected run per replicate:
+        p0: 4 and 3, p1: 2 and 0, p2: 0 and 3, p3: 1 and 1."""
+        X = np.array(
+            [
+                [1, 1, 1, 1, 1, 1, 1, 0],
+                [1, 1, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1, 1, 1],
+                [1, 0, 1, 0, 1, 0, 1, 0],
+            ],
+            dtype=float,
+        )
+        var = pd.DataFrame(
+            {"replicate": ["r1"] * 4 + ["r2"] * 4}, index=[f"s{i}" for i in range(8)]
+        )
+        return AnnData(X=X, obs=pd.DataFrame(index=["p0", "p1", "p2", "p3"]), var=var)
+
+    def test_filter_proteins_min_consecutive(self):
+        """min_consecutive was accepted and ignored (scanpy then raised for having no
+        criterion at all)."""
+        adata = self._runs_data()
+        mask = simple.filter_proteins(adata, min_consecutive=3, inplace=False)
+        np.testing.assert_array_equal(mask, [True, False, True, False])
+
+        simple.filter_proteins(adata, min_consecutive=3)
+        assert list(adata.obs_names) == ["p0", "p2"]
+
+        with pytest.raises(ValueError, match="one of the filtering criteria"):
+            simple.filter_proteins(self._runs_data(), min_consecutive=3, min_samples=1)
+
+    def test_filter_min_consecutive_fractions_replicate_defaults(self):
+        """min_replicates=None hit `>= None` (TypeError), and inplace=False returned the
+        per-protein counts instead of the documented boolean mask."""
+        adata = self._runs_data()
+        mask = simple.filter_min_consecutive_fractions(
+            adata, min_consecutive=3, replicate_column="replicate", inplace=False
+        )
+        np.testing.assert_array_equal(mask, [True, False, True, False])  # >= 1 replicate
+
+        both = simple.filter_min_consecutive_fractions(
+            adata,
+            min_consecutive=3,
+            replicate_column="replicate",
+            min_replicates=2,
+            inplace=False,
+        )
+        np.testing.assert_array_equal(both, [True, False, False, False])
+
     def test_remove_contaminants(self):
         """Test remove_contaminants."""
         adata = make_mini_orgip_data(
