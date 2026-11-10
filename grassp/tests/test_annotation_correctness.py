@@ -433,6 +433,40 @@ class TestTagmColoursAndProvenance:
             gr.tl.tagm_map_predict(data, probJoint=True)
 
 
+class TestSvmCalibration:
+    """Probabilities come from grassp's pairwise coupling (tools/_svm_proba), not the
+    SVC(probability=True) that scikit-learn deprecated in 1.9 and removes in 1.11."""
+
+    def test_no_deprecated_svc_probability(self):
+        data = _blobs()
+        with warnings.catch_warnings():
+            warnings.filterwarnings("error", category=FutureWarning, module="sklearn")
+            gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
+        P = data.obsm["svm_annotation_probabilities"].to_numpy()
+        np.testing.assert_allclose(P.sum(axis=1), 1.0)
+        # well-separated blobs: the calls recover the truth
+        assert (data.obs["svm_annotation"] == data.obs["truth"]).mean() > 0.95
+
+    def test_small_classes_use_fewer_folds(self):
+        """Stratified 5-fold CV needs 5 markers per class; smaller classes still work."""
+        data = _blobs()
+        markers = data.obs["markers"].astype(object)
+        keep_nuc = np.flatnonzero(markers == "NUC")[:3]
+        markers[(markers == "NUC") & ~np.isin(np.arange(data.n_obs), keep_nuc)] = None
+        data.obs["markers"] = pd.Categorical(markers)
+        gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
+        assert "NUC" in set(data.obs["svm_annotation"].dropna())
+
+    def test_single_marker_class_raises(self):
+        data = _blobs()
+        markers = data.obs["markers"].astype(object)
+        nuc = np.flatnonzero(markers == "NUC")
+        markers[nuc[1:]] = None
+        data.obs["markers"] = pd.Categorical(markers)
+        with pytest.raises(ValueError, match="at least 2 marker proteins per class"):
+            gr.tl.svm_annotation(data, gt_col="markers", C=1.0, gamma=0.1)
+
+
 class TestSvmParameterHandling:
     def test_class_weight_may_be_keyed_by_label(self):
         """Both entry points fit on `.cat.codes`, so a label-keyed dict -- the only one a

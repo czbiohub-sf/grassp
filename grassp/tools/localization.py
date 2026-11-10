@@ -22,6 +22,7 @@ from ._annotation import (
     write_annotation,
 )
 from ._graph import affinity, neff_kish, spread, symmetric_normalized
+from ._svm_proba import PairwiseCoupledSVC
 
 
 def _neighbor_label_matrix(
@@ -1443,13 +1444,26 @@ def svm_annotation(
     categories = markers.categories
     y_train_codes = y_train.cat.codes
 
-    # Train SVM
-    svm = SVC(
-        C=C,
-        gamma=gamma,
-        kernel='rbf',
-        class_weight=_class_weight_by_code(class_weight, categories),
-        probability=True,
+    # Train SVM. Probabilities are computed as libsvm's SVC(probability=True) did --
+    # pairwise Platt sigmoids on cross-validated one-vs-one decision values, coupled into
+    # one distribution -- which scikit-learn deprecated in 1.9 and removes in 1.11. Its
+    # suggested CalibratedClassifierCV(SVC()) is not equivalent with more than two classes;
+    # see _svm_proba. The folds are stratified, so each class needs a marker per fold.
+    min_class_size = int(y_train_codes.value_counts().min())
+    if min_class_size < 2:
+        raise ValueError(
+            "svm_annotation needs at least 2 marker proteins per class to calibrate "
+            "probabilities; remove or merge classes with a single marker in "
+            f"data.obs[{gt_col!r}]."
+        )
+    svm = PairwiseCoupledSVC(
+        SVC(
+            C=C,
+            gamma=gamma,
+            kernel='rbf',
+            class_weight=_class_weight_by_code(class_weight, categories),
+        ),
+        cv=min(5, min_class_size),
         random_state=42,
     )
     svm.fit(X_train, y_train_codes)
