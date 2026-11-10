@@ -259,17 +259,22 @@ def _modified_jaccard_coeff(
     min_partite_deg: int = 3,
 ):
     if norm_degrees_to_def_top_partites:
-        counts = row
-        counts[counts < min_partite_deg] = 0
-        counts_norm = counts / organelle_counts[counts.index]
-        counts_norm = counts_norm.sort_values(ascending=False)
-        counts = counts[counts_norm.index]
-        nl = counts.iloc[:2].replace(0, np.nan)
+        # Only compartments holding at least min_partite_deg of the neighbours can be partites;
+        # rank those by degree normalised to compartment size.
+        eligible = row[row >= min_partite_deg]
+        ranked = (eligible / organelle_counts[eligible.index]).sort_values(ascending=False)
+        nl = eligible[ranked.index[:2]]
     else:
         nl = row.nlargest(2)
 
-    d1, d2 = nl.values
-    k1, k2 = nl.index
+    # With fewer than two partites the missing ones are reported as missing, as in the paper's
+    # implementation. Ranking every compartment and zeroing the ineligible ones used to name an
+    # arbitrary zero-count compartment (usually the first category) as k2, and as k1 too when
+    # none qualified.
+    d1, d2 = list(nl.values) + [np.nan] * (2 - len(nl))
+    k1, k2 = list(nl.index) + [np.nan] * (2 - len(nl))
+    if pd.isna(k2):
+        return np.nan, d1, d2, k1, k2
     # p_second_largest = organelle_counts[k2] / organelle_counts.sum()
     # p_interfacial = -scipy.stats.binom.logsf(d2-1, d1+d2, p_second_largest)
     jaccard = (d1 + d2) / (organelle_counts[k1] + organelle_counts[k2] - (d1 + d2))
@@ -325,7 +330,8 @@ def calculate_interfacialness_score(
         ``jaccard_d1``, ``jaccard_d2``
             Counts of the two dominating neighbour compartments.
         ``jaccard_k1``, ``jaccard_k2``
-            Corresponding compartment labels.
+            Corresponding compartment labels; missing when fewer than two (or no)
+            compartments hold at least three of the protein's neighbours.
     """
 
     if compartment_annotation_column not in data.obs.columns:
@@ -358,11 +364,14 @@ def calculate_interfacialness_score(
         "jaccard_k1",
         "jaccard_k2",
     ]
-    # nans come from zero counts. Assign the result back rather than calling
-    # .replace(inplace=True) on the extracted column: that is chained assignment,
-    # which under copy-on-write updates a temporary and leaves res untouched.
-    res["jaccard_d2"] = res["jaccard_d2"].fillna(0)
-    res["jaccard_score"] = res["jaccard_score"].fillna(0)
+    # result_type="expand" over mixed numbers and labels gives every column object dtype. Give
+    # the numeric ones a real dtype: write_h5ad cannot store numbers in an object column, and
+    # fillna's silent downcast of object columns -- which used to do this for two of them -- is
+    # deprecated in pandas. NaNs come from zero counts; jaccard_d1 keeps its missing values,
+    # so it gets the nullable integer dtype.
+    res["jaccard_score"] = pd.to_numeric(res["jaccard_score"]).fillna(0)
+    res["jaccard_d1"] = pd.to_numeric(res["jaccard_d1"]).astype("Int64")
+    res["jaccard_d2"] = pd.to_numeric(res["jaccard_d2"]).fillna(0).astype("int64")
 
     # Annotate the data with the interfacialness scores
     res.index = data.obs.index

@@ -188,6 +188,55 @@ class TestInterfacialnessDoesNotMutateInput:
         assert np.allclose(first, second)
 
 
+class TestInterfacialnessPartites:
+    """Partites are compartments with >= 3 of a protein's neighbours. Fewer than two used to
+    still get a k2 -- an arbitrary zero-count compartment, usually the first category -- and
+    no eligible compartment an arbitrary k1 as well."""
+
+    @staticmethod
+    def _graph() -> ad.AnnData:
+        import scipy.sparse as sp
+
+        labels = ["A"] * 6 + ["B"] * 6 + ["C"] * 3
+        neighbours = {
+            0: [1, 2, 3, 4],  # 4 x A: one partite
+            6: [0, 7],  # 1 x A, 1 x B: none
+            12: [0, 1, 2, 6, 7, 8, 9],  # 3 x A, 4 x B: two partites
+        }
+        rows = [i for i, nb in neighbours.items() for _ in nb]
+        cols = [j for nb in neighbours.values() for j in nb]
+        conn = sp.csr_matrix((np.ones(len(rows)), (rows, cols)), shape=(15, 15))
+        data = ad.AnnData(
+            X=np.zeros((15, 2)),
+            obs=pd.DataFrame(
+                {"compartment": pd.Categorical(labels)}, index=[f"p{i}" for i in range(15)]
+            ),
+        )
+        data.obsp["connectivities"] = conn
+        return data
+
+    def test_partites(self):
+        obs = gr.tl.calculate_interfacialness_score(
+            self._graph(), "compartment", obsp="connectivities"
+        ).obs
+
+        one = obs.loc["p0"]
+        assert one["jaccard_k1"] == "A" and one["jaccard_d1"] == 4
+        assert pd.isna(one["jaccard_k2"])
+        assert one["jaccard_score"] == 0
+
+        none = obs.loc["p6"]
+        assert pd.isna(none["jaccard_k1"]) and pd.isna(none["jaccard_k2"])
+        assert pd.isna(none["jaccard_d1"])
+        assert none["jaccard_score"] == 0
+
+        # B ranks first: 4/6 of B against 3/6 of A
+        two = obs.loc["p12"]
+        assert (two["jaccard_k1"], two["jaccard_k2"]) == ("B", "A")
+        assert (two["jaccard_d1"], two["jaccard_d2"]) == (4, 3)
+        assert two["jaccard_score"] == pytest.approx(7 / (6 + 6 - 7))
+
+
 class TestTagmJointAndPersistence:
     """Two TAGM defects that made the model unusable end to end.
 
