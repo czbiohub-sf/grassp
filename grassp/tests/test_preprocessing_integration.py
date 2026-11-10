@@ -975,6 +975,35 @@ class TestQCAnnotation:
 
         assert "connectivities" in adata.obsp
 
+    @pytest.mark.parametrize("layer", [None, "log1p"])
+    def test_neighbors_copy_returns_graph_and_leaves_input(self, layer):
+        """copy=True used to be forwarded to scanpy, whose copy (holding the graph) was
+        discarded: without a layer the input came back without a graph, with one a copy
+        without a graph."""
+        adata = make_mini_dc_data(n_proteins=50, n_fractions=5, n_replicates=2)
+        sc.pp.log1p(adata)
+        adata.layers["log1p"] = adata.X.copy()
+        imputation.impute_gaussian(adata)
+
+        out = simple.neighbors(adata, layer=layer, n_neighbors=15, copy=True)
+
+        assert out is not adata
+        assert "connectivities" in out.obsp and "neighbors" in out.uns
+        assert "connectivities" not in adata.obsp and "neighbors" not in adata.uns
+
+    def test_neighbors_restores_X_when_scanpy_fails(self):
+        """X is swapped for the layer during the call; an error must not leave it swapped."""
+        adata = make_mini_dc_data(n_proteins=50, n_fractions=5, n_replicates=2)
+        sc.pp.log1p(adata)
+        imputation.impute_gaussian(adata)
+        adata.layers["other"] = np.zeros_like(adata.X)
+        X_before = adata.X.copy()
+
+        with pytest.raises(Exception):
+            simple.neighbors(adata, layer="other", n_neighbors=15, method="not-a-method")
+
+        np.testing.assert_array_equal(adata.X, X_before)
+
     def test_add_markers_error_on_invalid_species(self):
         """Test add_markers with invalid species."""
         adata = make_mini_orgip_data(n_proteins=50, n_baits=2, n_replicates=2)

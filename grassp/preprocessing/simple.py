@@ -781,7 +781,7 @@ def drop_excess_MQ_metadata(
 #     scanpy.pp.pca(data.T, **kwargs)
 
 
-def neighbors(data, layer=None, **kwargs) -> None:
+def neighbors(data, layer=None, copy: bool = False, **kwargs) -> AnnData | None:
     """Compute the nearest neighbors distance matrix using scanpy.pp.neighbors.
 
     This function is a wrapper around :func:`scanpy:scanpy.pp.neighbors` ``scanpy.pp.neighbors`` adding support for using different layers.
@@ -792,21 +792,31 @@ def neighbors(data, layer=None, **kwargs) -> None:
         The annotated data matrix with proteins as observations (rows).
     layer
         Layer to use for nearest neighbors calculation.
+    copy
+        Return a copy with the neighbors graph instead of writing it to ``data``.
     **kwargs
         Additional arguments to pass to scanpy.pp.neighbors.
-    """
-    copy = kwargs.setdefault("copy", False)
 
-    if layer is not None:
-        data = data.copy() if copy else data
-        X = data.X.copy()
+    Returns
+    -------
+    A copy of ``data`` with the neighbors graph if ``copy=True``, else ``None``.
+    """
+    # The copy is made here and scanpy runs in place on it. Forwarding copy=True to scanpy
+    # made it write the graph to a copy of its own that was discarded, so the returned
+    # object had no neighbors graph.
+    if copy:
+        data = data.copy()
+    if layer is None:
+        sc.pp.neighbors(data, **kwargs)
+    else:
+        X = data.X
         data.X = data.layers[layer]
         kwargs["use_rep"] = "X"  # when specifying a layer, we should always use X
-    sc.pp.neighbors(data, **kwargs)
-    if layer is not None:
-        data.X = X
-    if copy:
-        return data
+        try:
+            sc.pp.neighbors(data, **kwargs)
+        finally:  # never leave the layer in X, even if scanpy raises
+            data.X = X
+    return data if copy else None
 
 
 def _calculate_cv(
