@@ -487,6 +487,22 @@ class TestQCPlots:
 
         assert axs is not None
 
+    def test_bait_volcano_plots_single_bait(self):
+        """plt.subplots returns a single Axes for one panel; axs.flatten() raised
+        AttributeError."""
+        adata = AnnData(
+            X=np.array([[3.0], [-0.5], [0.2]]),
+            obs=pd.DataFrame(index=["P1", "P2", "P3"]),
+            var=pd.DataFrame(index=["BAIT1"]),
+        )
+        adata.layers["pvals"] = np.array([[1e-4], [0.5], [0.9]])
+
+        ax = qc.bait_volcano_plots(adata, annotate_top_n=1, show=False)
+
+        assert ax.get_title() == "BAIT1"
+        assert len(ax.collections) >= 2  # all proteins, then the significant ones
+        plt.close(ax.figure)
+
     def test_highly_variable_proteins_smoke(self):
         """Verify highly_variable_proteins executes without error."""
         adata = make_enriched_data_with_structure(n_proteins=100, n_samples=10)
