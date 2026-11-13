@@ -173,6 +173,32 @@ def leiden_mito_sweep(
     data.uns[key]["mito_majority_fraction"] = best_fraction
 
 
+def _choose_graph(
+    data: AnnData, obsp: str | None, neighbors_key: str | None
+) -> scipy.sparse.spmatrix:
+    """Return the connectivities ``obsp`` names, or the ones :func:`scanpy.pp.neighbors`
+    recorded under ``data.uns[neighbors_key]`` (``"neighbors"`` by default).
+
+    Same behaviour as ``scanpy._utils._choose_graph``, which scanpy 1.13 removed.
+    """
+    if obsp is not None and neighbors_key is not None:
+        raise ValueError(
+            "You can't specify both obsp and neighbors_key. Please select only one."
+        )
+    if obsp is not None:
+        return data.obsp[obsp]
+    key = "neighbors" if neighbors_key is None else neighbors_key
+    if key not in data.uns:
+        raise KeyError(f"No {key!r} in .uns")
+    # old `.uns['neighbors']` entries do not store their keys
+    conns_key = data.uns[key].get("connectivities_key", "connectivities")
+    if conns_key not in data.obsp:
+        raise ValueError(
+            "You need to run `pp.neighbors` first to compute a neighborhood graph."
+        )
+    return data.obsp[conns_key]
+
+
 def to_knn_graph(
     data: AnnData,
     node_label_column: str | None = None,
@@ -210,7 +236,7 @@ def to_knn_graph(
         node_labels = data.obs[node_label_column]
 
     # Convert the adjacency matrix to a networkx graph
-    adjacency = sc._utils._choose_graph(data, obsp, neighbors_key=neighbors_key)
+    adjacency = _choose_graph(data, obsp, neighbors_key=neighbors_key)
     G = nx.from_scipy_sparse_array(adjacency)
 
     # Relabel the nodes with the cell names
@@ -434,7 +460,7 @@ def calculate_interfacialness_score(
         (np.ones(labelled.size), (labelled, codes[labelled])),
         shape=(data.n_obs, len(categories)),
     )
-    adjacency = sc._utils._choose_graph(data, obsp, neighbors_key=neighbors_key)
+    adjacency = _choose_graph(data, obsp, neighbors_key=neighbors_key)
     neighbours = (scipy.sparse.csr_matrix(adjacency) != 0).astype(np.float64)
     counts = np.asarray((neighbours @ one_hot).todense()).round().astype(np.int64)
     # Compartment sizes over the whole column, excluded categories included, as before

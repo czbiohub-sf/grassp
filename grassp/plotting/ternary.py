@@ -9,11 +9,7 @@ import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
 import numpy as np
 
-from scanpy.plotting._tools.scatterplots import (
-    _color_vector,
-    _get_color_source_vector,
-    _get_palette,
-)
+from ._scanpy_compat import _color_vector, _get_color_source_vector, _get_palette
 
 
 def _add_ternary_categorical_legend(

@@ -7,11 +7,11 @@ if TYPE_CHECKING:
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scanpy.plotting._tools.scatterplots
-import scanpy.plotting._utils as _utils
 
 from anndata import AnnData
 from matplotlib import rcParams
+
+from ._scanpy_compat import _get_palette, pl_utils
 
 
 # This is a slightly modified function from scanpy to use "proteins" instead of "genes"
@@ -112,7 +112,7 @@ def highly_variable_proteins(
             + (" (normalized)" if idx == 0 else " (not normalized)")
         )
 
-    _utils.savefig_or_show("filter_proteins_dispersion", show=show, save=save)
+    pl_utils.savefig_or_show("filter_proteins_dispersion", show=show, save=save)
     if show:
         return None
     return plt.gca()
@@ -277,7 +277,7 @@ def _prepare_marker_profile_data(
         categories.append(np.nan)
 
     # Get colors for each marker category
-    palette = scanpy.plotting._tools.scatterplots._get_palette(adata, marker_column)
+    palette = _get_palette(adata, marker_column)
 
     # Find replicate boundaries if replicate_column is provided
     replicate_boundaries = []
@@ -412,7 +412,7 @@ def marker_profiles_split(
 
     plt.tight_layout()
 
-    _utils.savefig_or_show("marker_profiles_split", show=show, save=save)
+    pl_utils.savefig_or_show("marker_profiles_split", show=show, save=save)
     if show:
         return None
     return axs
@@ -536,7 +536,7 @@ def marker_profiles(
 
     plt.tight_layout()
 
-    _utils.savefig_or_show("marker_profiles", show=show, save=save)
+    pl_utils.savefig_or_show("marker_profiles", show=show, save=save)
     if show:
         return None
     return ax
