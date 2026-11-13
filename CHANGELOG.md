@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0](https://github.com/czbiohub-sf/grassp/compare/v0.7.0...v0.8.0) (2026-11-13)
+
+
+### Features
+
+* make a marker set of proteins that are high confidence in the panhuman map ([582d75a](https://github.com/czbiohub-sf/grassp/commit/582d75ad44176ac35f740d1f0b282f47064b2744))
+
+
+### Bug Fixes
+
+* import the scanpy plotting internals from their scanpy 1.13 location ([#43](https://github.com/czbiohub-sf/grassp/issues/43)) ([cf0e770](https://github.com/czbiohub-sf/grassp/commit/cf0e77065a382c505140511960be26fa525a6646))
+
 ## [0.7.0](https://github.com/czbiohub-sf/grassp/compare/v0.6.0...v0.7.0) (2026-11-10)
 
 
