@@ -6,12 +6,12 @@ import pandas as pd
 import seaborn as sns
 
 from anndata import AnnData
-from scanpy.plotting._tools.scatterplots import _components_to_dimensions
 from scanpy.tl import Ingest
 from scipy.stats import multivariate_normal
 
 from ..tools.tagm import tagm_model
 from ..util import get_matrix
+from ._scanpy_compat import _components_to_dimensions
 
 
 def _sample_tagm_map(

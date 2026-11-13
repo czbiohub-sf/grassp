@@ -15,7 +15,8 @@ import seaborn as sns
 
 from matplotlib import gridspec
 from matplotlib.markers import MarkerStyle
-from packaging.version import Version
+
+from ._scanpy_compat import pl_utils, set_default_colors_for_categorical_obs
 
 
 def remodeling_score(
@@ -69,7 +70,7 @@ def remodeling_score(
     axs = [ax0, ax1]
 
     show = scanpy.settings.autoshow if show is None else show
-    scanpy.pl._utils.savefig_or_show("remodeling_score", show=show, save=save)
+    pl_utils.savefig_or_show("remodeling_score", show=show, save=save)
     if show:
         return None
     return axs
@@ -101,15 +102,7 @@ def _get_cluster_colors(data: AnnData, color_key: str = "leiden") -> np.ndarray[
         Array of colors for the given color key
     """
     if f"{color_key}_colors" not in data.uns.keys():
-
-        if Version(scanpy.__version__) >= Version("1.12.0"):
-            scanpy.pl._utils.set_default_colors_for_categorical_obs(  # pylint: disable=no-member
-                data, color_key  # pylint: disable=no-member
-            )  # pylint: disable=no-member
-        else:
-            scanpy.pl._utils._set_default_colors_for_categorical_obs(  # pylint: disable=no-member
-                data, color_key  # pylint: disable=no-member
-            )  # pylint: disable=no-member
+        set_default_colors_for_categorical_obs(data, color_key)
     return np.array(
         [data.uns[f"{color_key}_colors"][x] for x in data.obs[color_key].cat.codes]
     )
@@ -289,7 +282,7 @@ def aligned_umap(
     ax.set_yticks([])
 
     show = scanpy.settings.autoshow if show is None else show
-    scanpy.pl._utils.savefig_or_show("aligned_umap", show=show, save=save)
+    pl_utils.savefig_or_show("aligned_umap", show=show, save=save)
     if show:
         return None
     return ax
@@ -363,7 +356,7 @@ def remodeling_sankey(
     )
 
     show = scanpy.settings.autoshow if show is None else show
-    scanpy.pl._utils.savefig_or_show("remodeling_sankey", show=show, save=save)
+    pl_utils.savefig_or_show("remodeling_sankey", show=show, save=save)
     if show:
         return None
     return ax
@@ -448,7 +441,7 @@ def mr_plot(
 
     show = scanpy.settings.autoshow if show is None else show
     # its own file name: "remodeling_score" overwrote that plot's saved figure
-    scanpy.pl._utils.savefig_or_show("mr_plot", show=show, save=save)
+    pl_utils.savefig_or_show("mr_plot", show=show, save=save)
     if show:
         return None
     return ax

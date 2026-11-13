@@ -23,6 +23,8 @@ from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm, to_rgba
 from matplotlib.lines import Line2D
 from scipy.spatial import ConvexHull, KDTree  # pylint: disable=no-name-in-module
 
+from ._scanpy_compat import pl_utils
+
 # Module-level constants for numerical stability and algorithmic parameters
 _NUMERICAL_EPSILON = 1e-12  # Small value to prevent division by zero
 _MIN_DISTANCE_SQ = 1e-4  # Minimum distance squared for repulsion forces
@@ -723,7 +725,7 @@ def umap(
                         )
 
     # Handle show and save
-    sc.pl._utils.savefig_or_show("umap", show=show, save=save)
+    pl_utils.savefig_or_show("umap", show=show, save=save)
     if show:
         return None
     return ax

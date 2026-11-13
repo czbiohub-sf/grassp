@@ -465,7 +465,7 @@ class TestIntegrationPlots:
         chosen = list(adata.obs_names[:3])
         saved = []
         monkeypatch.setattr(
-            integration.scanpy.pl._utils,
+            integration.pl_utils,
             "savefig_or_show",
             lambda name, **kwargs: saved.append(name),
         )
