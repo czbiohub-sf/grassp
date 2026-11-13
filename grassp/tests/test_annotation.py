@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -44,6 +46,7 @@ def test_add_markers_all_authors():
         "marker_villaneuva",
         "marker_hein2025",
         "marker_hein2025_gt",
+        "marker_panhuman",
     ]
     for col in expected_columns:
         assert col in adata.obs.columns, f"Expected column {col} not found"
@@ -51,6 +54,26 @@ def test_add_markers_all_authors():
     # Check that at least some proteins were annotated
     n_annotated = adata.obs["marker_lilley"].notna().sum()
     assert n_annotated > 0, "No proteins were annotated"
+
+
+def test_marker_panhuman_is_a_usable_seed_set():
+    """The pan-human set promises single-label markers in coarse UniProt compartments, with
+    no compartment too small to seed an annotation (its notebook drops those below 10)."""
+    from grassp.datasets.gene_sets import gene_sets_curated
+
+    table = pd.read_csv(
+        Path(annotation.__file__).parent.parent / "datasets" / "external" / "hsap_markers.tsv",
+        sep="\t",
+        dtype=str,
+        index_col="id",
+    )
+    assert table.index.is_unique
+    markers = table["marker_panhuman"].dropna()
+    counts = markers.value_counts()
+    assert counts.min() >= 10
+    assert set(counts.index) <= set(gene_sets_curated("hsap"))
+    for compartment in ["Mitochondrion", "Nucleus", "Cytoplasm", "Proteasome", "Nucleolus"]:
+        assert compartment in counts.index
 
 
 def test_add_markers_specific_authors():

@@ -848,6 +848,13 @@ def add_markers(
             marker_villaneuva, marker_christoforou, marker_barylyuk, marker_moloney
           - Obtained from pRoloc. See: https://bioconductor.org/packages/pRoloc/
             and https://lgatto.github.io/pRoloc/reference/pRolocmarkers.html
+        * - marker_panhuman
+          - Human only. Proteins that the pan-human consensus map places confidently in a
+            single compartment of the coarse UniProt vocabulary
+            (:func:`~grassp.ds.gene_sets_curated`), so its labels match those of
+            :func:`~grassp.tl.independent_diffusion`. Derived from UniProt annotations
+            and the consensus map rather than curated from the literature; built by
+            ``datasets/marker_curation/create_panhuman_markers.ipynb``.
 
     Which of these columns exist depends on the species; pass ``authors=None``
     (the default) to add every column available for that species.
