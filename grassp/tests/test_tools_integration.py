@@ -374,18 +374,65 @@ class TestClusteringFunctions:
 
         with pytest.warns(UserWarning, match="leaves the propagation unanchored"):
             localization.competitive_diffusion(
-                adata, gt_col="markers", key_added="cp_free", iterative=True
+                adata,
+                gt_col="markers",
+                key_added="cp_free",
+                method="propagation",
+                iterative=True,
             )
 
-        # The two supported ways out must both be silent on this point.
+        # The two supported ways out must both be silent on this point, and so must the
+        # default method (spreading), which ignores ``iterative``.
         for kwargs in (
-            dict(iterative=True, fix_markers=True, key_added="cp_clamped"),
+            dict(
+                method="propagation", iterative=True, fix_markers=True, key_added="cp_clamped"
+            ),
             dict(method="spreading", iterative=True, key_added="cp_spread"),
+            dict(iterative=True, key_added="cp_default"),
         ):
             with warnings.catch_warnings(record=True) as caught:
                 warnings.simplefilter("always")
                 localization.competitive_diffusion(adata, gt_col="markers", **kwargs)
             assert not [w for w in caught if "unanchored" in str(w.message)]
+
+    def test_competitive_diffusion_defaults_to_spreading(self):
+        """The default method is label spreading; propagation has to be asked for."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=100, marker_fraction=0.3, add_neighbors=True
+        )
+
+        localization.competitive_diffusion(adata, gt_col="markers", key_added="cd_default")
+        localization.competitive_diffusion(
+            adata, gt_col="markers", key_added="cd_spread", method="spreading"
+        )
+        localization.competitive_diffusion(
+            adata, gt_col="markers", key_added="cd_prop", method="propagation"
+        )
+
+        assert adata.uns["cd_default_params"]["propagation"] == "spreading"
+        default = np.asarray(adata.obsm["cd_default_probabilities"])
+        np.testing.assert_array_equal(
+            default, np.asarray(adata.obsm["cd_spread_probabilities"])
+        )
+        assert not np.allclose(default, np.asarray(adata.obsm["cd_prop_probabilities"]))
+
+    def test_deprecated_aliases_keep_single_step_propagation(self):
+        """The aliases predate the spreading default and keep the method they always ran."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=100, marker_fraction=0.3, add_neighbors=True
+        )
+
+        localization.competitive_diffusion(
+            adata, gt_col="markers", key_added="cd_prop", method="propagation"
+        )
+        expected = np.asarray(adata.obsm["cd_prop_probabilities"])
+        for alias in (localization.competitive_propagation, localization.knn_annotation):
+            with pytest.warns(DeprecationWarning):
+                alias(adata, gt_col="markers", key_added="alias")
+            assert adata.uns["alias_params"]["propagation"] == "propagation"
+            np.testing.assert_array_equal(
+                np.asarray(adata.obsm["alias_probabilities"]), expected
+            )
 
     def test_competitive_diffusion_spreading_basic(self):
         """Test KNN annotation with method='spreading'."""
