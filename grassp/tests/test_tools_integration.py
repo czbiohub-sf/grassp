@@ -367,25 +367,161 @@ class TestClusteringFunctions:
         assert np.allclose(adata.obs.loc[marker_mask, "knn_fixed_probability"], 1.0)
 
     def test_competitive_diffusion_unclamped_iteration_warns(self):
-        """iterative=True without fix_markers has a degenerate fixed point -> warn."""
+        """Iterated propagation without fix_markers has a degenerate fixed point -> warn."""
         adata = make_enriched_data_with_structure(
             n_proteins=100, marker_fraction=0.3, add_neighbors=True
         )
 
         with pytest.warns(UserWarning, match="leaves the propagation unanchored"):
             localization.competitive_diffusion(
-                adata, gt_col="markers", key_added="cp_free", iterative=True
+                adata,
+                gt_col="markers",
+                key_added="cp_free",
+                method="iterative_propagation",
+                fix_markers=False,
             )
 
-        # The two supported ways out must both be silent on this point.
+        # The two supported ways out must both be silent on this point, and so must the
+        # defaults (spreading, markers clamped).
         for kwargs in (
-            dict(iterative=True, fix_markers=True, key_added="cp_clamped"),
-            dict(method="spreading", iterative=True, key_added="cp_spread"),
+            dict(method="iterative_propagation", key_added="cp_clamped"),
+            dict(method="spreading", fix_markers=False, key_added="cp_spread"),
+            dict(key_added="cp_default"),
         ):
             with warnings.catch_warnings(record=True) as caught:
                 warnings.simplefilter("always")
                 localization.competitive_diffusion(adata, gt_col="markers", **kwargs)
             assert not [w for w in caught if "unanchored" in str(w.message)]
+
+    def test_competitive_diffusion_defaults_to_spreading(self):
+        """The defaults are label spreading with the markers kept at their seed labels."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=100, marker_fraction=0.3, add_neighbors=True
+        )
+
+        localization.competitive_diffusion(adata, gt_col="markers", key_added="cd_default")
+        localization.competitive_diffusion(
+            adata,
+            gt_col="markers",
+            key_added="cd_spread",
+            method="spreading",
+            fix_markers=True,
+        )
+        localization.competitive_diffusion(
+            adata, gt_col="markers", key_added="cd_prop", method="single_step"
+        )
+        localization.competitive_diffusion(
+            adata, gt_col="markers", key_added="cd_free", fix_markers=False
+        )
+
+        params = adata.uns["cd_default_params"]
+        assert params["propagation"] == "spreading"
+        assert params["fix_markers"] is True
+        default = np.asarray(adata.obsm["cd_default_probabilities"])
+        np.testing.assert_array_equal(
+            default, np.asarray(adata.obsm["cd_spread_probabilities"])
+        )
+        assert not np.allclose(default, np.asarray(adata.obsm["cd_prop_probabilities"]))
+
+        # Markers keep their label with probability 1 ...
+        is_marker = adata.obs["markers"].notna().to_numpy()
+        assert np.allclose(adata.obs.loc[is_marker, "cd_default_probability"], 1.0)
+        assert (
+            adata.obs.loc[is_marker, "cd_default"].astype(str)
+            == adata.obs.loc[is_marker, "markers"].astype(str)
+        ).all()
+        # ... and clamping them changes their rows only, not those of the other proteins.
+        free = np.asarray(adata.obsm["cd_free_probabilities"])
+        np.testing.assert_allclose(default[~is_marker], free[~is_marker])
+        assert not np.allclose(default[is_marker], free[is_marker])
+
+    def test_deprecated_aliases_keep_single_step_propagation(self):
+        """The aliases predate the new defaults and keep what they always ran: one
+        propagation step, markers not clamped."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=100, marker_fraction=0.3, add_neighbors=True
+        )
+
+        localization.competitive_diffusion(
+            adata,
+            gt_col="markers",
+            key_added="cd_step",
+            method="single_step",
+            fix_markers=False,
+        )
+        localization.competitive_diffusion(
+            adata, gt_col="markers", key_added="cd_iter", method="iterative_propagation"
+        )
+        for alias in (localization.competitive_propagation, localization.knn_annotation):
+            with pytest.warns(DeprecationWarning):
+                alias(adata, gt_col="markers", key_added="alias")
+            assert adata.uns["alias_params"]["propagation"] == "propagation"
+            assert adata.uns["alias_params"]["iterative"] is False
+            assert adata.uns["alias_params"]["fix_markers"] is False
+            np.testing.assert_array_equal(
+                np.asarray(adata.obsm["alias_probabilities"]),
+                np.asarray(adata.obsm["cd_step_probabilities"]),
+            )
+            # iterative=True through the alias is iterated propagation, as it always was
+            with pytest.warns(DeprecationWarning):
+                alias(
+                    adata,
+                    gt_col="markers",
+                    key_added="alias",
+                    iterative=True,
+                    fix_markers=True,
+                )
+            np.testing.assert_array_equal(
+                np.asarray(adata.obsm["alias_probabilities"]),
+                np.asarray(adata.obsm["cd_iter_probabilities"]),
+            )
+
+    def test_competitive_diffusion_legacy_method_spellings(self):
+        """method="propagation" and iterative still select what they selected before
+        ``method`` named all three algorithms, and say that they are deprecated."""
+        adata = make_enriched_data_with_structure(
+            n_proteins=100, marker_fraction=0.3, add_neighbors=True
+        )
+
+        for legacy, current in (
+            (dict(method="propagation"), "single_step"),
+            (dict(method="propagation", iterative=False), "single_step"),
+            (dict(method="propagation", iterative=True), "iterative_propagation"),
+        ):
+            with pytest.warns(DeprecationWarning, match='method="propagation" is deprecated'):
+                localization.competitive_diffusion(
+                    adata, gt_col="markers", key_added="legacy", **legacy
+                )
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", DeprecationWarning)
+                localization.competitive_diffusion(
+                    adata, gt_col="markers", key_added="current", method=current
+                )
+            np.testing.assert_array_equal(
+                np.asarray(adata.obsm["legacy_probabilities"]),
+                np.asarray(adata.obsm["current_probabilities"]),
+            )
+            # The stored parameters keep the two-argument form that resolve_soft_labels
+            # and annotations written by earlier releases use.
+            params = adata.uns["current_params"]
+            assert params["propagation"] == "propagation"
+            assert params["iterative"] is (current == "iterative_propagation")
+            assert adata.uns["legacy_params"]["iterative"] is params["iterative"]
+
+        # iterative says nothing about spreading: ignored, but not silently.
+        localization.competitive_diffusion(adata, gt_col="markers", key_added="spread")
+        with pytest.warns(DeprecationWarning, match="iterative is deprecated"):
+            localization.competitive_diffusion(
+                adata, gt_col="markers", key_added="spread_it", iterative=True
+            )
+        np.testing.assert_array_equal(
+            np.asarray(adata.obsm["spread_it_probabilities"]),
+            np.asarray(adata.obsm["spread_probabilities"]),
+        )
+        assert adata.uns["spread_it_params"]["propagation"] == "spreading"
+
+        with pytest.raises(ValueError, match="method must be one of"):
+            localization.competitive_diffusion(adata, gt_col="markers", method="diffusion")
 
     def test_competitive_diffusion_spreading_basic(self):
         """Test KNN annotation with method='spreading'."""
