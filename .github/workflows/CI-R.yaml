@@ -122,7 +122,7 @@ jobs:
           working-directory: r/grasspio
           # Deliberately narrower than the action's default c("--no-manual", "--as-cran").
           # --as-cran turns on CRAN-incoming and URL checking, which flags the portal links as
-          # NOTEs because grassp.apps.czbiohub.org answers 401 to an unauthenticated request.
+          # NOTEs because grassp.apps.biohub.org answers 401 to an unauthenticated request.
           # This job is here to answer "does the bridge still work", not to gate a CRAN release.
           args: 'c("--no-manual")'
           # The action defaults to error-on: "warning", which would fail this package on day one

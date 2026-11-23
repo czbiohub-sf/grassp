@@ -2,7 +2,7 @@
 """Download and parse cRAP contaminant database.
 
 The cRAP database (common Repository of Adventitious Proteins) is maintained
-at https://ftp.thegpm.org/fasta/crap/ and contains common laboratory contaminants
+at https://www.thegpm.org/crap/ and contains common laboratory contaminants
 found in proteomics experiments.
 
 This script downloads the FASTA file, parses UniProt headers, and creates a
