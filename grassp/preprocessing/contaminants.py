@@ -84,7 +84,7 @@ def remove_cRAP_proteins(
     """Remove cRAP (common Repository of Adventitious Proteins) contaminants.
 
     This function removes common laboratory contaminants from proteomics datasets
-    using the cRAP database maintained at https://ftp.thegpm.org/fasta/crap/.
+    using the cRAP database maintained at https://www.thegpm.org/crap/.
     Protein IDs are matched against the cRAP database, with support for both
     UniProt accession IDs (e.g., P00330) and entry names (e.g., ADH1_YEAST).
 

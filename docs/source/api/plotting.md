@@ -11,7 +11,7 @@
 This module provides visualization functions for proteomics data.
 
 ```{note}
-Many of [Scanpy's plotting](https://scanpy.readthedocs.io/en/stable/api/plotting.html) functions can be used directly with grassp AnnData objects. If you are looking for a specific plot, check whether it is already implemented in Scanpy.
+Many of [Scanpy's plotting](https://scanpy.scverse.org/en/stable/api/plotting.html) functions can be used directly with grassp AnnData objects. If you are looking for a specific plot, check whether it is already implemented in Scanpy.
 ```
 
 ## Preprocessing

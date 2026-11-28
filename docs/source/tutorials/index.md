@@ -38,5 +38,5 @@ proloc_r_tutorial
 - **[for grassp users](notebooks/proloc_tutorial)** — you preprocess and plot in Python, hand the
   object to R for a classifier pRoloc has and grassp does not, and read it back.
 - **[for pRoloc users](proloc_r_tutorial)** — you work in R, and want to pull a dataset off the
-  [grassp portal](https://grassp.apps.czbiohub.org/datasets) and analyse it with pRoloc. Needs no
+  [grassp portal](https://grassp.apps.biohub.org/datasets) and analyse it with pRoloc. Needs no
   Python at all.

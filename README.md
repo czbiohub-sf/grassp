@@ -3,8 +3,8 @@
 [![docs online](https://img.shields.io/badge/docs-online-blue)](https://czbiohub-sf.github.io/grassp/)
 
 
-[anndata]: https://anndata.readthedocs.io
-[scanpy]: https://scanpy.readthedocs.io
+[anndata]: https://anndata.scverse.org
+[scanpy]: https://scanpy.scverse.org
 [protdata]: https://protdata.sf.czbiohub.org
 [alphapepttools]: https://mannlabs.github.io/alphapepttools/
 [documentation]: https://czbiohub-sf.github.io/grassp/

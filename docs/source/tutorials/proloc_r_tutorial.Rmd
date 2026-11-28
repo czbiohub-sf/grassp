@@ -13,7 +13,7 @@ jupyter:
 
 # pRoloc integration: for pRoloc users
 
-The [grassp data portal](https://grassp.apps.czbiohub.org/datasets) publishes over a hundred
+The [grassp data portal](https://grassp.apps.biohub.org/datasets) publishes over a hundred
 curated subcellular fractionation datasets, uniformly processed, each with several published
 marker sets already mapped onto it. They are stored as `.h5ad`, which sounds like a Python
 format, but the `grasspio` R package (uses `anndataR` under the hood) can translate it to an `MSnSet`.
@@ -57,7 +57,7 @@ options(jupyter.rich_display = FALSE)
 
 ## Getting a dataset
 
-Browse [the portal](https://grassp.apps.czbiohub.org/datasets), pick a dataset, and take its
+Browse [the portal](https://grassp.apps.biohub.org/datasets), pick a dataset, and take its
 `.h5ad`. The files sit at a predictable URL, so you can download one in your browser or fetch it
 from R:
 

@@ -41,7 +41,7 @@ h5ad.
 See `vignette("grasspio")` for the mapping table, the one value translation it handles for you,
 and the limitations; and `docs/source/api/io.md` in the parent repository for the Python side.
 
-The ~100 curated datasets on the [grassp portal](https://grassp.apps.czbiohub.org/datasets) are
+The ~100 curated datasets on the [grassp portal](https://grassp.apps.biohub.org/datasets) are
 h5ad files, so `grassp_as_msnset()` reads them directly — no Python needed to use them.
 
 ## A development environment
