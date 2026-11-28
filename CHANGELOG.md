@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.0](https://github.com/czbiohub-sf/grassp/compare/v0.8.0...v0.9.0) (2026-11-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* competitive_diffusion now defaults to method="spreading" instead of a single propagation step, so calls that do not pass method give different results. Pass method="propagation" for the earlier behaviour. The deprecated aliases competitive_propagation and knn_annotation keep single-step propagation.
+* competitive_diffusion now defaults to method="spreading" instead of a single propagation step, so calls that do not pass method give different results. Pass method="propagation" for the earlier behaviour. The deprecated aliases competitive_propagation and knn_annotation keep single-step propagation.
+
+### Features
+
+* spreading default ([#46](https://github.com/czbiohub-sf/grassp/issues/46)) ([3ea7fee](https://github.com/czbiohub-sf/grassp/commit/3ea7feeb4fe82ef5672595ed3a65921a32b09b41))
+* update competitive diff defaults ([#44](https://github.com/czbiohub-sf/grassp/issues/44)) ([2557fb5](https://github.com/czbiohub-sf/grassp/commit/2557fb54f87bdaeb2b6434c81e44cef28bebcedc))
+
 ## [0.8.0](https://github.com/czbiohub-sf/grassp/compare/v0.7.0...v0.8.0) (2026-11-13)
 
 
